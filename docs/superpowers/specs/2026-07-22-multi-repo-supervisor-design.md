@@ -1,7 +1,7 @@
 # Multi-Repo Review Supervisor — Design
 
 **Date:** 2026-07-22
-**Status:** Draft (for review)
+**Status:** Decisions locked (for final review before plan)
 **Depends on:** engineer-review orchestrator kit (merged)
 
 ## Problem
@@ -55,24 +55,30 @@ Order of precedence:
      - `package.json` with `react-native`/`expo` → `react-native`
      - `package.json` with `react`/`next` → `react-web`
      - `tsconfig.json` only → `typescript`
-   - Write `.cursor/multi-repo.json` in the workspace/current repo `.cursor/`.
+   - Write **`<workspace-parent>/.cursor/multi-repo.json`** (parent folder that contains the sibling repos — never inside a single leaf repo).
    - Later runs read that file (regenerate only if a listed path is missing or `--refresh`).
 
-3. **Explicit args / ticket (override).** `/multi-review <path...>` or a Linear/Jira ticket (via MCP) can supply repos directly; this overrides discovery for that run.
+3. **Explicit args (override, v1).** `/multi-review <path...>` supplies repos directly for that run.
+
+4. **Ticket-driven discovery (v1.1 follow-up).** Jira (primary) and Linear (secondary) via MCP: resolve ticket → extract linked repos/PRs → feed supervisor. Not required for v1; core routing works without it.
 
 ### `multi-repo.json` shape (fallback only)
+
+Lives at **workspace parent** `.cursor/multi-repo.json`:
 
 ```json
 {
   "generatedBy": "cursor-spells finish-plan",
   "generatedAt": "2026-07-22T20:00:00Z",
   "repos": [
-    { "path": "../api",    "stack": "java-spring" },
-    { "path": "../web",    "stack": "react-web" },
-    { "path": "../mobile", "stack": "react-native" }
+    { "path": "./api",    "stack": "java-spring" },
+    { "path": "./web",    "stack": "react-web" },
+    { "path": "./mobile", "stack": "react-native" }
   ]
 }
 ```
+
+Paths are relative to the workspace parent.
 
 ## Architecture
 
@@ -124,7 +130,7 @@ Inputs (cheap, token-efficient):
 - Each repo's `graphify-out/GRAPH_REPORT.md` (preferred), or
 - The per-repo orchestrators' summaries + targeted reads of changed interface files (fallback).
 
-Output: `clarify`-class items by default (contract decisions are human calls), each tagged with the repos involved and severity. IDs use a `C_CR` prefix to distinguish from per-repo `C`.
+Output: **always `clarify`** — never auto-apply cross-repo contract changes in v1 (even trivial client renames). Each item tagged with the repos involved and severity. IDs use a `C_CR` prefix to distinguish from per-repo `C`.
 
 ## Unified output
 
@@ -154,7 +160,7 @@ Fixed now / Needs clarification / Residual (standard engineer-review report)
 
 - One gate for the whole task before any repo review starts.
 - One consolidated clarification round; answers reference `C…` (per repo) or `C_CR…` (cross-repo). The supervisor routes each answer to the correct orchestrator / cross-repo phase.
-- Cross-repo contract changes never auto-applied; per-repo P0/P1 unambiguous fixes still auto-applied by each orchestrator exactly as today.
+- Cross-repo findings always require clarification; per-repo P0/P1 unambiguous fixes still auto-applied by each orchestrator exactly as today.
 
 ## Success criteria
 
@@ -165,8 +171,17 @@ Fixed now / Needs clarification / Residual (standard engineer-review report)
 - Single HITL gate; unified report with a distinct Cross-repo impact section.
 - No behavior change for existing single-repo users.
 
-## Open questions (for reviewer)
+## Decisions (locked)
 
-1. Where should `multi-repo.json` live — workspace parent `.cursor/` vs the current repo's `.cursor/`? (Leaning: workspace parent so all repos share it.)
-2. Should the cross-repo phase ever auto-apply the trivial client-side fix (e.g. rename a call to match a renamed endpoint), or always clarify? (Leaning: clarify-only in v1.)
-3. Ticket-driven discovery (Linear/Jira MCP) — include in v1 or defer to a follow-up? (Leaning: defer; graphify + fallback covers the main flow.)
+1. **`multi-repo.json` location:** workspace parent `.cursor/multi-repo.json` (folder that owns sibling repos).
+2. **Cross-repo fixes:** always clarify in v1; no auto-apply of contract changes.
+3. **Ticket discovery:** deferred to **v1.1** after core ships.
+   - v1: graphify → `multi-repo.json` fallback → `/multi-review` explicit paths.
+   - v1.1: Jira MCP (primary) + Linear MCP (secondary) ticket → repo resolution.
+   - Rationale for split: core routing does not need a ticket tracker; Jira/Linear MCP auth and field shapes are a separate failure surface and should not block the supervisor.
+
+## Out of scope for v1 (tracked for v1.1)
+
+- Jira ticket → repos/PRs discovery (primary tracker)
+- Linear ticket → repos/PRs discovery (secondary)
+- Any cross-repo auto-apply heuristics
