@@ -33,7 +33,7 @@ And a used import of `greet` from another file so only the unused import / histo
 
 | Step | Expect |
 |------|--------|
-| `/finish-plan` after fake plan | Creates `.cursor/review-gate.pending`, asks HITL |
+| `/done` after fake plan | Creates `.cursor/review-gate.pending`, asks HITL |
 | User `skip` | Starts engineer-reviewer; deletes marker |
 | Frontend stack | Asks for Figma URLs or `no figma` early |
 | First run | Creates `.cursor/project-patterns.md` |

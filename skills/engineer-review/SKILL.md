@@ -2,7 +2,7 @@
 name: engineer-review
 description: >-
   Use when a plan just finished and human-in-the-loop review gate is next, when
-  the user runs /engineer-review or asks for engineer-reviewer, or when
+  the user runs /review (or /engineer-review), asks for engineer-reviewer, or when
   approving automated post-plan code review across Java/Spring, React,
   TypeScript, or React Native changes.
 ---

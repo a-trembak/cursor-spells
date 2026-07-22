@@ -22,11 +22,13 @@ INSTALLER="$KIT_ROOT/scripts/install-to-project.sh"
 
 usage() {
   cat <<'EOF'
-cursor-spells — personal Cursor workflow kit
+csp / cursor-spells — personal Cursor workflow kit
 
 Usage:
-  cursor-spells install [project-path] [flags]
-  cursor-spells help
+  csp install [project-path] [flags]
+  csp help
+
+(Same as `cursor-spells`.)
 
 Commands:
   install   Link skills/commands/agents into ~/.cursor and (by default)
@@ -37,17 +39,18 @@ Install flags:
   --user-only     Only ~/.cursor (no project files)
   --humanizer     Also install english-humanizer skill
   --copy          Copy instead of symlink into ~/.cursor
-  --hooks         Force hooks copy (default when project path given)
-  --rule          Force rule copy (default when project path given)
+  --no-hooks      Skip project hooks
+  --no-rule       Skip project rule
   -h, --help      Show help
 
 Examples:
-  cursor-spells install ~/code/my-app
-  cursor-spells install . --humanizer
-  cursor-spells install --user-only
+  csp install ~/code/my-app
+  csp install . --humanizer
+  csp install --user-only
 
-Do NOT clone cursor-spells into each application repo. Keep one kit checkout
-and point the installer at each project.
+Slash commands after install: /done  /review
+
+Do NOT clone this kit into each app. Keep one checkout; install per project.
 EOF
 }
 

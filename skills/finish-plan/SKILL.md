@@ -41,5 +41,5 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 
 ## Notes
 
-- Manual `/engineer-review` does not need this skill.
+- Manual `/review` does not need this skill.
 - If the user describes fixes first, implement/fix, then re-ask the HITL question (keep or rewrite the marker until review starts).

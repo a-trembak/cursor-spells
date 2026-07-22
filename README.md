@@ -46,9 +46,9 @@ Use `--copy` if you cannot symlink (copies into `~/.cursor`; re-run after kit up
 ## Layout
 
 ```
-bin/         CLI (`cursor-spells install …`)
+bin/         CLI (`csp install …` — alias of cursor-spells)
 skills/      Agent skills (SKILL.md)
-commands/    Cursor slash commands
+commands/    Cursor slash commands (`/done`, `/review`)
 rules/       Persistent rules (install per project)
 hooks/       Cursor hooks (templates for consumer projects)
 agents/      Custom agent configs

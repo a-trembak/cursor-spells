@@ -109,6 +109,10 @@ install_user_bits() {
   mkdir -p "$HOME/.cursor/skills" "$HOME/.cursor/commands" "$HOME/.cursor/agents"
   link_or_copy "$KIT_ROOT/skills/engineer-review" "$HOME/.cursor/skills/engineer-review"
   link_or_copy "$KIT_ROOT/skills/finish-plan" "$HOME/.cursor/skills/finish-plan"
+  # Short slash commands (preferred)
+  link_or_copy "$KIT_ROOT/commands/review.md" "$HOME/.cursor/commands/review.md"
+  link_or_copy "$KIT_ROOT/commands/done.md" "$HOME/.cursor/commands/done.md"
+  # Long aliases
   link_or_copy "$KIT_ROOT/commands/engineer-review.md" "$HOME/.cursor/commands/engineer-review.md"
   link_or_copy "$KIT_ROOT/commands/finish-plan.md" "$HOME/.cursor/commands/finish-plan.md"
   link_or_copy "$KIT_ROOT/agents/engineer-reviewer.md" "$HOME/.cursor/agents/engineer-reviewer.md"
@@ -163,6 +167,6 @@ fi
 echo "done."
 if [[ -n "$PROJECT" ]]; then
   echo "project: $PROJECT"
-  echo "next: open the project in Cursor → /finish-plan after plans, /engineer-review anytime"
+  echo "next: open the project in Cursor → /done after plans, /review anytime"
 fi
 echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"
