@@ -1,7 +1,7 @@
 # Multi-Repo Review Supervisor — Design
 
 **Date:** 2026-07-22
-**Status:** Decisions locked (for final review before plan)
+**Status:** Approved — implementation plan written
 **Depends on:** engineer-review orchestrator kit (merged)
 
 ## Problem
