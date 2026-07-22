@@ -13,23 +13,19 @@ Spells you cast so the model sounds like a human engineer, not a LinkedIn influe
 git clone https://github.com/a-trembak/cursor-spells.git ~/cursor-spells
 
 # 2) Install into a project (+ link skills/commands/agents into ~/.cursor)
-~/cursor-spells/bin/cursor-spells install /path/to/your-app
+~/cursor-spells/bin/csp install /path/to/your-app
 
 # From inside the app:
-~/cursor-spells/bin/cursor-spells install .
-
-# Optional: also english-humanizer
-~/cursor-spells/bin/cursor-spells install . --humanizer
-
-# Only global Cursor bits (no project hooks/rule):
-~/cursor-spells/bin/cursor-spells install --user-only
+csp install .                 # if bin/ is on PATH
+csp install . --humanizer
+csp install --user-only
 ```
 
 Optional PATH helper:
 
 ```bash
 echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
-cursor-spells install ~/code/my-app
+csp install ~/code/my-app
 ```
 
 What gets installed:
@@ -46,9 +42,9 @@ Use `--copy` if you cannot symlink (copies into `~/.cursor`; re-run after kit up
 ## Layout
 
 ```
-bin/         CLI (`csp install …` — alias of cursor-spells)
+bin/         CLI (`csp install …` — short alias of cursor-spells)
 skills/      Agent skills (SKILL.md)
-commands/    Cursor slash commands (`/done`, `/review`)
+commands/    Cursor slash commands
 rules/       Persistent rules (install per project)
 hooks/       Cursor hooks (templates for consumer projects)
 agents/      Custom agent configs
