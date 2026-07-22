@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Short alias for bin/cursor-spells
+exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/cursor-spells" "$@"

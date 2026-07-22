@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# cursor-spells CLI — install this workflow kit into Cursor + a consumer project.
+#
+# One-time setup (clone the kit once, not into every app):
+#   git clone <this-repo> ~/cursor-spells
+#   ~/cursor-spells/bin/cursor-spells install /path/to/your-app
+#
+# From inside your app (kit lives elsewhere):
+#   ~/cursor-spells/bin/cursor-spells install .
+#
+# Global Cursor bits only (skills/commands/agents):
+#   ~/cursor-spells/bin/cursor-spells install --user-only
+#
+# Update kit then re-run install (symlinks pick up changes automatically;
+# --copy mode needs re-install to refresh copies).
+
+set -euo pipefail
+
+CLI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KIT_ROOT="$(cd "$CLI_DIR/.." && pwd)"
+INSTALLER="$KIT_ROOT/scripts/install-to-project.sh"
+
+usage() {
+  cat <<'EOF'
+csp / cursor-spells — personal Cursor workflow kit
+
+Usage:
+  csp install [project-path] [flags]
+  csp help
+
+(Same as `cursor-spells`.)
+
+Commands:
+  install   Link skills/commands/agents into ~/.cursor and (by default)
+            copy hooks + plan-review rule + patterns check into the project.
+  help      Show this help
+
+Install flags:
+  --user-only     Only ~/.cursor (no project files)
+  --humanizer     Also install english-humanizer skill
+  --copy          Copy instead of symlink into ~/.cursor
+  --no-hooks      Skip project hooks
+  --no-rule       Skip project rule
+  -h, --help      Show help
+
+Examples:
+  csp install ~/code/my-app
+  csp install . --humanizer
+  csp install --user-only
+
+Slash commands after install: /finish-plan  /engineer-review
+
+Do NOT clone this kit into each app. Keep one checkout; install per project.
+EOF
+}
+
+cmd="${1:-}"
+if [[ -z "$cmd" || "$cmd" == "-h" || "$cmd" == "--help" || "$cmd" == "help" ]]; then
+  usage
+  exit 0
+fi
+
+case "$cmd" in
+  install)
+    shift
+    if [[ ! -x "$INSTALLER" ]]; then
+      chmod +x "$INSTALLER" || true
+    fi
+    if [[ ! -f "$INSTALLER" ]]; then
+      echo "Installer missing: $INSTALLER" >&2
+      exit 1
+    fi
+    exec "$INSTALLER" "$@"
+    ;;
+  version|--version)
+    echo "cursor-spells kit: $KIT_ROOT"
+    if git -C "$KIT_ROOT" rev-parse --short HEAD >/dev/null 2>&1; then
+      echo "commit: $(git -C "$KIT_ROOT" rev-parse --short HEAD)"
+    fi
+    ;;
+  *)
+    echo "Unknown command: $cmd" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

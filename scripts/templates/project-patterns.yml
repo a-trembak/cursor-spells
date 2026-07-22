@@ -1,0 +1,19 @@
+# Optional: add to a consumer repo as .github/workflows/project-patterns.yml
+name: project-patterns
+
+on:
+  pull_request:
+
+jobs:
+  patterns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check project patterns cache
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: |
+          chmod +x scripts/check-project-patterns.sh
+          ./scripts/check-project-patterns.sh --strict
