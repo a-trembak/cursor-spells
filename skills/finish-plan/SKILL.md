@@ -27,17 +27,24 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 2. **Stop.** Ask exactly:
 
    > Plan done. Want to do your own review first?
-   > - `skip` — start engineer-reviewer now
+   > - `skip` — start review now (engineer-reviewer or multi-repo-supervisor)
    > - `approve` / `done` — start after your review
    > - or describe fixes first
 
-3. Do **not** start `engineer-reviewer` until `skip` | `approve` | `done`.
+3. Do **not** start review until `skip` | `approve` | `done`.
 
 4. On that reply:
    - Delete `.cursor/review-gate.pending`
-   - If frontend stack (`react-web` / `react-native`): also ask  
-     > Any Figma node URLs for markup review? Paste links, or say `no figma`.
-   - Then run skill `engineer-review` / agent `engineer-reviewer` (pass Figma URLs in clarifications if provided).
+   - Before starting review, read and apply `skills/engineer-review/references/multi-repo-protocol.md` routing.
+   - Detect changed repos with the protocol.
+   - If changed repo count is **>= 2**, invoke agent `multi-repo-supervisor` and pass:
+     - `hitl_already_approved: true`
+     - `figma_clarifications` only if Figma URLs were already collected in this flow
+     The supervisor owns Figma clarification collection when none were already collected.
+   - If changed repo count is **< 2**, keep the existing single-repo path unchanged:
+     - If frontend stack (`react-web` / `react-native`): also ask
+       > Any Figma node URLs for markup review? Paste links, or say `no figma`.
+     - Then run skill `engineer-review` / agent `engineer-reviewer` for the current repo (pass Figma URLs in clarifications if provided).
 
 ## Notes
 

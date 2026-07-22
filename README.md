@@ -72,6 +72,8 @@ docs/        Design specs, plans, dogfood checklists
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
 | `review-figma-markup` | Markup vs Figma (needs node URLs) |
+| `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
+| `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
 
 ## Recommended third-party skills
 
@@ -101,6 +103,19 @@ npx skills add graphify-labs/graphify@graphify
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
 **Manual review:** `/engineer-review`
+
+### Multi-repo review
+
+Use multi-repo review when a task changes **2+ sibling repositories**. If routing finds fewer than two changed repos, the normal single-repo `engineer-reviewer` path runs unchanged.
+
+- Discovery prefers graphify at the workspace parent. If graphify is unavailable, the fallback reads or creates parent `.cursor/multi-repo.json` only; it is never written inside a single leaf repo.
+- Commands:
+  - `/multi-review [path ...] [--refresh]` runs the multi-repo routing manually. Explicit paths override discovery for that run.
+  - `/finish-plan` auto-routes after HITL approval: single-repo tasks use `engineer-reviewer`; multi-repo tasks use `multi-repo-supervisor`.
+- Cross-repo contract drift is clarify-only in v1 (`C_CR*`); it is not auto-applied or listed under Fixed now.
+- Jira/Linear ticket-driven discovery is deferred to v1.1. v1 routing uses graphify, parent `.cursor/multi-repo.json`, or explicit `/multi-review` paths.
+
+Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md)
 
 **First run** writes `.cursor/project-patterns.md` in the consumer repo.
 
