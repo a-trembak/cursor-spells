@@ -20,4 +20,4 @@ You review **performance** risks in the diff.
 
 ## Output
 
-`phase`: `"performance"`. Micro-optimizations without evidence → residual notes, not force-fixes. Clear hot-path bugs → apply or clarify with measured risk.
+`phase`: `"performance"`. Include `severity`. Micro-optimizations without evidence → `P2` residual notes. Clear hot-path bugs → `P0`/`P1` apply or clarify.

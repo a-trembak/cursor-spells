@@ -23,4 +23,4 @@ You own **project pattern fidelity**.
 
 ## Output
 
-`phase`: `"patterns"`. Prefer clarification when a “violation” might be an intentional new convention.
+`phase`: `"patterns"`. Include `severity` on every item. Prefer clarification when a “violation” might be an intentional new convention.

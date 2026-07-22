@@ -1,14 +1,23 @@
 ---
 description: After plan execution, stop for human-in-the-loop before engineer-review
-alwaysApply: true
+alwaysApply: false
+globs:
+  - docs/**/plans/**/*.md
+  - docs/superpowers/plans/**/*.md
+  - **/plans/**/*.md
 ---
 
 # After-plan review gate
 
+> Install this rule **per consumer project** (`.cursor/rules/`), not as a user-global always-on rule.
+> Reliable path: skill/command `finish-plan` (always sets the marker).
+
 When you **finish executing an implementation plan** (all plan tasks done, or you are about to declare the plan complete):
 
-1. Create marker file `.cursor/review-gate.pending` in the **current project** (contents: one line `pending`).
-2. **Stop**. Ask:
+1. Prefer invoking skill **`finish-plan`** (writes marker + asks HITL).
+2. If you cannot load that skill, still:
+   - Create `.cursor/review-gate.pending` (one line `pending`)
+   - **Stop** and ask:
 
    > Plan done. Want to do your own review first?
    > - `skip` — start engineer-reviewer now
@@ -16,6 +25,6 @@ When you **finish executing an implementation plan** (all plan tasks done, or yo
    > - or describe fixes first
 
 3. Do **not** start `engineer-reviewer` / `/engineer-review` until the user replies `skip`, `approve`, or `done`.
-4. On that reply: delete `.cursor/review-gate.pending`, then run engineer-review (skill + orchestrator).
+4. On that reply: delete `.cursor/review-gate.pending`; on frontend ask for Figma URLs (or `no figma`); then run engineer-review.
 
 Does not apply to pure Q&A, docs-only answers, or when the user already launched `/engineer-review` manually.

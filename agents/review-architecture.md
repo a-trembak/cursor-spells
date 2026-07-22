@@ -20,4 +20,4 @@ Use `architecture-review` (Sentry Warden) if installed; patterns file; optional 
 
 ## Output
 
-`phase`: `"architecture"`. Large redesigns → clarify. Small boundary fixes → apply when unambiguous.
+`phase`: `"architecture"`. Include `severity`. Large redesigns → clarify. Small boundary fixes → apply when `unambiguous && (P0|P1)`.

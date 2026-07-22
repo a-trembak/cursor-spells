@@ -22,4 +22,4 @@ You review **logic correctness** and **stack best practices** for the given diff
 ## Output
 
 Follow `skills/engineer-review/references/phase-protocol.md`.  
-`phase`: `"logic"`. Apply only unambiguous fixes in `apply` mode.
+`phase`: `"logic"`. Every item needs `severity` (`P0`|`P1`|`P2`). Apply only `unambiguous && (P0|P1)` in `apply` mode.

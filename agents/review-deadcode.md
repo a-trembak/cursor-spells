@@ -26,4 +26,4 @@ Do not delete code that may be used via reflection, DI config, dynamic imports, 
 
 ## Output
 
-`phase`: `"deadcode"`. Unambiguous unused imports/dead comments → fix in apply mode.
+`phase`: `"deadcode"`. Tag severity (`P0` rare; unused import/historical comment usually `P1`; style nits `P2`). Unambiguous `P0|P1` → apply mode.

@@ -9,10 +9,11 @@ Spells you cast so the model sounds like a human engineer, not a LinkedIn influe
 ```
 skills/      Agent skills (SKILL.md)
 commands/    Cursor slash commands
-rules/       Persistent rules
+rules/       Persistent rules (install per project)
 hooks/       Cursor hooks (templates for consumer projects)
 agents/      Custom agent configs
-docs/        Design specs and plans
+scripts/     Install + CI helpers
+docs/        Design specs, plans, dogfood checklists
 ```
 
 ## Skills
@@ -20,7 +21,8 @@ docs/        Design specs and plans
 | Skill | What it does |
 |-------|----------------|
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
-| [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator (HITL after plans, stack-aware subagents) |
+| [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
+| [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator (stack-aware subagents, P0–P2, chunking) |
 
 ## Agents
 
@@ -35,44 +37,34 @@ docs/        Design specs and plans
 | `review-security` | Security (conditional) |
 | `review-figma-markup` | Markup vs Figma (needs node URLs) |
 
-## Install (symlink into Cursor)
+## Install
 
-From this repo:
+### One-shot (recommended)
 
 ```bash
-# Skills
-ln -s "$(pwd)/skills/english-humanizer" ~/.cursor/skills/english-humanizer
+chmod +x scripts/*.sh
+./scripts/install-to-project.sh /path/to/your-app
+# links skills/commands/agents into ~/.cursor
+# copies hooks + project-scoped rule + patterns check script into the app
+```
+
+Flags: `--user-only`, `--hooks`, `--rule`, `--humanizer`, `--copy` (instead of symlink).
+
+### Manual symlinks
+
+```bash
 ln -s "$(pwd)/skills/engineer-review" ~/.cursor/skills/engineer-review
-
-# Slash commands
-mkdir -p ~/.cursor/commands
+ln -s "$(pwd)/skills/finish-plan" ~/.cursor/skills/finish-plan
+mkdir -p ~/.cursor/commands ~/.cursor/agents
 ln -s "$(pwd)/commands/engineer-review.md" ~/.cursor/commands/engineer-review.md
-
-# Agents (user-level)
-mkdir -p ~/.cursor/agents
+ln -s "$(pwd)/commands/finish-plan.md" ~/.cursor/commands/finish-plan.md
 ln -s "$(pwd)/agents/engineer-reviewer.md" ~/.cursor/agents/engineer-reviewer.md
 ln -s "$(pwd)/agents"/review-*.md ~/.cursor/agents/
-
-# Rules (optional user-level, or copy into each project .cursor/rules/)
-mkdir -p ~/.cursor/rules
-ln -s "$(pwd)/rules/after-plan-review-gate.mdc" ~/.cursor/rules/after-plan-review-gate.mdc
 ```
 
-Or copy instead of symlink if you prefer.
+**Rule:** copy into the **consumer** project (`.cursor/rules/`), not user-global `alwaysApply`. The kit rule uses `alwaysApply: false` + plan globs; `finish-plan` is the reliable gate.
 
-### Per-project hook (optional)
-
-Hooks that should run inside a consumer repo must live at **that** project's `.cursor/hooks.json` (cloud agents only read project hooks).
-
-```bash
-# from a consumer project root
-mkdir -p .cursor/hooks
-cp /path/to/cursor-spells/hooks/hooks.json .cursor/hooks.json
-cp /path/to/cursor-spells/hooks/post-plan-review-gate.sh .cursor/hooks/
-chmod +x .cursor/hooks/post-plan-review-gate.sh
-```
-
-The stop hook only **reminds** about HITL when `.cursor/review-gate.pending` exists — it never auto-starts review.
+**Hooks:** must live in the consumer `.cursor/hooks.json` (see install script).
 
 ### Recommended third-party skills
 
@@ -94,18 +86,22 @@ npx skills add graphify-labs/graphify@graphify
 
 - `@english-humanizer` / ask to humanize a PR comment or problem description
 
-### Engineer review
+### Finish plan → HITL → engineer review
 
-**Manual:** `/engineer-review`
+1. When a plan is done: `/finish-plan` (or skill `finish-plan`)
+2. Answer `skip` / `approve` / `done`
+3. On frontend, paste Figma node URLs or `no figma`
+4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
+5. Large diffs (>40 files or >2500 LOC) are **chunked** by package/dir
 
-**After a plan:** agent stops and asks whether you want your own review first (`skip` / `approve` / `done`). Only then runs `engineer-reviewer`.
+**Manual review:** `/engineer-review` (skips HITL)
 
-**First run in a project** writes `.cursor/project-patterns.md` so later reviews reuse naming/structure conventions instead of rediscovering them.
+**First run** writes `.cursor/project-patterns.md` in the consumer repo.
 
-**Output:**
+**Patterns CI (optional):** `scripts/check-project-patterns.sh --strict`  
+Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/project-patterns.yml)
 
-1. **Fixed now** — unambiguous fixes already applied  
-2. **Needs clarification** — questions; reply `C1: A` etc. to continue
+**Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md)
 
 Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md`](docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md)
 

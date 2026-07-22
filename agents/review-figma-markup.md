@@ -22,4 +22,4 @@ You compare **frontend markup/UI** to **Figma**.
 
 ## Output
 
-`phase`: `"figma"`. Unambiguous class/style mismatches → apply; design intent unclear → clarify.
+`phase`: `"figma"`. Include `severity`. Unambiguous `P0|P1` mismatches → apply; design intent unclear → clarify.

@@ -30,4 +30,4 @@ Use `security-review` if installed.
 
 ## Output
 
-`phase`: `"security"`. Prefer clarify for tradeoffs; apply only clear, safe fixes (e.g. obvious secret hardcode removal → move to env with clarify if behavior changes).
+`phase`: `"security"`. Include `severity` (most real issues are `P0`/`P1`). Prefer clarify for tradeoffs; apply only clear, safe `unambiguous` fixes.
