@@ -1,0 +1,21 @@
+---
+description: After plan execution, stop for human-in-the-loop before engineer-review
+alwaysApply: true
+---
+
+# After-plan review gate
+
+When you **finish executing an implementation plan** (all plan tasks done, or you are about to declare the plan complete):
+
+1. Create marker file `.cursor/review-gate.pending` in the **current project** (contents: one line `pending`).
+2. **Stop**. Ask:
+
+   > Plan done. Want to do your own review first?
+   > - `skip` — start engineer-reviewer now
+   > - `approve` / `done` — start after your review
+   > - or describe fixes first
+
+3. Do **not** start `engineer-reviewer` / `/engineer-review` until the user replies `skip`, `approve`, or `done`.
+4. On that reply: delete `.cursor/review-gate.pending`, then run engineer-review (skill + orchestrator).
+
+Does not apply to pure Q&A, docs-only answers, or when the user already launched `/engineer-review` manually.
