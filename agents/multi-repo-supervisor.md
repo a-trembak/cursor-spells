@@ -14,7 +14,8 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
 2. Accept optional inputs from callers:
    - `explicit_paths`: repo paths from `/multi-review <path...>` override
    - `refresh`: force regeneration of parent `.cursor/multi-repo.json` when graphify is absent
-   - `hitl_already_approved`: when `true` (e.g. `finish-plan` already ran HITL), skip the pre-review gate and proceed directly to parallel dispatch
+   - `hitl_already_approved`: when `true` (e.g. `finish-plan` already ran HITL), skip the skip/approve/done gate only — still collect or pass Figma clarifications per Spine §4
+   - `figma_clarifications`: optional Figma node URLs from the caller; use when provided instead of re-asking
 3. **Ticket-driven discovery (Jira/Linear) is out of scope for v1** — do not attempt MCP ticket lookup.
 
 ## Spine
@@ -24,18 +25,19 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
 3. **Route:**
    - If changed repo count **< 2** → hand off to `engineer-reviewer` for the current repo only and **exit**. Do not run supervisor phases.
    - If changed repo count **≥ 2** → continue below.
-4. **Single HITL gate** (skip when `hitl_already_approved: true`):
+4. **HITL gate and Figma clarifications:**
    - List every changed repo with path and stack.
-   - Ask once: `skip` / `approve` / `done` to start multi-repo review.
-   - If any repo in the set is `react-web` or `react-native`, ask for Figma node URLs once for the whole task (or `no figma`). Pass collected URLs to each frontend repo's `engineer-reviewer` dispatch.
-   - Do not dispatch any review phases until the user answers (unless `hitl_already_approved`).
+   - **Gate** (skip when `hitl_already_approved: true`): ask once: `skip` / `approve` / `done` to start multi-repo review. Do not dispatch any review phases until the user answers (unless `hitl_already_approved`).
+   - **Figma** (not skipped by `hitl_already_approved`): if the caller provided `figma_clarifications`, use them; otherwise, when any repo in the set is `react-web` or `react-native`, ask for Figma node URLs once for the whole task (or `no figma`). Pass collected URLs to each frontend repo's `engineer-reviewer` dispatch.
 5. **Parallel per-repo dispatch:** one `engineer-reviewer` Task per changed repo. Each dispatch receives:
    - repo `path`, `stack`, `base`, `head`
    - shared Figma clarifications (if any frontend repo)
+   - instruction to run only for that repo path — do **not** re-run multi-repo discovery or defer back to `multi-repo-supervisor`
    - instruction to run the normal engineer-review spine and return its merged JSON summary only (not raw transcripts or full diffs)
    - Wait for all Tasks to return before continuing.
 6. **Cross-repo phase:** dispatch `review-cross-repo` with:
-   - all changed repo paths
+   - the full repo map (path + stack for every changed repo)
+   - all changed repo paths and stacks
    - each repo's `graphify-out/GRAPH_REPORT.md` path when present
    - compact per-repo JSON summaries from step 5
 7. **Merge and emit unified report** per `multi-repo-protocol.md`:
