@@ -14,7 +14,7 @@ A single task frequently spans multiple repositories at once — e.g. a Java/Spr
 - Add a **cross-repo phase** that detects contract/interface drift between repos.
 - **Single HITL gate** for the whole multi-repo task (not one per repo).
 - **Auto-route:** only engage the supervisor when 2+ repos changed; a single-repo task keeps using `engineer-reviewer` unchanged.
-- **Repo discovery** with graphify as the source of truth, or an auto-generated `multi-repo.json` fallback when graphify is absent.
+- **Repo discovery** with explicit path override, graphify as the preferred source when no paths are provided, or a parent `multi-repo.json` / sibling-scan fallback when graphify is absent or unqueryable.
 - Unified report: per-repo findings + a dedicated cross-repo impact section.
 
 ## Non-goals
@@ -44,23 +44,28 @@ Single-repo projects are completely unaffected: no new files are required, no be
 
 Order of precedence:
 
-1. **Graphify (preferred).** If a workspace-level graphify build exists (parent dir over the repos, `graphify-out/`), query it:
+1. **Explicit args (override, v1).** `/multi-review <path...>` supplies the repo set directly for that run. Stack heuristics still apply per path. Graphify may still be used later for cross-repo impact among those repos, but it must not replace or expand the chosen set.
+
+2. **Graphify (preferred when no explicit paths).** If a workspace-level graphify build exists (parent dir over the repos, `graphify-out/`), query it:
    - map of repos and their languages/stacks
    - impact of the changed files across repos (`graphify query "modules impacted by <changed files>"`)
    No `multi-repo.json` is created in this mode; graphify is the source of truth.
 
-2. **Auto-generated `multi-repo.json` (fallback).** If graphify is not installed/available:
-   - On first multi-repo run, scan sibling directories of the current repo (one level up) and classify each:
+3. **Parent `multi-repo.json` (fallback when no explicit paths).** If graphify is absent or unqueryable, read `<workspace-parent>/.cursor/multi-repo.json` when it exists.
+
+4. **Sibling scan (last fallback when no explicit paths).** If graphify is absent or unqueryable and no parent file is available, scan sibling directories of the current repo (one level up) and classify each:
      - `pom.xml` / `build.gradle*` / `*.java` → `java-spring`
      - `package.json` with `react-native`/`expo` → `react-native`
      - `package.json` with `react`/`next` → `react-web`
      - `tsconfig.json` only → `typescript`
-   - Write **`<workspace-parent>/.cursor/multi-repo.json`** (parent folder that contains the sibling repos — never inside a single leaf repo).
-   - Later runs read that file (regenerate only if a listed path is missing or `--refresh`).
+   - In `finish-plan` routing, keep this scan in memory only. Write **`<workspace-parent>/.cursor/multi-repo.json`** (parent folder that contains the sibling repos — never inside a single leaf repo) only after a multi-repo run is confirmed, or when `/multi-review --refresh` explicitly requests it.
 
-3. **Explicit args (override, v1).** `/multi-review <path...>` supplies repos directly for that run.
+5. **Ticket-driven discovery (v1.1 follow-up).** Jira (primary) and Linear (secondary) via MCP: resolve ticket → extract linked repos/PRs → feed supervisor. Not required for v1; core routing works without it.
 
-4. **Ticket-driven discovery (v1.1 follow-up).** Jira (primary) and Linear (secondary) via MCP: resolve ticket → extract linked repos/PRs → feed supervisor. Not required for v1; core routing works without it.
+### Probe vs persist
+
+- **Probe (non-mutating):** used by `finish-plan` routing. It may read graphify, read existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it does not write `multi-repo.json`.
+- **Persist (mutating):** write or refresh parent `.cursor/multi-repo.json` only when a multi-repo run is confirmed and graphify is absent or unqueryable, or when `/multi-review --refresh` explicitly requests it. Explicit-path runs do not persist; the paths are run-local.
 
 ### `multi-repo.json` shape (fallback only)
 
@@ -100,7 +105,7 @@ Reused unchanged: `engineer-reviewer` and all `review-*` phase agents, `finish-p
 
 ```
 multi-repo-supervisor
-  1. Discover repos + changed ranges (graphify → multi-repo.json → args).
+  1. Discover repos + changed ranges (explicit args → graphify → multi-repo.json → sibling scan).
   2. Single HITL gate for the whole task:
        > Task spans: api/ (java), web/ (react), mobile/ (rn)
        > skip / approve / done  (+ Figma URLs if any frontend repo)
@@ -167,7 +172,7 @@ Fixed now / Needs clarification / Residual (standard engineer-review report)
 - 1 changed repo → `engineer-reviewer` runs, supervisor never engages.
 - 2+ changed repos → supervisor runs per-repo reviewers in parallel + cross-repo phase.
 - With graphify: repos + impact resolved from the graph, no `multi-repo.json` created.
-- Without graphify: `.cursor/multi-repo.json` auto-generated on first run, reused after.
+- Without graphify: `.cursor/multi-repo.json` is generated only after a multi-repo run is confirmed, or on explicit `/multi-review --refresh`; single-repo `finish-plan` probes do not write it.
 - Single HITL gate; unified report with a distinct Cross-repo impact section.
 - No behavior change for existing single-repo users.
 
@@ -176,7 +181,7 @@ Fixed now / Needs clarification / Residual (standard engineer-review report)
 1. **`multi-repo.json` location:** workspace parent `.cursor/multi-repo.json` (folder that owns sibling repos).
 2. **Cross-repo fixes:** always clarify in v1; no auto-apply of contract changes.
 3. **Ticket discovery:** deferred to **v1.1** after core ships.
-   - v1: graphify → `multi-repo.json` fallback → `/multi-review` explicit paths.
+   - v1: `/multi-review` explicit paths → graphify → `multi-repo.json` fallback → sibling scan.
    - v1.1: Jira MCP (primary) + Linear MCP (secondary) ticket → repo resolution.
    - Rationale for split: core routing does not need a ticket tracker; Jira/Linear MCP auth and field shapes are a separate failure surface and should not block the supervisor.
 

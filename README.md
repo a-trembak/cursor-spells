@@ -104,16 +104,19 @@ npx skills add graphify-labs/graphify@graphify
 
 **Manual review:** `/engineer-review`
 
+For work spanning multiple sibling repos, see [Multi-repo review](#multi-repo-review).
+
 ### Multi-repo review
 
-Use multi-repo review when a task changes **2+ sibling repositories**. If routing finds fewer than two changed repos, the normal single-repo `engineer-reviewer` path runs unchanged.
+Use multi-repo review when a task changes **2+ sibling repositories**. If routing finds no changed repos, it stops with a message; if it finds one changed repo, the normal single-repo `engineer-reviewer` path runs unchanged.
 
-- Discovery prefers graphify at the workspace parent. If graphify is unavailable, the fallback reads or creates parent `.cursor/multi-repo.json` only; it is never written inside a single leaf repo.
+- Explicit `/multi-review` paths are the repo set for that run. Without explicit paths, discovery prefers graphify at the workspace parent, then existing parent `.cursor/multi-repo.json`, then a sibling scan.
+- `finish-plan` routing uses a non-mutating probe; parent `.cursor/multi-repo.json` is written only for a confirmed multi-repo run without graphify, or when `/multi-review --refresh` explicitly asks for it. It is never written inside a single leaf repo.
 - Commands:
   - `/multi-review [path ...] [--refresh]` runs the multi-repo routing manually. Explicit paths override discovery for that run.
   - `/finish-plan` auto-routes after HITL approval: single-repo tasks use `engineer-reviewer`; multi-repo tasks use `multi-repo-supervisor`.
 - Cross-repo contract drift is clarify-only in v1 (`C_CR*`); it is not auto-applied or listed under Fixed now.
-- Jira/Linear ticket-driven discovery is deferred to v1.1. v1 routing uses graphify, parent `.cursor/multi-repo.json`, or explicit `/multi-review` paths.
+- Jira/Linear ticket-driven discovery is deferred to v1.1. v1 routing uses explicit `/multi-review` paths, graphify, parent `.cursor/multi-repo.json`, or sibling scan.
 
 Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md)
 

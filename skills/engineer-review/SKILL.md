@@ -70,7 +70,7 @@ Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`.
 
 ## Multi-repo
 
-If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos**, defer to [references/multi-repo-protocol.md](references/multi-repo-protocol.md) and agent `multi-repo-supervisor`. The single-repo path above is unchanged when fewer than two repos changed.
+If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos**, defer to [references/multi-repo-protocol.md](references/multi-repo-protocol.md) and agent `multi-repo-supervisor`. If discovery finds 0 changed repos, stop with a no-changes message; if it finds 1 changed repo, the single-repo path above is unchanged.
 
 ## Context budget
 

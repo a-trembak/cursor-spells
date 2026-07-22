@@ -35,16 +35,17 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 
 4. On that reply:
    - Delete `.cursor/review-gate.pending`
-   - Before starting review, read and apply `skills/engineer-review/references/multi-repo-protocol.md` routing.
+   - Before starting review, read and apply `skills/engineer-review/references/multi-repo-protocol.md` routing with its **non-mutating probe** mode. This probe may read graphify, read an existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it **MUST NOT** write or refresh `multi-repo.json`.
    - Detect changed repos with the protocol.
+   - If changed repo count is **0**, stop and say no changed repos were found.
    - If changed repo count is **>= 2**, invoke agent `multi-repo-supervisor` and pass:
      - `hitl_already_approved: true`
      - `figma_clarifications` only if Figma URLs were already collected in this flow
      The supervisor owns Figma clarification collection when none were already collected.
-   - If changed repo count is **< 2**, keep the existing single-repo path unchanged:
+   - If changed repo count is **1**, keep the existing single-repo path unchanged:
      - If frontend stack (`react-web` / `react-native`): also ask
        > Any Figma node URLs for markup review? Paste links, or say `no figma`.
-     - Then run skill `engineer-review` / agent `engineer-reviewer` for the current repo (pass Figma URLs in clarifications if provided).
+     - Then run skill `engineer-review` / agent `engineer-reviewer` for the changed repo (pass Figma URLs in clarifications if provided).
 
 ## Notes
 

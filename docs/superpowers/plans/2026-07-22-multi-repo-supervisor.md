@@ -34,8 +34,8 @@
 
 Include exact sections:
 
-1. **Routing algorithm** — how to detect changed repos; if count < 2 → call `engineer-reviewer` and stop; else continue as supervisor.
-2. **Discovery precedence** — graphify → parent `multi-repo.json` → explicit paths.
+1. **Routing algorithm** — how to detect changed repos; if count is 0 → stop with a message; if count is 1 → call `engineer-reviewer` and stop; else continue as supervisor.
+2. **Discovery precedence** — explicit paths → graphify → parent `multi-repo.json` → sibling scan.
 3. **Graphify queries** (exact command strings agents should run when available):
    ```bash
    # From workspace parent
@@ -127,7 +127,7 @@ description: >-
 Body must include:
 
 1. Read `skills/engineer-review/references/multi-repo-protocol.md`.
-2. Discover repos; if < 2 changed → hand off to `engineer-reviewer` and exit.
+2. Discover repos; if 0 changed → stop with a message; if 1 changed → hand off to `engineer-reviewer` and exit.
 3. Single HITL listing all changed repos + stacks; wait for `skip`/`approve`/`done`.
 4. If any frontend repo in the set, ask Figma once for the whole task.
 5. Parallel Task dispatches: one `engineer-reviewer` per changed repo with path, stack, SHAs, figma clarifications.
@@ -173,22 +173,23 @@ argument-hint: "[path ...] [--refresh]"
 
 # /multi-review
 
-1. Parse paths from args (if any) as explicit repo override.
+1. Parse paths from args (if any) as explicit repo override; when present, those paths are the repo set.
 2. Follow `multi-repo-protocol.md` discovery if no paths.
 3. Invoke `multi-repo-supervisor`.
-4. If discovery finds only 1 changed repo, tell the user and run `engineer-reviewer` instead.
+4. If discovery finds 0 changed repos, stop with a message; if it finds 1 changed repo, run `engineer-reviewer` instead.
 ```
 
-`--refresh` forces regeneration of parent `multi-repo.json` when not using graphify.
+`--refresh` forces regeneration of parent `multi-repo.json` when not using graphify and no explicit paths were supplied.
 
 - [ ] **Step 2: Extend `finish-plan`**
 
 After HITL approval (step 4), **before** starting review:
 
-1. Run routing from `multi-repo-protocol.md` (detect changed repos).
+1. Run routing from `multi-repo-protocol.md` with its non-mutating probe (detect changed repos without writing `multi-repo.json`).
 2. If ≥ 2 → invoke `multi-repo-supervisor` (HITL already answered — do not ask again; pass `hitl_already_approved: true`).
 3. If 1 → existing `engineer-reviewer` path.
-4. Update the HITL prompt text to mention that multi-repo may be used when relevant:
+4. If 0 → stop with a no-changed-repos message.
+5. Update the HITL prompt text to mention that multi-repo may be used when relevant:
    > `skip` — start review now (engineer-reviewer or multi-repo-supervisor)
 
 Mirror the same routing note in `commands/finish-plan.md`.
@@ -210,7 +211,7 @@ Keep linking `review-*.md` glob (will pick up `review-cross-repo.md` automatical
 Add a “Multi-repo review” subsection under Usage:
 
 - When it engages (2+ repos)
-- Discovery: graphify preferred; else parent `.cursor/multi-repo.json`
+- Discovery: explicit paths first; otherwise graphify preferred, then parent `.cursor/multi-repo.json`, then in-memory sibling scan
 - Commands: `/multi-review`, `/finish-plan` auto-routes
 - Link to the design spec
 - Note v1.1 Jira/Linear ticket discovery
@@ -222,9 +223,12 @@ Create `docs/superpowers/dogfood/multi-repo-checklist.md` with a table for:
 | Step | Expect |
 |------|--------|
 | Single repo only | `engineer-reviewer`, no supervisor |
+| No changed repos | stop with a no-changed-repos message |
 | Two sibling repos with changes | supervisor + parallel reviews |
 | Graphify present | no `multi-repo.json` created |
-| Graphify absent | parent `multi-repo.json` created |
+| `/multi-review path-a path-b` | explicit paths are the repo set |
+| `finish-plan` with Graphify absent or unqueryable | sibling scan is in memory only until 2+ changed repos are confirmed |
+| Confirmed multi-repo run with Graphify absent or unqueryable | parent `multi-repo.json` created or refreshed |
 | Cross-repo endpoint drift | `C_CR*` clarify only, not Fixed |
 
 - [ ] **Step 6: Mark spec Approved**

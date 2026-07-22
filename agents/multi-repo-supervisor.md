@@ -12,19 +12,21 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
 
 1. Read `skills/engineer-review/references/multi-repo-protocol.md` — discovery, routing, merge rules, and unified output template are defined there. Follow it verbatim.
 2. Accept optional inputs from callers:
-   - `explicit_paths`: repo paths from `/multi-review <path...>` override
-   - `refresh`: force regeneration of parent `.cursor/multi-repo.json` when graphify is absent
+   - `explicit_paths`: repo paths from `/multi-review <path...>`; when present, these are the repo set for this run
+   - `refresh`: force regeneration of parent `.cursor/multi-repo.json` when graphify is absent or unqueryable and no explicit paths were supplied
    - `hitl_already_approved`: when `true` (e.g. `finish-plan` already ran HITL), skip the skip/approve/done gate only — still collect or pass Figma clarifications per Spine §4
    - `figma_clarifications`: optional Figma node URLs from the caller; use when provided instead of re-asking
 3. **Ticket-driven discovery (Jira/Linear) is out of scope for v1** — do not attempt MCP ticket lookup.
 
 ## Spine
 
-1. **Discover repos** using protocol precedence: graphify at workspace parent → parent `.cursor/multi-repo.json` → explicit paths. Resolve workspace parent as the folder that owns sibling repos; `multi-repo.json` lives only at `<workspace-parent>/.cursor/multi-repo.json`, never inside a leaf repo.
+1. **Resolve repos** using protocol precedence: `explicit_paths` first; otherwise graphify at workspace parent → existing parent `.cursor/multi-repo.json` → sibling scan. If `explicit_paths` were supplied, use exactly those repos as the run set; graphify may still be used later for cross-repo impact among that chosen set, but it must not replace or expand it. Resolve workspace parent as the folder that owns sibling repos; `multi-repo.json` lives only at `<workspace-parent>/.cursor/multi-repo.json`, never inside a leaf repo.
 2. **Detect changed repos** per protocol (`git status --porcelain`, `git diff --name-only <base>..<head>` per repo). Resolve `base`/`head` SHAs independently per repo.
 3. **Route:**
-   - If changed repo count **< 2** → hand off to `engineer-reviewer` for the current repo only and **exit**. Do not run supervisor phases.
+   - If changed repo count is **0** → stop with a message that no changed repos were found and **exit**. Do not run supervisor phases.
+   - If changed repo count is **1** → hand off to `engineer-reviewer` for that repo only and **exit**. Do not run supervisor phases.
    - If changed repo count **≥ 2** → continue below.
+   - If graphify was absent or unqueryable, no explicit paths were supplied, and the repo set came from a sibling scan (or `refresh: true` was supplied), write or refresh `<workspace-parent>/.cursor/multi-repo.json` now. Do not persist during single-repo or no-change routes.
 4. **HITL gate and Figma clarifications:**
    - List every changed repo with path and stack.
    - **Gate** (skip when `hitl_already_approved: true`): ask once: `skip` / `approve` / `done` to start multi-repo review. Do not dispatch any review phases until the user answers (unless `hitl_already_approved`).
@@ -85,4 +87,5 @@ Hold only the repo map, compact per-repo JSON summaries, and the cross-repo summ
 - Never load full per-repo diffs or third-party skill bodies into supervisor context.
 - Never auto-apply cross-repo items — cross-repo contract drift is always clarify in v1.
 - Never create `multi-repo.json` when graphify answers successfully.
-- Never engage the supervisor when fewer than two repos changed — hand off to `engineer-reviewer` instead.
+- Never persist `multi-repo.json` when `explicit_paths` were supplied; explicit paths are a run-local override.
+- Never engage supervisor phases unless at least two repos changed: one changed repo hands off to `engineer-reviewer`; zero changed repos stops with a message.
