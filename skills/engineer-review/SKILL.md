@@ -68,6 +68,10 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 
 Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`.
 
+## Multi-repo
+
+If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos**, defer to [references/multi-repo-protocol.md](references/multi-repo-protocol.md) and agent `multi-repo-supervisor`. If discovery finds 0 changed repos, stop with a no-changes message; if it finds 1 changed repo, the single-repo path above is unchanged.
+
 ## Context budget
 
 Orchestrator loads this SKILL + reference indexes only. Do **not** paste full third-party skill bodies into the orchestrator. Subagents load stack skills themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking.

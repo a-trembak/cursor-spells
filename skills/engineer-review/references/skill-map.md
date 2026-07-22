@@ -35,6 +35,9 @@ npx skills add graphify-labs/graphify@graphify
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native` |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
 | figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs |
+| cross-repo | workspace `graphify-out/`; optional `graphify-labs/graphify@graphify` |
+
+Note: do not create `multi-repo.json` when graphify answers successfully.
 
 ## If a skill is not installed
 
