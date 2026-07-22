@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Install cursor-spells engineer-review (and optional humanizer) into a consumer project
-# and/or the user Cursor config.
+# Install cursor-spells into Cursor (~/.cursor) and optionally a consumer project.
+# Prefer: bin/cursor-spells install <project>
 #
 # Usage:
 #   ./scripts/install-to-project.sh /path/to/consumer-repo
-#   ./scripts/install-to-project.sh /path/to/consumer-repo --user-skills
-#   ./scripts/install-to-project.sh /path/to/consumer-repo --hooks --rule
+#   ./scripts/install-to-project.sh . --humanizer
 #   ./scripts/install-to-project.sh --user-only
 #
-# Default: symlink skills/commands/agents into ~/.cursor, copy hooks+rule into the project.
+# Default with a project path: symlink skills/commands/agents into ~/.cursor,
+# copy hooks + rule + patterns check into the project.
 
 set -euo pipefail
 
@@ -22,17 +22,42 @@ WITH_HUMANIZER=0
 COPY_MODE=0
 
 usage() {
-  sed -n '2,14p' "$0" | sed 's/^# \?//'
+  cat <<'EOF'
+Install cursor-spells engineer-review workflow.
+
+Usage:
+  install-to-project.sh <project-path> [flags]
+  install-to-project.sh --user-only [flags]
+
+Flags:
+  --user-only      Only install into ~/.cursor
+  --user-skills    (noop alias; user bits always install with a project)
+  --humanizer      Also install english-humanizer
+  --copy           Copy into ~/.cursor instead of symlink
+  --hooks          Include hooks (default with project path)
+  --rule           Include rule (default with project path)
+  --no-hooks       Skip hooks even for project install
+  --no-rule        Skip rule even for project install
+  -h, --help       Show help
+
+Keep one clone of cursor-spells; run this against each app. Do not vendor the
+kit inside every repository.
+EOF
   exit "${1:-0}"
 }
+
+SKIP_HOOKS=0
+SKIP_RULE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help) usage 0 ;;
-    --user-only) USER_ONLY=1; USER_SKILLS=1; shift ;;
+    --user-only|--global) USER_ONLY=1; USER_SKILLS=1; shift ;;
     --user-skills) USER_SKILLS=1; shift ;;
     --hooks) WITH_HOOKS=1; shift ;;
     --rule) WITH_RULE=1; shift ;;
+    --no-hooks) SKIP_HOOKS=1; shift ;;
+    --no-rule) SKIP_RULE=1; shift ;;
     --humanizer) WITH_HUMANIZER=1; shift ;;
     --copy) COPY_MODE=1; shift ;;
     --*)
@@ -56,6 +81,10 @@ if [[ "$USER_ONLY" -eq 0 && -z "$PROJECT" ]]; then
 fi
 
 if [[ -n "$PROJECT" ]]; then
+  if [[ ! -d "$PROJECT" ]]; then
+    echo "Project path does not exist: $PROJECT" >&2
+    exit 1
+  fi
   PROJECT="$(cd "$PROJECT" && pwd)"
 fi
 
@@ -126,10 +155,14 @@ if [[ "$USER_SKILLS" -eq 1 || "$USER_ONLY" -eq 1 || -n "$PROJECT" ]]; then
 fi
 if [[ "$USER_ONLY" -eq 0 && -n "$PROJECT" ]]; then
   # Default project install includes hooks + rule for HITL reliability
-  WITH_HOOKS=1
-  WITH_RULE=1
+  if [[ "$SKIP_HOOKS" -eq 0 ]]; then WITH_HOOKS=1; else WITH_HOOKS=0; fi
+  if [[ "$SKIP_RULE" -eq 0 ]]; then WITH_RULE=1; else WITH_RULE=0; fi
   install_project_bits
 fi
 
 echo "done."
-echo "Tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices  # and others from skill-map"
+if [[ -n "$PROJECT" ]]; then
+  echo "project: $PROJECT"
+  echo "next: open the project in Cursor → /finish-plan after plans, /engineer-review anytime"
+fi
+echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"

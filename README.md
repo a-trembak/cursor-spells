@@ -4,15 +4,55 @@ Personal Cursor workflow kit — skills, slash commands, rules, hooks, and agent
 
 Spells you cast so the model sounds like a human engineer, not a LinkedIn influencer who just discovered the word *delve*.
 
+## How to install on a project
+
+**Do not clone this repo into every app.** Keep **one** checkout of `cursor-spells`, then run the CLI against each project.
+
+```bash
+# 1) Clone the kit once (anywhere stable)
+git clone https://github.com/a-trembak/cursor-spells.git ~/cursor-spells
+
+# 2) Install into a project (+ link skills/commands/agents into ~/.cursor)
+~/cursor-spells/bin/cursor-spells install /path/to/your-app
+
+# From inside the app:
+~/cursor-spells/bin/cursor-spells install .
+
+# Optional: also english-humanizer
+~/cursor-spells/bin/cursor-spells install . --humanizer
+
+# Only global Cursor bits (no project hooks/rule):
+~/cursor-spells/bin/cursor-spells install --user-only
+```
+
+Optional PATH helper:
+
+```bash
+echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
+cursor-spells install ~/code/my-app
+```
+
+What gets installed:
+
+| Target | What |
+|--------|------|
+| `~/.cursor/skills/`, `commands/`, `agents/` | Symlinks into the kit (updates follow `git pull` in the kit) |
+| `<project>/.cursor/hooks.json` + `hooks/` | HITL stop-hook reminder |
+| `<project>/.cursor/rules/after-plan-review-gate.mdc` | Plan→review gate (project-scoped) |
+| `<project>/scripts/check-project-patterns.sh` | Optional patterns CI helper |
+
+Use `--copy` if you cannot symlink (copies into `~/.cursor`; re-run after kit updates).
+
 ## Layout
 
 ```
+bin/         CLI (`cursor-spells install …`)
 skills/      Agent skills (SKILL.md)
 commands/    Cursor slash commands
 rules/       Persistent rules (install per project)
 hooks/       Cursor hooks (templates for consumer projects)
 agents/      Custom agent configs
-scripts/     Install + CI helpers
+scripts/     Install internals + CI helpers
 docs/        Design specs, plans, dogfood checklists
 ```
 
@@ -37,36 +77,7 @@ docs/        Design specs, plans, dogfood checklists
 | `review-security` | Security (conditional) |
 | `review-figma-markup` | Markup vs Figma (needs node URLs) |
 
-## Install
-
-### One-shot (recommended)
-
-```bash
-chmod +x scripts/*.sh
-./scripts/install-to-project.sh /path/to/your-app
-# links skills/commands/agents into ~/.cursor
-# copies hooks + project-scoped rule + patterns check script into the app
-```
-
-Flags: `--user-only`, `--hooks`, `--rule`, `--humanizer`, `--copy` (instead of symlink).
-
-### Manual symlinks
-
-```bash
-ln -s "$(pwd)/skills/engineer-review" ~/.cursor/skills/engineer-review
-ln -s "$(pwd)/skills/finish-plan" ~/.cursor/skills/finish-plan
-mkdir -p ~/.cursor/commands ~/.cursor/agents
-ln -s "$(pwd)/commands/engineer-review.md" ~/.cursor/commands/engineer-review.md
-ln -s "$(pwd)/commands/finish-plan.md" ~/.cursor/commands/finish-plan.md
-ln -s "$(pwd)/agents/engineer-reviewer.md" ~/.cursor/agents/engineer-reviewer.md
-ln -s "$(pwd)/agents"/review-*.md ~/.cursor/agents/
-```
-
-**Rule:** copy into the **consumer** project (`.cursor/rules/`), not user-global `alwaysApply`. The kit rule uses `alwaysApply: false` + plan globs; `finish-plan` is the reliable gate.
-
-**Hooks:** must live in the consumer `.cursor/hooks.json` (see install script).
-
-### Recommended third-party skills
+## Recommended third-party skills
 
 ```bash
 npx skills add vercel-labs/agent-skills@vercel-react-best-practices
@@ -88,13 +99,12 @@ npx skills add graphify-labs/graphify@graphify
 
 ### Finish plan → HITL → engineer review
 
-1. When a plan is done: `/finish-plan` (or skill `finish-plan`)
+1. When a plan is done: `/finish-plan`
 2. Answer `skip` / `approve` / `done`
 3. On frontend, paste Figma node URLs or `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
-5. Large diffs (>40 files or >2500 LOC) are **chunked** by package/dir
 
-**Manual review:** `/engineer-review` (skips HITL)
+**Manual review:** `/engineer-review`
 
 **First run** writes `.cursor/project-patterns.md` in the consumer repo.
 
