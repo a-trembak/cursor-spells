@@ -12,13 +12,13 @@ Spells you cast so the model sounds like a human engineer, not a LinkedIn influe
 # 1) Clone the kit once (anywhere stable)
 git clone https://github.com/a-trembak/cursor-spells.git ~/cursor-spells
 
-# 2) Install into a project (+ link skills/commands/agents into ~/.cursor)
+# 2) Install into a project (everything lands under <project>/.cursor/)
 ~/cursor-spells/bin/csp install /path/to/your-app
 
-# From inside the app:
-csp install .                 # if bin/ is on PATH
+# From inside the app (default path is .):
+csp install                   # if bin/ is on PATH
 csp install . --humanizer
-csp install --user-only
+csp install --user-only       # optional: global ~/.cursor instead
 ```
 
 Optional PATH helper:
@@ -28,16 +28,16 @@ echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
 csp install ~/code/my-app
 ```
 
-What gets installed:
+What gets installed (project mode):
 
 | Target | What |
 |--------|------|
-| `~/.cursor/skills/`, `commands/`, `agents/` | Symlinks into the kit (updates follow `git pull` in the kit) |
+| `<project>/.cursor/skills/`, `commands/`, `agents/` | Symlinks into the kit (updates follow `git pull` in the kit) |
 | `<project>/.cursor/hooks.json` + `hooks/` | HITL stop-hook reminder |
 | `<project>/.cursor/rules/after-plan-review-gate.mdc` | Plan→review gate (project-scoped) |
-| `<project>/scripts/check-project-patterns.sh` | Optional patterns CI helper |
+| `<project>/.cursor/scripts/check-project-patterns.sh` | Optional patterns CI helper |
 
-Use `--copy` if you cannot symlink (copies into `~/.cursor`; re-run after kit updates).
+Use `--user-only` to install skills/commands/agents into `~/.cursor` instead (global across projects). Use `--copy` if you cannot symlink (re-run after kit updates).
 
 ## Layout
 
@@ -123,7 +123,7 @@ Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](do
 
 **First run** writes `.cursor/project-patterns.md` in the consumer repo.
 
-**Patterns CI (optional):** `scripts/check-project-patterns.sh --strict`  
+**Patterns CI (optional):** `.cursor/scripts/check-project-patterns.sh --strict`  
 Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/project-patterns.yml)
 
 **Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md)

@@ -57,7 +57,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 ## Patterns CI helper
 
 ```bash
-BASE_REF=HEAD~1 ./scripts/check-project-patterns.sh --strict
+BASE_REF=HEAD~1 ./.cursor/scripts/check-project-patterns.sh --strict
 ```
 
 With src changes and no `.cursor/project-patterns.md` → exit 1 in strict mode.

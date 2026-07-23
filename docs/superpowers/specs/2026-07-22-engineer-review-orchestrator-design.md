@@ -161,11 +161,12 @@ Graphify: optional. If `graphify` is installed and user opts in, prefer `GRAPH_R
 Document in README:
 
 ```bash
-# from cursor-spells
-ln -s "$(pwd)/skills/engineer-review" ~/.cursor/skills/engineer-review
-ln -s "$(pwd)/agents"/*.md ~/.cursor/agents/   # or project .cursor/agents
-ln -s "$(pwd)/commands/engineer-review.md" ~/.cursor/commands/engineer-review.md
-# optional hooks: copy hooks/ into project .cursor/
+# from cursor-spells — prefer project-local install (default for `csp install`)
+ln -s "$(pwd)/skills/engineer-review" /path/to/app/.cursor/skills/engineer-review
+ln -s "$(pwd)/agents"/*.md /path/to/app/.cursor/agents/
+ln -s "$(pwd)/commands/engineer-review.md" /path/to/app/.cursor/commands/engineer-review.md
+# optional hooks/rules: copy into project .cursor/
+# global alternative: same links under ~/.cursor/ via `csp install --user-only`
 ```
 
 Recommended consumer installs (not vendored here):
@@ -191,7 +192,7 @@ Recommended consumer installs (not vendored here):
 
 Shipped in the same kit iteration:
 
-1. **`scripts/install-to-project.sh`** — one-shot install into `~/.cursor` + consumer project
+1. **`scripts/install-to-project.sh`** — one-shot install into consumer `<project>/.cursor/` (or `~/.cursor` with `--user-only`)
 2. **`finish-plan` skill/command** — reliable marker + HITL (does not depend on global alwaysApply)
 3. **Severity `P0|P1|P2`** — auto-apply only unambiguous P0/P1; P2 → Residual
 4. **Budget caps** — 40 files / 2500 LOC → chunk by package/dir

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Install cursor-spells into Cursor (~/.cursor) and optionally a consumer project.
+# Install cursor-spells into a consumer project's .cursor/ (default),
+# or into ~/.cursor with --user-only.
 # Prefer: bin/cursor-spells install <project>
 #
 # Usage:
@@ -7,8 +8,8 @@
 #   ./scripts/install-to-project.sh . --humanizer
 #   ./scripts/install-to-project.sh --user-only
 #
-# Default with a project path: symlink skills/commands/agents into ~/.cursor,
-# copy hooks + rule + patterns check into the project.
+# Default with a project path: symlink skills/commands/agents into
+# <project>/.cursor/, and copy hooks + rule + patterns check there too.
 
 set -euo pipefail
 
@@ -26,14 +27,16 @@ usage() {
 Install cursor-spells engineer-review workflow.
 
 Usage:
-  install-to-project.sh <project-path> [flags]
+  install-to-project.sh [project-path] [flags]
   install-to-project.sh --user-only [flags]
 
+Default project path is the current directory (.).
+
 Flags:
-  --user-only      Only install into ~/.cursor
-  --user-skills    (noop alias; user bits always install with a project)
+  --user-only      Only install into ~/.cursor (global; no project files)
+  --user-skills    (noop alias; kept for compatibility)
   --humanizer      Also install english-humanizer
-  --copy           Copy into ~/.cursor instead of symlink
+  --copy           Copy into the Cursor dest instead of symlink
   --hooks          Include hooks (default with project path)
   --rule           Include rule (default with project path)
   --no-hooks       Skip hooks even for project install
@@ -75,9 +78,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Project install defaults to the directory where the command is run.
 if [[ "$USER_ONLY" -eq 0 && -z "$PROJECT" ]]; then
-  echo "Provide a consumer project path, or --user-only" >&2
-  usage 1
+  PROJECT="."
 fi
 
 if [[ -n "$PROJECT" ]]; then
@@ -105,66 +108,70 @@ link_or_copy() {
   fi
 }
 
-install_user_bits() {
-  mkdir -p "$HOME/.cursor/skills" "$HOME/.cursor/commands" "$HOME/.cursor/agents"
-  link_or_copy "$KIT_ROOT/skills/engineer-review" "$HOME/.cursor/skills/engineer-review"
-  link_or_copy "$KIT_ROOT/skills/finish-plan" "$HOME/.cursor/skills/finish-plan"
-  link_or_copy "$KIT_ROOT/commands/engineer-review.md" "$HOME/.cursor/commands/engineer-review.md"
-  link_or_copy "$KIT_ROOT/commands/finish-plan.md" "$HOME/.cursor/commands/finish-plan.md"
-  link_or_copy "$KIT_ROOT/commands/multi-review.md" "$HOME/.cursor/commands/multi-review.md"
-  link_or_copy "$KIT_ROOT/agents/engineer-reviewer.md" "$HOME/.cursor/agents/engineer-reviewer.md"
-  link_or_copy "$KIT_ROOT/agents/multi-repo-supervisor.md" "$HOME/.cursor/agents/multi-repo-supervisor.md"
+# Install skills/commands/agents under DEST_CURSOR (…/.cursor).
+install_cursor_bits() {
+  local dest_cursor="$1"
+  mkdir -p "$dest_cursor/skills" "$dest_cursor/commands" "$dest_cursor/agents"
+  link_or_copy "$KIT_ROOT/skills/engineer-review" "$dest_cursor/skills/engineer-review"
+  link_or_copy "$KIT_ROOT/skills/finish-plan" "$dest_cursor/skills/finish-plan"
+  link_or_copy "$KIT_ROOT/commands/engineer-review.md" "$dest_cursor/commands/engineer-review.md"
+  link_or_copy "$KIT_ROOT/commands/finish-plan.md" "$dest_cursor/commands/finish-plan.md"
+  link_or_copy "$KIT_ROOT/commands/multi-review.md" "$dest_cursor/commands/multi-review.md"
+  link_or_copy "$KIT_ROOT/agents/engineer-reviewer.md" "$dest_cursor/agents/engineer-reviewer.md"
+  link_or_copy "$KIT_ROOT/agents/multi-repo-supervisor.md" "$dest_cursor/agents/multi-repo-supervisor.md"
   local f
   for f in "$KIT_ROOT"/agents/review-*.md; do
-    link_or_copy "$f" "$HOME/.cursor/agents/$(basename "$f")"
+    link_or_copy "$f" "$dest_cursor/agents/$(basename "$f")"
   done
   if [[ "$WITH_HUMANIZER" -eq 1 ]]; then
-    link_or_copy "$KIT_ROOT/skills/english-humanizer" "$HOME/.cursor/skills/english-humanizer"
+    link_or_copy "$KIT_ROOT/skills/english-humanizer" "$dest_cursor/skills/english-humanizer"
   fi
 }
 
 install_project_bits() {
-  mkdir -p "$PROJECT/.cursor/hooks" "$PROJECT/.cursor/rules" "$PROJECT/.cursor"
+  local dest_cursor="$PROJECT/.cursor"
+  mkdir -p "$dest_cursor/hooks" "$dest_cursor/rules" "$dest_cursor/scripts"
   if [[ "$WITH_HOOKS" -eq 1 ]]; then
-    if [[ ! -f "$PROJECT/.cursor/hooks.json" ]]; then
-      cp "$KIT_ROOT/hooks/hooks.json" "$PROJECT/.cursor/hooks.json"
-      echo "copied: $PROJECT/.cursor/hooks.json"
+    if [[ ! -f "$dest_cursor/hooks.json" ]]; then
+      cp "$KIT_ROOT/hooks/hooks.json" "$dest_cursor/hooks.json"
+      echo "copied: $dest_cursor/hooks.json"
     else
-      echo "skip (exists): $PROJECT/.cursor/hooks.json (merge stop hook manually if needed)"
+      echo "skip (exists): $dest_cursor/hooks.json (merge stop hook manually if needed)"
     fi
-    cp "$KIT_ROOT/hooks/post-plan-review-gate.sh" "$PROJECT/.cursor/hooks/post-plan-review-gate.sh"
-    chmod +x "$PROJECT/.cursor/hooks/post-plan-review-gate.sh"
-    echo "copied: $PROJECT/.cursor/hooks/post-plan-review-gate.sh"
+    cp "$KIT_ROOT/hooks/post-plan-review-gate.sh" "$dest_cursor/hooks/post-plan-review-gate.sh"
+    chmod +x "$dest_cursor/hooks/post-plan-review-gate.sh"
+    echo "copied: $dest_cursor/hooks/post-plan-review-gate.sh"
   fi
   if [[ "$WITH_RULE" -eq 1 ]]; then
     # Project-scoped rule (safe). Do NOT alwaysApply at user-global level.
-    cp "$KIT_ROOT/rules/after-plan-review-gate.mdc" "$PROJECT/.cursor/rules/after-plan-review-gate.mdc"
-    echo "copied: $PROJECT/.cursor/rules/after-plan-review-gate.mdc"
+    cp "$KIT_ROOT/rules/after-plan-review-gate.mdc" "$dest_cursor/rules/after-plan-review-gate.mdc"
+    echo "copied: $dest_cursor/rules/after-plan-review-gate.mdc"
   fi
-  # Optional CI helper
-  mkdir -p "$PROJECT/scripts"
-  if [[ ! -f "$PROJECT/scripts/check-project-patterns.sh" ]]; then
-    cp "$KIT_ROOT/scripts/check-project-patterns.sh" "$PROJECT/scripts/check-project-patterns.sh"
-    chmod +x "$PROJECT/scripts/check-project-patterns.sh"
-    echo "copied: $PROJECT/scripts/check-project-patterns.sh"
+  # Optional CI helper — keep under .cursor so project root stays clean
+  if [[ ! -f "$dest_cursor/scripts/check-project-patterns.sh" ]]; then
+    cp "$KIT_ROOT/scripts/check-project-patterns.sh" "$dest_cursor/scripts/check-project-patterns.sh"
+    chmod +x "$dest_cursor/scripts/check-project-patterns.sh"
+    echo "copied: $dest_cursor/scripts/check-project-patterns.sh"
   fi
 }
 
 echo "kit: $KIT_ROOT"
-if [[ "$USER_SKILLS" -eq 1 || "$USER_ONLY" -eq 1 || -n "$PROJECT" ]]; then
-  # Always install user skills/agents when targeting a project (needed for /commands)
-  install_user_bits
-fi
-if [[ "$USER_ONLY" -eq 0 && -n "$PROJECT" ]]; then
-  # Default project install includes hooks + rule for HITL reliability
+if [[ "$USER_ONLY" -eq 1 ]]; then
+  install_cursor_bits "$HOME/.cursor"
+elif [[ -n "$PROJECT" ]]; then
+  # Default: everything for this app lives under <project>/.cursor/
   if [[ "$SKIP_HOOKS" -eq 0 ]]; then WITH_HOOKS=1; else WITH_HOOKS=0; fi
   if [[ "$SKIP_RULE" -eq 0 ]]; then WITH_RULE=1; else WITH_RULE=0; fi
+  install_cursor_bits "$PROJECT/.cursor"
   install_project_bits
 fi
 
 echo "done."
-if [[ -n "$PROJECT" ]]; then
+if [[ -n "$PROJECT" && "$USER_ONLY" -eq 0 ]]; then
   echo "project: $PROJECT"
+  echo "cursor:  $PROJECT/.cursor"
   echo "next: open the project in Cursor → /finish-plan after plans, /engineer-review anytime"
+elif [[ "$USER_ONLY" -eq 1 ]]; then
+  echo "cursor:  $HOME/.cursor (user-global)"
 fi
 echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"

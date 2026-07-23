@@ -2,10 +2,10 @@
 # Warn (or fail) when source changes land without a project patterns cache.
 # Intended for consumer repos. Exit 0 = ok, 1 = missing patterns with src changes.
 #
-# Usage:
-#   ./scripts/check-project-patterns.sh
-#   ./scripts/check-project-patterns.sh --strict
-#   BASE_REF=origin/main ./scripts/check-project-patterns.sh --strict
+# Usage (after install, from consumer repo root):
+#   ./.cursor/scripts/check-project-patterns.sh
+#   ./.cursor/scripts/check-project-patterns.sh --strict
+#   BASE_REF=origin/main ./.cursor/scripts/check-project-patterns.sh --strict
 
 set -euo pipefail
 

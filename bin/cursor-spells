@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# cursor-spells CLI — install this workflow kit into Cursor + a consumer project.
+# cursor-spells CLI — install this workflow kit into a consumer project's .cursor/
+# (or into ~/.cursor with --user-only).
 #
 # One-time setup (clone the kit once, not into every app):
 #   git clone <this-repo> ~/cursor-spells
 #   ~/cursor-spells/bin/cursor-spells install /path/to/your-app
 #
-# From inside your app (kit lives elsewhere):
+# From inside your app (kit lives elsewhere; default path is .):
+#   ~/cursor-spells/bin/cursor-spells install
 #   ~/cursor-spells/bin/cursor-spells install .
 #
 # Global Cursor bits only (skills/commands/agents):
@@ -31,19 +33,21 @@ Usage:
 (Same as `cursor-spells`.)
 
 Commands:
-  install   Link skills/commands/agents into ~/.cursor and (by default)
-            copy hooks + plan-review rule + patterns check into the project.
+  install   Link skills/commands/agents into <project>/.cursor/ and (by
+            default) copy hooks + plan-review rule + patterns check there.
+            Default project path is the current directory (.).
   help      Show this help
 
 Install flags:
-  --user-only     Only ~/.cursor (no project files)
+  --user-only     Only ~/.cursor (global; no project files)
   --humanizer     Also install english-humanizer skill
-  --copy          Copy instead of symlink into ~/.cursor
+  --copy          Copy instead of symlink into the Cursor dest
   --no-hooks      Skip project hooks
   --no-rule       Skip project rule
   -h, --help      Show help
 
 Examples:
+  csp install                     # current directory → ./.cursor/
   csp install ~/code/my-app
   csp install . --humanizer
   csp install --user-only

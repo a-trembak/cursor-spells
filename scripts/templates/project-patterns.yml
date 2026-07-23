@@ -15,5 +15,5 @@ jobs:
         env:
           BASE_REF: origin/${{ github.base_ref }}
         run: |
-          chmod +x scripts/check-project-patterns.sh
-          ./scripts/check-project-patterns.sh --strict
+          chmod +x .cursor/scripts/check-project-patterns.sh
+          ./.cursor/scripts/check-project-patterns.sh --strict
