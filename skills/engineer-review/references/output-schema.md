@@ -11,6 +11,7 @@ Emit this markdown to the user. Keep it scannable. No persona dump, no skill int
 - patterns: `created` | `reused` | `updated`
 - chunks: `1` | `N (by package/dir)` 
 - phases:
+  - lint: ran (verify pass after apply)
   - logic: ran
   - patterns: ran
   - deadcode: ran

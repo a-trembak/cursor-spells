@@ -107,13 +107,15 @@ Target orchestrator prompt size: ~2–4k tokens + summaries.
 | Order | Agent | When | Primary skills (recommended) |
 |------:|-------|------|------------------------------|
 | 0 | (orchestrator) stack detect + patterns ensure | always | — |
-| 1 | `review-logic` | always | stack skill (Vercel React BP / RN / Java Spring) |
-| 2 | `review-patterns` | always | project-patterns.md; optional graphify |
-| 3 | `review-deadcode` | always | dead-code-eliminator + local redundancy rules |
-| 4 | `review-architecture` | always | architecture-review skill |
-| 5 | `review-performance` | always | addyosmani performance + Vercel on frontend |
-| 6 | `review-security` | if auth/data/network/secrets touch diff | security-review |
-| 7 | `review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use |
+| 1 | `review-lint` | always (deterministic tooling; skips if no lint config resolvable) | project's own eslint/tsc/checkstyle/ktlint |
+| 2 | `review-logic` | always | stack skill (Vercel React BP / RN / Java Spring) |
+| 3 | `review-patterns` | always | project-patterns.md; optional graphify |
+| 4 | `review-deadcode` | always | dead-code-eliminator + local redundancy rules |
+| 5 | `review-architecture` | always | architecture-review skill |
+| 6 | `review-performance` | always | addyosmani performance + Vercel on frontend |
+| 7 | `review-security` | if auth/data/network/secrets touch diff | security-review |
+| 8 | `review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use |
+| — | `review-lint` (verify pass) | once, after the coordinated apply step | same as above |
 
 Phases may run **sequentially for mutating fixes** on the same files, or **parallel for read-only finding passes** then a single apply pass. Default: find in parallel where independent, apply unambiguous fixes in one orchestrated apply step to avoid write conflicts.
 
@@ -197,4 +199,18 @@ Shipped in the same kit iteration:
 6. **Early Figma ask** on frontend after HITL / at manual review start
 7. **Rule scoped** — `alwaysApply: false` + plan globs; install per project only
 8. **Dogfood checklist** — `docs/superpowers/dogfood/engineer-review-checklist.md`
-)
+
+## Improvements (2026-07-23 follow-up)
+
+**Problem observed:** a real review run applied fixes via the heuristic phases but let a mechanical `eslint import/first` violation ("Import in body of module; reorder to top.") through unnoticed. Root cause: every phase in the kit was LLM judgment reading a diff — none of them actually *executed* the project's own linter/typechecker/build, so deterministic, mechanical rule violations depended on an LLM happening to notice them.
+
+**Fix:** added a new phase agent, `review-lint`, instead of overloading `review-patterns` or `review-deadcode`:
+
+- Deterministic tool execution (project's own `npm run lint` / `eslint` / `tsc --noEmit` / checkstyle / ktlint) is a different kind of check than LLM heuristic review and deserves its own phase, not a bolt-on to a judgment-based one.
+- Runs **first**, before the heuristic phases — it has no dependency on `patterns` or a stack skill, and its findings are cheap to trust (a tool said so).
+- Auto-fixable rule violations use the tool's own fixer (`eslint --fix`) as unambiguous `P1`; never a hand-written edit.
+- The orchestrator re-runs `review-lint` once as a **verify pass** after the coordinated apply step, so a fix from another phase (e.g. `deadcode` removing code that leaves an import unused) cannot silently reintroduce a lint violation.
+- Skips cleanly with `no_lint_config` / `tooling_unavailable` reasons (visible in Coverage) instead of failing the whole review when a stack has no configured linter.
+
+See `agents/review-lint.md`, and the updated `phase-protocol.md` / `skill-map.md` / `output-schema.md` / `SKILL.md` in `skills/engineer-review/`.
+

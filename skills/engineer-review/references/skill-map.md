@@ -24,10 +24,23 @@ npx skills add graphify-labs/graphify@graphify
 | `pom.xml` / `build.gradle*` / `*.java` + Spring deps | `java-spring` | `java-springboot` |
 | Mixed monorepo | detect per changed path | pick skill per package touched by the diff |
 
+## Stack detection → lint/typecheck commands (for `review-lint`)
+
+Prefer the project's own `package.json` script over calling the binary directly.
+
+| Stack | Preferred | Fallback |
+|-------|-----------|----------|
+| `react-web` / `react-native` / `typescript` | `npm run lint` / `pnpm lint` / `yarn lint` (add `--fix` in apply mode) | `npx eslint <changed files> [--fix]`; `npx tsc --noEmit` if `tsconfig.json` exists |
+| `java-spring` (Java) | `./gradlew checkstyleMain` / `mvn checkstyle:check` | skip with `no_lint_config` if neither is configured |
+| `java-spring` (Kotlin) | `./gradlew ktlintCheck` (`ktlintFormat` in apply mode) | skip with `no_lint_config` if not configured |
+
+Always scope the run to changed files / the current chunk, never the whole repo.
+
 ## Phase → skills
 
 | Phase | Skill(s) |
 |-------|----------|
+| lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
 | logic | stack skill from table above |
 | patterns | `.cursor/project-patterns.md`; optional `graphify` |
 | deadcode | `dead-code-eliminator` + patterns “Do-not-reinvent” |

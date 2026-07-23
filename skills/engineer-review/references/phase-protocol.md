@@ -42,17 +42,26 @@ Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`).
 4. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
 5. Return **only** the JSON summary below.
 
+## Phase order
+
+`lint` runs **first**, before every heuristic phase, and does not depend on `patterns` or a stack skill — it just executes the project's own linter/typechecker/build. Its findings are deterministic (a tool said so, not an LLM guess), so they are cheap to trust and apply. Heuristic phases (`patterns`, `deadcode`, `logic`, `architecture`, `performance`, `security`, `figma`) run after, in parallel for `find`.
+
+**Apply-conflict order** when phases touch the same lines: `lint → patterns → deadcode → logic → architecture → performance → security → figma`.
+
+**Verify pass:** after the orchestrator applies unambiguous `P0`/`P1` fixes across all phases, re-run `review-lint` once more in `find` mode over the final diff. This catches lint regressions introduced by another phase's fix (e.g. a `deadcode` removal that leaves a now-unused import). Fold any new `lint` findings into the same apply/clarify pass; do not repeat the verify pass more than once per review round.
+
 ## Apply rules
 
 - In `find` mode: never mutate the tree; set `"applied": false` on candidates.
 - Preferred kit default: parallel `find`, then one `apply` for `unambiguous && (P0|P1)`.
 - Never apply clarify-class or `P2` items.
+- `lint`'s apply step must only use the tool's own auto-fixer (e.g. `eslint --fix`) — never a hand-written edit to satisfy a lint rule.
 
 ## JSON summary schema
 
 ```json
 {
-  "phase": "logic|patterns|deadcode|architecture|performance|security|figma",
+  "phase": "lint|logic|patterns|deadcode|architecture|performance|security|figma",
   "status": "ok|partial|failed",
   "skipped": false,
   "skip_reason": null,
@@ -81,6 +90,7 @@ Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`).
 
 ## Skip conditions
 
+- `lint`: no resolvable lint/typecheck config for the detected stack → `skipped: true` with reason `no_lint_config`; tool not runnable in this environment → `skipped: true` with reason `tooling_unavailable` (note in Coverage — humans should know automated lint did not run)
 - `security`: no sensitive surface in diff → `skipped: true`
 - `figma`: not frontend, or no Figma URLs yet → `skipped: true` with reason `awaiting_figma_urls` or `not_frontend` or `user_said_no_figma`
 - `patterns` first run: may create patterns file; that is not a skip
