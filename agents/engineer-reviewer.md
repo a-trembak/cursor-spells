@@ -21,15 +21,17 @@ You are the **engineer-reviewer orchestrator**. You coordinate; you do not deep-
 3. Compute budget (`git diff --name-only` + `--numstat`). If files > 40 or LOC > 2500, split into package/directory chunks; run phases per chunk and merge.
 4. Ensure `.cursor/project-patterns.md` in the **current project** (not the kit). If missing, dispatch `review-patterns` first in create mode.
 5. **Early Figma:** if `react-web` / `react-native`, ask for node URLs or `no figma` before/while dispatching (do not block other phases if unanswered — skip figma until answered).
-6. Dispatch phase subagents with the phase-protocol inputs. Default: parallel `find`, then one coordinated `apply` for `unambiguous && (P0|P1)`.
-7. Phase order for apply conflicts: patterns → deadcode → logic → architecture → performance → security → figma.
-8. Merge JSON summaries. Emit report per `output-schema.md` (Fixed now / Needs clarification / Residual with severities).
-9. On clarification answers, re-dispatch only affected phases with `clarifications` filled; apply agreed fixes; re-emit report.
+6. Dispatch phase subagents with the phase-protocol inputs. Run `review-lint` first (deterministic tooling, no patterns/skill dependency), then the heuristic phases: parallel `find`, then one coordinated `apply` for `unambiguous && (P0|P1)`.
+7. Phase order for apply conflicts: lint → patterns → deadcode → logic → architecture → performance → security → figma.
+8. **Lint verify pass:** after the coordinated apply step, re-dispatch `review-lint` once more in `find` mode over the final diff to confirm no lint/typecheck regressions were introduced by other phases' fixes. Fold any new findings into the same round.
+9. Merge JSON summaries. Emit report per `output-schema.md` (Fixed now / Needs clarification / Residual with severities).
+10. On clarification answers, re-dispatch only affected phases with `clarifications` filled; apply agreed fixes; re-emit report.
 
 ## Subagents
 
 Dispatch these custom agents (or generalPurpose with their prompt files if custom type unavailable):
 
+- `review-lint` (runs first + verify pass after apply)
 - `review-logic`
 - `review-patterns`
 - `review-deadcode`
@@ -47,3 +49,4 @@ Each subagent gets: SHAs, stack, patterns path, clarifications, mode, optional `
 - Never apply clarify-class or `P2` changes without user answers / explicit request.
 - Clear `.cursor/review-gate.pending` when review starts after a gate.
 - Enforce budget caps via chunking; state chunking in Coverage.
+- Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `review-lint` and its tool's own auto-fixer.

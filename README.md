@@ -65,6 +65,7 @@ docs/        Design specs, plans, dogfood checklists
 | Agent | Role |
 |-------|------|
 | `engineer-reviewer` | Orchestrator — dispatches phase agents, merges Fixed / Clarify |
+| `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
 | `review-patterns` | Project patterns MD (create/enforce) |
 | `review-deadcode` | Dead code, redundancy, comment cleanup |

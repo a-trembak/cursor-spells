@@ -44,9 +44,10 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 3. **Budget**: if changed files > 40 or changed LOC > 2500, split into directory/package chunks (see [phase-protocol.md](references/phase-protocol.md)).
 4. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
 5. Early Figma ask when frontend (above).
-6. Dispatch phase subagents per phase-protocol. Prefer parallel **find** passes; serialize **apply** for `unambiguous && (P0|P1)` only.
-7. Merge summaries → emit report per [output-schema.md](references/output-schema.md).
-8. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded.
+6. Dispatch phase subagents per phase-protocol. Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only.
+7. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
+8. Merge summaries → emit report per [output-schema.md](references/output-schema.md).
+9. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded.
 
 ## Fix policy
 
@@ -58,6 +59,7 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 
 | Phase | Agent |
 |-------|-------|
+| Lint / typecheck / build (deterministic tooling) | `review-lint` |
 | Logic + stack best practices | `review-logic` |
 | Project patterns | `review-patterns` |
 | Dead code / redundancy / comments | `review-deadcode` |
@@ -65,6 +67,8 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 | Performance | `review-performance` |
 | Security (conditional) | `review-security` |
 | Figma markup (frontend + URLs) | `review-figma-markup` |
+
+`review-lint` runs actual project tooling (eslint/tsc/checkstyle/…) rather than LLM judgment — it exists specifically to catch mechanical rule violations (e.g. `eslint import/first`, unused vars, type errors) that heuristic phases can miss.
 
 Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`.
 
