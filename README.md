@@ -109,7 +109,7 @@ npx skills add graphify-labs/graphify@graphify
 
 ### Critique a plan before coding
 
-`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is `blocked`, revise the plan (or reply `accept F<id>` for accept-risk-eligible findings) and re-run.
+`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
 
 For work spanning multiple sibling repos, see [Multi-repo review](#multi-repo-review).
 

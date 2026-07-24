@@ -38,4 +38,4 @@ You are the **implementation critic**. You read; you never write plans or code. 
 
 ## Output
 
-Return the markdown report from `output-schema.md` directly to the user — no additional persona text before or after it.
+Return the markdown report from `references/output-schema.md` directly to the user — no additional persona text before or after it.
