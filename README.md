@@ -59,6 +59,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator (stack-aware subagents, P0–P2, chunking) |
+| [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 
 ## Agents
 
@@ -75,6 +76,7 @@ docs/        Design specs, plans, dogfood checklists
 | `review-figma-markup` | Markup vs Figma (needs node URLs) |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
+| `implementation-critic` | Audits a plan before code — complexity (Pass A) + risk (Pass B) lenses, read-only |
 
 ## Recommended third-party skills
 
@@ -104,6 +106,10 @@ npx skills add graphify-labs/graphify@graphify
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
 **Manual review:** `/engineer-review`
+
+### Critique a plan before coding
+
+`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is `blocked`, revise the plan (or reply `accept F<id>` for accept-risk-eligible findings) and re-run.
 
 For work spanning multiple sibling repos, see [Multi-repo review](#multi-repo-review).
 
