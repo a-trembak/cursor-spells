@@ -148,6 +148,7 @@ A missing mapped skill never blocks the run; the developer proceeds on its built
 - Expands scope beyond the plan's tasks.
 - Makes "while I'm here" improvements outside scope.
 - Silently changes the data model described in the tech spec.
+- Implements on `main` / `master` / the default branch, or creates branches in repos the plan does not touch.
 
 ---
 
