@@ -373,78 +373,80 @@ git commit -m "Add /critique-plan command"
 
 - [ ] **Step 1: Write the dogfood checklist with an embedded flawed fixture plan**
 
-```markdown
-# Implementation-critic dogfood fixture
+The target file needs two levels of fenced example inside it (a markdown-fenced fixture plan, itself containing a sql-fenced migration). To keep this unambiguous for both Markdown renderers and this task's own extraction tooling (no fence-nesting collision), the exact content below is shown as an indented block instead of a triple-backtick fence. Write the file with each line below **exactly as shown, minus the leading 4-space indent** — the indentation here is presentation only, not part of the file content:
 
-Manual checklist to verify the critic behaves. Do not require CI to execute agents.
+    # Implementation-critic dogfood fixture
 
-## Setup
+    Manual checklist to verify the critic behaves. Do not require CI to execute agents.
 
-Create a deliberately flawed plan file at `docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md`:
+    ## Setup
 
-```markdown
-# Notification Plugin System Implementation Plan
+    Create a deliberately flawed plan file at `docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md`:
 
-**Goal:** Add an email notification when a user completes onboarding.
+    ````markdown
+    # Notification Plugin System Implementation Plan
 
-**Architecture:** Build a generic, pluggable notification-channel registry (email, SMS, push, webhook) with a strategy pattern, a config-driven channel loader, and a queue-backed dispatcher, so any future channel can be added without code changes.
+    **Goal:** Add an email notification when a user completes onboarding.
 
-**Tech Stack:** Node.js, MySQL
+    **Architecture:** Build a generic, pluggable notification-channel registry (email, SMS, push, webhook) with a strategy pattern, a config-driven channel loader, and a queue-backed dispatcher, so any future channel can be added without code changes.
 
-## Global Constraints
-- None specified.
+    **Tech Stack:** Node.js, MySQL
 
----
+    ## Global Constraints
+    - None specified.
 
-### Task 1: Add `notifications` and `notification_channels` tables
+    ---
 
-**Files:**
-- Create: `db/migration/20990101_add_notifications.sql`
+    ### Task 1: Add `notifications` and `notification_channels` tables
 
-- [ ] **Step 1: Write migration**
+    **Files:**
+    - Create: `db/migration/20990101_add_notifications.sql`
 
-\`\`\`sql
-CREATE TABLE notification_channels (id INT PRIMARY KEY, type VARCHAR(50));
-CREATE TABLE notifications (id INT PRIMARY KEY, channel_id INT, payload JSON);
-\`\`\`
+    - [ ] **Step 1: Write migration**
 
-- [ ] **Step 2: Run migration against dev DB**
+    ```sql
+    CREATE TABLE notification_channels (id INT PRIMARY KEY, type VARCHAR(50));
+    CREATE TABLE notifications (id INT PRIMARY KEY, channel_id INT, payload JSON);
+    ```
 
-### Task 2: Build the channel registry and strategy interface
+    - [ ] **Step 2: Run migration against dev DB**
 
-**Files:**
-- Create: `src/notifications/ChannelRegistry.ts`
-- Create: `src/notifications/EmailChannel.ts`
+    ### Task 2: Build the channel registry and strategy interface
 
-- [ ] **Step 1: Implement `ChannelRegistry` with dynamic strategy loading**
-- [ ] **Step 2: Implement `EmailChannel` sending the onboarding email**
-```
+    **Files:**
+    - Create: `src/notifications/ChannelRegistry.ts`
+    - Create: `src/notifications/EmailChannel.ts`
 
-This fixture deliberately has:
-- A generic multi-channel plugin architecture for a single, immediate requirement (email only) — Pass A YAGNI / simpler-alternative violation.
-- A new-table migration with no rollback/down-migration step and no mention of how it relates to the existing `users`/`onboarding` tables it must join against — Pass B risk-coverage and soundness violation.
-- No test tasks anywhere in the plan — Pass B should-fix.
+    - [ ] **Step 1: Implement `ChannelRegistry` with dynamic strategy loading**
+    - [ ] **Step 2: Implement `EmailChannel` sending the onboarding email**
+    ````
 
-## Expected critic behavior
+    This fixture deliberately has:
+    - A generic multi-channel plugin architecture for a single, immediate requirement (email only) — Pass A YAGNI / simpler-alternative violation.
+    - A new-table migration with no rollback/down-migration step and no mention of how it relates to the existing `users`/`onboarding` tables it must join against — Pass B risk-coverage and soundness violation.
+    - No test tasks anywhere in the plan — Pass B should-fix.
 
-| Check | Expect |
-|-------|--------|
-| Pass A | `must-fix` — plan builds a generic multi-channel registry for a single required channel (email); a simpler alternative (a single `sendOnboardingEmail` function/service) satisfies the same goal |
-| Pass B | `must-fix` — migration has no rollback/down-migration step and doesn't name how `notification_channels`/`notifications` relate to the existing `users`/`onboarding` tables |
-| Pass B | `should-fix` — no test tasks anywhere in the plan |
-| Coverage | Notes `skill_missing` for `pass_a`/`pass_b` if `plan-reviewer`/`project-verify-plan` are not installed, and still produces the findings above via the built-in fallback checklist from `references/lenses.md` |
-| Verdict | `blocked` (at least one must-fix open) |
-| Report format | Matches `skills/implementation-critic/references/output-schema.md` exactly — Coverage, Must-fix, Should-fix, Accept-risk candidates, Verdict |
-| No plan edits | `docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md` is byte-identical before and after the run |
+    ## Expected critic behavior
 
-## Cleanup
+    | Check | Expect |
+    |-------|--------|
+    | Pass A | `must-fix` — plan builds a generic multi-channel registry for a single required channel (email); a simpler alternative (a single `sendOnboardingEmail` function/service) satisfies the same goal |
+    | Pass B | `must-fix` — migration has no rollback/down-migration step and doesn't name how `notification_channels`/`notifications` relate to the existing `users`/`onboarding` tables |
+    | Pass B | `should-fix` — no test tasks anywhere in the plan |
+    | Coverage | Notes `skill_missing` for `pass_a`/`pass_b` if `plan-reviewer`/`project-verify-plan` are not installed, and still produces the findings above via the built-in fallback checklist from `references/lenses.md` |
+    | Verdict | `blocked` (at least one must-fix open) |
+    | Report format | Matches `skills/implementation-critic/references/output-schema.md` exactly — Coverage, Must-fix, Should-fix, Accept-risk candidates, Verdict |
+    | No plan edits | `docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md` is byte-identical before and after the run |
 
-Delete the fixture plan file after the dogfood run:
+    ## Cleanup
 
-```bash
-rm docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md
-```
-```
+    Delete the fixture plan file after the dogfood run:
+
+    ```bash
+    rm docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md
+    ```
+
+Note the fixture-plan example uses a **4-backtick** fence (````markdown ... ````) specifically because it must contain a real 3-backtick ```sql fence inside it — this is the standard CommonMark technique for nesting a fence inside a fence (the outer fence only closes on a line with 4-or-more backticks). The later cleanup fence is a normal, non-nested 3-backtick ```bash fence.
 
 - [ ] **Step 2: Verify the fixture file has the setup, expected table, and cleanup sections**
 
