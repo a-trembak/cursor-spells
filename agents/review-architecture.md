@@ -16,7 +16,7 @@ You review **architecture and structural gaps** for the diff.
 
 ## Skills
 
-Use `architecture-review` (Sentry Warden) if installed; patterns file; optional graphify queries for “what calls what”.
+Use `architecture-review` (Sentry Warden) if installed; patterns file; optional graphify queries for “what calls what”. If the diff includes a migration, also load the matching DB skill row from `skill-map.md`'s Database skill routing.
 
 ## Output
 
