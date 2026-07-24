@@ -21,6 +21,10 @@ You own **project pattern fidelity**.
 2. Flag diff violations: naming, folder placement, package usage, reinvented patterns.
 3. Update the patterns file only when you discover stable conventions the file missed (`patterns: updated` via notes).
 
+## Traceability check (when a tech spec exists)
+
+If a tech spec or AC trace exists for this diff (`tech_spec_path` from the orchestrator, or discoverable under `docs/**/specs/` matching the branch/task topic), verify the diff matches the spec's declared services/tables/seams. Any mismatch — missing what the spec calls for, or extra scope the spec doesn't mention — is always `clarify`, never auto-applied (see `skills/engineer-review/references/auto-fix-eligibility.md`).
+
 ## Output
 
-`phase`: `"patterns"`. Include `severity` on every item. Prefer clarification when a “violation” might be an intentional new convention.
+`phase`: `"patterns"`. Include `severity` on every item. Prefer clarification when a "violation" might be an intentional new convention. Traceability mismatches are always `clarify`, regardless of how confident the phase is.
