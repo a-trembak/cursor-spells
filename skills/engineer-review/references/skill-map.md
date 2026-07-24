@@ -94,7 +94,8 @@ This is a different situation from a mapped skill that simply isn't installed in
 
 Tier-2 additions the human has explicitly approved, so future runs treat them as Tier 1 without re-asking. Empty until the first human-approved addition.
 
-<!-- Format: | Stack/task | Skill | Approved by / date | -->
+| Stack/task | Skill | Approved by / date |
+|------------|-------|---------------------|
 
 ## If a skill is not installed
 
