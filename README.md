@@ -62,6 +62,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
+| [`start-build`](skills/start-build/) | Pre-build gate — auto-runs `implementation-critic` before Task 1, HITL only if findings block |
 
 ## Agents
 
@@ -114,11 +115,25 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 **Manual review:** `/engineer-review`
 
-### Start a task / write a tech spec
+### Start a task (full pipeline)
 
-- `/start-task [ac-source]` — bootstraps context (project patterns, stack) and hands off to `/write-tech-spec`.
-- `/write-tech-spec [ac-source]` — drafts (or structures a human-written) developer technical action plan from agreed Acceptance Criteria: services/tables/contracts/rollout, not a PRD. Asks one question at a time for anything uncertain (Blocker/Decision), never invents a business fact.
-- Does not hand off to `writing-plans` until the spec's `Status` is `approved` or explicitly `skip`ped.
+`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them:
+
+1. Bootstraps context (project patterns, stack) — automatic
+2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
+3. Generates the implementation plan via `writing-plans` — automatic once the spec's `Status` is `approved` or explicitly `skip`ped
+4. Runs the pre-build critique gate (`/start-build`, below) — automatic start, **HITL** only if findings block
+5. Executes the plan via `subagent-driven-development` — automatic, no "which approach?" prompt in this flow
+6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
+7. `engineer-review` — **HITL** only for clarifications it raises
+
+A Jira/tracker URL works as the AC source, recorded as a reference — this kit does not fetch ticket contents via an API.
+
+Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, without triggering the rest of the pipeline.
+
+### Pre-build critique gate
+
+`/start-build [path]` (or the `start-build` skill, auto-invoked by `/start-task`) always runs `implementation-critic` before Task 1 of a plan is dispatched — no permission needed to start the critique itself, since it's read-only. If `Verdict` comes back `blocked` or `clear pending accept`, it stops and waits for a plan revision or `accept F<id>` replies before execution begins.
 
 ### Critique a plan before coding
 
