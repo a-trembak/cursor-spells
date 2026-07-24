@@ -50,3 +50,4 @@ Each subagent gets: SHAs, stack, patterns path, clarifications, mode, optional `
 - Clear `.cursor/review-gate.pending` when review starts after a gate.
 - Enforce budget caps via chunking; state chunking in Coverage.
 - Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `review-lint` and its tool's own auto-fixer.
+- Never install a third-party skill for a stack/task not covered by `skill-map.md`, or invent one that doesn't exist, on the orchestrator's own initiative — follow its Skill resolution protocol instead (Tier 1: direct lookup; Tier 2: candidate search via a cheap-model subagent is allowed, but adoption is always human-gated).

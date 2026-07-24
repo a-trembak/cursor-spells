@@ -59,6 +59,9 @@ docs/        Design specs, plans, dogfood checklists
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator (stack-aware subagents, P0–P2, chunking) |
+| [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
+| [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
+| [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 
 ## Agents
 
@@ -75,6 +78,8 @@ docs/        Design specs, plans, dogfood checklists
 | `review-figma-markup` | Markup vs Figma (needs node URLs) |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
+| `implementation-critic` | Audits a plan before code — complexity (Pass A) + risk (Pass B) lenses, read-only |
+| `tech-spec` | Drafts/structures the technical action plan pre-plan — asks one question at a time, never invents business facts |
 
 ## Recommended third-party skills
 
@@ -90,6 +95,8 @@ npx skills add abpai/skills@dead-code-eliminator
 npx skills add graphify-labs/graphify@graphify
 ```
 
+Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md)'s Database skill routing section. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed.
+
 ## Usage
 
 ### English humanizer
@@ -103,7 +110,19 @@ npx skills add graphify-labs/graphify@graphify
 3. On frontend, paste Figma node URLs or `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
+Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity.
+
 **Manual review:** `/engineer-review`
+
+### Start a task / write a tech spec
+
+- `/start-task [ac-source]` — bootstraps context (project patterns, stack) and hands off to `/write-tech-spec`.
+- `/write-tech-spec [ac-source]` — drafts (or structures a human-written) developer technical action plan from agreed Acceptance Criteria: services/tables/contracts/rollout, not a PRD. Asks one question at a time for anything uncertain (Blocker/Decision), never invents a business fact.
+- Does not hand off to `writing-plans` until the spec's `Status` is `approved` or explicitly `skip`ped.
+
+### Critique a plan before coding
+
+`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
 
 For work spanning multiple sibling repos, see [Multi-repo review](#multi-repo-review).
 

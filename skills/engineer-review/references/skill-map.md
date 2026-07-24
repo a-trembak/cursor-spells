@@ -24,6 +24,31 @@ npx skills add graphify-labs/graphify@graphify
 | `pom.xml` / `build.gradle*` / `*.java` + Spring deps | `java-spring` | `java-springboot` |
 | Mixed monorepo | detect per changed path | pick skill per package touched by the diff |
 
+## Database skill routing
+
+Migrations and schema work are a named weak spot for AI-generated code (blast radius on production data), so DB skills are explicit, stack-conditioned rows here — not left to general judgement. Detection is mechanical: a diff touching `**/db/migration/**`, `*.sql`, ORM schema/entity files, or containing DDL/backfill language triggers the matching row below, the same way stack detection above works. These skills are available to the `logic` and `architecture` phases whenever the diff includes a migration (see Phase → skills below), not only during development.
+
+### Always on any DB change
+
+- `wshobson/agents@database-migration` — zero-downtime patterns, rollback, expand/contract
+- `affaan-m/everything-claude-code@database-migrations` — production discipline: schema and data migrations never mixed, migrations immutable once deployed, forward-only in production
+
+### Current stack: MySQL + MongoDB
+
+| Stack | Skills |
+|-------|--------|
+| MySQL | `planetscale/database-skills@mysql` (schema/InnoDB, PK/index choices, measurable safe changes), `affaan-m/everything-claude-code@mysql-patterns` (large-table migrations, locks, pagination, pools), `github/awesome-copilot@sql-code-review` |
+| MongoDB | `mongodb/agent-skills@mongodb-query-optimizer`, `mongodb/agent-skills@mongodb-connection` (official), `hoodini/ai-agents-skills@mongodb` (schema/collection modeling) |
+| Mongoose (if present in repo) | `mongoose-mongodb` skill |
+
+### Conditional — kept in the map for future projects, not installed by default
+
+| Stack | Skills |
+|-------|--------|
+| Postgres (if a future project uses it) | `wshobson/agents@postgresql-table-design`, `supabase/agent-skills@supabase-postgres-best-practices`, `postgresql-code-review` / `sql-optimization-patterns` |
+| Flyway/Spring | Spring Flyway migration skill |
+| Prisma | `prisma/skills@prisma-cli` + matching dialect skill |
+
 ## Stack detection → lint/typecheck commands (for `review-lint`)
 
 Prefer the project's own `package.json` script over calling the binary directly.
@@ -41,16 +66,36 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 | Phase | Skill(s) |
 |-------|----------|
 | lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
-| logic | stack skill from table above |
+| logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
 | patterns | `.cursor/project-patterns.md`; optional `graphify` |
-| deadcode | `dead-code-eliminator` + patterns “Do-not-reinvent” |
-| architecture | `architecture-review` (Sentry Warden) + patterns |
+| deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent" |
+| architecture | `architecture-review` (Sentry Warden) + patterns; add the matching row from Database skill routing above whenever the diff includes a migration |
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native` |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
 | figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs |
 | cross-repo | workspace `graphify-out/`; optional `graphify-labs/graphify@graphify` |
 
 Note: do not create `multi-repo.json` when graphify answers successfully.
+
+## Skill resolution protocol
+
+Two trust tiers, no silent middle ground, for when a stack or task type isn't covered by this map at all:
+
+- **Tier 1 — Curated.** Everything already listed in this file is pre-verified. Used directly, no network call, no question — this is a mechanical table lookup, not a reasoning call.
+- **Tier 2 — Edge case.** A stack or task type not covered by this map. The agent **never installs or edits this map on its own**. It may search skills.sh for candidates purely to present them (dispatch this search as a scoped subagent on a cheap/fast model — e.g. `composer-2.5-fast`, `cursor-grok-4.5-high-fast` — so the primary session never reads raw search output, only a compact candidate list), then stops and asks the human:
+
+  > No verified skill for `<stack/task>`. Candidates found: `owner/repo@skill` (installs, audit status), … Install one, provide your own, or continue without (built-in checklist)?
+
+  Whatever the human picks, **the human's decision** is what gets added to the `## Discovered` section below for future runs. The agent does not add third-party entries to this map on its own initiative.
+
+This is a different situation from a mapped skill that simply isn't installed in the current environment — see "If a skill is not installed" below for that case.
+
+## Discovered
+
+Tier-2 additions the human has explicitly approved, so future runs treat them as Tier 1 without re-asking. Empty until the first human-approved addition.
+
+| Stack/task | Skill | Approved by / date |
+|------------|-------|---------------------|
 
 ## If a skill is not installed
 

@@ -51,9 +51,9 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 
 ## Fix policy
 
-- Apply immediately: unambiguous **P0/P1** (bugs, dead code, obsolete historical comments, clear pattern violations, reinvented helpers).
+- Apply immediately: unambiguous **P0/P1** that also passes [`references/auto-fix-eligibility.md`](references/auto-fix-eligibility.md) (bugs, dead code, obsolete historical comments, clear pattern violations, reinvented helpers).
 - **P2** → Residual notes only.
-- Clarify first: behavior/API/product/design/security tradeoffs, risky deletions, anything without clear evidence.
+- Clarify first: behavior/API/product/design/security tradeoffs, risky deletions, spec/diff traceability mismatches, anything without clear evidence or that fails the eligibility test.
 
 ## Phase agents
 

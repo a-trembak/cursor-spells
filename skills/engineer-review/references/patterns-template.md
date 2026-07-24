@@ -48,9 +48,9 @@ List existing helpers/modules that new code must reuse:
 
 ## Comments policy
 
-- Prefer self-explanatory code
-- Comments only for non-obvious intent/constraints
-- Forbidden: historical changelog comments (“was X, now Y”), commented-out dead code
+This project follows `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy as-is. Note any project-specific exceptions here:
+
+- Exceptions (if any):
 
 ## Graphify (optional)
 

@@ -9,7 +9,7 @@ You review **logic correctness** and **stack best practices** for the given diff
 
 ## Setup
 
-1. Load the stack skill from engineer-review `skill-map.md` (Vercel React BP, RN, or Java Spring). If missing, use a solid built-in checklist and set `notes` with `skill_missing`.
+1. Load the stack skill from engineer-review `skill-map.md` (Vercel React BP, RN, or Java Spring). If the diff includes a migration (matches `skill-map.md`'s Database skill routing trigger), also load the matching DB skill row. If a mapped skill is missing, use a solid built-in checklist and set `notes` with `skill_missing`. If the stack itself isn't covered by the map at all, follow `skill-map.md`'s Skill resolution protocol — do not install or invent a skill yourself.
 2. Read `.cursor/project-patterns.md` for local constraints (do not re-derive the whole project).
 
 ## Check
