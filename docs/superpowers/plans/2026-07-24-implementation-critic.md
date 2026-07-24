@@ -513,8 +513,8 @@ In `README.md`, after the existing `**Manual review:** /engineer-review` line, a
 
 - [ ] **Step 4: Verify all three additions landed**
 
-Run: `grep -c "implementation-critic" README.md`
-Expected: `3` or more (one per table row plus the usage note)
+Run: `grep -c "implementation-critic" README.md && grep -c "critique-plan" README.md`
+Expected: `2`, `1` (the Skills and Agents table rows both name `implementation-critic`; the usage note names the command `/critique-plan` instead, so it doesn't add to the first count)
 
 - [ ] **Step 5: Commit**
 
