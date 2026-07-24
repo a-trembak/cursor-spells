@@ -145,6 +145,8 @@ If any condition fails: `clarify`, never a silent apply — regardless of how "o
 
 Traceability drift (spec vs. diff mismatch) is `clarify`-only by construction — it structurally fails condition 2 (two plausible explanations: the spec is stale, or the diff scope drifted), not because it's arbitrarily out of scope.
 
+This is a different case from the "Diff contradicts an explicit spec value/formula" row above: that row applies only when the spec states one exact value or formula and the code computes something else within the same declared scope — a single quoted correct answer exists, so condition 2 holds. Traceability drift is about scope itself (services/tables/seams present or missing relative to what the spec declares), where the cause of the mismatch cannot be determined from the diff alone — always `clarify`, never the "Yes" row above.
+
 ## How phases use this
 
 Every phase's `apply` pass (per `phase-protocol.md`) checks a candidate fix against this test before setting `applied: true`, in addition to being `unambiguous: true` and `P0`/`P1` severity. Severity alone is necessary but not sufficient.
