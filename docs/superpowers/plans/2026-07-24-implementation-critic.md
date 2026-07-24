@@ -79,7 +79,7 @@ If a lens's skill is not installed, fall back to its built-in checklist (see [re
 2. Read `.cursor/project-patterns.md` in the **current project** (not the kit) if present — Pass A's "simpler alternative" and "existing abstraction" checks need it.
 3. Run Pass A, then Pass B, over the same plan (see [references/lenses.md](references/lenses.md) for each pass's checklist).
 4. Classify every finding as `must-fix`, `should-fix`, or `accept-risk` (see [references/output-schema.md](references/output-schema.md)).
-5. Emit the report per `output-schema.md`. Do not edit the plan file.
+5. Emit the report per `references/output-schema.md`. Do not edit the plan file.
 
 ## Fix policy
 
@@ -97,7 +97,7 @@ Load this skill and its two reference files only. Do not paste full third-party 
 - [ ] **Step 2: Verify the file has the required frontmatter and links**
 
 Run: `grep -c "^name: implementation-critic$" skills/implementation-critic/SKILL.md && grep -c "references/lenses.md" skills/implementation-critic/SKILL.md && grep -c "references/output-schema.md" skills/implementation-critic/SKILL.md`
-Expected: `1`, `2`, `1` (the file legitimately links `references/lenses.md` twice — once in the fallback note, once in Spine step 3)
+Expected: `1`, `2`, `2` (the file legitimately links `references/lenses.md` twice — fallback note and Spine step 3 — and `references/output-schema.md` twice — Spine step 4's link and step 5's prose)
 
 - [ ] **Step 3: Commit**
 
@@ -208,25 +208,28 @@ Emit this markdown to the user. Keep it scannable. No persona text before or aft
 
 ## Should-fix (visible, non-blocking)
 - **F2** (`pass A|B`) — finding
+  - Evidence: `path:line` or plan section
   - Recommendation: concrete suggestion
 
 ## Accept-risk candidates (require explicit human accept)
 - **F3** (`pass A|B`) — deliberate trade-off the plan makes
+  - Evidence: `path:line` or plan section
   - Risk: what could go wrong
   - Needs: human reply `accept F3` to unblock, or a plan revision
 
 ## Verdict
-- `blocked` (open must-fix) | `clear` (no open must-fix) | `clear pending accept` (only accept-risk items remain)
+- `blocked` (an open, un-accepted must-fix item) | `clear pending accept` (must-fix resolved/accepted; an accept-risk item awaits acceptance) | `clear` (no open must-fix and no un-accepted accept-risk items)
 ```
 
 ## Rules
 
 - Finding ids are a single sequential namespace (`F1`, `F2`, `F3`, …) across both passes — do not restart numbering per pass.
 - `pass` on every finding is `A` or `B`, matching which lens produced it.
-- `Verdict` is `blocked` whenever at least one `must-fix` item has no matching `accept F<id>` reply on record; it becomes `clear pending accept` once every remaining open item is `accept-risk` and has been explicitly accepted; it is `clear` only when there are no open must-fix or un-accepted accept-risk items at all.
-- If **Must-fix** is non-empty, end the report with:
+- `accept F<id>` applies to any open finding by id — a `must-fix` item as well as an `accept-risk` item — and removes it from the "open" count for the Verdict rules below.
+- `Verdict` is `blocked` whenever at least one `must-fix` item is still open (no matching `accept F<id>` reply on record); it is `clear pending accept` once every `must-fix` item is resolved or accepted but at least one `accept-risk` item has not yet been explicitly accepted; it is `clear` only when every `must-fix` item is resolved or accepted and every `accept-risk` item has been explicitly accepted (or there are no findings at all).
+- If `Verdict` is `blocked` or `clear pending accept`, end the report with:
 
-  > Reply `accept F<id>` to accept a specific risk, or revise the plan and re-run `/critique-plan`. Implementation should not start while `Verdict: blocked`.
+  > Reply `accept F<id>` to accept a specific finding by id, or revise the plan and re-run `/critique-plan`. Implementation should not start while `Verdict` is not `clear`.
 ```
 
 - [ ] **Step 2: Verify the schema defines the Verdict states and finding id convention**
@@ -295,13 +298,13 @@ You are the **implementation critic**. You read; you never write plans or code. 
 
 ## Output
 
-Return the markdown report from `output-schema.md` directly to the user — no additional persona text before or after it.
+Return the markdown report from `references/output-schema.md` directly to the user — no additional persona text before or after it.
 ```
 
 - [ ] **Step 2: Verify the agent references both checklists and the schema by exact path**
 
 Run: `grep -c "references/lenses.md" agents/implementation-critic.md && grep -c "references/output-schema.md" agents/implementation-critic.md && grep -c "^name: implementation-critic$" agents/implementation-critic.md`
-Expected: `3`, `1`, `1` (the agent's Spine legitimately references `references/lenses.md` on three lines — Pass A, Pass B, and the anti-confabulation rule)
+Expected: `3`, `2`, `1` (the agent's Spine legitimately references `references/lenses.md` on three lines — Pass A, Pass B, and the anti-confabulation rule — and `references/output-schema.md` on two — Spine step 8 and the Output section)
 
 - [ ] **Step 3: Commit**
 
@@ -341,12 +344,12 @@ Run the **implementation-critic** agent against an existing plan.
 1. Read and follow skill `implementation-critic` (`skills/implementation-critic/SKILL.md`).
 2. Invoke agent `implementation-critic` with the plan path (and tech spec path, if discoverable).
 3. Emit the report per `references/output-schema.md`.
-4. If `Verdict: blocked`, stop and wait for the user to either revise the plan and re-run this command, or reply `accept F<id>` for specific accept-risk-eligible findings.
+4. If `Verdict` is `blocked` or `clear pending accept`, stop and wait for the user to either revise the plan and re-run this command, or reply `accept F<id>` for a specific finding.
 
 ## Notes
 
 - This command never edits the plan or any source file — it only reports.
-- Do not proceed to implementation while `Verdict: blocked`. A `clear` or `clear pending accept` verdict (with the human's explicit accepts) is required first.
+- Do not proceed to implementation while `Verdict` is `blocked`. If `Verdict` is `clear pending accept`, the human must reply `accept F<id>` for each remaining accept-risk finding (or revise the plan) before implementation starts. Only a `clear` verdict means nothing is outstanding.
 ```
 
 - [ ] **Step 2: Verify the command invokes the right agent and skill**
@@ -508,7 +511,7 @@ In `README.md`, after the existing `**Manual review:** /engineer-review` line, a
 ```markdown
 ### Critique a plan before coding
 
-`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is `blocked`, revise the plan (or reply `accept F<id>` for accept-risk-eligible findings) and re-run.
+`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
 ```
 
 - [ ] **Step 4: Verify all three additions landed**
