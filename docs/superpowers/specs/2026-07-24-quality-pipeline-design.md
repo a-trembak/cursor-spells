@@ -137,6 +137,7 @@ Writes code strictly to the tech spec + plan. If the plan/spec conflicts with wh
 3. **Database-aware routing** (new — see §4).
 4. **Conditional** (only if the plan/spec touches that surface): perf/security/architecture skills.
 5. Before handoff: `obra/superpowers@verification-before-completion` — actually run the project's own lint/test/typecheck, don't assert "done" without evidence.
+6. **Web UI vs design** (`react-web` only, when the task changes user-visible UI): use Figma MCP/skills when node URLs exist; after the slice is runnable, follow `ce-test-browser` and compare the rendered UI to those nodes. Missing skill/browser/URLs → note and continue — do not invent pixel diffs.
 
 A missing mapped skill never blocks the run; the developer proceeds on its built-in checklist and reports `skill_missing`.
 
@@ -271,6 +272,7 @@ Because no unvetted code is ever pulled in without a human decision in the loop,
 
 - `agents/tech-spec.md` (new) — drives §1
 - `agents/implementation-critic.md` (new) — drives §2
+- `agents/software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
 - `commands/start-task.md`, `commands/write-tech-spec.md`, `commands/critique-plan.md` (new)
 - `skills/code-comments/SKILL.md` (new) — drives §5, shared by developer + `review-deadcode`
 - `skills/engineer-review/references/skill-map.md` — add DB rows (§4) and a `## Discovered` section for Tier-2 human-approved additions (§9)

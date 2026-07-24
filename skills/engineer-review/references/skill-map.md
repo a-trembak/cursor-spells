@@ -1,5 +1,7 @@
 # Skill map
 
+Canonical stack → skill routing for **`software-developer`** (while writing code) and **`engineer-review`** phases (while reviewing). Same table, two consumers.
+
 Recommended installs (consumer machine / project). Do not vendor skill bodies into cursor-spells.
 
 ```bash

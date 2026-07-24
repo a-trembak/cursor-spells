@@ -63,11 +63,13 @@ docs/        Design specs, plans, dogfood checklists
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 | [`start-build`](skills/start-build/) | Pre-build gate — auto-runs `implementation-critic` before Task 1, HITL only if findings block |
+| [`software-developer`](skills/software-developer/) | Implements a cleared plan — skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
 
 | Agent | Role |
 |-------|------|
+| `software-developer` | Writes code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
 | `engineer-reviewer` | Orchestrator — dispatches phase agents, merges Fixed / Clarify |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |

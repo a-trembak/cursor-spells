@@ -113,6 +113,7 @@ install_user_bits() {
   link_or_copy "$KIT_ROOT/skills/tech-spec" "$HOME/.cursor/skills/tech-spec"
   link_or_copy "$KIT_ROOT/skills/implementation-critic" "$HOME/.cursor/skills/implementation-critic"
   link_or_copy "$KIT_ROOT/skills/code-comments" "$HOME/.cursor/skills/code-comments"
+  link_or_copy "$KIT_ROOT/skills/software-developer" "$HOME/.cursor/skills/software-developer"
   link_or_copy "$KIT_ROOT/commands/engineer-review.md" "$HOME/.cursor/commands/engineer-review.md"
   link_or_copy "$KIT_ROOT/commands/finish-plan.md" "$HOME/.cursor/commands/finish-plan.md"
   link_or_copy "$KIT_ROOT/commands/multi-review.md" "$HOME/.cursor/commands/multi-review.md"
@@ -124,6 +125,7 @@ install_user_bits() {
   link_or_copy "$KIT_ROOT/agents/multi-repo-supervisor.md" "$HOME/.cursor/agents/multi-repo-supervisor.md"
   link_or_copy "$KIT_ROOT/agents/tech-spec.md" "$HOME/.cursor/agents/tech-spec.md"
   link_or_copy "$KIT_ROOT/agents/implementation-critic.md" "$HOME/.cursor/agents/implementation-critic.md"
+  link_or_copy "$KIT_ROOT/agents/software-developer.md" "$HOME/.cursor/agents/software-developer.md"
   local f
   for f in "$KIT_ROOT"/agents/review-*.md; do
     link_or_copy "$f" "$HOME/.cursor/agents/$(basename "$f")"

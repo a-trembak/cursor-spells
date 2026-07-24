@@ -30,7 +30,7 @@ Reliable handoff from an approved plan into execution. Auto-runs `implementation
    - Invoke skill `implementation-critic` (or `/critique-plan <plan-path>`) against the plan.
 3. **On `Verdict: clear`:**
    - Delete `.cursor/build-gate.pending`.
-   - Proceed directly to execution: dispatch `subagent-driven-development` (default) unless the user already specified `executing-plans` for a separate session.
+   - Proceed directly to execution: dispatch agent/skill `software-developer` (routes stack/DB/`code-comments` skills, then drives `subagent-driven-development` by default) unless the user already specified `executing-plans` for a separate session.
 4. **On `Verdict: blocked` or `clear pending accept`:**
    - Keep the marker.
    - **Stop** and show the critic's report. Wait for the user to revise the plan (re-run this skill after) or reply `accept F<id>` for open findings.
