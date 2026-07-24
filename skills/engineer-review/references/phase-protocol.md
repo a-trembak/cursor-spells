@@ -7,6 +7,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 - `BASE_SHA`, `HEAD_SHA` (or explicit file list / chunk file list)
 - `stack`: `react-web` | `react-native` | `typescript` | `java-spring` | `mixed` | `unknown`
 - `patterns_path`: usually `.cursor/project-patterns.md`
+- `tech_spec_path`: optional; path to the diff's tech spec / AC trace if one exists (see Traceability check below)
 - `clarifications`: map of prior answers (`C1` → text), may be empty
 - `mode`: `find` (read-only findings) or `apply` (apply unambiguous fixes)
 - `chunk_id`: optional string when the orchestrator split a large diff
@@ -18,7 +19,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 | Max files to deep-read | **40** | If diff touches more, orchestrator chunks by top-level package/dir and runs the phase per chunk |
 | Max changed LOC (insertions+deletions) | **2500** | Same chunking rule |
 | Max notes | **8** | Drop lowest-value residuals |
-| Max clarify items | **12** per phase | Overflow → single clarify “batch remaining in Residual notes” |
+| Max clarify items | **12** per phase | Overflow → single clarify "batch remaining in Residual notes" |
 
 Orchestrator computes `git diff --numstat` / file list **before** dispatch. Subagents must not silently expand into the whole repo.
 
@@ -26,13 +27,19 @@ Orchestrator computes `git diff --numstat` / file list **before** dispatch. Suba
 
 Every `fixed` and `clarify` item **must** include `severity`:
 
-| Level | Meaning | Auto-apply when `unambiguous: true`? |
-|-------|---------|--------------------------------------|
-| `P0` | Correctness bug, security hole, broken build, clear dead/dangerous code | **Yes** in apply mode |
-| `P1` | Clear best-practice / pattern violation with low behavior risk | **Yes** in apply mode |
+| Level | Meaning | Auto-apply eligible? |
+|-------|---------|-----------------------|
+| `P0` | Correctness bug, security hole, broken build, clear dead/dangerous code | Only if it also passes [`auto-fix-eligibility.md`](auto-fix-eligibility.md) |
+| `P1` | Clear best-practice / pattern violation with low behavior risk | Only if it also passes [`auto-fix-eligibility.md`](auto-fix-eligibility.md) |
 | `P2` | Nit / optional polish | **No** — Residual notes only (never silent apply) |
 
-Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`).
+`unambiguous: true` on a `P0`/`P1` item is a phase agent's own signal that it believes the finding meets the [auto-fix eligibility test](auto-fix-eligibility.md) — severity classifies importance, the eligibility test is the separate, stricter gate for whether an apply is allowed at all.
+
+Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`) AND passing the eligibility test.
+
+## Traceability check (patterns phase)
+
+When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**/specs/` matching the diff's branch/task topic), the `patterns` phase additionally verifies the diff matches the spec's declared services/tables/seams. Any mismatch — missing what the spec calls for, or extra scope the spec doesn't mention — is always `clarify`, per [`auto-fix-eligibility.md`](auto-fix-eligibility.md): a spec/diff mismatch has two plausible explanations (the spec is stale, or the diff's scope drifted), so it structurally fails the eligibility test's "single correct answer" condition and can never be auto-applied.
 
 ## Process
 
@@ -53,7 +60,7 @@ Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`).
 ## Apply rules
 
 - In `find` mode: never mutate the tree; set `"applied": false` on candidates.
-- Preferred kit default: parallel `find`, then one `apply` for `unambiguous && (P0|P1)`.
+- Preferred kit default: parallel `find`, then one `apply` for `unambiguous && (P0|P1)` that also passes [`auto-fix-eligibility.md`](auto-fix-eligibility.md).
 - Never apply clarify-class or `P2` items.
 - `lint`'s apply step must only use the tool's own auto-fixer (e.g. `eslint --fix`) — never a hand-written edit to satisfy a lint rule.
 
