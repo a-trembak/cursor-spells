@@ -97,7 +97,7 @@ Load this skill and its two reference files only. Do not paste full third-party 
 - [ ] **Step 2: Verify the file has the required frontmatter and links**
 
 Run: `grep -c "^name: implementation-critic$" skills/implementation-critic/SKILL.md && grep -c "references/lenses.md" skills/implementation-critic/SKILL.md && grep -c "references/output-schema.md" skills/implementation-critic/SKILL.md`
-Expected: `1`, `1`, `1` (three separate `1` outputs, one per grep)
+Expected: `1`, `2`, `1` (the file legitimately links `references/lenses.md` twice — once in the fallback note, once in Spine step 3)
 
 - [ ] **Step 3: Commit**
 
