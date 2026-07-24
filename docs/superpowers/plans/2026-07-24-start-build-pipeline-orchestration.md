@@ -253,7 +253,13 @@ if [[ -f "$marker" ]]; then
   fi
 
   plan_path="$(cat "$marker" 2>/dev/null || true)"
-  printf '%s\n' "{\"followup_message\":\"Build-gate marker still present (.cursor/build-gate.pending, plan: ${plan_path}). implementation-critic found blocking findings or accept-risk items pending. Resolve them (revise the plan or reply accept F<id>) before dispatching Task 1.\"}"
+  message="Build-gate marker still present (.cursor/build-gate.pending, plan: ${plan_path}). implementation-critic found blocking findings or accept-risk items pending. Resolve them (revise the plan or reply accept F<id>) before dispatching Task 1."
+  if command -v jq >/dev/null 2>&1; then
+    printf '{"followup_message":%s}\n' "$(printf '%s' "$message" | jq -Rs .)"
+  else
+    safe_message="$(printf '%s' "$message" | tr -d '"\\' | tr '\n' ' ')"
+    printf '%s\n' "{\"followup_message\":\"${safe_message}\"}"
+  fi
   exit 0
 fi
 
@@ -261,10 +267,12 @@ printf '%s\n' '{}'
 exit 0
 ```
 
+This uses `jq -Rs .` to produce a properly JSON-escaped string when `jq` is available (correctly handles quotes, backslashes, and newlines in the plan path), and falls back to stripping problematic characters when `jq` isn't available — consistent with how the rest of the script already treats `jq` as preferred-but-optional.
+
 - [ ] **Step 2: Verify syntax and structure**
 
 Run: `bash -n hooks/pre-build-gate.sh && echo "syntax OK" && grep -c "build-gate.pending" hooks/pre-build-gate.sh && grep -c "followup_message" hooks/pre-build-gate.sh`
-Expected: `syntax OK`, `2`, `1`
+Expected: `syntax OK`, `2`, `2` (`followup_message` appears once in the `jq` branch and once in the fallback branch)
 
 - [ ] **Step 3: Make executable and commit**
 
