@@ -76,7 +76,7 @@ docs/        Design specs, plans, dogfood checklists
 | `review-architecture` | Architecture gaps |
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
-| `review-figma-markup` | Markup vs Figma (needs node URLs) |
+| `review-figma-markup` | Markup vs Figma (needs node URLs); on web also `ce-test-browser` |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
 | `implementation-critic` | Audits a plan before code — complexity (Pass A) + risk (Pass B) lenses, read-only |
@@ -92,9 +92,11 @@ npx skills add affaan-m/everything-claude-code@security-review
 npx skills add addyosmani/agent-skills@performance-optimization
 npx skills add getsentry/warden@architecture-review
 npx skills add abpai/skills@dead-code-eliminator
+npx skills add everyinc/compound-engineering-plugin@ce-test-browser
 # optional:
 npx skills add graphify-labs/graphify@graphify
 ```
+
 
 Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md)'s Database skill routing section. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed.
 

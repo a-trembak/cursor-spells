@@ -72,7 +72,7 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 | architecture | `architecture-review` (Sentry Warden) + patterns; add the matching row from Database skill routing above whenever the diff includes a migration |
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native` |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
-| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs |
+| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; on `react-web` also `ce-test-browser` (rendered UI vs Figma) |
 | cross-repo | workspace `graphify-out/`; optional `graphify-labs/graphify@graphify` |
 
 Note: do not create `multi-repo.json` when graphify answers successfully.
