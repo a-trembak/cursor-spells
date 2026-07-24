@@ -61,6 +61,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator (stack-aware subagents, P0–P2, chunking) |
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
+| [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 
 ## Agents
 
@@ -106,6 +107,8 @@ npx skills add graphify-labs/graphify@graphify
 2. Answer `skip` / `approve` / `done`
 3. On frontend, paste Figma node URLs or `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
+
+Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity.
 
 **Manual review:** `/engineer-review`
 
