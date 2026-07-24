@@ -1,0 +1,26 @@
+---
+description: Before executing a plan task-by-task, auto-run the implementation-critic gate
+alwaysApply: false
+globs:
+  - docs/**/plans/**/*.md
+  - docs/superpowers/plans/**/*.md
+  - **/plans/**/*.md
+---
+
+# Before-build critique gate
+
+> Install this rule **per consumer project** (`.cursor/rules/`), not as a user-global always-on rule.
+> Reliable path: skill/command `start-build` (always writes the marker and auto-runs the critique).
+
+Before you **dispatch Task 1** of an implementation plan (via `subagent-driven-development` or `executing-plans`):
+
+1. Prefer invoking skill **`start-build`** (writes marker + auto-runs `implementation-critic`, no permission needed to start it).
+2. If you cannot load that skill, still:
+   - Create `.cursor/build-gate.pending` (one line: the plan path)
+   - Run `implementation-critic` / `/critique-plan` against the plan
+   - **Stop** if `Verdict` is `blocked` or `clear pending accept` — do not dispatch Task 1
+
+3. Do **not** dispatch Task 1 until `Verdict` is `clear` (all accept-risk items explicitly accepted).
+4. On a clean `Verdict: clear`: delete `.cursor/build-gate.pending` and proceed to execution automatically — no separate permission needed for this transition.
+
+Does not apply to pure Q&A, docs-only answers, or when the user already launched `/start-build` or `/critique-plan` manually and is now explicitly asking to proceed.
