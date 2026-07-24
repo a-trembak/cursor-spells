@@ -114,7 +114,7 @@ Target orchestrator prompt size: ~2–4k tokens + summaries.
 | 5 | `review-architecture` | always | architecture-review skill |
 | 6 | `review-performance` | always | addyosmani performance + Vercel on frontend |
 | 7 | `review-security` | if auth/data/network/secrets touch diff | security-review |
-| 8 | `review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use |
+| 8 | `review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use; on `react-web` also `ce-test-browser` |
 | — | `review-lint` (verify pass) | once, after the coordinated apply step | same as above |
 
 Phases may run **sequentially for mutating fixes** on the same files, or **parallel for read-only finding passes** then a single apply pass. Default: find in parallel where independent, apply unambiguous fixes in one orchestrated apply step to avoid write conflicts.
