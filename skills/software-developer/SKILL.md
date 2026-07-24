@@ -2,10 +2,11 @@
 name: software-developer
 description: >-
   Use when an approved tech spec and a critiqued-clear implementation plan are
-  ready to turn into code. Routes stack/DB skills from skill-map, applies
-  code-comments while writing, and verifies before handoff. On react-web UI
-  work, compares the rendered result to Figma via ce-test-browser when URLs
-  exist. Use from /start-task execution or when asked to implement a cleared plan.
+  ready to turn into code. Creates feature branch(es) in every repo the plan
+  will touch, routes stack/DB skills from skill-map, applies code-comments, and
+  verifies before handoff. On react-web UI work, compares the rendered result
+  to Figma via ce-test-browser when URLs exist. Use from /start-task execution
+  or when asked to implement a cleared plan.
 ---
 
 # Software Developer
@@ -26,9 +27,20 @@ Writes code **strictly** to the tech spec + implementation plan. Skill routing i
 
 If any condition fails: **stop** and say which gate is missing. Do not start coding.
 
+## Branch setup (mandatory, before any code)
+
+Immediately after entry conditions pass, follow [references/branch-setup.md](references/branch-setup.md):
+
+1. Resolve which git repo(s) the plan/spec will change (one or many).
+2. Derive one shared feature branch name for this run.
+3. Create and check out that branch in **each** target repo from its base (`main`/`master`/default).
+4. Do not start Task 1 until every target repo is on that branch (or the human narrowed the set).
+
+Never implement on the default branch. Never invent repos the plan does not touch.
+
 ## Skill routing
 
-1. **Stack detection** — mechanical table lookup in `skills/engineer-review/references/skill-map.md` (same signals as engineer-review). Zero inventing of stack labels.
+1. **Stack detection** — mechanical table lookup in `skills/engineer-review/references/skill-map.md` (same signals as engineer-review). Zero inventing of stack labels. Detect **per target repo** when the run spans multiple.
 2. **Always-on for this run:**
    - matched stack skill(s) from the map
    - `code-comments` (this kit) while writing
@@ -50,11 +62,12 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - Do not silently change the data model described in the tech spec
 - If plan/spec conflicts with the repo: **stop and ask** — do not silently deviate from the spec
 - Source-code comments: English only; apply `code-comments` Keep/Remove taxonomy
+- Do not write implementation commits on `main` / `master` / the default branch
 
 ## Execution engine
 
-Default: dispatch `subagent-driven-development` (fresh implementer + task reviewer per task) with the skill set for this run loaded into context. If the user already asked for a separate session, honor `executing-plans` instead.
+Default: dispatch `subagent-driven-development` (fresh implementer + task reviewer per task) with the skill set for this run loaded into context, **after** branch setup succeeds. If the user already asked for a separate session, honor `executing-plans` instead.
 
 ## Handoff
 
-When all plan tasks are done and verification evidence exists, hand off to `finish-plan` (do not skip the HITL review gate).
+When all plan tasks are done and verification evidence exists, hand off to `finish-plan` (do not skip the HITL review gate). Include the `repo → branch` map from branch setup.

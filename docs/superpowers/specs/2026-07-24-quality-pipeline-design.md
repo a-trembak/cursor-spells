@@ -127,6 +127,8 @@ Read-only on the plan/spec. Does not edit the plan itself in v1 — the plan aut
 
 Writes code strictly to the tech spec + plan. If the plan/spec conflicts with what's actually in the repo, it stops and asks — it does not "fix it along the way" by silently deviating from the spec.
 
+**Before any implementation:** create a feature branch in every git repository the plan/spec intends to change (one repo or several). Same branch name across the set; never land Task 1 commits on `main`/`master`/default. Protocol: `skills/software-developer/references/branch-setup.md`.
+
 ### Skill routing
 
 1. **Stack detection** — mechanical, via existing signals (`package.json`, `pom.xml`, `docker-compose`, migration paths, dependency names). Zero LLM reasoning cost; this is a table lookup against `skill-map.md`, the same pattern already used for `logic`/`performance` phase routing.
@@ -272,7 +274,8 @@ Because no unvetted code is ever pulled in without a human decision in the loop,
 
 - `agents/tech-spec.md` (new) — drives §1
 - `agents/implementation-critic.md` (new) — drives §2
-- `agents/software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
+- `agents/software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (branch setup in target repo(s), skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
+- `skills/software-developer/references/branch-setup.md` — resolve target repos from plan/spec, shared feature branch name, create/checkout before Task 1
 - `commands/start-task.md`, `commands/write-tech-spec.md`, `commands/critique-plan.md` (new)
 - `skills/code-comments/SKILL.md` (new) — drives §5, shared by developer + `review-deadcode`
 - `skills/engineer-review/references/skill-map.md` — add DB rows (§4) and a `## Discovered` section for Tier-2 human-approved additions (§9)

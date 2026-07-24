@@ -9,7 +9,7 @@ Run skill `start-build`:
 
 1. Write `.cursor/build-gate.pending` with the plan path.
 2. Auto-run `implementation-critic` against the plan (no permission needed — read-only).
-3. If `Verdict: clear`, delete the marker and dispatch `software-developer` (which routes skills and drives `subagent-driven-development` by default).
+3. If `Verdict: clear`, delete the marker and dispatch `software-developer` (creates feature branch(es) in target repo(s), routes skills, then drives `subagent-driven-development` by default).
 4. If `Verdict` is `blocked` or `clear pending accept`, stop and show findings; wait for a plan revision or `accept F<id>` replies.
 
 ## Arguments

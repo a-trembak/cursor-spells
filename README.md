@@ -63,13 +63,13 @@ docs/        Design specs, plans, dogfood checklists
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 | [`start-build`](skills/start-build/) | Pre-build gate — auto-runs `implementation-critic` before Task 1, HITL only if findings block |
-| [`software-developer`](skills/software-developer/) | Implements a cleared plan — skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
+| [`software-developer`](skills/software-developer/) | Implements a cleared plan — feature branch(es) in target repo(s), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
 
 | Agent | Role |
 |-------|------|
-| `software-developer` | Writes code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
+| `software-developer` | Feature branch(es) then code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
 | `engineer-reviewer` | Orchestrator — dispatches phase agents, merges Fixed / Clarify |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
@@ -127,7 +127,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
 3. Generates the implementation plan via `writing-plans` — automatic once the spec's `Status` is `approved` or explicitly `skip`ped
 4. Runs the pre-build critique gate (`/start-build`, below) — automatic start, **HITL** only if findings block
-5. Executes via `software-developer` (skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
+5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises
 
