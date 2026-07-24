@@ -95,6 +95,8 @@ npx skills add abpai/skills@dead-code-eliminator
 npx skills add graphify-labs/graphify@graphify
 ```
 
+Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md)'s Database skill routing section. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed.
+
 ## Usage
 
 ### English humanizer
