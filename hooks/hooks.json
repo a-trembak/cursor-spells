@@ -5,6 +5,10 @@
       {
         "command": ".cursor/hooks/post-plan-review-gate.sh",
         "loop_limit": 3
+      },
+      {
+        "command": ".cursor/hooks/pre-build-gate.sh",
+        "loop_limit": 3
       }
     ]
   }

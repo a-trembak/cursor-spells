@@ -8,7 +8,7 @@
 #   ./scripts/install-to-project.sh --user-only
 #
 # Default with a project path: symlink skills/commands/agents into ~/.cursor,
-# copy hooks + rule + patterns check into the project.
+# copy hooks + rules + patterns check into the project.
 
 set -euo pipefail
 
@@ -109,11 +109,21 @@ install_user_bits() {
   mkdir -p "$HOME/.cursor/skills" "$HOME/.cursor/commands" "$HOME/.cursor/agents"
   link_or_copy "$KIT_ROOT/skills/engineer-review" "$HOME/.cursor/skills/engineer-review"
   link_or_copy "$KIT_ROOT/skills/finish-plan" "$HOME/.cursor/skills/finish-plan"
+  link_or_copy "$KIT_ROOT/skills/start-build" "$HOME/.cursor/skills/start-build"
+  link_or_copy "$KIT_ROOT/skills/tech-spec" "$HOME/.cursor/skills/tech-spec"
+  link_or_copy "$KIT_ROOT/skills/implementation-critic" "$HOME/.cursor/skills/implementation-critic"
+  link_or_copy "$KIT_ROOT/skills/code-comments" "$HOME/.cursor/skills/code-comments"
   link_or_copy "$KIT_ROOT/commands/engineer-review.md" "$HOME/.cursor/commands/engineer-review.md"
   link_or_copy "$KIT_ROOT/commands/finish-plan.md" "$HOME/.cursor/commands/finish-plan.md"
   link_or_copy "$KIT_ROOT/commands/multi-review.md" "$HOME/.cursor/commands/multi-review.md"
+  link_or_copy "$KIT_ROOT/commands/start-task.md" "$HOME/.cursor/commands/start-task.md"
+  link_or_copy "$KIT_ROOT/commands/write-tech-spec.md" "$HOME/.cursor/commands/write-tech-spec.md"
+  link_or_copy "$KIT_ROOT/commands/critique-plan.md" "$HOME/.cursor/commands/critique-plan.md"
+  link_or_copy "$KIT_ROOT/commands/start-build.md" "$HOME/.cursor/commands/start-build.md"
   link_or_copy "$KIT_ROOT/agents/engineer-reviewer.md" "$HOME/.cursor/agents/engineer-reviewer.md"
   link_or_copy "$KIT_ROOT/agents/multi-repo-supervisor.md" "$HOME/.cursor/agents/multi-repo-supervisor.md"
+  link_or_copy "$KIT_ROOT/agents/tech-spec.md" "$HOME/.cursor/agents/tech-spec.md"
+  link_or_copy "$KIT_ROOT/agents/implementation-critic.md" "$HOME/.cursor/agents/implementation-critic.md"
   local f
   for f in "$KIT_ROOT"/agents/review-*.md; do
     link_or_copy "$f" "$HOME/.cursor/agents/$(basename "$f")"
@@ -130,16 +140,21 @@ install_project_bits() {
       cp "$KIT_ROOT/hooks/hooks.json" "$PROJECT/.cursor/hooks.json"
       echo "copied: $PROJECT/.cursor/hooks.json"
     else
-      echo "skip (exists): $PROJECT/.cursor/hooks.json (merge stop hook manually if needed)"
+      echo "skip (exists): $PROJECT/.cursor/hooks.json (merge stop hooks manually if needed)"
     fi
     cp "$KIT_ROOT/hooks/post-plan-review-gate.sh" "$PROJECT/.cursor/hooks/post-plan-review-gate.sh"
     chmod +x "$PROJECT/.cursor/hooks/post-plan-review-gate.sh"
     echo "copied: $PROJECT/.cursor/hooks/post-plan-review-gate.sh"
+    cp "$KIT_ROOT/hooks/pre-build-gate.sh" "$PROJECT/.cursor/hooks/pre-build-gate.sh"
+    chmod +x "$PROJECT/.cursor/hooks/pre-build-gate.sh"
+    echo "copied: $PROJECT/.cursor/hooks/pre-build-gate.sh"
   fi
   if [[ "$WITH_RULE" -eq 1 ]]; then
-    # Project-scoped rule (safe). Do NOT alwaysApply at user-global level.
+    # Project-scoped rules (safe). Do NOT alwaysApply at user-global level.
     cp "$KIT_ROOT/rules/after-plan-review-gate.mdc" "$PROJECT/.cursor/rules/after-plan-review-gate.mdc"
     echo "copied: $PROJECT/.cursor/rules/after-plan-review-gate.mdc"
+    cp "$KIT_ROOT/rules/before-build-critique-gate.mdc" "$PROJECT/.cursor/rules/before-build-critique-gate.mdc"
+    echo "copied: $PROJECT/.cursor/rules/before-build-critique-gate.mdc"
   fi
   # Optional CI helper
   mkdir -p "$PROJECT/scripts"
@@ -156,7 +171,7 @@ if [[ "$USER_SKILLS" -eq 1 || "$USER_ONLY" -eq 1 || -n "$PROJECT" ]]; then
   install_user_bits
 fi
 if [[ "$USER_ONLY" -eq 0 && -n "$PROJECT" ]]; then
-  # Default project install includes hooks + rule for HITL reliability
+  # Default project install includes hooks + rules for HITL reliability
   if [[ "$SKIP_HOOKS" -eq 0 ]]; then WITH_HOOKS=1; else WITH_HOOKS=0; fi
   if [[ "$SKIP_RULE" -eq 0 ]]; then WITH_RULE=1; else WITH_RULE=0; fi
   install_project_bits
@@ -165,6 +180,6 @@ fi
 echo "done."
 if [[ -n "$PROJECT" ]]; then
   echo "project: $PROJECT"
-  echo "next: open the project in Cursor → /finish-plan after plans, /engineer-review anytime"
+  echo "next: open the project in Cursor → /start-task to run the whole pipeline, /finish-plan after plans, /start-build before executing a plan manually, /engineer-review anytime"
 fi
 echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"
