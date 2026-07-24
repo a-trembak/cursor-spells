@@ -48,7 +48,7 @@ Examples:
   csp install . --humanizer
   csp install --user-only
 
-Slash commands after install: /finish-plan  /engineer-review
+Slash commands after install: /start-task  /finish-plan  /start-build  /engineer-review
 
 Do NOT clone this kit into each app. Keep one checkout; install per project.
 EOF
