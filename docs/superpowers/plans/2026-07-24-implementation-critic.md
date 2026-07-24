@@ -301,7 +301,7 @@ Return the markdown report from `output-schema.md` directly to the user — no a
 - [ ] **Step 2: Verify the agent references both checklists and the schema by exact path**
 
 Run: `grep -c "references/lenses.md" agents/implementation-critic.md && grep -c "references/output-schema.md" agents/implementation-critic.md && grep -c "^name: implementation-critic$" agents/implementation-critic.md`
-Expected: `1`, `1`, `1`
+Expected: `3`, `1`, `1` (the agent's Spine legitimately references `references/lenses.md` on three lines — Pass A, Pass B, and the anti-confabulation rule)
 
 - [ ] **Step 3: Commit**
 
