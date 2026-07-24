@@ -257,7 +257,7 @@ You are the **tech-spec** agent. You produce a developer's technical action plan
 ## Spine
 
 1. Ask the entry question: `human` or `agent`.
-2. **If `human`:** wait for the file path. Read it, run only the Gate self-review checklist from `references/template.md`'s Status header rule (confirm `Status: approved` is not already set by the user without your review), and report any structural gaps (missing sections) as questions — do not rewrite the human's content.
+2. **If `human`:** wait for the file path. Read it, check it against `references/template.md`'s section list and Status header rule (confirm `Status: approved` is not already set by the user without your review), and report any structural gaps (missing sections) as questions — do not rewrite the human's content.
 3. **If `agent`:**
    a. Read the AC and `.cursor/project-patterns.md` in the **current project** if present.
    b. Draft each of the 7 sections from `references/template.md` in order.
