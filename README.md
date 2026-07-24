@@ -127,7 +127,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
 3. Generates the implementation plan via `writing-plans` — automatic once the spec's `Status` is `approved` or explicitly `skip`ped
 4. Runs the pre-build critique gate (`/start-build`, below) — automatic start, **HITL** only if findings block
-5. Executes the plan via `subagent-driven-development` — automatic, no "which approach?" prompt in this flow
+5. Executes via `software-developer` (skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises
 
