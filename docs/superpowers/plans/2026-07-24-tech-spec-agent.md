@@ -90,7 +90,7 @@ See [references/template.md](references/template.md) for the full 7-section temp
 
 ## Spine
 
-1. Ask the entry question. If `human`, wait for the file path and only run the gap-check in "Self-review" below against it.
+1. Ask the entry question. If `human`, wait for the file path and check it against `references/template.md`'s section list and Status header — report any structural gaps as questions.
 2. If `agent`: read AC and `.cursor/project-patterns.md` (current project) if present.
 3. Draft the spec section by section, following [references/template.md](references/template.md), applying the three-tier protocol from [references/question-discipline.md](references/question-discipline.md) as each section surfaces uncertainty.
 4. Write the file per the template's path convention.
@@ -108,7 +108,7 @@ Load this skill and its two reference files only.
 - [ ] **Step 2: Verify frontmatter and cross-references**
 
 Run: `grep -c "^name: tech-spec$" skills/tech-spec/SKILL.md && grep -c "references/question-discipline.md" skills/tech-spec/SKILL.md && grep -c "references/template.md" skills/tech-spec/SKILL.md`
-Expected: `1`, `2`, `2` (both reference files are legitimately linked twice each — once in their own section, once together on the Spine step 3 line)
+Expected: `1`, `2`, `3` (`references/question-discipline.md` is linked twice — its own section and Spine step 3; `references/template.md` is linked three times — its own section, the new Spine step 1 gap-check, and Spine step 3)
 
 - [ ] **Step 3: Commit**
 
