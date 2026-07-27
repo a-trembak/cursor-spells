@@ -1,18 +1,12 @@
 #!/usr/bin/env bash
-# cursor-spells CLI — install this workflow kit into Cursor + a consumer project.
+# cursor-spells CLI — install / update this workflow kit into Cursor + a project.
 #
-# One-time setup (clone the kit once, not into every app):
+# One-time:
 #   git clone <this-repo> ~/cursor-spells
-#   ~/cursor-spells/bin/cursor-spells install /path/to/your-app
+#   ~/cursor-spells/bin/csp install /path/to/your-app
 #
-# From inside your app (kit lives elsewhere):
-#   ~/cursor-spells/bin/cursor-spells install .
-#
-# Global Cursor bits only (skills/commands/agents):
-#   ~/cursor-spells/bin/cursor-spells install --user-only
-#
-# Update kit then re-run install (symlinks pick up changes automatically;
-# --copy mode needs re-install to refresh copies).
+# Later:
+#   csp update /path/to/your-app     # git pull kit + re-sync links & project files
 
 set -euo pipefail
 
@@ -25,33 +19,71 @@ usage() {
 csp / cursor-spells — personal Cursor workflow kit
 
 Usage:
-  csp install [project-path] [flags]
+  csp install <project-path> [flags]
+  csp install --user-only [flags]
+  csp update  [project-path] [flags]
+  csp status
   csp help
 
-(Same as `cursor-spells`.)
-
 Commands:
-  install   Link skills/commands/agents into ~/.cursor and (by default)
-            copy hooks + plan-review rule + patterns check into the project.
+  install   First-time (or add) sync into ~/.cursor + project
+  update    git pull this kit, then re-sync ~/.cursor (+ project if given)
+  status    Show kit path, commit, and what is linked
   help      Show this help
 
-Install flags:
+Flags (install / update):
   --user-only     Only ~/.cursor (no project files)
-  --humanizer     Also install english-humanizer skill
+  --humanizer     Also install english-humanizer
   --copy          Copy instead of symlink into ~/.cursor
-  --no-hooks      Skip project hooks
-  --no-rule       Skip project rule
   -h, --help      Show help
 
 Examples:
   csp install ~/code/my-app
   csp install . --humanizer
-  csp install --user-only
+  csp update ~/code/my-app
+  csp update --user-only
+  csp status
 
-Slash commands after install: /start-task  /finish-plan  /start-build  /engineer-review
+Slash commands after install: /start-task  /approve-plan  /start-build  /finish-plan  /pr-review  /engineer-review
 
-Do NOT clone this kit into each app. Keep one checkout; install per project.
+Do NOT clone this kit into each app. Keep one checkout; install/update per project.
 EOF
+}
+
+ensure_installer() {
+  if [[ ! -f "$INSTALLER" ]]; then
+    echo "Installer missing: $INSTALLER" >&2
+    exit 1
+  fi
+  chmod +x "$INSTALLER" 2>/dev/null || true
+}
+
+print_status() {
+  echo "kit: $KIT_ROOT"
+  if git -C "$KIT_ROOT" rev-parse --short HEAD >/dev/null 2>&1; then
+    echo "commit: $(git -C "$KIT_ROOT" rev-parse --short HEAD) ($(git -C "$KIT_ROOT" branch --show-current 2>/dev/null || echo detached))"
+    echo "remote: $(git -C "$KIT_ROOT" rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo none)"
+  fi
+  if [[ -f "$HOME/.cursor/cursor-spells-kit-path" ]]; then
+    echo "recorded kit path: $(cat "$HOME/.cursor/cursor-spells-kit-path")"
+  fi
+  echo
+  echo "~/.cursor skills (cursor-spells):"
+  local p
+  for p in "$HOME/.cursor/skills"/*; do
+    [[ -e "$p" || -L "$p" ]] || continue
+    if [[ -L "$p" ]]; then
+      echo "  $(basename "$p") -> $(readlink "$p")"
+    else
+      echo "  $(basename "$p") (not a symlink)"
+    fi
+  done 2>/dev/null || echo "  (none)"
+  echo
+  echo "~/.cursor commands:"
+  ls -1 "$HOME/.cursor/commands" 2>/dev/null | sed 's/^/  /' || echo "  (none)"
+  echo
+  echo "~/.cursor agents:"
+  ls -1 "$HOME/.cursor/agents" 2>/dev/null | sed 's/^/  /' || echo "  (none)"
 }
 
 cmd="${1:-}"
@@ -63,20 +95,30 @@ fi
 case "$cmd" in
   install)
     shift
-    if [[ ! -x "$INSTALLER" ]]; then
-      chmod +x "$INSTALLER" || true
-    fi
-    if [[ ! -f "$INSTALLER" ]]; then
-      echo "Installer missing: $INSTALLER" >&2
-      exit 1
-    fi
+    ensure_installer
     exec "$INSTALLER" "$@"
     ;;
-  version|--version)
-    echo "cursor-spells kit: $KIT_ROOT"
-    if git -C "$KIT_ROOT" rev-parse --short HEAD >/dev/null 2>&1; then
-      echo "commit: $(git -C "$KIT_ROOT" rev-parse --short HEAD)"
+  update)
+    shift
+    ensure_installer
+    echo "Updating kit at $KIT_ROOT …"
+    if git -C "$KIT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      # Prefer pulling the current branch; fall back quietly if no upstream
+      if git -C "$KIT_ROOT" rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+        git -C "$KIT_ROOT" pull --ff-only
+      else
+        echo "skip git pull (no upstream); syncing local kit as-is"
+      fi
+    else
+      echo "warning: kit is not a git checkout; syncing files only" >&2
     fi
+    exec "$INSTALLER" --update "$@"
+    ;;
+  status)
+    print_status
+    ;;
+  version|--version)
+    print_status
     ;;
   *)
     echo "Unknown command: $cmd" >&2

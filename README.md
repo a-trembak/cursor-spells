@@ -4,45 +4,88 @@ Personal Cursor workflow kit — skills, slash commands, rules, hooks, and agent
 
 Spells you cast so the model sounds like a human engineer, not a LinkedIn influencer who just discovered the word *delve*.
 
-## How to install on a project
+## Install & update
 
-**Do not clone this repo into every app.** Keep **one** checkout of `cursor-spells`, then run the CLI against each project.
+**Do not clone this repo into every app.** Keep **one** checkout of `cursor-spells`, then point each project at it.
+
+### First-time install
 
 ```bash
-# 1) Clone the kit once (anywhere stable)
+# 1) Clone the kit once
 git clone https://github.com/a-trembak/cursor-spells.git ~/cursor-spells
 
-# 2) Install into a project (+ link skills/commands/agents into ~/.cursor)
-~/cursor-spells/bin/csp install /path/to/your-app
+# 2) Optional: put `csp` on PATH
+echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
+source ~/.bashrc
 
-# From inside the app:
-csp install .                 # if bin/ is on PATH
-csp install . --humanizer
-csp install --user-only
+# 3) Install into a project
+csp install /path/to/your-app
+# or from inside the app:
+csp install .
 ```
 
-Optional PATH helper:
+Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink).
+
+### Update (kit + links)
 
 ```bash
-echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
-csp install ~/code/my-app
+csp update /path/to/your-app   # git pull the kit, then re-sync ~/.cursor + project files
+csp update                     # git pull + refresh ~/.cursor only
+csp status                     # kit path, commit, what is linked
 ```
 
-What gets installed:
+With **symlink** mode (default), `git pull` in the kit already refreshes skill/command/agent *contents*; `csp update` still matters to **add new** skills/commands/agents and to **refresh** project hooks/rules. With `--copy`, `csp update` is required to refresh copied bodies.
 
-| Target | What |
-|--------|------|
-| `~/.cursor/skills/`, `commands/`, `agents/` | Symlinks into the kit (updates follow `git pull` in the kit) |
-| `<project>/.cursor/hooks.json` + `hooks/` | HITL stop-hook reminder |
-| `<project>/.cursor/rules/after-plan-review-gate.mdc` | Plan→review gate (project-scoped) |
-| `<project>/scripts/check-project-patterns.sh` | Optional patterns CI helper |
+### What install creates
 
-Use `--copy` if you cannot symlink (copies into `~/.cursor`; re-run after kit updates).
+Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
+
+#### A) `~/.cursor/` (always on `install` / `update`)
+
+| Path | Action |
+|------|--------|
+| `~/.cursor/skills/<name>` | Symlink → `<kit>/skills/<name>` for every skill in the kit (`english-humanizer` only with `--humanizer` or if already present) |
+| `~/.cursor/commands/<file>.md` | Symlink → `<kit>/commands/…` (all slash commands) |
+| `~/.cursor/agents/<file>.md` | Symlink → `<kit>/agents/…` (all agents, including `review-*`) |
+| `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
+
+Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
+
+#### B) `<project>/` (when you pass a project path)
+
+| Path | Action |
+|------|--------|
+| `<project>/.cursor/hooks/post-plan-review-gate.sh` | Copied from kit (refreshed on every install/update) |
+| `<project>/.cursor/hooks/pre-build-gate.sh` | Copied from kit (refreshed on every install/update) |
+| `<project>/.cursor/hooks.json` | Created if missing; **refreshed on `update`** |
+| `<project>/.cursor/rules/after-plan-review-gate.mdc` | Copied / refreshed |
+| `<project>/.cursor/rules/before-build-critique-gate.mdc` | Copied / refreshed |
+| `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
+| `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
+
+Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
+
+Runtime markers the agents write later (not created by install): e.g. `.cursor/plan-gate.pending`, `.cursor/critique-gate.pending`, `.cursor/plan-critique.clear`, `.cursor/review-gate.pending`, `.cursor/project-patterns.md`.
+
+### What update does (step by step)
+
+1. `git pull --ff-only` inside the kit checkout (skips if no upstream).
+2. Re-walks every kit `skills/*`, `commands/*.md`, `agents/*.md` and links/copies any **new** entries into `~/.cursor` (relinks owned symlinks).
+3. If a project path was given: refreshes hook scripts, rules, `hooks.json`, and the patterns helper as in the table above.
+
+```
+~/cursor-spells/          ← one clone (source of truth)
+        │
+        │  csp install / update
+        ▼
+~/.cursor/skills|commands|agents/   ← symlinks into the kit
+your-app/.cursor/hooks|rules/       ← copies of gate hooks & rules
+```
 
 ## Layout
 
 ```
-bin/         CLI (`csp install …` — short alias of cursor-spells)
+bin/         CLI (`csp` → install / update / status)
 skills/      Agent skills (SKILL.md)
 commands/    Cursor slash commands
 rules/       Persistent rules (install per project)
