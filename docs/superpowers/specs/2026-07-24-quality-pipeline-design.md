@@ -25,7 +25,8 @@ AC (testable, from product/human)
   → [HITL: human | agent-assisted] Tech Spec (separate file, English)
   → [HITL approve-spec]
   writing-plans → Implementation Plan
-  → implementation-critic (Pass A + Pass B)
+  → [HITL approve-plan]
+  → implementation-critic (Pass A + Pass B)   # automatic after approve-plan
   → [HITL if Must-fix or Accept-risk]
   software-developer (skill-resolver + DB routing + code-comments)
   → verify-done (project lint/test/typecheck)
@@ -33,7 +34,7 @@ AC (testable, from product/human)
   → PR
 ```
 
-Every stage transition that carries irreversible risk (spec approval, Must-fix findings, accepted risk) stops for a human decision. Mechanical stages (stack detection, static skill lookup) never do.
+Every stage transition that carries irreversible risk (spec approval, plan approval, Must-fix findings, accepted risk) stops for a human decision. Mechanical stages (stack detection, static skill lookup, starting the critic after plan approval) never do.
 
 ---
 
@@ -89,6 +90,18 @@ Plan-writing does not start until the spec is `approved` (or the human explicitl
 ## 2. Implementation Critic
 
 A separate agent that reviews the **plan** (and the tech spec it's based on) before any code is written. It never writes plans or code — only audits.
+
+### When it runs
+
+Not inside `/start-build`. Pipeline order:
+
+1. `writing-plans` produces the plan
+2. **HITL `approve-plan`** — human reads the plan (`skills/approve-plan`)
+3. **Automatic** `implementation-critic` right after `approve-plan` (no HITL to start the critic)
+4. **HITL** only if `Verdict` is `blocked` or `clear pending accept`
+5. On `Verdict: clear` → `/start-build` → `software-developer`
+
+Ad-hoc: `/critique-plan` still works outside the pipeline.
 
 ### Skills (two complementary lenses, not a single tool)
 
@@ -275,6 +288,8 @@ Because no unvetted code is ever pulled in without a human decision in the loop,
 
 - `agents/tech-spec.md` (new) — drives §1
 - `agents/implementation-critic.md` (new) — drives §2
+- `skills/approve-plan/SKILL.md` + `commands/approve-plan.md` — HITL approve-plan, then auto critic, then `start-build` on clear
+- `skills/start-build/SKILL.md` — thin execution handoff (requires `.cursor/plan-critique.clear`; does not run the critic)
 - `agents/software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (branch setup in target repo(s), skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
 - `skills/software-developer/references/branch-setup.md` — resolve target repos from plan/spec, shared feature branch name, create/checkout before Task 1
 - `commands/start-task.md`, `commands/write-tech-spec.md`, `commands/critique-plan.md` (new)

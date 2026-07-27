@@ -62,7 +62,8 @@ docs/        Design specs, plans, dogfood checklists
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
-| [`start-build`](skills/start-build/) | Pre-build gate — auto-runs `implementation-critic` before Task 1, HITL only if findings block |
+| [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
+| [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
 | [`software-developer`](skills/software-developer/) | Implements a cleared plan — feature branch(es) in target repo(s), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
@@ -126,7 +127,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 1. Bootstraps context (project patterns, stack) — automatic
 2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
 3. Generates the implementation plan via `writing-plans` — automatic once the spec's `Status` is `approved` or explicitly `skip`ped
-4. Runs the pre-build critique gate (`/start-build`, below) — automatic start, **HITL** only if findings block
+4. `/approve-plan` — **HITL** `approve-plan`/`revise`, then **automatic** `implementation-critic`; **HITL** only if findings block; on `Verdict: clear` → `start-build`
 5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises
@@ -135,13 +136,15 @@ A Jira/tracker URL works as the AC source, recorded as a reference — this kit 
 
 Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, without triggering the rest of the pipeline.
 
-### Pre-build critique gate
+### Approve plan → critic → build
 
-`/start-build [path]` (or the `start-build` skill, auto-invoked by `/start-task`) always runs `implementation-critic` before Task 1 of a plan is dispatched — no permission needed to start the critique itself, since it's read-only. If `Verdict` comes back `blocked` or `clear pending accept`, it stops and waits for a plan revision or `accept F<id>` replies before execution begins.
+`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise`), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/plan-critique.clear` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
+
+`/start-build [path]` no longer runs the critic — it only starts `software-developer` when `.cursor/plan-critique.clear` matches the plan.
 
 ### Critique a plan before coding
 
-`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
+`/critique-plan [path]` audits an implementation plan ad-hoc (complexity, risk, scope drift). Prefer `/approve-plan` in the pipeline so plan HITL is not skipped. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
 
 For work spanning multiple sibling repos, see [Multi-repo review](#multi-repo-review).
 

@@ -22,3 +22,4 @@ Run the **implementation-critic** agent against an existing plan.
 
 - This command never edits the plan or any source file — it only reports.
 - Do not proceed to implementation while `Verdict` is `blocked`. If `Verdict` is `clear pending accept`, the human must reply `accept F<id>` for each remaining accept-risk finding (or revise the plan) before implementation starts. Only a `clear` verdict means nothing is outstanding.
+- In the `/start-task` pipeline, prefer `/approve-plan` so the human approves the plan before this critic runs automatically.

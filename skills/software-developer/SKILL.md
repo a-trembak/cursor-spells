@@ -15,15 +15,15 @@ Writes code **strictly** to the tech spec + implementation plan. Skill routing i
 
 ## When to Use
 
-- `/start-task` step 5 (execution) after `start-build` returns `Verdict: clear`
-- Human asks to implement a plan that already passed the critic gate
+- `/start-task` execution after `approve-plan` → clear critic → `start-build`
+- Human asks to implement a plan that already passed `/approve-plan` (`Verdict: clear`)
 - Not for drafting specs/plans, critiquing plans, or running engineer-review
 
 ## Entry conditions (all required)
 
 1. Tech spec `Status` is `approved`, or explicitly `skip (<reason>)` with the reason logged
 2. Implementation plan exists (from `writing-plans`)
-3. `implementation-critic` has no open Must-fix findings (or each is explicitly `accept`ed) — typically already enforced by `start-build`
+3. `implementation-critic` has no open Must-fix findings (or each is explicitly `accept`ed) — typically already enforced by `approve-plan` (HITL approve → auto critic → `.cursor/plan-critique.clear`) before `start-build`
 
 If any condition fails: **stop** and say which gate is missing. Do not start coding.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Reminds the agent about the pre-build critique gate if it's still pending.
-# Does NOT auto-dispatch Task 1 (preserves the critique gate).
+# Reminds the agent if plan approval or critique is still pending before build.
+# Does NOT auto-dispatch Task 1.
 # Install: copy/symlink this file + hooks.json into the consumer project's .cursor/
 
 set -euo pipefail
@@ -16,9 +16,25 @@ if command -v jq >/dev/null 2>&1; then
   fi
 fi
 
-marker="$root/.cursor/build-gate.pending"
+# Legacy alias: older installs used build-gate.pending for blocked critique
+plan_marker="$root/.cursor/plan-gate.pending"
+critique_marker="$root/.cursor/critique-gate.pending"
+legacy_marker="$root/.cursor/build-gate.pending"
 
-if [[ -f "$marker" ]]; then
+marker=""
+kind=""
+if [[ -f "$plan_marker" ]]; then
+  marker="$plan_marker"
+  kind="plan-gate"
+elif [[ -f "$critique_marker" ]]; then
+  marker="$critique_marker"
+  kind="critique-gate"
+elif [[ -f "$legacy_marker" ]]; then
+  marker="$legacy_marker"
+  kind="build-gate (legacy critique)"
+fi
+
+if [[ -n "$marker" ]]; then
   status=""
   if command -v jq >/dev/null 2>&1; then
     status="$(printf '%s' "$input" | jq -r '.status // empty' 2>/dev/null || true)"
@@ -32,7 +48,11 @@ if [[ -f "$marker" ]]; then
   fi
 
   plan_path="$(cat "$marker" 2>/dev/null || true)"
-  message="Build-gate marker still present (.cursor/build-gate.pending, plan: ${plan_path}). implementation-critic found blocking findings or accept-risk items pending. Resolve them (revise the plan or reply accept F<id>) before dispatching Task 1."
+  if [[ "$kind" == "plan-gate" ]]; then
+    message="Plan-gate marker still present (.cursor/plan-gate.pending, plan: ${plan_path}). Wait for approve-plan or revise before running the critic or dispatching Task 1."
+  else
+    message="Critique-gate marker still present (${marker#"$root"/}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /approve-plan, or reply accept F<id>) before dispatching Task 1."
+  fi
   if command -v jq >/dev/null 2>&1; then
     printf '{"followup_message":%s}\n' "$(printf '%s' "$message" | jq -Rs .)"
   else

@@ -1,5 +1,5 @@
 ---
-description: Run the pre-build critique gate, then start executing an approved implementation plan
+description: Start executing a critique-clear implementation plan (branches + software-developer) — does not run the critic
 argument-hint: "[path/to/plan.md]"
 ---
 
@@ -7,16 +7,15 @@ argument-hint: "[path/to/plan.md]"
 
 Run skill `start-build`:
 
-1. Write `.cursor/build-gate.pending` with the plan path.
-2. Auto-run `implementation-critic` against the plan (no permission needed — read-only).
-3. If `Verdict: clear`, delete the marker and dispatch `software-developer` (creates feature branch(es) in target repo(s), routes skills, then drives `subagent-driven-development` by default).
-4. If `Verdict` is `blocked` or `clear pending accept`, stop and show findings; wait for a plan revision or `accept F<id>` replies.
+1. Require `.cursor/plan-critique.clear` matching the plan path (from `/approve-plan`). If missing, stop and point to `/approve-plan`.
+2. Confirm plan-gate / critique-gate markers are absent.
+3. Dispatch `software-developer` (feature branch(es) in target repo(s), skill routing, then `subagent-driven-development` by default).
 
 ## Arguments
 
-- Optional plan path. If omitted, use the most recently modified file under `docs/**/plans/` and confirm it with the user before proceeding.
+- Optional plan path. If omitted, use the path in `.cursor/plan-critique.clear` or the most recently modified file under `docs/**/plans/` (confirm with the user).
 
 ## Notes
 
-- This command never edits the plan itself — only `implementation-critic`'s own report output, unchanged.
-- Do not start Task 1 while `Verdict: blocked`.
+- This command does **not** run `implementation-critic`. Approve + critique happen in `/approve-plan`.
+- Do not start Task 1 without a matching `plan-critique.clear`.

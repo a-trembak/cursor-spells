@@ -1,5 +1,5 @@
 ---
-description: Orchestrate the full pipeline from Acceptance Criteria to a reviewed PR — bootstrap, tech spec, plan, pre-build critique, execution, and post-plan review, stopping only at established human-in-the-loop gates
+description: Orchestrate the full pipeline from Acceptance Criteria to a reviewed PR — bootstrap, tech spec, plan, approve-plan, critic, build, and post-plan review, stopping only at established human-in-the-loop gates
 argument-hint: "[ac-source]"
 ---
 
@@ -20,10 +20,13 @@ Entry point for the whole pipeline. Chains every stage automatically except the 
    - **HITL:** the entry question (`human` / `agent`).
    - **HITL:** any Blocker/Decision-tier questions the draft surfaces, per `references/question-discipline.md`.
    - **HITL:** `approve-spec` / `revise` / `skip <reason>`.
-3. **Plan** (automatic once the spec's `Status` is `approved` or explicitly `skip`ped): invoke `writing-plans` with the tech spec as input to produce the implementation plan. Do not ask which execution strategy yet — that's decided in step 5.
-4. **Pre-build critique** (automatic start, HITL only if blocked): invoke skill `start-build` on the new plan.
-   - **HITL:** only if `implementation-critic`'s `Verdict` is `blocked` or `clear pending accept` — wait for a plan revision or `accept F<id>` replies.
-5. **Execution** (automatic once `Verdict: clear`): dispatch agent/skill `software-developer` — it first creates a feature branch in every repo the plan will touch (see `skills/software-developer/references/branch-setup.md`), routes stack/DB/`code-comments` skills from `skill-map.md`, then drives `subagent-driven-development` by default (fresh implementer + task reviewer per task). Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
+3. **Plan** (automatic once the spec's `Status` is `approved` or explicitly `skip`ped): invoke `writing-plans` with the tech spec as input to produce the implementation plan.
+4. **Approve plan + critic** — invoke skill `approve-plan` on the new plan:
+   - **HITL:** `approve-plan` / `revise` (human reads the plan first).
+   - **Automatic after `approve-plan`:** run `implementation-critic` (no HITL to start the critic).
+   - **HITL:** only if `Verdict` is `blocked` or `clear pending accept` — wait for a plan revision or `accept F<id>` replies.
+   - **Automatic on `Verdict: clear`:** hand off to `start-build`.
+5. **Execution** (automatic once critique is clear): skill `start-build` dispatches `software-developer` — feature branch(es) in every repo the plan will touch, skill-map routing, then `subagent-driven-development` by default. Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
 6. **Finish plan** (automatic invocation of the existing HITL gate): once all tasks are complete, invoke skill `finish-plan`:
    - **HITL:** `skip` / `approve` / `done` before `engineer-review` starts.
 7. **Engineer review** (automatic once the HITL gate clears): run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ changed repos).

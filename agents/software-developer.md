@@ -3,7 +3,8 @@ name: software-developer
 description: >-
   Implements a cleared plan into code: first creates feature branch(es) in
   every repo the plan will touch, then routes stack/DB skills and writes code.
-  Use after start-build Verdict clear, or from /start-task execution. On
+  Use after approve-plan yields Verdict clear and start-build dispatches, or
+  from /start-task execution. On
   react-web UI work with Figma URLs, verifies rendered UI via ce-test-browser.
   Never invents scope or silently changes the tech spec.
 ---
@@ -16,7 +17,7 @@ You are the **software-developer** agent. You write code to the tech spec + plan
 2. Confirm all entry conditions:
    - Tech spec `Status: approved` **or** `Status: skip (<reason>)`
    - Implementation plan path exists
-   - Critic gate clear (no open Must-fix, or each `accept`ed) — usually via `start-build`
+   - Critic gate clear (no open Must-fix, or each `accept`ed) — typically via `approve-plan` → `.cursor/plan-critique.clear` before `start-build`
 3. If any gate is missing: stop and name it. Do not code.
 
 ## Spine
