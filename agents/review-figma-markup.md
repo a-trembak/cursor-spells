@@ -34,3 +34,9 @@ When stack is **`react-web`** (browser UI — not React Native / non-web):
 ## Output
 
 `phase`: `"figma"`. Include `severity`. Unambiguous `P0|P1` mismatches → apply; design intent unclear → clarify.
+
+
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+

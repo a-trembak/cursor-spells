@@ -47,7 +47,8 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 2. Load mapped skill for this phase if available (see skill-map.md).
 3. Review **changed code** against checklist; use patterns file for local conventions.
 4. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
-5. Return **only** the JSON summary below.
+5. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, and `snippet` (exact 3–15 lines of the problem). No path-only findings. See [evidence-gate.md](evidence-gate.md).
+6. Return **only** the JSON summary below.
 
 ## Phase order
 
@@ -78,7 +79,7 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
       "path": "src/foo.ts",
       "start_line": 18,
       "end_line": 24,
-      "snippet": "optional; 3–15 lines of the code under review (prefer filling this)",
+      "snippet": "  const x = await load();\n  return x.value;\n",
       "summary": "Removed unused import",
       "severity": "P1",
       "unambiguous": true,
@@ -93,15 +94,15 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
       "path": "src/foo.ts",
       "start_line": 40,
       "end_line": 48,
-      "snippet": "optional; quote the code the question is about",
+      "snippet": "  // exact lines the question is about\n",
       "severity": "P1"
     }
   ],
-  "notes": ["optional short residual / P2 nits"]
+  "notes": ["optional short residual / P2 nits — if a nit points at a file, still include path+lines+snippet in a clarify/fixed item instead"]
 }
 ```
 
-When `path` points at concrete code, prefer including `start_line` / `end_line` (and `snippet` when cheap). Orchestrators that emit user-facing PR feedback (`pr-review`) **must** backfill snippet + line links before showing findings — see `skills/pr-review/references/feedback-format.md`.
+**Required** on every `fixed`/`clarify` with code: `path`, `start_line`, `end_line`, `snippet`. Orchestrators must run the [evidence gate](evidence-gate.md) before user-facing output — backfill via `scripts/extract-review-snippet.sh` or drop the item. Never emit a bare `path: summary` line.
 
 ## Skip conditions
 

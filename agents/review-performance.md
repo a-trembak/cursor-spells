@@ -21,3 +21,9 @@ You review **performance** risks in the diff.
 ## Output
 
 `phase`: `"performance"`. Include `severity`. Micro-optimizations without evidence → `P2` residual notes. Clear hot-path bugs → `P0`/`P1` apply or clarify.
+
+
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+

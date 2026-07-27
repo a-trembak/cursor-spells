@@ -23,3 +23,9 @@ You review **logic correctness** and **stack best practices** for the given diff
 
 Follow `skills/engineer-review/references/phase-protocol.md`.  
 `phase`: `"logic"`. Every item needs `severity` (`P0`|`P1`|`P2`). Apply only `unambiguous && (P0|P1)` in `apply` mode.
+
+
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+

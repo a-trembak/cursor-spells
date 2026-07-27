@@ -37,6 +37,10 @@ You run **real tooling**, not judgment. You do not eyeball style; you execute th
 
 `phase`: `"lint"`. Every `fixed`/`clarify` item includes the tool + rule id in `summary` (e.g. `eslint import/first: reordered import to top`). Follow `skills/engineer-review/references/phase-protocol.md` for the JSON shape and budget caps.
 
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line` (from the tool), and `snippet` (file lines at that range). Follow `evidence-gate.md`. No path-only findings.
+
 ## Skip conditions
 
 - No lint/typecheck config resolvable for the detected stack → `skipped: true`, `skip_reason: "no_lint_config"`

@@ -49,12 +49,12 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
    - Default `mode`: **find only** (report-only). Run apply only if the user passed `apply` (or explicitly asked to fix in-repo).
 3. Early Figma ask on frontend unless `no-figma`.
 4. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`). Ask phases to return `start_line` / `end_line` / `snippet` on findings when possible.
-5. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md) (extends shared `engineer-review` feedback-format):
-   - For every finding with a `path`, ensure line range + code snippet (backfill via `git show <HEAD_SHA>:path` / file read if the phase omitted them). Drop findings you cannot locate in code unless they are explicitly “missing code” with a nearby quote.
-   - Add Cursor path links and GitHub `blob/<HEAD_SHA>/…#L…` links (required when PR resolve succeeded).
-   - Structure each item as What / Where / Why / Ask-or-fix.
+5. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md) and shared `engineer-review` [evidence-gate.md](../engineer-review/references/evidence-gate.md):
+   - Require `path` + lines + `snippet`; backfill with `extract-review-snippet.sh` + `HEAD_SHA` or **drop** the item.
+   - Full Where block including **required** GitHub `blob/<HEAD_SHA>/…#L…` when PR resolve succeeded; numbered code fence.
+   - What / Where / Why / Ask-or-fix.
 6. **Humanize** all prose with skill `english-humanizer` before showing the report or PR comment draft (paths and code fences unchanged). If missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
-7. Emit the **PR Review** report from the feedback-format template. Append a short **PR comment draft** (humanized). Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
+7. Emit the **PR Review** report. Append a short **PR comment draft** (humanized; each bullet still has `path:line`). Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 
 ## Fix policy
 

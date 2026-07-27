@@ -31,3 +31,9 @@ Use `security-review` if installed.
 ## Output
 
 `phase`: `"security"`. Include `severity` (most real issues are `P0`/`P1`). Prefer clarify for tradeoffs; apply only clear, safe `unambiguous` fixes.
+
+
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+

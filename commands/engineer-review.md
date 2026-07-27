@@ -18,11 +18,11 @@ Run the portable **engineer-review** flow (orchestrator `engineer-reviewer`).
 2. Invoke agent `engineer-reviewer` with:
    - `BASE_SHA` / `HEAD_SHA` from git
    - `mode`: find then apply unambiguous fixes
-3. Emit the report per `skills/engineer-review/references/feedback-format.md` (code snippets, clickable file:line links, What/Where/Why/Ask) after running `english-humanizer` on all prose.
-4. If clarifications remain, wait for answers like `C1: A`, then re-dispatch affected phases and re-emit with the same feedback bar.
+3. Run `evidence-gate.md` (backfill via `scripts/extract-review-snippet.sh` or drop). Emit per `feedback-format.md`: full Where (File/Lines/Jump) + numbered code fence + What/Why/Ask; `english-humanizer` on prose.
+4. If clarifications remain, wait for answers like `C1: A`, then re-dispatch affected phases and re-emit with the same evidence bar.
 
 ## Notes
 
 - After finishing an implementation **plan**, do not use this command as a silent auto-start; the plan agent must ask HITL first. Once the user says `skip`/`approve`/`done`, either continue as engineer-reviewer or run this command.
 - Ensure recommended stack skills are installed when possible (see skill-map). Missing skills → continue with built-in checklists and note in Coverage.
-- Vague one-line `path: summary` findings without snippets/links are a bug in this command’s output — fix before showing the user.
+- Path-only or snippet-less findings are a hard failure — backfill or drop before showing the user.

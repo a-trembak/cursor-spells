@@ -70,3 +70,8 @@ Rules:
 - `fixed` must always be `[]` — cross-repo contract drift is never auto-applied in v1.
 - Only `clarify` and optional `notes` carry findings.
 - On clarification follow-up, re-run with `clarifications` filled; update clarify items or move resolved context to `notes` — still no applies.
+
+## Evidence (mandatory)
+
+Each `clarify` item that names a file or contract location **must** include `path`, `start_line`, `end_line`, and `snippet` for at least one side of the drift. Follow `evidence-gate.md`.
+

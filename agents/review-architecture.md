@@ -21,3 +21,9 @@ Use `architecture-review` (Sentry Warden) if installed; patterns file; optional 
 ## Output
 
 `phase`: `"architecture"`. Include `severity`. Large redesigns → clarify. Small boundary fixes → apply when `unambiguous && (P0|P1)`.
+
+
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+

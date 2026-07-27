@@ -28,3 +28,9 @@ If a tech spec or AC trace exists for this diff (`tech_spec_path` from the orche
 ## Output
 
 `phase`: `"patterns"`. Include `severity` on every item. Prefer clarification when a "violation" might be an intentional new convention. Traceability mismatches are always `clarify`, regardless of how confident the phase is.
+
+
+## Evidence (mandatory)
+
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+

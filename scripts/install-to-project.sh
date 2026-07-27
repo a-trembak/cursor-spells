@@ -275,6 +275,10 @@ install_project_bits() {
   else
     echo "skip (exists): $PROJECT/scripts/check-project-patterns.sh"
   fi
+  # Snippet helper for review evidence backfill (always refresh — small script)
+  cp "$KIT_ROOT/scripts/extract-review-snippet.sh" "$PROJECT/scripts/extract-review-snippet.sh"
+  chmod +x "$PROJECT/scripts/extract-review-snippet.sh"
+  echo "copied: $PROJECT/scripts/extract-review-snippet.sh"
 }
 
 echo "kit: $KIT_ROOT"

@@ -45,13 +45,13 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 3. **Budget**: if changed files > 40 or changed LOC > 2500, split into directory/package chunks (see [phase-protocol.md](references/phase-protocol.md)).
 4. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
 5. Early Figma ask when frontend (above).
-6. Dispatch phase subagents per phase-protocol. Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Prefer phases return `start_line` / `end_line` / `snippet`.
+6. Dispatch phase subagents per phase-protocol. Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
 7. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
-8. Merge summaries → emit report per [feedback-format.md](references/feedback-format.md) / [output-schema.md](references/output-schema.md):
-   - Backfill snippets and line links when phases omit them
-   - Structure Fixed / Clarify as What / Where / Why / Ask-or-fix
-   - Run `english-humanizer` on all prose (or its voice rules if missing; note `skill_missing`)
-9. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same feedback bar.
+8. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → emit report per [feedback-format.md](references/feedback-format.md):
+   - Full Where block: File + Lines + Jump (+ GitHub when known)
+   - Numbered code fence with real source
+   - What / Why / Ask-or-fix; `english-humanizer` on prose
+9. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar.
 
 ## Fix policy
 

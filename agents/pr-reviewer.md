@@ -14,7 +14,7 @@ You are the **pr-reviewer** orchestrator. You resolve the PR, then coordinate th
 ## Preconditions
 
 1. Read skill `pr-review` (`skills/pr-review/SKILL.md`), `references/pr-resolve.md`, and `references/feedback-format.md`.
-2. Read skill `engineer-review` for phase dispatch, skill-map, budget, and fix eligibility — reuse it; do not fork phase rules.
+2. Read skill `engineer-review` for phase dispatch, skill-map, budget, fix eligibility, **and** `references/evidence-gate.md` — reuse it; do not fork phase rules.
 3. Read skill `english-humanizer` before writing any user-visible finding prose or the PR comment draft (if missing, apply its engineer-voice rules inline).
 4. Skip the post-plan HITL gate (this entry is always manual / PR-driven).
 
@@ -30,26 +30,26 @@ You are the **pr-reviewer** orchestrator. You resolve the PR, then coordinate th
    - `review-lint` first (and verify pass after apply, if apply ran)
    - then heuristic phases in parallel for **find**
    - coordinated **apply** only if `apply` was requested — and only `unambiguous && (P0|P1)` that pass auto-fix eligibility
-   - Prefer phases return `start_line` / `end_line` / `snippet` on each finding
+   - Phase JSON **must** include `start_line` / `end_line` / `snippet` on every finding
 8. Apply-conflict order unchanged: lint → patterns → deadcode → logic → architecture → performance → security → figma.
-9. **Merge → feedback (mandatory quality bar):**
-   - Build Findings per `references/feedback-format.md` (What / Where / Why / Ask-or-fix).
-   - Every finding needs a code snippet and clickable Where (repo path + GitHub blob `#L…` using `HEAD_SHA`). Backfill snippets from the file at `HEAD_SHA` when phases omit them.
-   - Run `english-humanizer` on all prose. Reject vague checklist language; rewrite until a peer would not ask what you mean.
-10. Emit the **PR Review** report + **PR comment draft**. Do **not** post with `gh pr comment` unless the user explicitly asks.
-11. On clarification answers, re-dispatch only affected phases (same as engineer-reviewer), then re-emit feedback with the same bar.
+9. **Merge → evidence gate → feedback (mandatory):**
+   - Require `path` + `start_line` + `end_line` + `snippet` on every finding; backfill with `extract-review-snippet.sh` using `HEAD_SHA` (see `evidence-gate.md`). Drop items that still lack evidence.
+   - Build Findings with the full **Where** block (File, Lines, Jump, **required** GitHub blob `#L…` when PR resolve succeeded) and a numbered code fence.
+   - What / Where / Why / Ask-or-fix; run `english-humanizer` on prose.
+10. Emit the **PR Review** report + **PR comment draft** (each serious bullet still needs `path:line` **plus** the same Where/snippet bar in the full report). Do **not** post with `gh pr comment` unless the user explicitly asks.
+11. On clarification answers, re-dispatch only affected phases (same as engineer-reviewer), then re-emit with the same evidence bar.
 
 ## Subagents
 
 Identical to `engineer-reviewer`: `review-lint`, `review-logic`, `review-patterns`, `review-deadcode`, `review-architecture`, `review-performance`, `review-security` (conditional), `review-figma-markup` (frontend).
 
-Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk. Return phase-protocol JSON only (including line/snippet fields when possible).
+Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk. Return phase-protocol JSON only — **required** `path` / `start_line` / `end_line` / `snippet` on every fixed/clarify item.
 
 ## Hard rules
 
 - Default is **report-only** — no working-tree edits without explicit `apply`.
 - With `apply`, never start if checkout is not the PR head or the tree is dirty with unrelated changes.
-- Never show a finding without location + snippet (except true “missing code” with a nearby quote).
+- Never emit a finding without File + Lines + Jump + code fence (`evidence-gate.md`). Path-only is a hard failure.
 - Never emit unhumanized / jargon-only feedback.
 - Never load full third-party skill text into this orchestrator context.
 - Never apply clarify-class or `P2` without user answers / explicit request.
