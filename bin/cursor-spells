@@ -19,17 +19,19 @@ usage() {
 csp / cursor-spells — personal Cursor workflow kit
 
 Usage:
-  csp install <project-path> [flags]
-  csp install --user-only [flags]
+  csp install [project-path] [flags]
   csp update  [project-path] [flags]
   csp status
   csp help
 
 Commands:
   install   First-time (or add) sync into ~/.cursor + project
-  update    git pull this kit, then re-sync ~/.cursor (+ project if given)
+  update    git pull this kit, then re-sync ~/.cursor + project
   status    Show kit path, commit, and what is linked
   help      Show this help
+
+With no project-path: uses the current git repo, or the multi-repo workspace
+you are standing in (cwd with multi-repo.json / graphify-out / 2+ sibling repos).
 
 Flags (install / update):
   --user-only     Only ~/.cursor (no project files)
@@ -38,10 +40,10 @@ Flags (install / update):
   -h, --help      Show help
 
 Examples:
-  csp install ~/code/my-app
-  csp install . --humanizer
-  csp update ~/code/my-app
-  csp update --user-only
+  cd ~/code/my-app && csp install
+  cd ~/code/workspace && csp update          # multi-repo parent or any leaf repo
+  csp install ~/code/my-app --humanizer
+  csp install --user-only
   csp status
 
 Slash commands after install: /start-task  /approve-plan  /start-build  /finish-plan  /pr-review  /engineer-review

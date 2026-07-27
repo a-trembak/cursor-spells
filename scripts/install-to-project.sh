@@ -20,9 +20,11 @@ usage() {
 Install or update cursor-spells.
 
 Usage:
-  install-to-project.sh <project-path> [flags]
+  install-to-project.sh [project-path] [flags]
   install-to-project.sh --user-only [flags]
-  install-to-project.sh --update [<project-path>] [flags]
+  install-to-project.sh --update [project-path] [flags]
+
+With no project-path: uses the current repo / multi-repo workspace (cwd).
 
 Flags:
   --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
@@ -63,14 +65,47 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ "$USER_ONLY" -eq 0 && -z "$PROJECT" && "$MODE" != "update" ]]; then
-  echo "Provide a consumer project path, or --user-only" >&2
-  usage 1
-fi
+# Resolve default project when path omitted: current git repo or multi-repo workspace.
+resolve_default_project() {
+  local cwd root count d
+  cwd="$(pwd)"
 
-# `csp update` with no path → refresh ~/.cursor only (kit pull happens in CLI)
-if [[ "$MODE" == "update" && -z "$PROJECT" ]]; then
-  USER_ONLY=1
+  # 1) Inside a git work tree → that repo's toplevel (leaf repo in a multi-repo is fine)
+  if root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    printf '%s\n' "$root"
+    return 0
+  fi
+
+  # 2) Multi-repo / workspace parent markers at cwd
+  if [[ -f "$cwd/.cursor/multi-repo.json" || -d "$cwd/graphify-out" ]]; then
+    printf '%s\n' "$cwd"
+    return 0
+  fi
+
+  # 3) Cwd looks like a workspace parent: 2+ immediate child git repos
+  count=0
+  for d in "$cwd"/*/; do
+    [[ -d "$d" ]] || continue
+    if git -C "$d" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      count=$((count + 1))
+    fi
+  done
+  if [[ "$count" -ge 2 ]]; then
+    printf '%s\n' "$cwd"
+    return 0
+  fi
+
+  return 1
+}
+
+if [[ "$USER_ONLY" -eq 0 && -z "$PROJECT" ]]; then
+  if PROJECT="$(resolve_default_project)"; then
+    echo "project (auto): $PROJECT"
+  else
+    echo "No project path given, and cwd is not a git repo or multi-repo workspace." >&2
+    echo "Run from inside a repo/workspace, pass a path, or use --user-only." >&2
+    usage 1
+  fi
 fi
 
 if [[ -n "$PROJECT" ]]; then
@@ -79,6 +114,11 @@ if [[ -n "$PROJECT" ]]; then
     exit 1
   fi
   PROJECT="$(cd "$PROJECT" && pwd)"
+  if [[ "$PROJECT" == "$KIT_ROOT" ]]; then
+    echo "Refusing to install project bits into the cursor-spells kit itself ($KIT_ROOT)." >&2
+    echo "cd into your app or multi-repo workspace, or pass its path. Use --user-only for ~/.cursor only." >&2
+    exit 1
+  fi
 fi
 
 is_our_link() {

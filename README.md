@@ -18,10 +18,10 @@ git clone https://github.com/a-trembak/cursor-spells.git ~/cursor-spells
 echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
 source ~/.bashrc
 
-# 3) Install into a project
+# 3) Install into a project (path optional when already inside the repo / multi-repo)
 csp install /path/to/your-app
-# or from inside the app:
-csp install .
+cd /path/to/your-app && csp install          # same — path defaults to this repo
+cd /path/to/multi-repo-workspace && csp update
 ```
 
 Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink).
@@ -30,10 +30,19 @@ Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only
 
 ```bash
 csp update /path/to/your-app   # git pull the kit, then re-sync ~/.cursor + project files
-csp update                     # git pull + refresh ~/.cursor only
+cd /path/to/your-app && csp update   # path optional — current repo / workspace
+csp install --user-only        # ~/.cursor only (also: csp update --user-only)
 csp status                     # kit path, commit, what is linked
 ```
 
+**Default project when path is omitted**
+
+1. Git toplevel of the current directory (works inside a leaf repo of a multi-repo)
+2. Else cwd if it has `.cursor/multi-repo.json` or `graphify-out/`
+3. Else cwd if it contains 2+ immediate child git repos (workspace parent)
+4. Else error — pass a path or `--user-only`
+
+Installing into the `cursor-spells` kit checkout itself is refused.
 With **symlink** mode (default), `git pull` in the kit already refreshes skill/command/agent *contents*; `csp update` still matters to **add new** skills/commands/agents and to **refresh** project hooks/rules. With `--copy`, `csp update` is required to refresh copied bodies.
 
 ### What install creates
@@ -51,7 +60,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 
 Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
 
-#### B) `<project>/` (when you pass a project path)
+#### B) `<project>/` (path argument, or auto-detected cwd repo / multi-repo workspace)
 
 | Path | Action |
 |------|--------|
@@ -71,7 +80,7 @@ Runtime markers the agents write later (not created by install): e.g. `.cursor/p
 
 1. `git pull --ff-only` inside the kit checkout (skips if no upstream).
 2. Re-walks every kit `skills/*`, `commands/*.md`, `agents/*.md` and links/copies any **new** entries into `~/.cursor` (relinks owned symlinks).
-3. If a project path was given: refreshes hook scripts, rules, `hooks.json`, and the patterns helper as in the table above.
+3. If a project is targeted (explicit path or auto-detected cwd): refreshes hook scripts, rules, `hooks.json`, and the patterns helper as in the table above.
 
 ```
 ~/cursor-spells/          ← one clone (source of truth)
