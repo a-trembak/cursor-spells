@@ -111,6 +111,7 @@ install_user_bits() {
   link_or_copy "$KIT_ROOT/skills/finish-plan" "$HOME/.cursor/skills/finish-plan"
   link_or_copy "$KIT_ROOT/skills/start-build" "$HOME/.cursor/skills/start-build"
   link_or_copy "$KIT_ROOT/skills/approve-plan" "$HOME/.cursor/skills/approve-plan"
+  link_or_copy "$KIT_ROOT/skills/pr-review" "$HOME/.cursor/skills/pr-review"
   link_or_copy "$KIT_ROOT/skills/tech-spec" "$HOME/.cursor/skills/tech-spec"
   link_or_copy "$KIT_ROOT/skills/implementation-critic" "$HOME/.cursor/skills/implementation-critic"
   link_or_copy "$KIT_ROOT/skills/code-comments" "$HOME/.cursor/skills/code-comments"
@@ -123,11 +124,13 @@ install_user_bits() {
   link_or_copy "$KIT_ROOT/commands/critique-plan.md" "$HOME/.cursor/commands/critique-plan.md"
   link_or_copy "$KIT_ROOT/commands/start-build.md" "$HOME/.cursor/commands/start-build.md"
   link_or_copy "$KIT_ROOT/commands/approve-plan.md" "$HOME/.cursor/commands/approve-plan.md"
+  link_or_copy "$KIT_ROOT/commands/pr-review.md" "$HOME/.cursor/commands/pr-review.md"
   link_or_copy "$KIT_ROOT/agents/engineer-reviewer.md" "$HOME/.cursor/agents/engineer-reviewer.md"
   link_or_copy "$KIT_ROOT/agents/multi-repo-supervisor.md" "$HOME/.cursor/agents/multi-repo-supervisor.md"
   link_or_copy "$KIT_ROOT/agents/tech-spec.md" "$HOME/.cursor/agents/tech-spec.md"
   link_or_copy "$KIT_ROOT/agents/implementation-critic.md" "$HOME/.cursor/agents/implementation-critic.md"
   link_or_copy "$KIT_ROOT/agents/software-developer.md" "$HOME/.cursor/agents/software-developer.md"
+  link_or_copy "$KIT_ROOT/agents/pr-reviewer.md" "$HOME/.cursor/agents/pr-reviewer.md"
   local f
   for f in "$KIT_ROOT"/agents/review-*.md; do
     link_or_copy "$f" "$HOME/.cursor/agents/$(basename "$f")"
@@ -184,6 +187,6 @@ fi
 echo "done."
 if [[ -n "$PROJECT" ]]; then
   echo "project: $PROJECT"
-  echo "next: open the project in Cursor → /start-task to run the whole pipeline, /approve-plan after writing a plan, /start-build once critique is clear, /finish-plan after implementation, /engineer-review anytime"
+  echo "next: open the project in Cursor → /start-task to run the whole pipeline, /approve-plan after writing a plan, /start-build once critique is clear, /finish-plan after implementation, /pr-review for a GitHub PR, /engineer-review anytime"
 fi
 echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"

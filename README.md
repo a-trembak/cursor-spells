@@ -64,6 +64,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
+| [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — resolve PR diff, same phases; default report-only |
 | [`software-developer`](skills/software-developer/) | Implements a cleared plan — feature branch(es) in target repo(s), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
@@ -72,6 +73,7 @@ docs/        Design specs, plans, dogfood checklists
 |-------|------|
 | `software-developer` | Feature branch(es) then code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
 | `engineer-reviewer` | Orchestrator — dispatches phase agents, merges Fixed / Clarify |
+| `pr-reviewer` | Same phases as engineer-reviewer, entry via GitHub PR (URL/number/branch); default report-only |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
 | `review-patterns` | Project patterns MD (create/enforce) |
@@ -118,7 +120,8 @@ Database migrations and schema changes are automatically routed to matching DB s
 
 Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity.
 
-**Manual review:** `/engineer-review`
+**Manual review:** `/engineer-review`  
+**PR review:** `/pr-review [url|number|branch] [apply] [no-figma]` — same phase pipeline on a pull-request diff; report-only unless `apply`.
 
 ### Start a task (full pipeline)
 
