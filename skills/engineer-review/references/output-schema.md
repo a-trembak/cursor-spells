@@ -1,41 +1,18 @@
 # Output schema
 
-Emit this markdown to the user. Keep it scannable. No persona dump, no skill internals.
+Emit user-facing markdown per [feedback-format.md](feedback-format.md) — **not** a bare path:summary bullet list.
 
-```markdown
-# Engineer Review
+Every Fixed / Clarify / Residual item must include:
 
-## Coverage
-- range: `<base>..<head>`
-- stack: `<label>`
-- patterns: `created` | `reused` | `updated`
-- chunks: `1` | `N (by package/dir)` 
-- phases:
-  - lint: ran (verify pass after apply)
-  - logic: ran
-  - patterns: ran
-  - deadcode: ran
-  - architecture: ran
-  - performance: ran
-  - security: skipped (no sensitive surface)
-  - figma: skipped (awaiting node URLs) | ran | skipped (user said no)
-- skills_missing: []
-- budget: files=… loc=… (chunked if over caps)
+- **What / Where / Why / Ask-or-fix**
+- A **code snippet** (3–15 lines)
+- A clickable `` [`path:line`](path) `` (and GitHub blob link when `HEAD_SHA` + remote are known)
+- Prose run through **`english-humanizer`** (or its engineer-voice rules if the skill is missing)
 
-## Fixed now
-- `P0|P1` `path`: summary
-
-## Needs clarification
-1. **C1** (`P0|P1`) — question
-   - Options: A / B / C
-   - File: `path` (if any)
-
-## Residual notes
-- `P2` / non-blocking bullets (max 5 shown; mention if truncated)
-```
+See [feedback-format.md](feedback-format.md) for the full template, phase-JSON mapping, and anti-patterns.
 
 If **Needs clarification** is non-empty, end with:
 
 > Reply with answers like `C1: A` (or free text). I will re-run the affected phases and apply agreed fixes.
 
-After the follow-up apply round, re-emit the same schema with an updated Fixed now section and cleared/remaining clarifications.
+After the follow-up apply round, re-emit the same format with an updated Fixed now section and cleared/remaining clarifications.

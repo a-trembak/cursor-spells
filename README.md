@@ -117,7 +117,7 @@ docs/        Design specs, plans, dogfood checklists
 |-------|----------------|
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
-| [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator (stack-aware subagents, P0–P2, chunking) |
+| [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
@@ -131,7 +131,7 @@ docs/        Design specs, plans, dogfood checklists
 | Agent | Role |
 |-------|------|
 | `software-developer` | Feature branch(es) then code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
-| `engineer-reviewer` | Orchestrator — dispatches phase agents, merges Fixed / Clarify |
+| `engineer-reviewer` | Orchestrator — phase agents; findings with snippets, clickable links, humanized What/Where/Why |
 | `pr-reviewer` | Same phases as engineer-reviewer; PR feedback with code snippets, clickable links, humanized prose |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
@@ -177,10 +177,10 @@ Database migrations and schema changes are automatically routed to matching DB s
 3. On frontend, paste Figma node URLs or `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
-Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity.
+Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings (engineer-review and pr-review) follow [feedback-format.md](skills/engineer-review/references/feedback-format.md): snippets, clickable locations, humanized What/Where/Why.
 
-**Manual review:** `/engineer-review`  
-**PR review:** `/pr-review [url|number|branch] [apply] [no-figma]` — same phase pipeline on a pull-request diff; findings include code snippets + file/GitHub links and are passed through `english-humanizer`; report-only unless `apply`.
+**Manual review:** `/engineer-review` — findings include code snippets + file links and are passed through `english-humanizer`.  
+**PR review:** `/pr-review [url|number|branch] [apply] [no-figma]` — same feedback bar on a pull-request diff (plus GitHub links + PR comment draft); report-only unless `apply`.
 
 ### Start a task (full pipeline)
 

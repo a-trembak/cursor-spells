@@ -46,8 +46,8 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
    - Renumber per-repo clarify ids globally (`api:C1`, `C1@api`, etc.); keep original ids inside each repo's JSON summary.
    - Cross-repo ids stay `C_CR1`, `C_CR2`, … — never renumber into per-repo sequences.
    - Cross-repo findings always land in **Needs clarification** / `cross_repo.clarify`; never in **Fixed now** or `fixed`.
-   - Per-repo `fixed` and residual notes follow normal `output-schema.md` rules.
-   - Emit the unified markdown template from the protocol.
+   - Per-repo `fixed` and residual notes follow normal `feedback-format.md` / `output-schema.md` rules (snippets, links, humanized What/Where/Why — each per-repo `engineer-reviewer` must already emit that bar).
+   - Emit the unified markdown template from the protocol; do not flatten findings back into bare `path: summary` one-liners.
 8. **Clarification round:** if any per-repo or `C_CR*` clarify item is non-empty, stop and wait for one consolidated answer round. Route answers:
    - `api:C1: A` / `C1@api: A` → re-dispatch `engineer-reviewer` for that repo with the answer in `clarifications`; apply agreed per-repo fixes only.
    - `C_CR1: B` → re-dispatch `review-cross-repo` with the answer for clarify follow-up only — **still no auto-apply for `C_CR*`** even when the fix looks trivial.

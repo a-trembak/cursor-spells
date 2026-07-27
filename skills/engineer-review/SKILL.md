@@ -4,12 +4,13 @@ description: >-
   Use when a plan just finished and human-in-the-loop review gate is next, when
   the user runs /engineer-review or asks for engineer-reviewer, or when
   approving automated post-plan code review across Java/Spring, React,
-  TypeScript, or React Native changes.
+  TypeScript, or React Native changes. Findings must include code snippets,
+  clickable file:line links, and english-humanizer prose.
 ---
 
 # Engineer Review
 
-Thin orchestrator for multi-phase code review. Keeps the spine small; each phase runs as a separate subagent with its own skill.
+Thin orchestrator for multi-phase code review. Keeps the spine small; each phase runs as a separate subagent with its own skill. User-facing feedback must meet [references/feedback-format.md](references/feedback-format.md).
 
 ## When to Use
 
@@ -44,10 +45,13 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 3. **Budget**: if changed files > 40 or changed LOC > 2500, split into directory/package chunks (see [phase-protocol.md](references/phase-protocol.md)).
 4. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
 5. Early Figma ask when frontend (above).
-6. Dispatch phase subagents per phase-protocol. Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only.
+6. Dispatch phase subagents per phase-protocol. Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Prefer phases return `start_line` / `end_line` / `snippet`.
 7. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
-8. Merge summaries → emit report per [output-schema.md](references/output-schema.md).
-9. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded.
+8. Merge summaries → emit report per [feedback-format.md](references/feedback-format.md) / [output-schema.md](references/output-schema.md):
+   - Backfill snippets and line links when phases omit them
+   - Structure Fixed / Clarify as What / Where / Why / Ask-or-fix
+   - Run `english-humanizer` on all prose (or its voice rules if missing; note `skill_missing`)
+9. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same feedback bar.
 
 ## Fix policy
 
@@ -78,4 +82,4 @@ If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos*
 
 ## Context budget
 
-Orchestrator loads this SKILL + reference indexes only. Do **not** paste full third-party skill bodies into the orchestrator. Subagents load stack skills themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking.
+Orchestrator loads this SKILL + reference indexes + `english-humanizer` for the final feedback pass. Do **not** paste full third-party skill bodies into the orchestrator. Subagents load stack skills themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking.
