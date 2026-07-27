@@ -1,8 +1,12 @@
 # PR review feedback format
 
-Extends shared [`../../engineer-review/references/feedback-format.md`](../../engineer-review/references/feedback-format.md) and **must** pass [`../../engineer-review/references/evidence-gate.md`](../../engineer-review/references/evidence-gate.md).
+Extends shared [`../../engineer-review/references/feedback-format.md`](../../engineer-review/references/feedback-format.md). **Must** pass [`../../engineer-review/references/evidence-gate.md`](../../engineer-review/references/evidence-gate.md) and must **not** match [`../../engineer-review/references/forbidden-formats.md`](../../engineer-review/references/forbidden-formats.md).
 
-Same hard rules: full **Where** block (File + Lines + Jump + GitHub), numbered code fence, What/Why/Ask, `english-humanizer`. GitHub blob links are **required** when PR resolve succeeded.
+## Absolute rule
+
+The user-facing message is the full **Findings** list below — each item with File / Lines / Jump / GitHub + a numbered code fence.  
+
+**Never** send a compact “Verdict / Блокери (P0) / Також (P1) / Draft” digest as the review (that shape is banned even when the analysis is correct). A PR comment draft is optional **appendix only**, after Findings.
 
 ## Report skeleton
 
@@ -17,7 +21,7 @@ Same hard rules: full **Where** block (File + Lines + Jump + GitHub), numbered c
 
 ## Findings
 
-### F1 — `P0|P1|P2` — …
+### F1 — `P0|P1|P2` — <concrete title>
 - **What:** …
 - **Where:**
   - File: [`src/foo.ts`](src/foo.ts)
@@ -31,10 +35,19 @@ Same hard rules: full **Where** block (File + Lines + Jump + GitHub), numbered c
 18|  …
 ```
 
-## Residual (optional, max 5)
+### F2 — …
+(same shape — never collapse F1–Fn into a numbered prose list)
 
-## PR comment draft
-Each bullet: `path:line` — one concrete sentence. No jargon pile. Do not auto-post.
+## Residual (optional, max 5)
+Only with Where + snippet when pointing at code.
+
+## PR comment draft (appendix only)
+Each bullet: `path:line` — one concrete sentence. Do not auto-post. This section must not replace Findings.
 ```
 
-Do not fall back to `path: summary` one-liners. Incomplete evidence → backfill or drop.
+## Before showing the user
+
+1. Evidence-gate every finding (backfill via `extract-review-snippet.sh` or drop).
+2. Write draft markdown to a temp file.
+3. Run `scripts/validate-review-report.sh` — exit non-zero → rebuild, do not show.
+4. `english-humanizer` on prose only (not paths/code).

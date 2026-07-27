@@ -48,13 +48,14 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
    - Skip the post-plan HITL gate (user already asked for PR review).
    - Default `mode`: **find only** (report-only). Run apply only if the user passed `apply` (or explicitly asked to fix in-repo).
 3. Early Figma ask on frontend unless `no-figma`.
-4. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`). Ask phases to return `start_line` / `end_line` / `snippet` on findings when possible.
-5. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md) and shared `engineer-review` [evidence-gate.md](../engineer-review/references/evidence-gate.md):
+4. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`). Phase JSON **must** include `path` / `start_line` / `end_line` / `snippet` on every finding.
+5. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md), shared [evidence-gate.md](../engineer-review/references/evidence-gate.md), and [forbidden-formats.md](../engineer-review/references/forbidden-formats.md):
    - Require `path` + lines + `snippet`; backfill with `extract-review-snippet.sh` + `HEAD_SHA` or **drop** the item.
    - Full Where block including **required** GitHub `blob/<HEAD_SHA>/…#L…` when PR resolve succeeded; numbered code fence.
+   - **Never** a Verdict / Blockers / Блокери digest — even if shorter.
    - What / Where / Why / Ask-or-fix.
 6. **Humanize** all prose with skill `english-humanizer` before showing the report or PR comment draft (paths and code fences unchanged). If missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
-7. Emit the **PR Review** report. Append a short **PR comment draft** (humanized; each bullet still has `path:line`). Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
+7. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 
 ## Fix policy
 

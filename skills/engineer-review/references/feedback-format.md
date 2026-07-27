@@ -2,7 +2,9 @@
 
 User-facing output for `engineer-review` / `engineer-reviewer` (and the shared base for `pr-review`). Every finding must answer: **what broke / looks wrong**, **where exactly**, **why it matters**, **what to do**.
 
-**Before emitting:** pass every item through [evidence-gate.md](evidence-gate.md). No exception for “small” nits that still name a file.
+**Before emitting:** pass every item through [evidence-gate.md](evidence-gate.md) and reject anything in [forbidden-formats.md](forbidden-formats.md). No exception for “small” nits that still name a file.
+
+**Do not** replace this template with a short Verdict / Blockers / Блокери digest. Class or migration names without File + Jump + code fence are not locations.
 
 ## Hard requirements per finding
 
@@ -82,3 +84,7 @@ If **Needs clarification** is non-empty, end with:
 - Any finding without Jump / File links
 - One-liner `` `P1` `path`: summary ``
 - “See `src/foo.ts`” without lines + snippet
+- Executive digests: `Verdict:…`, `### Blockers (P0)`, `### Блокери`, `### Also (P1)` without per-finding Where + fences — see [forbidden-formats.md](forbidden-formats.md)
+- Shipping a PR comment draft **instead of** the full Findings section
+
+After drafting, run `scripts/validate-review-report.sh` on the markdown; fix until exit 0.

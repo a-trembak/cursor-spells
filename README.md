@@ -79,6 +79,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
+| `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
@@ -178,10 +179,10 @@ Database migrations and schema changes are automatically routed to matching DB s
 3. On frontend, paste Figma node URLs or `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
-Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped — never bare `path: summary`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
+Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers/Блокери digests without paths and snippets. Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped; draft reports must pass `scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
 
-**Manual review:** `/engineer-review` — evidence-gated snippets + file links; `english-humanizer` on prose.  
-**PR review:** `/pr-review [url|number|branch] [apply] [no-figma]` — same gate on a PR diff (plus required GitHub blob links + PR comment draft); report-only unless `apply`.
+**Manual review:** `/engineer-review` — evidence-gated snippets + file links; validator before emit; `english-humanizer` on prose.  
+**PR review:** `/pr-review [url|number|branch] [apply] [no-figma]` — same gate (plus required GitHub blob links); never a Verdict/Блокери digest; report-only unless `apply`.
 
 ### Start a task (full pipeline)
 

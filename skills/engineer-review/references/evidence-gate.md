@@ -2,6 +2,8 @@
 
 Orchestrators (`engineer-reviewer`, `pr-reviewer`, `multi-repo-supervisor` merge) **must not** show a Fixed / Clarify / Findings item until it passes this gate. Phase agents **must** fill these fields in JSON; if they do not, the orchestrator backfills or drops the item.
 
+Also read [forbidden-formats.md](forbidden-formats.md): a “Verdict / Blockers / Блокери” digest with class names but **no** File/Jump/snippet is a failed report even if the analysis is right.
+
 ## Required fields (every `fixed` / `clarify` with a file)
 
 | Field | Rule |
@@ -63,5 +65,14 @@ Before sending the report to the user, verify for **every** Fixed / Clarify / Fi
 - [ ] Code fence with real source (not “see file”, not empty)
 - [ ] Where block with File + Lines + Jump links
 - [ ] What / Why / Ask-or-fix prose humanized
+- [ ] Report is **not** a Verdict/Blockers digest ([forbidden-formats.md](forbidden-formats.md))
 
-If any checkbox fails → fix or remove that item, then emit.
+Then write the markdown to a temp file and run:
+
+```bash
+KIT="$(cat .cursor/cursor-spells-kit-path 2>/dev/null || cat "$HOME/.cursor/cursor-spells-kit-path")"
+"$KIT/scripts/validate-review-report.sh" /tmp/review-report.md
+# or: ./scripts/validate-review-report.sh /tmp/review-report.md
+```
+
+If the validator exits non-zero → rebuild or drop items; **do not** show the failed markdown to the user.

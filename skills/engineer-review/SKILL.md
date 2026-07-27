@@ -47,10 +47,11 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 5. Early Figma ask when frontend (above).
 6. Dispatch phase subagents per phase-protocol. Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
 7. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
-8. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → emit report per [feedback-format.md](references/feedback-format.md):
+8. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → draft report per [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)):
    - Full Where block: File + Lines + Jump (+ GitHub when known)
    - Numbered code fence with real source
    - What / Why / Ask-or-fix; `english-humanizer` on prose
+   - Run `scripts/validate-review-report.sh` on the draft; rebuild until exit 0, then show the user
 9. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar.
 
 ## Fix policy

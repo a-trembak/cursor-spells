@@ -18,7 +18,7 @@ Run the **pr-review** flow (orchestrator `pr-reviewer`) — engineer-review phas
 1. Read and follow skill `pr-review` (`skills/pr-review/SKILL.md`).
 2. Resolve the PR to `BASE_SHA` / `HEAD_SHA` per `references/pr-resolve.md`.
 3. Invoke agent `pr-reviewer` with that range, PR metadata, and mode (`find` or `find`+`apply`).
-4. Run shared `evidence-gate.md` (backfill or drop). Emit **PR Review** per `skills/pr-review/references/feedback-format.md`: File/Lines/Jump/GitHub + numbered code fence + What/Why/Ask; `english-humanizer` on prose.
+4. Run shared `evidence-gate.md` (backfill or drop). Draft full **Findings** (File/Lines/Jump/GitHub + numbered fence) — **never** Verdict/Блокери digest. Validate with `scripts/validate-review-report.sh`; rebuild until exit 0. Then emit; `english-humanizer` on prose. Optional PR comment draft only as appendix.
 5. If clarifications remain, wait for answers like `C1: A` or `F2: B`, then re-dispatch affected phases and re-emit with the same evidence bar.
 
 ## Notes
@@ -26,4 +26,4 @@ Run the **pr-review** flow (orchestrator `pr-reviewer`) — engineer-review phas
 - Does **not** replace `/finish-plan` → `engineer-reviewer` after plan execution.
 - Does **not** auto-post the comment to GitHub; ask before `gh pr comment`.
 - Ad-hoc plan audits stay on `/critique-plan` / `/approve-plan`.
-- Path-only or snippet-less findings are a hard failure — backfill or drop before showing the user.
+- Path-only, snippet-less, or Verdict/Blockers digests are a hard failure — backfill/rebuild or drop before showing the user.

@@ -279,6 +279,10 @@ install_project_bits() {
   cp "$KIT_ROOT/scripts/extract-review-snippet.sh" "$PROJECT/scripts/extract-review-snippet.sh"
   chmod +x "$PROJECT/scripts/extract-review-snippet.sh"
   echo "copied: $PROJECT/scripts/extract-review-snippet.sh"
+  # Report validator — reject Verdict/Blockers digests missing evidence
+  cp "$KIT_ROOT/scripts/validate-review-report.sh" "$PROJECT/scripts/validate-review-report.sh"
+  chmod +x "$PROJECT/scripts/validate-review-report.sh"
+  echo "copied: $PROJECT/scripts/validate-review-report.sh"
 }
 
 echo "kit: $KIT_ROOT"

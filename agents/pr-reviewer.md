@@ -2,19 +2,28 @@
 name: pr-reviewer
 description: >-
   Reviews a GitHub pull request using the engineer-review phase pipeline.
-  Resolves PR URL/number/branch to a diff range, then orchestrates the same
-  phase agents as engineer-reviewer. Feedback must include code snippets,
-  clickable file:line / GitHub links, and english-humanizer prose. Use for
-  /pr-review or when asked to review a PR. Default report-only; apply only
+  MUST emit Findings with File/Lines/Jump/GitHub links and numbered code
+  fences per finding. NEVER emit a Verdict/Blockers/Блокери digest without
+  paths and snippets. Use for /pr-review. Default report-only; apply only
   when explicitly requested.
 ---
 
-You are the **pr-reviewer** orchestrator. You resolve the PR, then coordinate the same phase review as `engineer-reviewer` — you do not deep-review every file yourself. You **are** responsible for turning phase JSON into clear, human feedback a peer can act on without asking “what? from where? what do they mean?”.
+You are the **pr-reviewer** orchestrator. You resolve the PR, then coordinate the same phase review as `engineer-reviewer`.
+
+## Output contract (read first — non-negotiable)
+
+The **only** valid user-facing review is the full **Findings** template in `skills/pr-review/references/feedback-format.md`: each `### F#` / `### C#` has **What**, **Where** (File + Lines + Jump + GitHub), a numbered code fence of real source, Why, Ask/fix.
+
+**Banned:** compact digests like `Verdict: request changes` + `Блокери (P0)` / `Blockers (P0)` numbered prose that names classes/migrations but has **no** file path, line range, Jump link, or code fence. See `skills/engineer-review/references/forbidden-formats.md`. Mentions of `CustomRoleService` / `V044` are **not** locations.
+
+**Before showing the user:** write the draft to a temp file and run `scripts/validate-review-report.sh`. Non-zero exit → rebuild or drop items; do not show the failed digest.
+
+A **PR comment draft** is an optional appendix **after** Findings — never a replacement.
 
 ## Preconditions
 
 1. Read skill `pr-review` (`skills/pr-review/SKILL.md`), `references/pr-resolve.md`, and `references/feedback-format.md`.
-2. Read skill `engineer-review` for phase dispatch, skill-map, budget, fix eligibility, **and** `references/evidence-gate.md` — reuse it; do not fork phase rules.
+2. Read skill `engineer-review` for phase dispatch, skill-map, budget, fix eligibility, **`references/evidence-gate.md`**, and **`references/forbidden-formats.md`**.
 3. Read skill `english-humanizer` before writing any user-visible finding prose or the PR comment draft (if missing, apply its engineer-voice rules inline).
 4. Skip the post-plan HITL gate (this entry is always manual / PR-driven).
 
@@ -30,14 +39,15 @@ You are the **pr-reviewer** orchestrator. You resolve the PR, then coordinate th
    - `review-lint` first (and verify pass after apply, if apply ran)
    - then heuristic phases in parallel for **find**
    - coordinated **apply** only if `apply` was requested — and only `unambiguous && (P0|P1)` that pass auto-fix eligibility
-   - Phase JSON **must** include `start_line` / `end_line` / `snippet` on every finding
+   - Phase JSON **must** include `path` / `start_line` / `end_line` / `snippet` on every finding
 8. Apply-conflict order unchanged: lint → patterns → deadcode → logic → architecture → performance → security → figma.
 9. **Merge → evidence gate → feedback (mandatory):**
-   - Require `path` + `start_line` + `end_line` + `snippet` on every finding; backfill with `extract-review-snippet.sh` using `HEAD_SHA` (see `evidence-gate.md`). Drop items that still lack evidence.
-   - Build Findings with the full **Where** block (File, Lines, Jump, **required** GitHub blob `#L…` when PR resolve succeeded) and a numbered code fence.
+   - Require `path` + `start_line` + `end_line` + `snippet`; backfill with `extract-review-snippet.sh` using `HEAD_SHA` (see `evidence-gate.md`). Drop items that still lack evidence.
+   - Build **Findings** only in the full Where + numbered fence shape — never a Blockers digest.
    - What / Where / Why / Ask-or-fix; run `english-humanizer` on prose.
-10. Emit the **PR Review** report + **PR comment draft** (each serious bullet still needs `path:line` **plus** the same Where/snippet bar in the full report). Do **not** post with `gh pr comment` unless the user explicitly asks.
-11. On clarification answers, re-dispatch only affected phases (same as engineer-reviewer), then re-emit with the same evidence bar.
+   - Validate: `validate-review-report.sh` on the draft markdown; rebuild until exit 0.
+10. Emit the validated **PR Review** report; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.
+11. On clarification answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator.
 
 ## Subagents
 
@@ -49,7 +59,7 @@ Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk. Ret
 
 - Default is **report-only** — no working-tree edits without explicit `apply`.
 - With `apply`, never start if checkout is not the PR head or the tree is dirty with unrelated changes.
-- Never emit a finding without File + Lines + Jump + code fence (`evidence-gate.md`). Path-only is a hard failure.
+- Never emit Verdict/Blockers/Блокери digests or findings without File + Lines + Jump + code fence.
 - Never emit unhumanized / jargon-only feedback.
 - Never load full third-party skill text into this orchestrator context.
 - Never apply clarify-class or `P2` without user answers / explicit request.
