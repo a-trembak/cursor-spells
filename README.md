@@ -26,6 +26,12 @@ cd /path/to/multi-repo-workspace && csp update
 
 Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink).
 
+**Why `--user-only` agents may not show in Cursor**
+
+`--user-only` only creates links under `~/.cursor/agents/` (user-global). They are **not** a separate “Custom Agents” product mode — they are **subagents** (`@engineer-reviewer`, `@pr-reviewer`, …). After install: **Reload Window**. Cursor **CLI** completions often list only `<project>/.cursor/agents/` — for agents that always appear in the open project, run `csp install` / `csp update` **without** `--user-only` (that also mirrors agents into the project).
+
+Check: `ls -la ~/.cursor/agents` and (after full install) `ls -la .cursor/agents`.
+
 ### Update (kit + links)
 
 ```bash
@@ -64,6 +70,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 
 | Path | Action |
 |------|--------|
+| `<project>/.cursor/skills|commands|agents/` | Same kit entries as in `~/.cursor` (so this project’s Cursor UI/CLI sees them) |
 | `<project>/.cursor/hooks/post-plan-review-gate.sh` | Copied from kit (refreshed on every install/update) |
 | `<project>/.cursor/hooks/pre-build-gate.sh` | Copied from kit (refreshed on every install/update) |
 | `<project>/.cursor/hooks.json` | Created if missing; **refreshed on `update`** |

@@ -194,41 +194,52 @@ want_skill() {
     [[ "$WITH_HUMANIZER" -eq 1 ]] && return 0
     # Keep syncing humanizer on update if it was installed earlier
     [[ -e "$HOME/.cursor/skills/english-humanizer" || -L "$HOME/.cursor/skills/english-humanizer" ]] && return 0
+    [[ -n "${PROJECT:-}" && ( -e "$PROJECT/.cursor/skills/english-humanizer" || -L "$PROJECT/.cursor/skills/english-humanizer" ) ]] && return 0
     return 1
   fi
   return 0
 }
 
-install_user_bits() {
-  mkdir -p "$HOME/.cursor/skills" "$HOME/.cursor/commands" "$HOME/.cursor/agents"
+# Link/copy every kit skill, command, and agent into a Cursor root
+# ($1 = ~/.cursor or <project>/.cursor).
+sync_kit_entries_into() {
+  local cursor_root="$1"
+  mkdir -p "$cursor_root/skills" "$cursor_root/commands" "$cursor_root/agents"
 
   local src name
   for src in "$KIT_ROOT"/skills/*; do
     [[ -e "$src" ]] || continue
     name="$(basename "$src")"
     want_skill "$name" || continue
-    link_or_copy "$src" "$HOME/.cursor/skills/$name"
+    link_or_copy "$src" "$cursor_root/skills/$name"
   done
 
   for src in "$KIT_ROOT"/commands/*.md; do
     [[ -e "$src" ]] || continue
     name="$(basename "$src")"
-    link_or_copy "$src" "$HOME/.cursor/commands/$name"
+    link_or_copy "$src" "$cursor_root/commands/$name"
   done
 
   for src in "$KIT_ROOT"/agents/*.md; do
     [[ -e "$src" ]] || continue
     name="$(basename "$src")"
-    link_or_copy "$src" "$HOME/.cursor/agents/$name"
+    link_or_copy "$src" "$cursor_root/agents/$name"
   done
 
-  # Remember kit root for `csp status` / troubleshooting
-  printf '%s\n' "$KIT_ROOT" > "$HOME/.cursor/cursor-spells-kit-path"
-  echo "wrote: $HOME/.cursor/cursor-spells-kit-path"
+  printf '%s\n' "$KIT_ROOT" > "$cursor_root/cursor-spells-kit-path"
+  echo "wrote: $cursor_root/cursor-spells-kit-path"
+}
+
+install_user_bits() {
+  sync_kit_entries_into "$HOME/.cursor"
 }
 
 install_project_bits() {
   mkdir -p "$PROJECT/.cursor/hooks" "$PROJECT/.cursor/rules" "$PROJECT/.cursor"
+
+  # Mirror skills/commands/agents into the project so Cursor UI/CLI reliably lists them.
+  # User-global ~/.cursor alone is easy to miss (and Cursor CLI only completes project agents).
+  sync_kit_entries_into "$PROJECT/.cursor"
 
   # Hook scripts — always refresh from kit (owned by cursor-spells)
   local hook
@@ -264,9 +275,6 @@ install_project_bits() {
   else
     echo "skip (exists): $PROJECT/scripts/check-project-patterns.sh"
   fi
-
-  printf '%s\n' "$KIT_ROOT" > "$PROJECT/.cursor/cursor-spells-kit-path"
-  echo "wrote: $PROJECT/.cursor/cursor-spells-kit-path"
 }
 
 echo "kit: $KIT_ROOT"
@@ -279,8 +287,15 @@ if [[ "$USER_ONLY" -eq 0 && -n "$PROJECT" ]]; then
 fi
 
 echo "done."
-if [[ -n "$PROJECT" ]]; then
+if [[ -n "$PROJECT" && "$USER_ONLY" -eq 0 ]]; then
   echo "project: $PROJECT"
+  echo "agents also in: $PROJECT/.cursor/agents/  (visible in this project’s Cursor UI/CLI)"
+elif [[ "$USER_ONLY" -eq 1 ]]; then
+  echo
+  echo "NOTE: --user-only only links into ~/.cursor/agents|commands|skills."
+  echo "  • In Cursor IDE: reload the window, then @engineer-reviewer / @pr-reviewer (subagents)."
+  echo "  • Cursor CLI completions often list only <project>/.cursor/agents — run \`csp install\` from your app (no --user-only) for project-visible agents."
+  echo "  • Check: ls -la ~/.cursor/agents"
 fi
 echo "next: open the project in Cursor → /start-task  /approve-plan  /pr-review  /engineer-review"
 echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"
