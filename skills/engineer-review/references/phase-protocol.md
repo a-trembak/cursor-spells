@@ -76,6 +76,9 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
   "fixed": [
     {
       "path": "src/foo.ts",
+      "start_line": 18,
+      "end_line": 24,
+      "snippet": "optional; 3–15 lines of the code under review (prefer filling this)",
       "summary": "Removed unused import",
       "severity": "P1",
       "unambiguous": true,
@@ -88,12 +91,17 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
       "question": "Should X use existing helper Y?",
       "options": ["Use Y", "Keep new helper", "Need more context"],
       "path": "src/foo.ts",
+      "start_line": 40,
+      "end_line": 48,
+      "snippet": "optional; quote the code the question is about",
       "severity": "P1"
     }
   ],
   "notes": ["optional short residual / P2 nits"]
 }
 ```
+
+When `path` points at concrete code, prefer including `start_line` / `end_line` (and `snippet` when cheap). Orchestrators that emit user-facing PR feedback (`pr-review`) **must** backfill snippet + line links before showing findings — see `skills/pr-review/references/feedback-format.md`.
 
 ## Skip conditions
 
