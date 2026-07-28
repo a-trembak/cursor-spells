@@ -86,7 +86,7 @@ When plan execution finishes (`ce-work`, `executing-plans`, `subagent-driven-dev
 
 Only after `skip` | `approve` | `done` does the orchestrator run.
 
-Optional `stop` hook: if a marker file (e.g. `.cursor/review-gate.pending`) exists, emit `followup_message` reminding about the gate. The hook never auto-starts review (preserves HITL).
+Optional `stop` hook: if a marker file (e.g. `.cursor/review-gate.pending`) exists, emit `followup_message` reminding about the gate. The followup must tell the agent to honor an existing user `skip` / `approve` / `done` (delete marker and continue) instead of re-asking. The hook never auto-starts review on its own (preserves HITL).
 
 ## Orchestrator spine (context budget)
 
