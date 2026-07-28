@@ -41,19 +41,20 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 1. Resolve review range (`base..head`, default current branch vs `main`/`master`/`origin/main`).
 2. Detect stack → read [references/skill-map.md](references/skill-map.md).
 3. **Budget**: compute changed files / LOC (`git diff --name-only` + `--numstat`).
-4. **Graphify scoping** (preferred when present): apply [references/graphify-protocol.md](references/graphify-protocol.md). Query impact for changed paths; build a compact `impact_hint`. If graphify is absent or unqueryable, skip this step — behavior matches today’s diff-only path. Never rebuild the graph during review.
-5. If changed files > 40 or changed LOC > 2500, split into chunks (prefer graph modules when graphify answered; otherwise directory/package — see [phase-protocol.md](references/phase-protocol.md)).
-6. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
-7. Early Figma ask when frontend (above).
-8. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
-9. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
-10. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → draft report per [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)):
+4. **Catastrophic abort** (see [phase-protocol.md](references/phase-protocol.md)): if files > **200** or LOC > **50_000**, stop and ask the user to narrow (path allow/deny list, smaller range, exclude generated/lockfile noise). Do not chunk-spam or sample randomly.
+5. **Graphify scoping** (preferred when present): apply [references/graphify-protocol.md](references/graphify-protocol.md). Query impact for changed paths; build a compact `impact_hint`. If graphify is absent or unqueryable, skip this step — behavior matches today’s diff-only path. Never rebuild the graph during review.
+6. If changed files > 40 or changed LOC > 2500 (and under the catastrophic caps), split into chunks (prefer graph modules when graphify answered; otherwise directory/package — see [phase-protocol.md](references/phase-protocol.md)).
+7. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
+8. Early Figma ask when frontend (above).
+9. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
+10. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
+11. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → draft report per [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)):
    - Full Where block: File + Lines + Jump (+ GitHub when known)
    - Numbered code fence with real source
    - What / Why / Ask-or-fix; `english-humanizer` on prose
    - Coverage notes `graphify: used|absent|unqueryable`
    - Run `scripts/validate-review-report.sh` on the draft; rebuild until exit 0, then show the user
-11. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar.
+12. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar.
 
 ## Fix policy
 
@@ -84,6 +85,6 @@ If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos*
 
 ## Context budget
 
-Orchestrator loads this SKILL + reference indexes + `english-humanizer` for the final feedback pass. Do **not** paste full third-party skill bodies into the orchestrator. Subagents load stack skills themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking.
+Orchestrator loads this SKILL + reference indexes + `english-humanizer` for the final feedback pass. Do **not** paste full third-party skill bodies into the orchestrator. Subagents load stack skills themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
 
 When [graphify-protocol.md](references/graphify-protocol.md) detects a usable build, **prefer** short `GRAPH_REPORT.md` excerpts and `graphify query` answers over broad repo reads or pasting large diffs. Never paste full `graph.json`. When graphify is absent or unqueryable, keep the diff + chunk path unchanged.

@@ -52,6 +52,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | Needs clarification | Separate from Fixed now |
 | `P2` nits | Residual only |
 | Large synthetic diff (>40 files) | Coverage mentions chunking |
+| Catastrophic diff (>200 files or >50k LOC) | Orchestrator aborts before phase spam; asks to narrow scope |
 | No lint config in fixture repo | `lint` phase reports `skipped: true` / `no_lint_config` in Coverage instead of silently disappearing |
 
 ## Patterns CI helper
