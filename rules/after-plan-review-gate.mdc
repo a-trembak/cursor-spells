@@ -14,10 +14,10 @@ globs:
 
 When you **finish executing an implementation plan** (all plan tasks done, or you are about to declare the plan complete):
 
-1. Prefer invoking skill **`finish-plan`** (writes marker + asks HITL).
+1. Prefer invoking skill **`finish-plan`** (writes marker + asks HITL via `hitl-choice` / `AskQuestion` when available).
 2. If you cannot load that skill, still:
    - Create `.cursor/review-gate.pending` (one line `pending`)
-   - **Stop** and ask:
+   - **Stop** and ask via skill **`hitl-choice`** when available (preset Finish-plan HITL); otherwise text:
 
    > Plan done. Want to do your own review first?
    > - `skip` — start engineer-reviewer now
@@ -25,6 +25,6 @@ When you **finish executing an implementation plan** (all plan tasks done, or yo
    > - or describe fixes first
 
 3. Do **not** start `engineer-reviewer` / `/engineer-review` until the user replies `skip`, `approve`, or `done`.
-4. On that reply: delete `.cursor/review-gate.pending`; on frontend ask for Figma URLs (or `no figma`); then run engineer-review.
+4. On that reply: delete `.cursor/review-gate.pending`; on frontend ask for Figma URLs via `hitl-choice` Figma preset (or `no figma`); then run engineer-review.
 
 Does not apply to pure Q&A, docs-only answers, or when the user already launched `/engineer-review` manually.

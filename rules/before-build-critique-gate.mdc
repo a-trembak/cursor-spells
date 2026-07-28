@@ -14,7 +14,7 @@ globs:
 
 Before you **dispatch Task 1** of an implementation plan (via `software-developer`, `subagent-driven-development`, or `executing-plans`):
 
-1. Prefer invoking skill **`approve-plan`** if `.cursor/plan-critique.clear` is missing or does not match this plan (HITL `approve-plan`/`revise`, then auto `implementation-critic`).
+1. Prefer invoking skill **`approve-plan`** if `.cursor/plan-critique.clear` is missing or does not match this plan (HITL `approve-plan`/`revise` via `hitl-choice` / `AskQuestion` when available, then auto `implementation-critic`).
 2. Prefer **`start-build`** only when `.cursor/plan-critique.clear` already matches the plan — it dispatches `software-developer` and does **not** re-run the critic.
 3. If you cannot load those skills, still:
    - Do not start Task 1 until the human has approved the plan and `implementation-critic` reports `Verdict: clear`

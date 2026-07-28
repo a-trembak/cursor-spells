@@ -20,7 +20,7 @@ After a plan is executed, review is either skipped, monolithic (burns context), 
 
 - Portable: live in this kit; consume from any project via symlink/copy
 - Dual entry: automatic gate after plan completion + manual `/engineer-review`
-- HITL: never start `engineer-reviewer` until user `skip` / `approve` / `done`
+- HITL: never start `engineer-reviewer` until user `skip` / `approve` / `done` (prefer skill `hitl-choice` / `AskQuestion` buttons; typed tokens remain valid)
 - Phase isolation: each checklist item is a subagent
 - Output: **Fixed now** vs **Needs clarification**
 - Pattern cache in the *target* project after first run

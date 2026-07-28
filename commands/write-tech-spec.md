@@ -15,8 +15,8 @@ Run the **tech-spec** agent.
 
 1. Read and follow skill `tech-spec` (`skills/tech-spec/SKILL.md`).
 2. Invoke agent `tech-spec` with the AC source.
-3. Follow the entry question (`human` / `agent`) and, in agent mode, the three-tier question protocol from `references/question-discipline.md`.
-4. Stop for `approve-spec` / `revise` / `skip <reason>` before any implementation plan is written.
+3. Follow the entry question (`human` / `agent`) via skill `hitl-choice` and, in agent mode, the three-tier question protocol from `references/question-discipline.md` (Blocker/Decision asks also use `hitl-choice` / `AskQuestion` when available).
+4. Stop for `approve-spec` / `revise` / `skip <reason>` via `hitl-choice` before any implementation plan is written.
 5. On `revise`, rewrite the file as current truth per skill `clean-decision-docs` (summarize the turn's edits in chat only).
 
 ## Notes

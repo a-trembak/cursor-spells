@@ -109,6 +109,7 @@ multi-repo-supervisor
   2. Single HITL gate for the whole task:
        > Task spans: api/ (java), web/ (react), mobile/ (rn)
        > skip / approve / done  (+ Figma URLs if any frontend repo)
+       > Prefer skill `hitl-choice` / AskQuestion buttons; typed tokens still valid
   3. Parallel dispatch: one engineer-reviewer per changed repo,
      each with its own BASE..HEAD, stack, patterns cache.
      Each returns its normal JSON summary (Fixed / Clarify / Residual).

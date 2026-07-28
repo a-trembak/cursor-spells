@@ -24,16 +24,16 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
    printf 'pending\n' > .cursor/review-gate.pending
    ```
 
-2. **Stop.** Ask exactly:
+2. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Finish-plan / engineer-review / multi-repo HITL**. Prompt/text fallback:
 
    > Plan done. Want to do your own review first?
    > - `skip` — start review now (engineer-reviewer or multi-repo-supervisor)
    > - `approve` / `done` — start after your review
    > - or describe fixes first
 
-3. Do **not** start review until `skip` | `approve` | `done`.
+3. Do **not** start review until `skip` | `approve` | `done`. (`fixes` / a typed fix description means implement/fix first, then re-ask this gate.)
 
-4. On that reply:
+4. On `skip` | `approve` | `done`:
    - Delete `.cursor/review-gate.pending`
    - Before starting review, read and apply `skills/engineer-review/references/multi-repo-protocol.md` routing with its **non-mutating probe** mode. This probe may read graphify, read an existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it **MUST NOT** write or refresh `multi-repo.json`.
    - Detect changed repos with the protocol.
@@ -43,8 +43,7 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
      - `figma_clarifications` only if Figma URLs were already collected in this flow
      The supervisor owns Figma clarification collection when none were already collected.
    - If changed repo count is **1**, keep the existing single-repo path unchanged:
-     - If frontend stack (`react-web` / `react-native`): also ask
-       > Any Figma node URLs for markup review? Paste links, or say `no figma`.
+     - If frontend stack (`react-web` / `react-native`): also ask Figma via skill **`hitl-choice`** preset **Figma ask** (or text: paste links / `no figma`).
      - Then run skill `engineer-review` / agent `engineer-reviewer` for the changed repo (pass Figma URLs in clarifications if provided).
 
 ## Notes

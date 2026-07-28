@@ -118,6 +118,7 @@ docs/        Design specs, plans, dogfood checklists
 
 | Skill | What it does |
 |-------|----------------|
+| [`hitl-choice`](skills/hitl-choice/) | HITL UX — prefer Cursor `AskQuestion` buttons; typed reply tokens as fallback |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
@@ -179,8 +180,8 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 ### Finish plan → HITL → engineer review
 
 1. When a plan is done: `/finish-plan`
-2. Answer `skip` / `approve` / `done`
-3. On frontend, paste Figma node URLs or `no figma`
+2. Answer via interactive buttons when offered (`AskQuestion`), or type `skip` / `approve` / `done`
+3. On frontend, use the Figma picker or paste node URLs / `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
 Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers/Блокери digests without paths and snippets. Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped; draft reports must pass `scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
@@ -190,7 +191,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 ### Start a task (full pipeline)
 
-`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them:
+`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks prefer Cursor **`AskQuestion`** interactive buttons (skill [`hitl-choice`](skills/hitl-choice/)); typed reply tokens remain the fallback when the tool is unavailable.
 
 1. Bootstraps context (project patterns, stack) — automatic
 2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
@@ -208,7 +209,7 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Approve plan → critic → build
 
-`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise`), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/plan-critique.clear` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
+`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise` via `hitl-choice` buttons when available), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/plan-critique.clear` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
 
 `/start-build [path]` no longer runs the critic — it only starts `software-developer` when `.cursor/plan-critique.clear` matches the plan.
 

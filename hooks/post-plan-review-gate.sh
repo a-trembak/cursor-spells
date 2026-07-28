@@ -32,7 +32,7 @@ if [[ -f "$marker" ]]; then
     exit 0
   fi
 
-  printf '%s\n' '{"followup_message":"Plan-complete marker still present (.cursor/review-gate.pending). Ask HITL: skip / approve / done before engineer-reviewer. Do not start review until the user answers."}'
+  printf '%s\n' '{"followup_message":"Plan-complete marker still present (.cursor/review-gate.pending). Ask HITL via skill hitl-choice (AskQuestion buttons when available; else typed skip / approve / done) before engineer-reviewer. Do not start review until the user answers."}'
   exit 0
 fi
 

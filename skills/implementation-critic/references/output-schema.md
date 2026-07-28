@@ -38,6 +38,6 @@ Emit this markdown to the user. Keep it scannable. No persona text before or aft
 - `pass` on every finding is `A` or `B`, matching which lens produced it.
 - `accept F<id>` applies to any open finding by id — a `must-fix` item as well as an `accept-risk` item — and removes it from the "open" count for the Verdict rules below.
 - `Verdict` is `blocked` whenever at least one `must-fix` item is still open (no matching `accept F<id>` reply on record); it is `clear pending accept` once every `must-fix` item is resolved or accepted but at least one `accept-risk` item has not yet been explicitly accepted; it is `clear` only when every `must-fix` item is resolved or accepted and every `accept-risk` item has been explicitly accepted (or there are no findings at all).
-- If `Verdict` is `blocked` or `clear pending accept`, end the report with:
+- If `Verdict` is `blocked` or `clear pending accept`, end the report with the text fallback below, then ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (prefer `AskQuestion` with `revise` + one `accept F<id>` option per open finding; `allowMultiple` when supported):
 
   > Reply `accept F<id>` to accept a specific finding by id, or revise the plan and re-run `/critique-plan`. Implementation should not start while `Verdict` is not `clear`.

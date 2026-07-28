@@ -20,6 +20,8 @@ Produces a **developer's technical action plan**, not a PRD or user-story prose:
 
 ## Entry question (always ask first)
 
+Ask via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Tech-spec entry**. Prompt/text fallback:
+
 > Tech spec: write it yourself, or have the agent draft it?
 > - `human` — you provide the file; the agent only structures/asks about gaps
 > - `agent` — the agent drives the interview and writes the draft
@@ -34,7 +36,7 @@ See [references/question-discipline.md](references/question-discipline.md) for t
 | **Decision** | ≥2 valid technical options with materially different impact | Present 2-3 options with a recommendation; wait for the human's choice |
 | **Assumption** | Local technical default with no business impact | Write it into the spec's `Assumptions` section: claim, why, how to revoke |
 
-The agent never invents a Blocker or Decision-tier answer on its own.
+The agent never invents a Blocker or Decision-tier answer on its own. For Blocker/Decision asks, use skill **`hitl-choice`** (Decision-tier / Blocker preset).
 
 ## Template
 
@@ -53,6 +55,13 @@ See [references/template.md](references/template.md) for the full 7-section temp
 
 Plan-writing does not start until the spec is `approved` (or the human explicitly says `skip`, with the reason logged in the spec file).
 
+**Stop.** Ask via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Tech-spec gate**. Prompt/text fallback:
+
+> Spec ready at `<path>`. Reply:
+> - `approve-spec` — accept; planning may proceed
+> - `revise` — describe changes (or edit the file); re-present after
+> - `skip <reason>` — skip the spec; reason is recorded in the file
+
 ## Context budget
 
-Load this skill, its two reference files, and `clean-decision-docs` when drafting or revising.
+Load this skill, its two reference files, `hitl-choice`, and `clean-decision-docs` when drafting or revising.

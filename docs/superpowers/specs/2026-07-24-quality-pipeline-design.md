@@ -55,6 +55,8 @@ It is **not** the implementation plan (task-by-task breakdown for an agent) — 
 
 ### HITL entry question
 
+Prefer Cursor `AskQuestion` interactive buttons via skill `hitl-choice` when available; typed tokens remain the contract:
+
 > Tech spec: write it yourself, or have the agent draft it?
 > - `human` — you provide the file; the agent only structures/asks about gaps
 > - `agent` — the agent drives the interview and writes the draft
@@ -69,7 +71,7 @@ Three explicit tiers, checked before writing anything into the spec:
 | **Decision** | ≥2 valid technical options with materially different impact | Present as options (A/B/C) with a recommendation; wait for the human's choice |
 | **Assumption** | Local technical default with no business impact (naming within existing conventions, index choice, etc.) | Write it into the spec's `Assumptions` section: the claim, why, and how to revoke it |
 
-Question discipline (reusing the `brainstorming` skill's mechanics, see §6): **one question per message**, multiple-choice preferred, and when presenting a Decision-tier fork, propose 2-3 concrete options with trade-offs rather than open-ended prompts.
+Question discipline (reusing the `brainstorming` skill's mechanics, see §6): **one question per message**, multiple-choice preferred (via `hitl-choice` / `AskQuestion` when available), and when presenting a Decision-tier fork, propose 2-3 concrete options with trade-offs rather than open-ended prompts.
 
 ### Template
 
