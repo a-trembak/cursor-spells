@@ -4,8 +4,8 @@ description: >-
   Use for every discrete human-in-the-loop (HITL) gate in this kit. Prefers
   Cursor AskQuestion interactive buttons when the tool is available; falls back
   to the calling skill's exact typed reply tokens. Use from approve-plan,
-  finish-plan, tech-spec, engineer-review, multi-repo-supervisor, and blocked
-  implementation-critic gates.
+  finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
+  and blocked implementation-critic gates.
 ---
 
 # HITL Choice
@@ -14,8 +14,8 @@ Canonical UX for closed-set HITL questions. **Prefer interactive buttons** via C
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `human` / `agent`, Decision-tier forks, blocked-critic next steps)
-- Not for open-ended answers alone (Figma URL paste, long revise notes, free-form clarification replies) — those stay chat text after the closed choice, if any
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, Decision-tier forks, blocked-critic next steps)
+- Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
 
@@ -27,8 +27,10 @@ Canonical UX for closed-set HITL questions. **Prefer interactive buttons** via C
    - `revise` → wait for change description (or file edit), then continue the calling skill
    - `skip` on tech-spec → wait for `<reason>` if not already provided
    - `fixes` (finish-plan) → wait for the fix description, implement/fix, re-ask the gate
-   - `have_urls` (Figma) → wait for pasted node URLs
-   - `accept F<id>` may be chosen via buttons; extra notes stay optional chat text
+  - `have_urls` (Figma) → wait for pasted node URLs
+  - `docs_repo` → wait for docs repo path or clone URL (optional branch / folder)
+  - `confluence` → wait for space/parent or page URL
+  - `accept F<id>` may be chosen via buttons; extra notes stay optional chat text
 6. If the user types a canonical token while buttons are showing, honor the typed token.
 7. Never invent a HITL answer when the picker is skipped/cancelled — re-ask via fallback text or wait.
 8. Do not pretend buttons were shown if the tool was unavailable; use text quietly.
@@ -78,6 +80,17 @@ Use these option ids (labels are suggestions). Calling skills may add context in
 | `have_urls` | I will paste Figma node URLs |
 
 On `no_figma`, treat as typed `no figma`. On `have_urls`, wait for pasted URLs before `review-figma-markup`.
+
+### Docs update destination
+
+| id | label |
+|----|-------|
+| `skip` | Skip docs this run |
+| `docs_md` | Markdown under `docs/` in this repo |
+| `docs_repo` | Separate documentation repository |
+| `confluence` | Confluence page |
+
+On `docs_repo` / `confluence`, wait for the free-text location details before drafting. `skip` clears the docs gate without writing.
 
 ### Blocked / pending-accept critic
 

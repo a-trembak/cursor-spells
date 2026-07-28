@@ -52,6 +52,7 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
    - `api:C1: A` / `C1@api: A` → re-dispatch `engineer-reviewer` for that repo with the answer in `clarifications`; apply agreed per-repo fixes only.
    - `C_CR1: B` → re-dispatch `review-cross-repo` with the answer for clarify follow-up only — **still no auto-apply for `C_CR*`** even when the fix looks trivial.
    - Re-merge and re-emit the unified report after follow-ups complete.
+9. **Pipeline docs handoff:** when this run was entered via `/start-task` or `finish-plan` (not bare `/multi-review`), after the unified report is settled, invoke skill `update-docs` for the product-docs HITL destination gate. Do not invent a docs destination.
 
 ## Internal envelope
 

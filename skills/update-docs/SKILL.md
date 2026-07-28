@@ -1,0 +1,77 @@
+---
+name: update-docs
+description: >-
+  Use after engineer-review (or when the human asks to update product docs) to
+  ask where documentation should land — skip, docs/ markdown in the current
+  repo, a separate docs repository, or Confluence — then write dual-audience
+  product docs (user + engineer). Prefer this over dumping the tech spec into
+  README or inventing a docs destination.
+---
+
+# Update Docs
+
+Post-review HITL gate for **product / internal documentation** that a human can read — not the kit's tech-spec or plan files. Destination is always a human choice.
+
+## When to Use
+
+- End of `/start-task` after engineer-review (or multi-repo-supervisor) finishes
+- Human asks to document what just shipped
+- Not a substitute for `tech-spec`, `clean-decision-docs`, or `ce-compound` (solutions/learnings) — those stay separate
+
+## Related skills (composition)
+
+| Skill | Role here |
+|-------|-----------|
+| **`hitl-choice`** | Destination picker (buttons / typed tokens) |
+| **`english-humanizer`** | Prose pass on engineer-facing sections |
+| **`ce-compound`** (optional, third-party) | Durable *solved-problem* write-ups in `docs/solutions/` — offer only when the session produced a reusable learning, not for ordinary feature docs |
+| **`ce-explain`** (optional, third-party) | Visual teaching artifact for the human's own learning — **not** a product-docs destination |
+| **`ce-promote`** (optional, third-party) | Launch/announcement copy — different job; do not mix into the product doc body |
+
+Load **`references/writing-guide.md`** before drafting.
+
+## Steps (mandatory order)
+
+1. **Write marker** in the **current project** (not the kit):
+
+   ```bash
+   mkdir -p .cursor
+   printf 'pending\n' > .cursor/docs-gate.pending
+   ```
+
+2. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Docs update destination**. Prompt/text fallback:
+
+   > Update product docs for what shipped?
+   > - `skip` — no docs this run
+   > - `docs_md` — Markdown under `docs/` in the **current** repo
+   > - `docs_repo` — separate documentation repository (path/URL next)
+   > - `confluence` — Confluence page (space/parent or URL next)
+
+3. Do **not** invent a destination. On picker cancel/skip-without-token, re-ask.
+
+4. **On `skip`:**
+   - Delete `.cursor/docs-gate.pending`
+   - Report that docs were skipped; end this skill (pipeline may finish).
+
+5. **On `docs_md` | `docs_repo` | `confluence`:**
+   - Keep the marker until the write (or explicit human abort) completes.
+   - Collect free-text follow-ups in chat when needed:
+     - `docs_repo` → wait for local path or clone URL (+ optional branch / folder)
+     - `confluence` → wait for space key + parent page title/id, or a full page URL
+     - Optional for any choice: language override, page title, or "update existing page X"
+   - Ground content in the shipped change: plan path, tech spec, diff/`gh pr view`, and review outcome already in context. Do not invent user-facing capabilities.
+   - Draft per `references/writing-guide.md` (dual audience: **For users** + **For engineers**).
+   - Run an `english-humanizer` pass on the engineer section (and on the user section if it drifted into AI filler).
+   - **Publish** to the chosen destination:
+     - `docs_md` — write/update the Markdown file under `docs/` (never under `docs/superpowers/` for product docs). Stage/commit only if the human's workflow for this repo expects it in the same PR; otherwise leave the file and report the path.
+     - `docs_repo` — work in the named docs repo; follow that repo's PR conventions.
+     - `confluence` — use Atlassian/Confluence MCP tools when authenticated; otherwise present the final Markdown for paste and optionally stage a local draft under `docs/` marked as Confluence staging. Never overwrite an unrelated page.
+   - Delete `.cursor/docs-gate.pending` when the publish step finishes or the human aborts after seeing the draft.
+
+6. **Optional compound learning:** If the run produced a durable debugging/architecture learning worth `docs/solutions/`, briefly offer `ce-compound` as a *separate* follow-up — do not block the product-docs handoff on it.
+
+## Notes
+
+- Manual `/update-docs` may run without a preceding review; still use the same HITL destination gate.
+- This skill never auto-selects Confluence vs repo from heuristics — wrong destination is worse than `skip`.
+- Markers live in the consumer project `.cursor/`, same as other kit gates.

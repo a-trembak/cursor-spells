@@ -76,7 +76,7 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 
 `review-lint` runs actual project tooling (eslint/tsc/checkstyle/…) rather than LLM judgment — it exists specifically to catch mechanical rule violations (e.g. `eslint import/first`, unused vars, type errors) that heuristic phases can miss.
 
-Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`.
+Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`. After a successful pipeline review (from `/start-task` / `finish-plan`), hand off to skill `update-docs` for the product-docs HITL destination gate — do not invent a docs destination. Manual `/engineer-review` does not auto-start `update-docs` unless the human asks.
 
 ## Multi-repo
 

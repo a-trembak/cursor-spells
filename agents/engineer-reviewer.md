@@ -42,6 +42,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
    - Run `english-humanizer` on all prose; reject vague checklist language.
    - Coverage notes `graphify: used|absent|unqueryable`.
 12. On clarification answers, re-dispatch only affected phases with `clarifications` filled; apply agreed fixes; re-emit report with the same evidence bar.
+13. **Pipeline docs handoff:** when this review was entered via `/start-task` or `finish-plan` (not bare `/engineer-review` / `/pr-review`), after the report is validated and any clarification round is settled, invoke skill `update-docs` for the product-docs HITL destination gate. Do not invent a docs destination.
 
 ## Subagents
 

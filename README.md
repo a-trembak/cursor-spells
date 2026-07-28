@@ -84,7 +84,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
-Runtime markers the agents write later (not created by install): e.g. `.cursor/plan-gate.pending`, `.cursor/critique-gate.pending`, `.cursor/plan-critique.clear`, `.cursor/review-gate.pending`, `.cursor/project-patterns.md`.
+Runtime markers the agents write later (not created by install): e.g. `.cursor/plan-gate.pending`, `.cursor/critique-gate.pending`, `.cursor/plan-critique.clear`, `.cursor/review-gate.pending`, `.cursor/docs-gate.pending`, `.cursor/project-patterns.md`.
 
 ### What update does (step by step)
 
@@ -121,6 +121,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`hitl-choice`](skills/hitl-choice/) | HITL UX — prefer Cursor `AskQuestion` buttons; typed reply tokens as fallback |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
+| [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
@@ -204,10 +205,25 @@ On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skill
 5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises
+8. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write)
 
 A Jira/tracker URL works as the AC source, recorded as a reference — this kit does not fetch ticket contents via an API.
 
 Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, without triggering the rest of the pipeline.
+
+### Update product docs
+
+`/update-docs` asks where documentation should land, then writes **For users** + **For engineers** prose (see [`skills/update-docs/references/writing-guide.md`](skills/update-docs/references/writing-guide.md)). Compose with:
+
+- **`english-humanizer`** — strip AI filler from engineer sections (bundled)
+- **`ce-compound`** (optional third-party) — durable solved-problem docs in `docs/solutions/`; not a substitute for product docs
+- **`ce-explain`** (optional) — personal teaching artifacts; not a product-docs destination
+- **`ce-promote`** (optional) — launch/announcement copy; separate from the docs body
+
+```bash
+npx skills add everyinc/compound-engineering-plugin@ce-compound
+npx skills add everyinc/compound-engineering-plugin@ce-explain
+```
 
 ### Approve plan → critic → build
 
