@@ -23,7 +23,18 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 | Max notes | **8** | Drop lowest-value residuals |
 | Max clarify items | **12** per phase | Overflow → single clarify "batch remaining in Residual notes" |
 
-Orchestrator computes `git diff --numstat` / file list **before** dispatch, then applies [graphify-protocol.md](graphify-protocol.md) when present (impact hint + smarter chunk boundaries). If graphify is absent/unqueryable, behavior is unchanged. Subagents must not silently expand into the whole repo.
+### Catastrophic budget (abort before chunking)
+
+Chunking alone cannot save a diff that is mostly noise or an entire tree. **Before** graphify / chunk dispatch, if either threshold is exceeded, **stop** and ask the user to narrow scope — do not spawn dozens/hundreds of phase runs:
+
+| Cap | Default | Behavior |
+|-----|---------|----------|
+| Max files in review range | **200** | Abort with a short clarify: show file count + top path prefixes; ask for a path allowlist, path denylist, or a smaller `base..head` |
+| Max changed LOC (insertions+deletions) | **50_000** | Same abort |
+
+When aborting, suggest excluding typical noise (`node_modules/`, `dist/`, `build/`, lockfiles, generated clients, minified bundles, binary/assets) and re-running with an explicit file list or path filter. Do **not** silently sample a random 40-file subset.
+
+Orchestrator computes `git diff --numstat` / file list **before** dispatch, applies the catastrophic check, then applies [graphify-protocol.md](graphify-protocol.md) when present (impact hint + smarter chunk boundaries). If graphify is absent/unqueryable, behavior is unchanged. Subagents must not silently expand into the whole repo.
 
 ## Severity
 
