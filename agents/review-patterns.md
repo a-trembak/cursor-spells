@@ -10,14 +10,14 @@ You own **project pattern fidelity**.
 
 ## First run (patterns file missing)
 
-1. Sample the repo structure (folders, naming, packages, representative components/classes).
-2. Write `.cursor/project-patterns.md` using `skills/engineer-review/references/patterns-template.md`.
-3. Optionally, if graphify is installed and the user opted in, generate/update graphify artifacts and link them from the patterns file.
+1. If `graphify-out/GRAPH_REPORT.md` (or `graph.json`) exists, prefer a short graphify summary for module/layout orientation per `skills/engineer-review/references/graphify-protocol.md` instead of broadly sampling the whole tree. If graphify is absent/unqueryable, sample the repo structure (folders, naming, packages, representative components/classes) as today.
+2. Write `.cursor/project-patterns.md` using `skills/engineer-review/references/patterns-template.md`. Set Graphify **Enabled** to `yes` when `graphify-out/` was detected, otherwise `no`.
+3. Optionally generate/update graphify artifacts and link them from the patterns file — only when already useful for the project; never required for the review to proceed.
 4. Then check the **diff** against the new patterns.
 
 ## Later runs
 
-1. Read existing `.cursor/project-patterns.md` (and graphify summary if linked).
+1. Read existing `.cursor/project-patterns.md`. When graphify is available (Enabled yes, linked report, or detect succeeds), prefer the graphify summary / query over re-walking the tree.
 2. Flag diff violations: naming, folder placement, package usage, reinvented patterns.
 3. Update the patterns file only when you discover stable conventions the file missed (`patterns: updated` via notes).
 

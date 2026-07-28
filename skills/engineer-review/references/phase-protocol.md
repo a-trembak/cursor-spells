@@ -11,6 +11,8 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 - `clarifications`: map of prior answers (`C1` → text), may be empty
 - `mode`: `find` (read-only findings) or `apply` (apply unambiguous fixes)
 - `chunk_id`: optional string when the orchestrator split a large diff
+- `graphify_available`: optional boolean — `true` when orchestrator detect/query succeeded ([graphify-protocol.md](graphify-protocol.md))
+- `impact_hint`: optional compact module/path list from graphify impact (never raw `graph.json`)
 
 ## Budget hard caps (per phase invocation)
 
@@ -21,7 +23,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 | Max notes | **8** | Drop lowest-value residuals |
 | Max clarify items | **12** per phase | Overflow → single clarify "batch remaining in Residual notes" |
 
-Orchestrator computes `git diff --numstat` / file list **before** dispatch. Subagents must not silently expand into the whole repo.
+Orchestrator computes `git diff --numstat` / file list **before** dispatch, then applies [graphify-protocol.md](graphify-protocol.md) when present (impact hint + smarter chunk boundaries). If graphify is absent/unqueryable, behavior is unchanged. Subagents must not silently expand into the whole repo.
 
 ## Severity
 
@@ -45,10 +47,11 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 
 1. Respect the file list / chunk from the orchestrator (do not widen scope).
 2. Load mapped skill for this phase if available (see skill-map.md).
-3. Review **changed code** against checklist; use patterns file for local conventions.
-4. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
-5. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, and `snippet` (exact 3–15 lines of the problem). No path-only findings. See [evidence-gate.md](evidence-gate.md).
-6. Return **only** the JSON summary below.
+3. **Neighbors / call graph:** when `graphify_available` is true (or detect succeeds per [graphify-protocol.md](graphify-protocol.md)), prefer `graphify query` / short `GRAPH_REPORT.md` excerpts for callers, callees, and impact before walking path-adjacent files. When false or unqueryable, keep the phase’s existing diff-scoped / neighbor heuristics.
+4. Review **changed code** against checklist; use patterns file for local conventions.
+5. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
+6. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, and `snippet` (exact 3–15 lines of the problem). No path-only findings. See [evidence-gate.md](evidence-gate.md).
+7. Return **only** the JSON summary below.
 
 ## Phase order
 
@@ -116,4 +119,4 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 - **Fixed now**: `fixed` where `applied: true` (P0/P1 only)
 - **Needs clarification**: all `clarify` (renumber ids globally to `C1…`)
 - **Residual notes**: phase `notes` + any `P2` candidates
-- Coverage lists phases, chunks, skips
+- Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`

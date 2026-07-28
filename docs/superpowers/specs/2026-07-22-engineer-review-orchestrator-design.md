@@ -29,7 +29,7 @@ After a plan is executed, review is either skipped, monolithic (burns context), 
 
 - Replacing native Cursor Agent Review UI
 - Installing third-party skills into every consumer project automatically (document recommended installs)
-- Requiring graphify (MD-first; graphify optional)
+- Requiring graphify (never required; **preferred when present** for token budget — see `graphify-protocol.md`; absent → git-diff + chunk path)
 - Blocking CI or forcing review on every agent stop unrelated to plan completion
 
 ## Architecture (Approach A)
@@ -67,7 +67,7 @@ cursor-spells/
 **Target project artifacts (created/updated by first review):**
 
 - `.cursor/project-patterns.md` — naming, folders, packages, code style, component/class structure
-- Optional: `graphify-out/` if the project opts into graphify
+- Optional: `graphify-out/` when the project has a graphify build (preferred for review scoping when present; never required)
 
 ## Entry points
 
@@ -109,10 +109,10 @@ Target orchestrator prompt size: ~2–4k tokens + summaries.
 | 0 | (orchestrator) stack detect + patterns ensure | always | — |
 | 1 | `review-lint` | always (deterministic tooling; skips if no lint config resolvable) | project's own eslint/tsc/checkstyle/ktlint |
 | 2 | `review-logic` | always | stack skill (Vercel React BP / RN / Java Spring) |
-| 3 | `review-patterns` | always | project-patterns.md; optional graphify |
-| 4 | `review-deadcode` | always | dead-code-eliminator + local redundancy rules |
-| 5 | `review-architecture` | always | architecture-review skill |
-| 6 | `review-performance` | always | addyosmani performance + Vercel on frontend |
+| 3 | `review-patterns` | always | project-patterns.md; prefer graphify when present |
+| 4 | `review-deadcode` | always | dead-code-eliminator + local redundancy rules; prefer graphify callers when present |
+| 5 | `review-architecture` | always | architecture-review skill; prefer graphify call/impact when present |
+| 6 | `review-performance` | always | addyosmani performance + Vercel on frontend; prefer graphify impact when present |
 | 7 | `review-security` | if auth/data/network/secrets touch diff | security-review |
 | 8 | `review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use; on `react-web` also `ce-test-browser` |
 | — | `review-lint` (verify pass) | once, after the coordinated apply step | same as above |
@@ -134,7 +134,7 @@ On first review in a project (or if `.cursor/project-patterns.md` missing):
 2. Writes/updates `.cursor/project-patterns.md` from `patterns-template.md`
 3. Later reviews read that file first; only update when drift is detected
 
-Graphify: optional. If `graphify` is installed and user opts in, prefer `GRAPH_REPORT.md` / query for architecture questions; still keep a short MD patterns file for naming/style rules graphify may miss.
+Graphify: **preferred when present**, never required. If `graphify-out/` exists or `graphify query` answers, prefer `GRAPH_REPORT.md` / query for architecture and impact scoping (token budget); still keep a short MD patterns file for naming/style rules graphify may miss. If absent or unqueryable, continue with patterns + diff only. Do not rebuild the graph during review.
 
 ## Output format
 
@@ -145,6 +145,7 @@ Graphify: optional. If `graphify` is installed and user opts in, prefer `GRAPH_R
 - stack: ...
 - phases run / skipped (+ why)
 - patterns: created | reused | updated
+- graphify: used | absent | unqueryable
 
 ## Fixed now
 - path: change summary

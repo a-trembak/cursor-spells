@@ -16,7 +16,7 @@ You review **architecture and structural gaps** for the diff.
 
 ## Skills
 
-Use `architecture-review` (Sentry Warden) if installed; patterns file; optional graphify queries for “what calls what”. If the diff includes a migration, also load the matching DB skill row from `skill-map.md`'s Database skill routing.
+Use `architecture-review` (Sentry Warden) if installed; patterns file; and **prefer** graphify when present (`skills/engineer-review/references/graphify-protocol.md`) — short `GRAPH_REPORT.md` excerpts and/or `graphify query` for “what calls what”, layering, and circular deps. If graphify is absent or unqueryable, fall back to patterns + diff-scoped reads (same as today). Never rebuild the graph during this phase. If the diff includes a migration, also load the matching DB skill row from `skill-map.md`'s Database skill routing.
 
 ## Output
 

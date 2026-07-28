@@ -18,6 +18,8 @@ You hunt **dead code**, **redundancy**, and **bad comments** in the diff and its
 
 Use `dead-code-eliminator` if installed; otherwise built-in static reading + search. Always use `skills/code-comments/SKILL.md` for comment classification — it is this kit's own skill, always available.
 
+When graphify is available (`graphify_available` or detect per `skills/engineer-review/references/graphify-protocol.md`), **prefer** callers/callees queries before walking path-adjacent “immediate neighbors.” When absent/unqueryable, keep the existing neighbor heuristics.
+
 ## Caution
 
 Do not delete code that may be used via reflection, DI config, dynamic imports, or framework entrypoints without evidence — send those to `clarify`.

@@ -161,12 +161,14 @@ npx skills add addyosmani/agent-skills@performance-optimization
 npx skills add getsentry/warden@architecture-review
 npx skills add abpai/skills@dead-code-eliminator
 npx skills add everyinc/compound-engineering-plugin@ce-test-browser
-# optional:
+# preferred when present for review scoping / multi-repo (optional install):
 npx skills add graphify-labs/graphify@graphify
 ```
 
 
 Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md)'s Database skill routing section. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed.
+
+When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged.
 
 ## Usage
 
@@ -221,6 +223,7 @@ For work spanning multiple sibling repos, see [Multi-repo review](#multi-repo-re
 Use multi-repo review when a task changes **2+ sibling repositories**. If routing finds no changed repos, it stops with a message; if it finds one changed repo, the normal single-repo `engineer-reviewer` path runs unchanged.
 
 - Explicit `/multi-review` paths are the repo set for that run. Without explicit paths, discovery prefers graphify at the workspace parent, then existing parent `.cursor/multi-repo.json`, then a sibling scan.
+- Single-repo and per-repo review also prefer graphify (when `graphify-out/` or the CLI can answer) to narrow deep-reads; without it, behavior is unchanged.
 - `finish-plan` routing uses a non-mutating probe; parent `.cursor/multi-repo.json` is written only for a confirmed multi-repo run without graphify, or when `/multi-review --refresh` explicitly asks for it. It is never written inside a single leaf repo.
 - Commands:
   - `/multi-review [path ...] [--refresh]` runs the multi-repo routing manually. Explicit paths override discovery for that run.

@@ -1,6 +1,6 @@
 # Multi-repo protocol
 
-Contract for `multi-repo-supervisor`, `finish-plan` routing, and `/multi-review`. Per-repo review reuses `engineer-reviewer` unchanged; this document covers discovery, routing, merge, and unified output only.
+Contract for `multi-repo-supervisor`, `finish-plan` routing, and `/multi-review`. Per-repo review reuses `engineer-reviewer` (including its graphify scoping via [`graphify-protocol.md`](graphify-protocol.md)); this document covers discovery, routing, merge, and unified output only.
 
 ## Routing algorithm
 
@@ -37,6 +37,8 @@ Persist never applies when explicit paths were supplied; explicit paths are a ru
 
 ## Graphify queries
 
+Shared detect / compact-source / no-rebuild rules: [`graphify-protocol.md`](graphify-protocol.md). Per-repo `engineer-reviewer` also uses that protocol for single-repo token scoping.
+
 When graphify is available, run from the **workspace parent** (folder that owns sibling repos):
 
 ```bash
@@ -48,7 +50,7 @@ graphify query "modules impacted by: <comma-separated changed paths>"
 
 Use the first query to build the repo → stack map. Use the second after collecting changed paths from git to determine which repos are in scope and which modules may be impacted across repo boundaries.
 
-If both `test` checks fail, fall through to `multi-repo.json` or the fallback scan. Treat graphify as **absent or unqueryable** when the build is missing, the binary is unavailable, or a query cannot answer the repo map.
+If both `test` checks fail, fall through to `multi-repo.json` or the fallback scan. Treat graphify as **absent or unqueryable** when the build is missing, the binary is unavailable, or a query cannot answer the repo map (same states as `graphify-protocol.md`).
 
 ## Fallback scan
 
