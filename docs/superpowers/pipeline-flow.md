@@ -19,7 +19,7 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Cross `--x` | Stop / blocked |
 | Dotted `-.->` | Loop / re-entry |
 
-Source of truth: [`commands/start-task.md`](../../commands/start-task.md), plus `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `hitl-choice`.
+Source of truth: [`commands/start-task.md`](../../commands/start-task.md), plus `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `hitl-choice`.
 
 ---
 
@@ -38,7 +38,8 @@ flowchart TD
   softwareDev[["software-developer"]]
   finishPlan[["finish-plan"]]
   engReview[["engineer-reviewer or multi-repo-supervisor"]]
-  doneNode(["Reviewed PR path"])
+  updateDocs[["update-docs"]]
+  doneNode(["Reviewed PR + docs path"])
 
   startNode ==> noAc
   noAc -->|"no"| stopNoAc
@@ -50,7 +51,8 @@ flowchart TD
   startBuild ==> softwareDev
   softwareDev ==>|"all tasks verified"| finishPlan
   finishPlan ==>|"skip / approve / done"| engReview
-  engReview ==> doneNode
+  engReview ==> updateDocs
+  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| doneNode
 ```
 
 ---
@@ -224,7 +226,46 @@ flowchart TD
 
 ---
 
-## 6. Engineer-review internals (phase graph)
+## 6. Update-docs destination
+
+```mermaid
+flowchart TD
+  reviewDone(["Review complete"])
+  writeDocs{{".cursor/docs-gate.pending"}}
+  hitlDocs[/"HITL: skip / docs_md / docs_repo / confluence"/]
+  skipDocs["Delete marker; no docs"]
+  needLoc{Location follow-up?}
+  waitLoc[/"Chat: path, URL, or Confluence space"/]
+  draft["Dual-audience draft + english-humanizer"]
+  publish["Publish to chosen destination"]
+  clearDocs["Delete docs-gate.pending"]
+  doneDocs(["Pipeline done"])
+
+  reviewDone ==> writeDocs
+  writeDocs ==> hitlDocs
+  hitlDocs -->|"skip"| skipDocs
+  skipDocs ==> doneDocs
+  hitlDocs -->|"docs_md"| draft
+  hitlDocs -->|"docs_repo or confluence"| needLoc
+  needLoc -->|"yes"| waitLoc
+  waitLoc --> draft
+  draft ==> publish
+  publish ==> clearDocs
+  clearDocs ==> doneDocs
+```
+
+| Token | Meaning |
+|-------|---------|
+| `skip` | No product docs this run |
+| `docs_md` | Markdown under `docs/` in the current repo (not `docs/superpowers/`) |
+| `docs_repo` | Separate documentation repository — path/URL in chat next |
+| `confluence` | Confluence page — space/parent or URL in chat next |
+
+Writing shape: skill `update-docs` + `references/writing-guide.md`. For `docs_repo` / `confluence`, **style resolution** first (custom user/engineer style → house siblings → kit default dual-audience). Optional follow-ups: `ce-compound` for durable learnings, `ce-explain` for personal teaching artifacts — neither replaces this gate.
+
+---
+
+## 7. Engineer-review internals (phase graph)
 
 ```mermaid
 flowchart TD
@@ -260,7 +301,7 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 ---
 
-## 7. Marker state machine
+## 8. Marker state machine
 
 Runtime markers live in the **consumer project** `.cursor/` (never the kit).
 
@@ -277,7 +318,9 @@ stateDiagram-v2
   Building --> ReviewGate: finish-plan writes review-gate.pending
   ReviewGate --> Reviewing: skip / approve / done
   ReviewGate --> ReviewGate: fixes then re-ask
-  Reviewing --> [*]
+  Reviewing --> DocsGate: update-docs writes docs-gate.pending
+  DocsGate --> [*]: skip / publish complete
+  DocsGate --> DocsGate: waiting location follow-up
 
   note right of CritiqueClear
     plan-critique.clear must match plan path
@@ -290,10 +333,11 @@ stateDiagram-v2
 | `.cursor/critique-gate.pending` | after plan approval | `Verdict: clear` |
 | `.cursor/plan-critique.clear` | on `Verdict: clear` | invalidated on `revise` / re-approve |
 | `.cursor/review-gate.pending` | `finish-plan` | `skip` / `approve` / `done` |
+| `.cursor/docs-gate.pending` | `update-docs` | `skip` or publish/abort complete |
 
 ---
 
-## 8. Standalone entry points (bypass full orchestrator)
+## 9. Standalone entry points (bypass full orchestrator)
 
 ```mermaid
 flowchart LR
@@ -303,6 +347,7 @@ flowchart LR
   build["/start-build"] --> buildOnly[["requires plan-critique.clear"]]
   finish["/finish-plan"] --> finishFlow[["HITL then review"]]
   eng["/engineer-review"] --> reviewDirect[["skip finish-plan HITL"]]
+  docs["/update-docs"] --> docsFlow[["HITL destination then write"]]
   pr["/pr-review"] --> prWrap[["PR wrapper report-only default"]]
   multi["/multi-review"] --> multiDirect[["multi-repo-supervisor"]]
 ```

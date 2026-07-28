@@ -31,7 +31,8 @@ AC (testable, from product/human)
   software-developer (skill-resolver + DB routing + code-comments)
   → verify-done (project lint/test/typecheck)
   → finish-plan → engineer-review (reinforced)
-  → PR
+  → [HITL] update-docs (skip | docs/ MD | docs repo | Confluence)
+  → PR / done
 ```
 
 **Full canvas** (interactive HTML + Mermaid: every HITL gate, critic verdict branch, marker state, review routing, standalone entry points): [`pipeline-flow.html`](../pipeline-flow.html) · [`pipeline-flow.md`](../pipeline-flow.md).
@@ -301,6 +302,7 @@ Because no unvetted code is ever pulled in without a human decision in the loop,
 - `agents/software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (branch setup in target repo(s), skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
 - `skills/software-developer/references/branch-setup.md` — resolve target repos from plan/spec, shared feature branch name, create/checkout before Task 1
 - `commands/start-task.md`, `commands/write-tech-spec.md`, `commands/critique-plan.md` (new)
+- `skills/update-docs/SKILL.md` + `commands/update-docs.md` — post-review HITL for product-docs destination (`docs_md` / `docs_repo` / `confluence` / `skip`) + dual-audience writing guide
 - `skills/code-comments/SKILL.md` (new) — drives §5, shared by developer + `review-deadcode`
 - `skills/engineer-review/references/skill-map.md` — add DB rows (§4) and a `## Discovered` section for Tier-2 human-approved additions (§9)
 - `agents/review-deadcode.md` — adopt §5 taxonomy + §7 test

@@ -435,11 +435,19 @@
           <div class="hint">1 repo vs ≥2 · Figma · clarify</div>
           <span class="open-detail">деталі →</span>
         </div>
+        <div class="connector"></div>
+
+        <div class="node hitl" tabindex="0" data-go="update-docs" role="button">
+          <div class="kind">8 · HITL</div>
+          <div class="label">update-docs</div>
+          <div class="hint">skip / docs_md / docs_repo / confluence</div>
+          <span class="open-detail">деталі →</span>
+        </div>
         <div class="connector"><span class="edge-label">done</span></div>
 
         <div class="node ok" tabindex="0" data-go="markers" role="button">
           <div class="kind">markers · state</div>
-          <div class="label">Reviewed / PR path</div>
+          <div class="label">Reviewed / PR + docs</div>
           <div class="hint">таблиця маркерів .cursor/*</div>
           <span class="open-detail">деталі →</span>
         </div>
@@ -847,6 +855,50 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="finish-plan">← Finish Plan</button>
+        <button type="button" class="primary" data-go="update-docs">Далі: Update Docs →</button>
+      </div>
+    </section>
+
+    <!-- UPDATE DOCS -->
+    <section id="view-update-docs" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">8. update-docs</h2>
+      <p class="view-desc">HITL після review: куди писати продуктову / внутрішню документацію. Marker <code>docs-gate.pending</code>.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body hitl">
+            <h3>HITL destination</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token">skip</span>
+                <div class="then">Без docs цього рану · видалити marker</div>
+              </div>
+              <div class="branch">
+                <span class="token ok">docs_md</span>
+                <div class="then">Markdown у <code>docs/</code> поточного репо<small>не docs/superpowers/</small></div>
+              </div>
+              <div class="branch">
+                <span class="token ok">docs_repo</span>
+                <div class="then">Окремий docs-репозиторій<small>path / URL у чаті далі</small></div>
+              </div>
+              <div class="branch">
+                <span class="token ok">confluence</span>
+                <div class="then">Confluence сторінка<small>space/parent або URL у чаті</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body auto">
+            <h3>Style → draft + publish</h3>
+            <p>Для <code>docs_repo</code> / <code>confluence</code>: спочатку style resolution — кастомний стиль user/engineer → існуючі sibling docs / space → kit default. Далі draft за <code>writing-guide.md</code>, prose pass через <code>english-humanizer</code> без ламання house voice. Опційно: <code>ce-compound</code> (окремо).</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="review">← Review</button>
         <button type="button" class="primary" data-go="markers">Markers →</button>
       </div>
     </section>
@@ -880,6 +932,11 @@
             <td><code>review-gate.pending</code></td>
             <td>finish-plan</td>
             <td><code>skip</code> / <code>approve</code> / <code>done</code></td>
+          </tr>
+          <tr>
+            <td><code>docs-gate.pending</code></td>
+            <td>update-docs</td>
+            <td><code>skip</code> / publish complete</td>
           </tr>
         </tbody>
       </table>
@@ -919,8 +976,8 @@
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/finish-plan · /engineer-review · /pr-review · /multi-review</h3>
-            <p>Post-plan / PR / multi-repo входи. Manual engineer-review пропускає finish-plan HITL.</p>
+            <h3>/finish-plan · /engineer-review · /update-docs · /pr-review · /multi-review</h3>
+            <p>Post-plan / docs / PR / multi-repo входи. Manual engineer-review пропускає finish-plan HITL; <code>/update-docs</code> лишається окремим HITL destination gate.</p>
           </div>
         </div>
       </div>
@@ -931,7 +988,7 @@
   </main>
 
   <footer>
-    Джерело: commands/start-task.md + approve-plan / start-build / finish-plan / hitl-choice
+    Джерело: commands/start-task.md + approve-plan / start-build / finish-plan / update-docs / hitl-choice
     · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
   </footer>
 
