@@ -33,7 +33,7 @@ Entry point for the whole pipeline. Chains every stage automatically except the 
    - **HITL:** only for `Needs clarification` items the review surfaces.
 8. **Update docs** (automatic invocation after review completes): invoke skill `update-docs`:
    - **HITL:** `skip` / `docs_md` / `docs_repo` / `confluence` via `hitl-choice` — where product/internal docs should land (current-repo Markdown, a separate docs repo, or Confluence). Never invent the destination.
-   - On a non-skip choice, draft dual-audience docs (user + engineer) per the skill's writing guide, polish with `english-humanizer`, and publish to the chosen destination.
+   - On a non-skip choice, **resolve style first** (required for `docs_repo` / `confluence`): human custom style for user and/or engineer → existing house docs at the destination → kit dual-audience default. Then draft, polish with `english-humanizer` without fighting house voice, and publish.
 
 ## Notes
 

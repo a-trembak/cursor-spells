@@ -58,14 +58,15 @@ Load **`references/writing-guide.md`** before drafting.
    - Collect free-text follow-ups in chat when needed:
      - `docs_repo` → wait for local path or clone URL (+ optional branch / folder)
      - `confluence` → wait for space key + parent page title/id, or a full page URL
-     - Optional for any choice: language override, page title, or "update existing page X"
+     - Optional for any choice: language override, page title, "update existing page X", or a **custom style** for user docs, engineer docs, or both (path/link/paste)
+   - **Style resolution (required, especially for `docs_repo` / `confluence`):** before drafting, follow `references/writing-guide.md` → Style resolution. Sample existing sibling docs / Confluence parent pages; prefer (1) human custom style for user and/or engineer, else (2) destination house style, else (3) project style files, else (4) kit default dual-audience skeleton. Never overwrite an established house template with the kit default.
    - Ground content in the shipped change: plan path, tech spec, diff/`gh pr view`, and review outcome already in context. Do not invent user-facing capabilities.
-   - Draft per `references/writing-guide.md` (dual audience: **For users** + **For engineers**).
-   - Run an `english-humanizer` pass on the engineer section (and on the user section if it drifted into AI filler).
+   - Draft to the resolved style (kit default only when nothing stronger applies).
+   - Run an `english-humanizer` pass on engineer-facing prose (and on user-facing prose if it drifted into AI filler), without fighting the house voice (terminology and section shape stay as resolved).
    - **Publish** to the chosen destination:
      - `docs_md` — write/update the Markdown file under `docs/` (never under `docs/superpowers/` for product docs). Stage/commit only if the human's workflow for this repo expects it in the same PR; otherwise leave the file and report the path.
-     - `docs_repo` — work in the named docs repo; follow that repo's PR conventions.
-     - `confluence` — use Atlassian/Confluence MCP tools when authenticated; otherwise present the final Markdown for paste and optionally stage a local draft under `docs/` marked as Confluence staging. Never overwrite an unrelated page.
+     - `docs_repo` — work in the named docs repo; follow that repo's PR conventions **and** its existing doc style.
+     - `confluence` — use Atlassian/Confluence MCP tools when authenticated; otherwise present the final Markdown for paste and optionally stage a local draft under `docs/` marked as Confluence staging. Match space/sibling page style. Never overwrite an unrelated page.
    - Delete `.cursor/docs-gate.pending` when the publish step finishes or the human aborts after seeing the draft.
 
 6. **Optional compound learning:** If the run produced a durable debugging/architecture learning worth `docs/solutions/`, briefly offer `ce-compound` as a *separate* follow-up — do not block the product-docs handoff on it.

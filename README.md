@@ -213,7 +213,7 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Update product docs
 
-`/update-docs` asks where documentation should land, then writes **For users** + **For engineers** prose (see [`skills/update-docs/references/writing-guide.md`](skills/update-docs/references/writing-guide.md)). Compose with:
+`/update-docs` asks where documentation should land, resolves style (existing house docs or a custom user/engineer guide — especially for a separate docs repo or Confluence), then writes prose (see [`skills/update-docs/references/writing-guide.md`](skills/update-docs/references/writing-guide.md)). Kit dual-audience default is only the fallback. Compose with:
 
 - **`english-humanizer`** — strip AI filler from engineer sections (bundled)
 - **`ce-compound`** (optional third-party) — durable solved-problem docs in `docs/solutions/`; not a substitute for product docs

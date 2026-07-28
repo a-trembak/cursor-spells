@@ -261,7 +261,7 @@ flowchart TD
 | `docs_repo` | Separate documentation repository — path/URL in chat next |
 | `confluence` | Confluence page — space/parent or URL in chat next |
 
-Writing shape: skill `update-docs` + `references/writing-guide.md` (For users + For engineers). Optional follow-ups: `ce-compound` for durable learnings, `ce-explain` for personal teaching artifacts — neither replaces this gate.
+Writing shape: skill `update-docs` + `references/writing-guide.md`. For `docs_repo` / `confluence`, **style resolution** first (custom user/engineer style → house siblings → kit default dual-audience). Optional follow-ups: `ce-compound` for durable learnings, `ce-explain` for personal teaching artifacts — neither replaces this gate.
 
 ---
 
