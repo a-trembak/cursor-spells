@@ -191,6 +191,8 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 ### Start a task (full pipeline)
 
+**Canvas (all stages, HITL gates, branches):** [`docs/superpowers/pipeline-flow.md`](docs/superpowers/pipeline-flow.md)
+
 `/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks prefer Cursor **`AskQuestion`** interactive buttons (skill [`hitl-choice`](skills/hitl-choice/)); typed reply tokens remain the fallback when the tool is unavailable.
 
 1. Bootstraps context (project patterns, stack) — automatic
