@@ -21,3 +21,4 @@ Run skill `approve-plan`:
 
 - This command never edits the plan itself — only markers and the critic's report output.
 - Do not start Task 1 while plan approval or critique is still pending.
+- When a revision updates the plan file (human or agent), follow skill `clean-decision-docs`: rewrite as current truth; narrate the turn's edits in chat only.

@@ -26,6 +26,7 @@ This AC is silent on:
 | Assumption logged, not asked | At least one small technical default (e.g. endpoint naming, module placement, response encoding) appears in the spec's `Open questions / Assumptions` section with a stated reason — it was not asked as a question. Absence of any Assumption entry, when the draft clearly made such a default silently elsewhere, is a fixture failure. |
 | Output file | Written to `docs/superpowers/specs/YYYY-MM-DD-order-export-tech-spec.md`, English only, with a `**Status:** draft` header line matching `references/template.md`'s Status header format |
 | Gate | Does not treat the spec as final or hand off to `writing-plans` until the user replies `approve-spec`, `revise`, or `skip <reason>` |
+| Clean revise | On a forced `revise` that changes a prior Decision, the file body has no "fixed/changed to/was previously/What changed" archaeology — chat may narrate; see `clean-decision-docs` dogfood |
 
 ## Cleanup
 

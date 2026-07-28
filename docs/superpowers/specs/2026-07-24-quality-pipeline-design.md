@@ -85,6 +85,10 @@ Question discipline (reusing the `brainstorming` skill's mechanics, see §6): **
 
 Plan-writing does not start until the spec is `approved` (or the human explicitly says `skip`, with the reason logged).
 
+### Clean final form (no revision archaeology)
+
+Specs and plans are **decision artifacts**, not diaries. After critique, discussion, or human `revise`, rewrite the file as if the current decisions were always the decisions. Put "what changed this turn" in chat (for the human's verify step), never as Changelog / What-changed / Before–After draft tables inside the file. Forbidden in the body: "fixed", "changed to", "was previously", "after critique F\<id\>", strikethrough of old draft wording. **Rejected alternatives** stays allowed as one-line *current* rationale ("option X — rejected because Y"), not as strike-through of a prior paragraph. Full policy: skill `clean-decision-docs`; project rule `clean-decision-docs.mdc` (globs on `docs/**/specs|plans`).
+
 ---
 
 ## 2. Implementation Critic
