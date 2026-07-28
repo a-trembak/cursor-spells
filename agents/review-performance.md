@@ -17,6 +17,7 @@ You review **performance** risks in the diff.
 
 - Always consider `performance-optimization` if installed
 - On `react-web` / `react-native`, also load the matching Vercel skill rules
+- When graphify is available (`graphify_available` or detect per `skills/engineer-review/references/graphify-protocol.md`), prefer impact / callers queries to find hot-path callers before broad neighbor walks; absent → diff-scoped reads only
 
 ## Output
 

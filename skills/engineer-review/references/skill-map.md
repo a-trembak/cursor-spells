@@ -12,7 +12,7 @@ npx skills add affaan-m/everything-claude-code@security-review
 npx skills add addyosmani/agent-skills@performance-optimization
 npx skills add getsentry/warden@architecture-review
 npx skills add abpai/skills@dead-code-eliminator
-# optional patterns graph:
+# preferred when graphify-out/ exists (optional install):
 npx skills add graphify-labs/graphify@graphify
 ```
 
@@ -69,15 +69,15 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 |-------|----------|
 | lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
 | logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
-| patterns | `.cursor/project-patterns.md`; optional `graphify` |
-| deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent" |
-| architecture | `architecture-review` (Sentry Warden) + patterns; add the matching row from Database skill routing above whenever the diff includes a migration |
-| performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native` |
+| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)) |
+| deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent"; prefer graphify callers when available |
+| architecture | `architecture-review` (Sentry Warden) + patterns; prefer graphify call/impact queries when available; add the matching row from Database skill routing above whenever the diff includes a migration |
+| performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native`; prefer graphify impact neighborhood when available |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
 | figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; on `react-web` also `ce-test-browser` (rendered UI vs Figma) |
-| cross-repo | workspace `graphify-out/`; optional `graphify-labs/graphify@graphify` |
+| cross-repo | workspace `graphify-out/`; prefer `graphify-labs/graphify@graphify` when available (optional install) |
 
-Note: do not create `multi-repo.json` when graphify answers successfully.
+Note: do not create `multi-repo.json` when graphify answers successfully. Graphify is never required — absent/unqueryable keeps the git-diff + chunk path.
 
 ## Skill resolution protocol
 

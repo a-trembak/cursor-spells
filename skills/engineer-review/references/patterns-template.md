@@ -52,7 +52,8 @@ This project follows `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy as
 
 - Exceptions (if any):
 
-## Graphify (optional)
+## Graphify (preferred when present)
 
-- Enabled: no | yes
+- Enabled: yes | no   # yes when `graphify-out/` exists (auto-detect); no otherwise
 - Report path: `graphify-out/GRAPH_REPORT.md`
+- Review uses [graphify-protocol.md](graphify-protocol.md): prefer query / report for scoping; never required

@@ -17,7 +17,7 @@ You detect **contract drift between repositories**, not issues within a single r
 
 ## Setup
 
-1. Prefer each repo's `graphify-out/GRAPH_REPORT.md` and workspace-parent graphify queries (see `multi-repo-protocol.md`) for cross-repo impact.
+1. Prefer each repo's `graphify-out/GRAPH_REPORT.md` and workspace-parent graphify queries (see `multi-repo-protocol.md` and `graphify-protocol.md`) for cross-repo impact.
 2. When graphify is unavailable, use per-repo summaries plus targeted reads of changed interface files (OpenAPI specs, shared DTO paths, event schemas, package manifests) — do not load full diffs.
 
 ## Checklist

@@ -32,28 +32,30 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
 1. Parse args: PR identity, optional `apply`, optional `no-figma`.
 2. Resolve `BASE_SHA` / `HEAD_SHA` and PR metadata (number, title, url, base/head refs, owner/repo).
 3. Detect stack via `skills/engineer-review/references/skill-map.md`.
-4. Budget + chunking — same caps as engineer-review (>40 files or >2500 LOC).
-5. Ensure `.cursor/project-patterns.md` in the **current project** (create via `review-patterns` if missing).
-6. **Early Figma** on `react-web` / `react-native` unless `no-figma` (same ask as engineer-review).
-7. Dispatch the same phase agents as `engineer-reviewer`:
+4. Budget (`git diff --name-only` + `--numstat`) — same caps as engineer-review (>40 files or >2500 LOC).
+5. **Graphify scoping (preferred when present):** apply `skills/engineer-review/references/graphify-protocol.md` — detect, impact query, compact `impact_hint`; absent/unqueryable → no-op. Never rebuild; never paste `graph.json`. Prefer graph modules for chunk boundaries when chunking.
+6. Ensure `.cursor/project-patterns.md` in the **current project** (create via `review-patterns` if missing).
+7. **Early Figma** on `react-web` / `react-native` unless `no-figma` (same ask as engineer-review).
+8. Dispatch the same phase agents as `engineer-reviewer` (pass `graphify_available` + optional `impact_hint`):
    - `review-lint` first (and verify pass after apply, if apply ran)
    - then heuristic phases in parallel for **find**
    - coordinated **apply** only if `apply` was requested — and only `unambiguous && (P0|P1)` that pass auto-fix eligibility
    - Phase JSON **must** include `path` / `start_line` / `end_line` / `snippet` on every finding
-8. Apply-conflict order unchanged: lint → patterns → deadcode → logic → architecture → performance → security → figma.
-9. **Merge → evidence gate → feedback (mandatory):**
+9. Apply-conflict order unchanged: lint → patterns → deadcode → logic → architecture → performance → security → figma.
+10. **Merge → evidence gate → feedback (mandatory):**
    - Require `path` + `start_line` + `end_line` + `snippet`; backfill with `extract-review-snippet.sh` using `HEAD_SHA` (see `evidence-gate.md`). Drop items that still lack evidence.
    - Build **Findings** only in the full Where + numbered fence shape — never a Blockers digest.
    - What / Where / Why / Ask-or-fix; run `english-humanizer` on prose.
    - Validate: `validate-review-report.sh` on the draft markdown; rebuild until exit 0.
-10. Emit the validated **PR Review** report; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.
-11. On clarification answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator.
+   - Coverage notes `graphify: used|absent|unqueryable`.
+11. Emit the validated **PR Review** report; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.
+12. On clarification answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator.
 
 ## Subagents
 
 Identical to `engineer-reviewer`: `review-lint`, `review-logic`, `review-patterns`, `review-deadcode`, `review-architecture`, `review-performance`, `review-security` (conditional), `review-figma-markup` (frontend).
 
-Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk. Return phase-protocol JSON only — **required** `path` / `start_line` / `end_line` / `snippet` on every fixed/clarify item.
+Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, plus `graphify_available` and optional `impact_hint` when graphify scoping ran. Return phase-protocol JSON only — **required** `path` / `start_line` / `end_line` / `snippet` on every fixed/clarify item.
 
 ## Hard rules
 
@@ -62,6 +64,7 @@ Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk. Ret
 - Never emit Verdict/Blockers/Блокери digests or findings without File + Lines + Jump + code fence.
 - Never emit unhumanized / jargon-only feedback.
 - Never load full third-party skill text into this orchestrator context.
+- Prefer graphify impact for scoping when present (`graphify-protocol.md`); absent → same diff + chunk path as today.
 - Never apply clarify-class or `P2` without user answers / explicit request.
 - Never invent skills outside skill-map Tier-1; Tier-2 stays human-gated.
 - Never silently replace `engineer-reviewer` on the post-plan `/finish-plan` path — that path stays as-is.
