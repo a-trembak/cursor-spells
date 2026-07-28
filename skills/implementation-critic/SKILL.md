@@ -33,7 +33,7 @@ If a lens's skill is not installed, fall back to its built-in checklist (see [re
 2. Read `.cursor/project-patterns.md` in the **current project** (not the kit) if present — Pass A's "simpler alternative" and "existing abstraction" checks need it.
 3. Run Pass A, then Pass B, over the same plan (see [references/lenses.md](references/lenses.md) for each pass's checklist).
 4. Classify every finding as `must-fix`, `should-fix`, or `accept-risk` (see [references/output-schema.md](references/output-schema.md)).
-5. Emit the report per `references/output-schema.md`. Do not edit the plan file.
+5. Emit the report per `references/output-schema.md`. Do not edit the plan file. If `Verdict` is `blocked` or `clear pending accept`, ask next steps via skill `hitl-choice` when this skill is driving the gate directly (prefer `AskQuestion`); callers like `approve-plan` also own that ask.
 
 ## Fix policy
 
