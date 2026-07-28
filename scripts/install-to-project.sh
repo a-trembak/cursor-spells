@@ -261,7 +261,7 @@ install_project_bits() {
 
   # Rules — always refresh from kit
   local rule
-  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc; do
+  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc; do
     cp "$KIT_ROOT/rules/$rule" "$PROJECT/.cursor/rules/$rule"
     echo "copied: $PROJECT/.cursor/rules/$rule"
   done

@@ -1,0 +1,25 @@
+---
+description: Specs and plans must be final-form decisions — no revision archaeology, changelog, or "fixed/changed to" language in the file body
+alwaysApply: false
+globs:
+  - docs/**/specs/**/*.md
+  - docs/**/plans/**/*.md
+  - docs/superpowers/specs/**/*.md
+  - docs/superpowers/plans/**/*.md
+  - **/specs/**/*.md
+  - **/plans/**/*.md
+---
+
+# Clean decision docs
+
+> Install this rule **per consumer project** (`.cursor/rules/`). Full policy: skill `clean-decision-docs`.
+
+When you **write or revise** a tech spec, design doc, or implementation plan (including after critic findings or human `revise`):
+
+1. Load and follow skill **`clean-decision-docs`**.
+2. Rewrite the file as **current truth only** — as if today's decisions were always the decisions.
+3. Put "what I changed this turn" in **chat**, never as a Changelog / What-changed / Before-After section inside the file.
+4. Forbidden in the file body: "fixed", "changed to", "was previously", "after critique", "per F\<id\>", strikethrough of old draft text, dual old+new wording.
+5. Allowed: tech-spec **Rejected alternatives** as one-line *current* rationale; rollout steps that name temporary *system* states; Status `draft` / `approved` / `skip`.
+
+Does not apply to pure Q&A, critic *reports* (those are allowed to narrate findings), or code comments (see `code-comments`).

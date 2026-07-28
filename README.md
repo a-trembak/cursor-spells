@@ -76,6 +76,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/hooks.json` | Created if missing; **refreshed on `update`** |
 | `<project>/.cursor/rules/after-plan-review-gate.mdc` | Copied / refreshed |
 | `<project>/.cursor/rules/before-build-critique-gate.mdc` | Copied / refreshed |
+| `<project>/.cursor/rules/clean-decision-docs.mdc` | Copied / refreshed — specs/plans stay final-form (no revision archaeology) |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
@@ -123,6 +124,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
+| [`clean-decision-docs`](skills/clean-decision-docs/) | Specs/plans stay final-form decisions — no "fixed/changed to" archaeology after critique or revise |
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
 | [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — snippets + file links + humanizer prose; default report-only |
@@ -192,6 +194,8 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
 3. Generates the implementation plan via `writing-plans` — automatic once the spec's `Status` is `approved` or explicitly `skip`ped
 4. `/approve-plan` — **HITL** `approve-plan`/`revise`, then **automatic** `implementation-critic`; **HITL** only if findings block; on `Verdict: clear` → `start-build`
+
+On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skills/clean-decision-docs/): rewrite the file as current truth; put "what changed" in chat, not as changelog archaeology inside the document.
 5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises

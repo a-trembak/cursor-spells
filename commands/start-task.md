@@ -19,10 +19,10 @@ Entry point for the whole pipeline. Chains every stage automatically except the 
 2. **Tech spec** — invoke skill `tech-spec` (agent `tech-spec`) with the AC source, the patterns file path (if found), and the detected stack label:
    - **HITL:** the entry question (`human` / `agent`).
    - **HITL:** any Blocker/Decision-tier questions the draft surfaces, per `references/question-discipline.md`.
-   - **HITL:** `approve-spec` / `revise` / `skip <reason>`.
+   - **HITL:** `approve-spec` / `revise` / `skip <reason>`. On `revise`, rewrite the spec as current truth (`clean-decision-docs`); chat may summarize edits.
 3. **Plan** (automatic once the spec's `Status` is `approved` or explicitly `skip`ped): invoke `writing-plans` with the tech spec as input to produce the implementation plan.
 4. **Approve plan + critic** — invoke skill `approve-plan` on the new plan:
-   - **HITL:** `approve-plan` / `revise` (human reads the plan first).
+   - **HITL:** `approve-plan` / `revise` (human reads the plan first). Plan revisions follow `clean-decision-docs` (no revision archaeology in the file).
    - **Automatic after `approve-plan`:** run `implementation-critic` (no HITL to start the critic).
    - **HITL:** only if `Verdict` is `blocked` or `clear pending accept` — wait for a plan revision or `accept F<id>` replies.
    - **Automatic on `Verdict: clear`:** hand off to `start-build`.

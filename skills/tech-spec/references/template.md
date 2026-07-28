@@ -12,8 +12,12 @@
 3. **Data model / contracts** — tables, fields, FKs, events; exact names and types, not placeholders.
 4. **Rollout sequence** — the order changes land so the system is never half-migrated (e.g. "add nullable column, backfill, add NOT NULL, deploy code that reads/writes it, remove fallback").
 5. **Compatibility / migration / rollback** — how to undo each step, or `N/A` with a one-line reason why rollback isn't needed.
-6. **Rejected alternatives** — one line each: what was considered and why it lost. This is the critic's primary input for its Pass A checks.
+6. **Rejected alternatives** — one line each: what was considered and why it lost *as a current design choice*. This is the critic's primary input for its Pass A checks. Not a draft diary: never strikethrough prior wording, "changed from X to Y", or "after critique F\<id\>" (see skill `clean-decision-docs`).
 7. **Open questions / Assumptions** — any unresolved Decision-tier items still pending (spec cannot be `approved` while any remain) and the full list of Assumption-tier defaults made during drafting.
+
+## Clean final form
+
+Every draft and every `revise` pass must leave the file readable as a single coherent decision (skill `clean-decision-docs`). Put "what changed this turn" in the chat reply, not in the file.
 
 ## Status header
 

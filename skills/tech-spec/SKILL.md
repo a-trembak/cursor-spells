@@ -45,8 +45,9 @@ See [references/template.md](references/template.md) for the full 7-section temp
 1. Ask the entry question. If `human`, wait for the file path and check it against `references/template.md`'s section list and Status header — report any structural gaps as questions.
 2. If `agent`: read AC and `.cursor/project-patterns.md` (current project) if present.
 3. Draft the spec section by section, following [references/template.md](references/template.md), applying the three-tier protocol from [references/question-discipline.md](references/question-discipline.md) as each section surfaces uncertainty.
-4. Write the file per the template's path convention.
+4. Write the file per the template's path convention. Apply skill **`clean-decision-docs`**: the file is final-form current truth, never a changelog of prior drafts.
 5. Present it for `approve-spec` (see Gate).
+6. On `revise`: rewrite affected sections in place per `clean-decision-docs` (chat may summarize what changed; the file body must not). Re-present for `approve-spec`.
 
 ## Gate
 
@@ -54,4 +55,4 @@ Plan-writing does not start until the spec is `approved` (or the human explicitl
 
 ## Context budget
 
-Load this skill and its two reference files only.
+Load this skill, its two reference files, and `clean-decision-docs` when drafting or revising.

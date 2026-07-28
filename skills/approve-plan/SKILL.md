@@ -49,10 +49,12 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 7. **On `Verdict: blocked` or `clear pending accept`:**
    - Keep `.cursor/critique-gate.pending`
    - **Stop** and show the critic's report. Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6.
-8. **On `revise`:** keep or re-write `.cursor/plan-gate.pending`, ensure `.cursor/plan-critique.clear` is removed, wait for the updated plan, then re-ask step 3.
+8. **On `revise`:** keep or re-write `.cursor/plan-gate.pending`, ensure `.cursor/plan-critique.clear` is removed. When you (or the plan author) update the plan file, follow skill **`clean-decision-docs`**: rewrite the plan as current truth only — no "fixed/changed to", What-changed sections, or strikethrough of the prior draft inside the file; chat may list what changed for the human's verify step. Then re-ask step 3.
+9. **On plan edits after a blocked critique:** same `clean-decision-docs` rewrite rule — the next draft the human (re-)approves must not carry critic archaeology (`after F3`, dual old+new text, etc.).
 
 ## Notes
 
 - Critic is **not** a HITL start — only plan approval and blocked/accept-risk findings are HITL.
 - Manual `/critique-plan` still works ad-hoc; it does not replace this gate for `/start-task`.
 - Re-approving after a plan edit always re-runs the critic (clear marker was deleted in step 2 / revise).
+- Critic *reports* may narrate findings; the plan file itself must stay final-form (`clean-decision-docs`).
