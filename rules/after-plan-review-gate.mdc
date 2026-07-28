@@ -24,7 +24,7 @@ When you **finish executing an implementation plan** (all plan tasks done, or yo
    > - `approve` / `done` — start after your review
    > - or describe fixes first
 
-3. Do **not** start `engineer-reviewer` / `/engineer-review` until the user replies `skip`, `approve`, or `done`.
-4. On that reply: delete `.cursor/review-gate.pending`; on frontend ask for Figma URLs via `hitl-choice` Figma preset (or `no figma`); then run engineer-review.
+3. Do **not** start `engineer-reviewer` / `/engineer-review` until the user replies `skip`, `approve`, or `done`. If they already replied one of those tokens after the gate was asked, do not re-ask — clear the marker and continue.
+4. On that reply: delete `.cursor/review-gate.pending` first; on frontend ask for Figma URLs via `hitl-choice` Figma preset (or `no figma`); then run engineer-review. `skip` / `approve` / `done` all start review (they are not “skip review” / “close without review”).
 
 Does not apply to pure Q&A, docs-only answers, or when the user already launched `/engineer-review` manually.
