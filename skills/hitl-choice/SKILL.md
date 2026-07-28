@@ -34,6 +34,7 @@ Canonical UX for closed-set HITL questions. **Prefer interactive buttons** via C
 6. If the user types a canonical token while buttons are showing, honor the typed token.
 7. Never invent a HITL answer when the picker is skipped/cancelled — re-ask via fallback text or wait.
 8. Do not pretend buttons were shown if the tool was unavailable; use text quietly.
+9. **Do not re-ask** when a canonical token for this gate is already present in a later user message (e.g. user sent `approve` while a stop-hook followup re-prompted). Honor that token and continue the calling skill.
 
 ## Gate presets
 

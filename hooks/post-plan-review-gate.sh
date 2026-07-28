@@ -32,7 +32,11 @@ if [[ -f "$marker" ]]; then
     exit 0
   fi
 
-  printf '%s\n' '{"followup_message":"Plan-complete marker still present (.cursor/review-gate.pending). Ask HITL via skill hitl-choice (AskQuestion buttons when available; else typed skip / approve / done) before engineer-reviewer. Do not start review until the user answers."}'
+  # Important: followup_message auto-continues the agent. If we only say "ask
+  # HITL", the agent re-asks forever and ignores a prior user skip/approve/done
+  # that arrived while the stop-hook loop was running. Prefer honoring an
+  # existing answer; only re-ask when none is in the chat yet.
+  printf '%s\n' '{"followup_message":"Plan-complete marker still present (.cursor/review-gate.pending). If the user already replied skip, approve, or done anywhere in this chat after the gate was asked, delete .cursor/review-gate.pending immediately and continue skill finish-plan (start engineer-reviewer or multi-repo-supervisor). Do not re-ask. Only ask HITL via skill hitl-choice (AskQuestion when available; else typed skip / approve / done) if they have not answered yet."}'
   exit 0
 fi
 

@@ -86,7 +86,7 @@ When plan execution finishes (`ce-work`, `executing-plans`, `subagent-driven-dev
 
 Only after `skip` | `approve` | `done` does the orchestrator run.
 
-Optional `stop` hook: if a marker file (e.g. `.cursor/review-gate.pending`) exists, emit `followup_message` reminding about the gate. The hook never auto-starts review (preserves HITL).
+Optional `stop` hook: if a marker file (e.g. `.cursor/review-gate.pending`) exists, emit `followup_message` reminding about the gate. The followup must tell the agent to honor an existing user `skip` / `approve` / `done` (delete marker and continue) instead of re-asking. The hook never auto-starts review on its own (preserves HITL).
 
 ## Orchestrator spine (context budget)
 
@@ -195,7 +195,7 @@ Shipped in the same kit iteration:
 1. **`scripts/install-to-project.sh`** — one-shot install into `~/.cursor` + consumer project
 2. **`finish-plan` skill/command** — reliable marker + HITL (does not depend on global alwaysApply)
 3. **Severity `P0|P1|P2`** — auto-apply only unambiguous P0/P1; P2 → Residual
-4. **Budget caps** — 40 files / 2500 LOC → chunk by package/dir
+4. **Budget caps** — 40 files / 2500 LOC → chunk by package/dir; **>200 files or >50k LOC → abort** and ask to narrow (do not chunk-spam)
 5. **`check-project-patterns.sh` + workflow template** — optional CI for missing patterns cache
 6. **Early Figma ask** on frontend after HITL / at manual review start
 7. **Rule scoped** — `alwaysApply: false` + plan globs; install per project only
