@@ -20,11 +20,11 @@ Thin orchestrator for multi-phase code review. Keeps the spine small; each phase
 
 ## HITL gate (required before auto-review)
 
-If this run was triggered because a **plan finished**, do **not** start phases until the user replies:
+If this run was triggered because a **plan finished**, do **not** start phases until the user answers via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Finish-plan / engineer-review / multi-repo HITL**:
 
 - `skip` — start review now
 - `approve` or `done` — start after their own pass
-- otherwise treat as “fix first”, then re-ask
+- `fixes` / typed fix description — treat as “fix first”, then re-ask
 
 Prefer skill/command `finish-plan` to set `.cursor/review-gate.pending` reliably.
 
@@ -32,11 +32,9 @@ Manual `/engineer-review` skips this gate.
 
 ## Early Figma ask (frontend)
 
-After HITL approval (or at the start of manual review), if stack is `react-web` or `react-native`, ask **before** phase dispatch:
+After HITL approval (or at the start of manual review), if stack is `react-web` or `react-native`, ask **before** phase dispatch via skill **`hitl-choice`** preset **Figma ask** (prefer `AskQuestion`; text fallback: paste links or `no figma`).
 
-> Any Figma node URLs for markup review? Paste links, or say `no figma`.
-
-Pass URLs into clarifications for `review-figma-markup`. Do not block other phases on the answer if the user already said `no figma`; if they have not answered yet, run non-figma phases first and keep figma skipped until URLs arrive.
+Pass URLs into clarifications for `review-figma-markup`. Do not block other phases on the answer if the user already said `no figma` / `no_figma`; if they have not answered yet, run non-figma phases first and keep figma skipped until URLs arrive.
 
 ## Spine (do this in order)
 

@@ -29,8 +29,8 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
    - If graphify was absent or unqueryable, no explicit paths were supplied, and the repo set came from a sibling scan (or `refresh: true` was supplied), write or refresh `<workspace-parent>/.cursor/multi-repo.json` now. Do not persist during single-repo or no-change routes.
 4. **HITL gate and Figma clarifications:**
    - List every changed repo with path and stack.
-   - **Gate** (skip when `hitl_already_approved: true`): ask once: `skip` / `approve` / `done` to start multi-repo review. Do not dispatch any review phases until the user answers (unless `hitl_already_approved`).
-   - **Figma** (not skipped by `hitl_already_approved`): if the caller provided `figma_clarifications`, use them; otherwise, when any repo in the set is `react-web` or `react-native`, ask for Figma node URLs once for the whole task (or `no figma`). Pass collected URLs to each frontend repo's `engineer-reviewer` dispatch.
+   - **Gate** (skip when `hitl_already_approved: true`): ask once via skill `hitl-choice` (prefer `AskQuestion`; preset Finish-plan / engineer-review / multi-repo HITL): `skip` / `approve` / `done` / `fixes` to start multi-repo review. Do not dispatch any review phases until the user answers (unless `hitl_already_approved`).
+   - **Figma** (not skipped by `hitl_already_approved`): if the caller provided `figma_clarifications`, use them; otherwise, when any repo in the set is `react-web` or `react-native`, ask once for the whole task via skill `hitl-choice` preset **Figma ask** (or text: paste URLs / `no figma`). Pass collected URLs to each frontend repo's `engineer-reviewer` dispatch.
 5. **Parallel per-repo dispatch:** one `engineer-reviewer` Task per changed repo. Each dispatch receives:
    - repo `path`, `stack`, `base`, `head`
    - shared Figma clarifications (if any frontend repo)

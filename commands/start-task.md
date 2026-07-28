@@ -17,18 +17,18 @@ Entry point for the whole pipeline. Chains every stage automatically except the 
    - Read `.cursor/project-patterns.md` in the current project if present (create it via the `engineer-review` patterns flow on first use of this kit in a project, if entirely absent).
    - Detect the project's stack mechanically (same signals as `skill-map.md`'s stack-detection table: `package.json`, `pom.xml`, `docker-compose`, dependency names) — no reasoning call, a table lookup.
 2. **Tech spec** — invoke skill `tech-spec` (agent `tech-spec`) with the AC source, the patterns file path (if found), and the detected stack label:
-   - **HITL:** the entry question (`human` / `agent`).
-   - **HITL:** any Blocker/Decision-tier questions the draft surfaces, per `references/question-discipline.md`.
-   - **HITL:** `approve-spec` / `revise` / `skip <reason>`. On `revise`, rewrite the spec as current truth (`clean-decision-docs`); chat may summarize edits.
+   - **HITL:** the entry question (`human` / `agent`) via skill `hitl-choice` (prefer `AskQuestion` buttons).
+   - **HITL:** any Blocker/Decision-tier questions the draft surfaces, per `references/question-discipline.md` + `hitl-choice`.
+   - **HITL:** `approve-spec` / `revise` / `skip <reason>` via `hitl-choice`. On `revise`, rewrite the spec as current truth (`clean-decision-docs`); chat may summarize edits.
 3. **Plan** (automatic once the spec's `Status` is `approved` or explicitly `skip`ped): invoke `writing-plans` with the tech spec as input to produce the implementation plan.
 4. **Approve plan + critic** — invoke skill `approve-plan` on the new plan:
-   - **HITL:** `approve-plan` / `revise` (human reads the plan first). Plan revisions follow `clean-decision-docs` (no revision archaeology in the file).
+   - **HITL:** `approve-plan` / `revise` via `hitl-choice` (human reads the plan first). Plan revisions follow `clean-decision-docs` (no revision archaeology in the file).
    - **Automatic after `approve-plan`:** run `implementation-critic` (no HITL to start the critic).
-   - **HITL:** only if `Verdict` is `blocked` or `clear pending accept` — wait for a plan revision or `accept F<id>` replies.
+   - **HITL:** only if `Verdict` is `blocked` or `clear pending accept` — wait for a plan revision or `accept F<id>` replies (`hitl-choice` when available).
    - **Automatic on `Verdict: clear`:** hand off to `start-build`.
 5. **Execution** (automatic once critique is clear): skill `start-build` dispatches `software-developer` — feature branch(es) in every repo the plan will touch, skill-map routing, then `subagent-driven-development` by default. Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
 6. **Finish plan** (automatic invocation of the existing HITL gate): once all tasks are complete, invoke skill `finish-plan`:
-   - **HITL:** `skip` / `approve` / `done` before `engineer-review` starts.
+   - **HITL:** `skip` / `approve` / `done` via `hitl-choice` before `engineer-review` starts.
 7. **Engineer review** (automatic once the HITL gate clears): run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ changed repos).
    - **HITL:** only for `Needs clarification` items the review surfaces.
 

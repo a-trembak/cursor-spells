@@ -14,6 +14,7 @@ Full protocol for agent-assisted tech-spec drafting. This reuses the question-lo
 
 - One question per message. Do not batch multiple Blocker/Decision items into a single wall of text.
 - Prefer multiple-choice framing over open-ended prompts.
+- Use skill **`hitl-choice`**: when Cursor `AskQuestion` is available, present Blocker/Decision options as interactive buttons (stable option `id`s you can record); otherwise the same choices as typed multiple-choice text.
 - For a Decision-tier fork, always show 2-3 named options with a one-line trade-off each, plus your recommendation and why.
 - Never proceed past an open Blocker or Decision by assuming an answer "for now" — wait for the reply.
 

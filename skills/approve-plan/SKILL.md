@@ -30,7 +30,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
    rm -f .cursor/plan-critique.clear
    ```
 
-3. **Stop.** Ask exactly:
+3. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Approve-plan gate**. Prompt/text fallback:
 
    > Plan ready. Review it, then reply:
    > - `approve-plan` — accept this plan; critic runs next automatically
@@ -48,7 +48,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
    - Proceed automatically to skill `start-build` for that plan (branches + `software-developer`)
 7. **On `Verdict: blocked` or `clear pending accept`:**
    - Keep `.cursor/critique-gate.pending`
-   - **Stop** and show the critic's report. Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6.
+   - **Stop** and show the critic's report. Ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (`revise` + `accept F<id>` per open finding). Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6.
 8. **On `revise`:** keep or re-write `.cursor/plan-gate.pending`, ensure `.cursor/plan-critique.clear` is removed. When you (or the plan author) update the plan file, follow skill **`clean-decision-docs`**: rewrite the plan as current truth only — no "fixed/changed to", What-changed sections, or strikethrough of the prior draft inside the file; chat may list what changed for the human's verify step. Then re-ask step 3.
 9. **On plan edits after a blocked critique:** same `clean-decision-docs` rewrite rule — the next draft the human (re-)approves must not carry critic archaeology (`after F3`, dual old+new text, etc.).
 
