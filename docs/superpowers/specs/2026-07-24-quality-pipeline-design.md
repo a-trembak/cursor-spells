@@ -34,7 +34,7 @@ AC (testable, from product/human)
   → PR
 ```
 
-**Full canvas** (Mermaid: every HITL gate, critic verdict branch, marker state, review routing, standalone entry points): [`docs/superpowers/pipeline-flow.md`](../pipeline-flow.md).
+**Full canvas** (interactive HTML + Mermaid: every HITL gate, critic verdict branch, marker state, review routing, standalone entry points): [`pipeline-flow.html`](../pipeline-flow.html) · [`pipeline-flow.md`](../pipeline-flow.md).
 
 Every stage transition that carries irreversible risk (spec approval, plan approval, Must-fix findings, accepted risk) stops for a human decision. Mechanical stages (stack detection, static skill lookup, starting the critic after plan approval) never do.
 

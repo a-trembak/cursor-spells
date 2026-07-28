@@ -2,6 +2,10 @@
 
 Canonical flowchart of `/start-task` — every stage, HITL gate, condition, and branch as shipped in this kit.
 
+**Interactive canvas (click stages → detail branches):** open [`pipeline-flow.html`](pipeline-flow.html) in a browser.
+
+Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
+
 **Legend**
 
 | Shape / style | Meaning |
@@ -225,34 +229,31 @@ flowchart TD
 ```mermaid
 flowchart TD
   orch(["engineer-reviewer"])
-  lint[["review-lint"]]
-  logic[["review-logic"]]
-  patterns[["review-patterns"]]
-  deadcode[["review-deadcode"]]
-  arch[["review-architecture"]]
-  perf[["review-performance"]]
-  security[["review-security conditional"]]
-  figma[["review-figma-markup if URLs"]]
+  lint[["review-lint first"]]
+  parallelFind["Parallel find: logic / patterns / deadcode / architecture / performance / security? / figma?"]
   autofix{Auto-fix eligible?}
-  apply["Apply fix"]
+  apply["Serialize apply: lint then patterns deadcode logic arch perf security figma"]
   clarifyItem[/"clarify — never silent apply"/]
-  merge["Merge phase JSON + evidence gate"]
+  verifyLint["Verify: re-run review-lint once"]
+  merge["Merge JSON + evidence gate + validate report"]
+  needsClarify{Needs clarification?}
+  waitHitl[/"HITL wait for C-id answers"/]
+  redispatch["Re-dispatch affected phases"]
   report(["User-facing report"])
 
   orch ==> lint
-  lint --> logic
-  logic --> patterns
-  patterns --> deadcode
-  deadcode --> arch
-  arch --> perf
-  perf --> security
-  security --> figma
-  figma --> autofix
-  autofix -->|"all 4 tests pass"| apply
-  autofix -->|"any test fails"| clarifyItem
-  apply --> merge
-  clarifyItem --> merge
-  merge ==> report
+  lint ==> parallelFind
+  parallelFind ==> autofix
+  autofix -->|"all 4 tests pass + P0/P1 unambiguous"| apply
+  autofix -->|"any test fails or P2"| clarifyItem
+  apply --> verifyLint
+  clarifyItem --> verifyLint
+  verifyLint --> merge
+  merge --> needsClarify
+  needsClarify -->|"yes"| waitHitl
+  waitHitl --> redispatch
+  redispatch --> merge
+  needsClarify -->|"no"| report
 ```
 
 Auto-fix requires all four: deterministic check, single correct answer, no information loss, zero blast radius on data/UX. Traceability drift and migrations are always `clarify`.

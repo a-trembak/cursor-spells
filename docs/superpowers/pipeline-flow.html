@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cursor-spells — Pipeline flow canvas</title>
+  <style>
+    :root {
+      --bg0: #0f1419;
+      --bg1: #1a2332;
+      --bg2: #243044;
+      --line: #3d5270;
+      --text: #e8eef6;
+      --muted: #9aadc4;
+      --auto: #3d8bfd;
+      --hitl: #e8a838;
+      --stop: #e85d5d;
+      --ok: #3dcc91;
+      --artifact: #a78bfa;
+      --card: #15202b;
+      --shadow: rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, #1e3a5f 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 100%, #1a3d35 0%, transparent 50%),
+        var(--bg0);
+      color: var(--text);
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    }
+
+    header {
+      padding: 1.25rem 1.5rem 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.75rem 1.5rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(15, 20, 25, 0.85);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+    header .sub {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1rem;
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .swatch {
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .swatch.auto { background: var(--auto); }
+    .swatch.hitl { background: var(--hitl); }
+    .swatch.stop { background: var(--stop); }
+    .swatch.ok { background: var(--ok); }
+
+    main {
+      padding: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .view {
+      display: none;
+      animation: fadeIn 0.28s ease;
+    }
+    .view.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--bg1);
+      color: var(--text);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .back:hover { border-color: var(--auto); color: #fff; }
+
+    .view-title {
+      margin: 0 0 0.35rem;
+      font-size: 1.35rem;
+      font-weight: 650;
+    }
+    .view-desc {
+      margin: 0 0 1.25rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 42rem;
+      line-height: 1.45;
+    }
+
+    /* ---- Overview canvas ---- */
+    .canvas {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      padding: 0.5rem 0 2rem;
+    }
+
+    .node {
+      width: min(100%, 420px);
+      padding: 0.85rem 1.1rem;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 24px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s, box-shadow 0.15s;
+      text-align: left;
+      position: relative;
+    }
+    .node:hover, .node:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--auto);
+      box-shadow: 0 12px 32px var(--shadow), 0 0 0 1px var(--auto);
+      outline: none;
+    }
+    .node .kind {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+    .node .label {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .node .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+    .node.hitl { border-left: 3px solid var(--hitl); }
+    .node.auto { border-left: 3px solid var(--auto); }
+    .node.ok { border-left: 3px solid var(--ok); }
+    .node.stop {
+      border-left: 3px solid var(--stop);
+      cursor: default;
+      opacity: 0.9;
+    }
+    .node.stop:hover {
+      transform: none;
+      border-color: var(--line);
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .node .open-detail {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      color: var(--auto);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .node:not(.stop):hover .open-detail { opacity: 1; }
+
+    .connector {
+      width: 2px;
+      height: 28px;
+      background: linear-gradient(to bottom, var(--line), var(--auto));
+      position: relative;
+    }
+    .connector::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--auto);
+    }
+    .connector .edge-label {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: var(--muted);
+      white-space: nowrap;
+      background: var(--bg0);
+      padding: 0 0.35rem;
+    }
+
+    .branch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      width: 100%;
+      margin: 0.35rem 0;
+    }
+    .branch-row .node { width: min(100%, 280px); }
+
+    /* ---- Detail view ---- */
+    .detail-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      gap: 0.75rem;
+      align-items: start;
+    }
+    .step-num {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 8px;
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .step-body {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+    }
+    .step-body h3 {
+      margin: 0 0 0.35rem;
+      font-size: 0.95rem;
+    }
+    .step-body p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .step-body.hitl { border-left: 3px solid var(--hitl); }
+    .step-body.auto { border-left: 3px solid var(--auto); }
+    .step-body.stop { border-left: 3px solid var(--stop); }
+    .step-body.ok { border-left: 3px solid var(--ok); }
+
+    .branches {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.65rem;
+    }
+    .branch {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.5rem 0.75rem;
+      padding: 0.55rem 0.7rem;
+      background: var(--bg1);
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 0.82rem;
+    }
+    .branch:hover { border-color: var(--line); }
+    .token {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: var(--bg2);
+      color: var(--hitl);
+      white-space: nowrap;
+      align-self: start;
+    }
+    .token.auto { color: var(--auto); }
+    .token.ok { color: var(--ok); }
+    .token.stop { color: var(--stop); }
+    .branch .then { color: var(--text); }
+    .branch .then small { color: var(--muted); display: block; margin-top: 0.15rem; }
+
+    .nav-next {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .nav-next button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--bg1);
+      color: var(--text);
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .nav-next button:hover {
+      border-color: var(--ok);
+      color: #fff;
+    }
+    .nav-next button.primary {
+      background: #1e4a7a;
+      border-color: var(--auto);
+    }
+
+    table.meta {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 1rem;
+    }
+    table.meta th, table.meta td {
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--line);
+    }
+    table.meta th { color: var(--muted); font-weight: 600; }
+
+    footer {
+      padding: 1rem 1.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    footer a { color: var(--auto); }
+
+    @media (max-width: 640px) {
+      header { padding: 1rem; }
+      .legend { margin-left: 0; }
+      main { padding: 1rem; }
+      .node .open-detail { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>cursor-spells · Pipeline canvas</h1>
+    <p class="sub">Клік по етапу — деталі з умовами і гілками</p>
+    <div class="legend">
+      <span><i class="swatch auto"></i> automatic</span>
+      <span><i class="swatch hitl"></i> HITL</span>
+      <span><i class="swatch stop"></i> stop</span>
+      <span><i class="swatch ok"></i> clear / proceed</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section id="view-overview" class="view active" aria-label="Overview">
+      <h2 class="view-title">Огляд пайплайна</h2>
+      <p class="view-desc">
+        Від Acceptance Criteria до reviewed PR. Натисніть етап, щоб побачити
+        умови, HITL-відповіді та петлі повернення.
+      </p>
+
+      <div class="canvas">
+        <div class="node auto" tabindex="0" data-go="bootstrap" role="button">
+          <div class="kind">1 · automatic</div>
+          <div class="label">Bootstrap</div>
+          <div class="hint">project-patterns + stack detect</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"><span class="edge-label">AC є</span></div>
+
+        <div class="node hitl" tabindex="0" data-go="tech-spec" role="button">
+          <div class="kind">2 · HITL ×3</div>
+          <div class="label">Tech Spec</div>
+          <div class="hint">human/agent → tiers → approve/revise/skip</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"><span class="edge-label">approved | skip</span></div>
+
+        <div class="node auto" tabindex="0" data-go="plan" role="button">
+          <div class="kind">3 · automatic</div>
+          <div class="label">writing-plans</div>
+          <div class="hint">implementation plan з tech spec</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"></div>
+
+        <div class="node hitl" tabindex="0" data-go="approve-plan" role="button">
+          <div class="kind">4 · HITL + auto critic</div>
+          <div class="label">approve-plan → critic</div>
+          <div class="hint">approve/revise → Verdict → clear?</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"><span class="edge-label">Verdict: clear</span></div>
+
+        <div class="node auto" tabindex="0" data-go="build" role="button">
+          <div class="kind">5 · automatic</div>
+          <div class="label">start-build → software-developer</div>
+          <div class="hint">branches → skill-map → SDD / executing-plans</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"><span class="edge-label">tasks verified</span></div>
+
+        <div class="node hitl" tabindex="0" data-go="finish-plan" role="button">
+          <div class="kind">6 · HITL</div>
+          <div class="label">finish-plan</div>
+          <div class="hint">skip / approve / done / fixes</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"></div>
+
+        <div class="node hitl" tabindex="0" data-go="review" role="button">
+          <div class="kind">7 · conditional HITL</div>
+          <div class="label">engineer-review</div>
+          <div class="hint">1 repo vs ≥2 · Figma · clarify</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"><span class="edge-label">done</span></div>
+
+        <div class="node ok" tabindex="0" data-go="markers" role="button">
+          <div class="kind">markers · state</div>
+          <div class="label">Reviewed / PR path</div>
+          <div class="hint">таблиця маркерів .cursor/*</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+      </div>
+
+      <div class="branch-row">
+        <div class="node stop" tabindex="-1">
+          <div class="kind">guard</div>
+          <div class="label">Немає AC → stop</div>
+          <div class="hint">написання AC поза scope kit</div>
+        </div>
+        <div class="node auto" tabindex="0" data-go="standalone" role="button">
+          <div class="kind">shortcuts</div>
+          <div class="label">Standalone commands</div>
+          <div class="hint">/write-tech-spec, /approve-plan, /pr-review…</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOTSTRAP -->
+    <section id="view-bootstrap" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">1. Bootstrap</h2>
+      <p class="view-desc">Автоматичний старт. Без HITL. Механічний lookup стеку.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>Перевірка AC</h3>
+            <p>Якщо Acceptance Criteria немає — stop. Написання AC поза scope kit.</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token stop">no AC</span>
+                <div class="then">Stop і повідомити людину<small>потрібен ticket / файл / текст AC</small></div>
+              </div>
+              <div class="branch">
+                <span class="token ok">AC ok</span>
+                <div class="then">Далі bootstrap</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body auto">
+            <h3>project-patterns.md</h3>
+            <p>Читає <code>.cursor/project-patterns.md</code>, якщо є. Якщо немає — створить пізніше на першому engineer-review patterns flow.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body auto">
+            <h3>Stack detect</h3>
+            <p>Табличний lookup сигналів (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) з <code>skill-map.md</code>. Без LLM-міркувань.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" class="primary" data-go="tech-spec">Далі: Tech Spec →</button>
+      </div>
+    </section>
+
+    <!-- TECH SPEC -->
+    <section id="view-tech-spec" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">2. Tech Spec</h2>
+      <p class="view-desc">Developer technical action plan (не PRD). Три HITL-точки. Бізнес-вимоги не вигадуються.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">A</div>
+          <div class="step-body hitl">
+            <h3>Entry question</h3>
+            <p>Skill <code>hitl-choice</code> · preset Tech-spec entry</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token">human</span>
+                <div class="then">Людина дає файл; агент лише структурує / питає про gaps</div>
+              </div>
+              <div class="branch">
+                <span class="token">agent</span>
+                <div class="then">Агент веде інтерв’ю і пише draft</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">B</div>
+          <div class="step-body hitl">
+            <h3>Три тири невизначеності (agent mode)</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token stop">Blocker</span>
+                <div class="then">Stop і запитати<small>немає happy path / ownership / security / breaking</small></div>
+              </div>
+              <div class="branch">
+                <span class="token">Decision</span>
+                <div class="then">2–3 опції + рекомендація; чекати вибір</div>
+              </div>
+              <div class="branch">
+                <span class="token auto">Assumption</span>
+                <div class="then">Записати в секцію Assumptions (claim / why / revoke)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">C</div>
+          <div class="step-body hitl">
+            <h3>Gate</h3>
+            <p>Plan-writing не стартує, доки не буде відповіді.</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">approve-spec</span>
+                <div class="then">Status approved → writing-plans</div>
+              </div>
+              <div class="branch">
+                <span class="token">revise</span>
+                <div class="then">Rewrite як current truth (<code>clean-decision-docs</code>); chat може резюмувати; знову gate</div>
+              </div>
+              <div class="branch">
+                <span class="token">skip &lt;reason&gt;</span>
+                <div class="then">Reason у файлі; далі writing-plans без approved spec</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="bootstrap">← Bootstrap</button>
+        <button type="button" class="primary" data-go="plan">Далі: Plan →</button>
+      </div>
+    </section>
+
+    <!-- PLAN -->
+    <section id="view-plan" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">3. writing-plans</h2>
+      <p class="view-desc">Автоматично після approved/skip spec. Без HITL на цьому кроці. Стратегію execution ще не питаємо.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>Input</h3>
+            <p>Tech spec (approved або skip з reason) + patterns/stack з bootstrap.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body auto">
+            <h3>Output</h3>
+            <p>Implementation plan у <code>docs/**/plans/</code>. Далі одразу <code>approve-plan</code>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="tech-spec">← Tech Spec</button>
+        <button type="button" class="primary" data-go="approve-plan">Далі: Approve + Critic →</button>
+      </div>
+    </section>
+
+    <!-- APPROVE PLAN -->
+    <section id="view-approve-plan" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">4. approve-plan → critic</h2>
+      <p class="view-desc">Людина читає план до критика. Critic стартує автоматично після approve. Build — лише на Verdict clear.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>Markers</h3>
+            <p>Пише <code>plan-gate.pending</code>; видаляє stale <code>plan-critique.clear</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body hitl">
+            <h3>HITL approve-plan</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">approve-plan</span>
+                <div class="then">Видалити plan-gate → писати critique-gate → auto critic</div>
+              </div>
+              <div class="branch">
+                <span class="token">revise</span>
+                <div class="then">Переписати план (clean-decision-docs); знову HITL<small>plan-critique.clear лишається видаленим</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body auto">
+            <h3>implementation-critic</h3>
+            <p>Pass A (design/YAGNI) + Pass B (risk/migration). Read-only. Без HITL на старт.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body hitl">
+            <h3>Verdict branch</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">clear</span>
+                <div class="then">Видалити critique-gate → писати plan-critique.clear → start-build</div>
+              </div>
+              <div class="branch">
+                <span class="token stop">blocked</span>
+                <div class="then">Зупинитись; HITL revise / accept F&lt;id&gt;<small>відкритий Must-fix</small></div>
+              </div>
+              <div class="branch">
+                <span class="token stop">clear pending accept</span>
+                <div class="then">Зупинитись; потрібен accept Accept-risk<small>Must-fix уже закриті</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="meta">
+        <thead><tr><th>Finding</th><th>Блокує?</th></tr></thead>
+        <tbody>
+          <tr><td>Must-fix</td><td>Так, доки resolve або <code>accept F&lt;id&gt;</code></td></tr>
+          <tr><td>Should-fix</td><td>Ні (видимий на HITL)</td></tr>
+          <tr><td>Accept-risk</td><td>Так, доки явний <code>accept F&lt;id&gt;</code></td></tr>
+        </tbody>
+      </table>
+      <div class="nav-next">
+        <button type="button" data-go="plan">← Plan</button>
+        <button type="button" class="primary" data-go="build">Далі: Build →</button>
+      </div>
+    </section>
+
+    <!-- BUILD -->
+    <section id="view-build" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">5. start-build → software-developer</h2>
+      <p class="view-desc">Тонкий handoff. Critic тут не запускається. Код лише після clear critique.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body stop">
+            <h3>Guards</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token stop">no clear marker</span>
+                <div class="then">Stop → скажи запустити <code>/approve-plan</code></div>
+              </div>
+              <div class="branch">
+                <span class="token stop">pending gate</span>
+                <div class="then">Stop якщо plan-gate або critique-gate ще є</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body auto">
+            <h3>Branch setup (обов’язково до Task 1)</h3>
+            <p>Одна shared feature branch у кожному target repo з plan/spec. Ніколи на main/master/default.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body auto">
+            <h3>Skill routing</h3>
+            <p>Stack skills + code-comments + TDD (якщо є behavior) + DB rows при міграціях + conditional perf/security/architecture. Tier-2 skills — лише після HITL install decision.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body auto">
+            <h3>Execution engine</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">default</span>
+                <div class="then"><code>subagent-driven-development</code></div>
+              </div>
+              <div class="branch">
+                <span class="token auto">pre-chosen</span>
+                <div class="then"><code>executing-plans</code>, якщо людина вже просила окрему сесію</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body auto">
+            <h3>Verify → finish-plan</h3>
+            <p>Lint/test/typecheck evidence обов’язкові. Потім handoff на <code>finish-plan</code> з map <code>repo → branch</code>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="approve-plan">← Approve + Critic</button>
+        <button type="button" class="primary" data-go="finish-plan">Далі: Finish Plan →</button>
+      </div>
+    </section>
+
+    <!-- FINISH -->
+    <section id="view-finish-plan" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">6. finish-plan</h2>
+      <p class="view-desc">HITL перед engineer-review. Marker <code>review-gate.pending</code>.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body hitl">
+            <h3>HITL gate</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">skip</span>
+                <div class="then">Стартувати review зараз</div>
+              </div>
+              <div class="branch">
+                <span class="token ok">approve / done</span>
+                <div class="then">Людина вже глянула — стартувати review</div>
+              </div>
+              <div class="branch">
+                <span class="token">fixes</span>
+                <div class="then">Описати фікси → implement → знову gate<small>marker лишається</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body auto">
+            <h3>Routing (non-mutating probe)</h3>
+            <p>Читає graphify / існуючий multi-repo.json / sibling scan. <strong>Не</strong> пише multi-repo.json на цьому кроці.</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token stop">0 repos</span>
+                <div class="then">Stop: змін не знайдено</div>
+              </div>
+              <div class="branch">
+                <span class="token ok">1 repo</span>
+                <div class="then">engineer-reviewer (+ Figma HITL якщо frontend)</div>
+              </div>
+              <div class="branch">
+                <span class="token auto">≥ 2 repos</span>
+                <div class="then">multi-repo-supervisor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="build">← Build</button>
+        <button type="button" class="primary" data-go="review">Далі: Review →</button>
+      </div>
+    </section>
+
+    <!-- REVIEW -->
+    <section id="view-review" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">7. engineer-review</h2>
+      <p class="view-desc">Фази + auto-fix eligibility. HITL лише на Needs clarification.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body hitl">
+            <h3>Figma ask (якщо frontend, 1 repo)</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token">no_figma</span>
+                <div class="then">figma phase skipped</div>
+              </div>
+              <div class="branch">
+                <span class="token">have_urls</span>
+                <div class="then">Чекати pasted URLs → review-figma-markup</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body auto">
+            <h3>Phase order</h3>
+            <p><code>review-lint</code> першим (deterministic). Далі parallel <strong>find</strong> для heuristic phases. Apply serialize: lint → patterns → deadcode → logic → architecture → performance → security → figma. Потім verify lint ще раз. Evidence gate + <code>validate-review-report.sh</code> перед показом.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body hitl">
+            <h3>Auto-fix vs clarify</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">apply</span>
+                <div class="then">P0/P1 + unambiguous + усі 4 eligibility умови</div>
+              </div>
+              <div class="branch">
+                <span class="token">clarify</span>
+                <div class="then">Будь-яка умова fails · migrations · traceability · security/logic ambiguity · P2 → residual</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body hitl">
+            <h3>Needs clarification</h3>
+            <p>Якщо список не порожній — stop і чекати відповіді (напр. <code>C1: A</code>). Потім re-dispatch лише affected phases і знову merge/validate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="finish-plan">← Finish Plan</button>
+        <button type="button" class="primary" data-go="markers">Markers →</button>
+      </div>
+    </section>
+
+    <!-- MARKERS -->
+    <section id="view-markers" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">Markers · state</h2>
+      <p class="view-desc">Усі маркери в consumer project <code>.cursor/</code>, не в kit.</p>
+      <table class="meta">
+        <thead>
+          <tr><th>Marker</th><th>Пише</th><th>Чистить / інвалідує</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>plan-gate.pending</code></td>
+            <td>approve-plan (до HITL)</td>
+            <td>відповідь <code>approve-plan</code></td>
+          </tr>
+          <tr>
+            <td><code>critique-gate.pending</code></td>
+            <td>після approve, перед critic</td>
+            <td><code>Verdict: clear</code></td>
+          </tr>
+          <tr>
+            <td><code>plan-critique.clear</code></td>
+            <td>на clear verdict</td>
+            <td><code>revise</code> / повторний approve-plan</td>
+          </tr>
+          <tr>
+            <td><code>review-gate.pending</code></td>
+            <td>finish-plan</td>
+            <td><code>skip</code> / <code>approve</code> / <code>done</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="nav-next">
+        <button type="button" data-go="review">← Review</button>
+        <button type="button" class="primary" data-go="standalone">Standalone commands →</button>
+      </div>
+    </section>
+
+    <!-- STANDALONE -->
+    <section id="view-standalone" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">Standalone entry points</h2>
+      <p class="view-desc">Команди поза повним оркестратором <code>/start-task</code>.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body auto">
+            <h3>/write-tech-spec</h3>
+            <p>Лише tech-spec, без решти пайплайна.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body auto">
+            <h3>/critique-plan</h3>
+            <p>Ad-hoc critic. Не замінює approve-plan gate і сам не готує build clear-marker як pipeline path.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body hitl">
+            <h3>/approve-plan → /start-build</h3>
+            <p>Повний pre-build gate вручну: HITL approve, auto critic, clear → build.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body auto">
+            <h3>/finish-plan · /engineer-review · /pr-review · /multi-review</h3>
+            <p>Post-plan / PR / multi-repo входи. Manual engineer-review пропускає finish-plan HITL.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" class="primary" data-go="overview">← Повернутись до огляду</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Джерело: commands/start-task.md + approve-plan / start-build / finish-plan / hitl-choice
+    · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
+  </footer>
+
+  <script>
+    const views = document.querySelectorAll(".view");
+
+    function show(id) {
+      const target = "view-" + id;
+      views.forEach((v) => {
+        const on = v.id === target;
+        v.classList.toggle("active", on);
+        v.hidden = !on;
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      history.replaceState(null, "", "#" + id);
+    }
+
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-go]");
+      if (!btn) return;
+      show(btn.getAttribute("data-go"));
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const btn = e.target.closest("[data-go]");
+      if (!btn) return;
+      e.preventDefault();
+      show(btn.getAttribute("data-go"));
+    });
+
+    const hash = (location.hash || "#overview").slice(1);
+    if (document.getElementById("view-" + hash)) show(hash);
+  </script>
+</body>
+</html>
