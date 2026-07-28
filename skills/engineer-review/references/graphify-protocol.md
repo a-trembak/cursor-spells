@@ -51,13 +51,14 @@ Pass only a compact **`impact_hint`** upward/to phases: short module names and/o
 
 After computing the changed file list / `--numstat`, **before** chunking:
 
-1. Run detect.
-2. If available, run the impact query (or read the matching `GRAPH_REPORT.md` section).
-3. Prefer graph modules for chunk boundaries when files > 40 or LOC > 2500; otherwise use the hint only to prioritize deep-reads within the same caps.
-4. Pass `graphify_available: true` and optional `impact_hint` into phase inputs.
-5. If absent/unqueryable — **no-op**: identical to today’s `git diff` + directory/package chunking.
+1. If the range exceeds catastrophic caps in [`phase-protocol.md`](phase-protocol.md) (200 files / 50k LOC), abort and ask to narrow — do not run graphify or chunk fan-out.
+2. Run detect.
+3. If available, run the impact query (or read the matching `GRAPH_REPORT.md` section).
+4. Prefer graph modules for chunk boundaries when files > 40 or LOC > 2500; otherwise use the hint only to prioritize deep-reads within the same caps.
+5. Pass `graphify_available: true` and optional `impact_hint` into phase inputs.
+6. If absent/unqueryable — **no-op**: identical to today’s `git diff` + directory/package chunking.
 
-Caps in [`phase-protocol.md`](phase-protocol.md) (40 files / 2500 LOC) still apply whether or not graphify answered.
+Caps in [`phase-protocol.md`](phase-protocol.md) (40 files / 2500 LOC for chunks; 200 files / 50k LOC abort) still apply whether or not graphify answered.
 
 ## Phase hook
 
