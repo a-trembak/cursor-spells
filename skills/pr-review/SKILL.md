@@ -3,15 +3,16 @@ name: pr-review
 description: >-
   Use when reviewing a GitHub pull request (URL, number, or current branch's
   PR) with the same multi-phase engineer-review pipeline. Resolves the PR
-  diff range, then runs engineer-reviewer. Feedback must include code snippets,
-  clickable file:line links, and english-humanizer prose. Default report-only;
+  diff range, emits a PR Review Canvas for diff orientation, then runs
+  engineer-reviewer. Feedback must include code snippets, clickable
+  file:line links, and english-humanizer prose. Default report-only;
   optional apply for the author's own checkout. Use for /pr-review or
   "review this PR".
 ---
 
 # PR Review
 
-Thin wrapper around `engineer-review` / `engineer-reviewer` for **pull-request** entry. Same phase agents and skill-map — different input resolution, default fix policy, and **stricter user-facing feedback** ([references/feedback-format.md](references/feedback-format.md)).
+Thin wrapper around `engineer-review` / `engineer-reviewer` for **pull-request** entry. Same phase agents and skill-map — different input resolution, default fix policy, **stricter user-facing feedback** ([references/feedback-format.md](references/feedback-format.md)), and a **diff-orientation canvas** via Cursor plugin skill `pr-review-canvas` ([references/canvas.md](references/canvas.md)).
 
 ## When to Use
 
@@ -30,6 +31,7 @@ Thin wrapper around `engineer-review` / `engineer-reviewer` for **pull-request**
 | (empty) | Open PR for the current branch, else fail and ask |
 | `apply` | After find, allow coordinated apply of unambiguous P0/P1 that pass auto-fix eligibility (default is **report-only**) |
 | `no-figma` | Skip the Figma ask; treat as `no figma` |
+| `no-canvas` | Skip the PR Review Canvas step |
 
 ## Resolve PR → review range
 
@@ -44,18 +46,23 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 ## Spine
 
 1. Resolve PR + SHAs (above). Record PR number, title, URL, `HEAD_SHA`, owner/repo in Coverage.
-2. Read and follow skill `engineer-review` for stack detection, budget/chunking, patterns, phase dispatch, lint-first, verify pass, merge — **except**:
+2. **PR Review Canvas** (default on) — follow [references/canvas.md](references/canvas.md):
+   - Skip if `no-canvas`, or if PR URL/number is unavailable.
+   - Otherwise read and follow skill `pr-review-canvas` (Cursor plugin; do not vendor) with the resolved PR URL/number; write the canvas per the Canvas skill.
+   - Canvas orients the reviewer (core logic → wiring → boilerplate). It does **not** replace Findings or the evidence gate.
+   - If the plugin/skill is missing: continue; note `skill_missing: pr-review-canvas` in Coverage.
+3. Read and follow skill `engineer-review` for stack detection, budget/chunking, patterns, phase dispatch, lint-first, verify pass, merge — **except**:
    - Skip the post-plan HITL gate (user already asked for PR review).
    - Default `mode`: **find only** (report-only). Run apply only if the user passed `apply` (or explicitly asked to fix in-repo).
-3. Early Figma ask on frontend unless `no-figma`.
-4. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`). Phase JSON **must** include `path` / `start_line` / `end_line` / `snippet` on every finding.
-5. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md), shared [evidence-gate.md](../engineer-review/references/evidence-gate.md), and [forbidden-formats.md](../engineer-review/references/forbidden-formats.md):
+4. Early Figma ask on frontend unless `no-figma`.
+5. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`). Phase JSON **must** include `path` / `start_line` / `end_line` / `snippet` on every finding.
+6. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md), shared [evidence-gate.md](../engineer-review/references/evidence-gate.md), and [forbidden-formats.md](../engineer-review/references/forbidden-formats.md):
    - Require `path` + lines + `snippet`; backfill with `extract-review-snippet.sh` + `HEAD_SHA` or **drop** the item.
    - Full Where block including **required** GitHub `blob/<HEAD_SHA>/…#L…` when PR resolve succeeded; numbered code fence.
    - **Never** a Verdict / Blockers / Блокери digest — even if shorter.
    - What / Where / Why / Ask-or-fix.
-6. **Humanize** all prose with skill `english-humanizer` before showing the report or PR comment draft (paths and code fences unchanged). If missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
-7. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
+7. **Humanize** all prose with skill `english-humanizer` before showing the report or PR comment draft (paths and code fences unchanged). If missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
+8. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Point at the canvas (if built). Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 
 ## Fix policy
 
@@ -69,4 +76,4 @@ Single-repo PRs use this path. If the workspace is multi-repo and the PR touches
 
 ## Context budget
 
-Orchestrator loads this SKILL + feedback-format + `engineer-review` indexes + `english-humanizer` (for the final pass). Phase subagents load stack skills. Do not paste full third-party skill bodies here.
+Orchestrator loads this SKILL + feedback-format + canvas reference + `engineer-review` indexes + `english-humanizer` (for the final pass). Load `pr-review-canvas` / Canvas only for the canvas step. Phase subagents load stack skills. Do not paste full third-party or plugin skill bodies here.
