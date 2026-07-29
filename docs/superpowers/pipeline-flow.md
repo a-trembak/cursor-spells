@@ -348,8 +348,10 @@ flowchart LR
   finish["/finish-plan"] --> finishFlow[["HITL then review"]]
   eng["/engineer-review"] --> reviewDirect[["skip finish-plan HITL"]]
   docs["/update-docs"] --> docsFlow[["HITL destination then write"]]
-  pr["/pr-review"] --> prWrap[["PR wrapper report-only default"]]
+  pr["/pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
   multi["/multi-review"] --> multiDirect[["multi-repo-supervisor"]]
 ```
 
 `/critique-plan` alone does **not** write `plan-critique.clear` for build — prefer `/approve-plan` so plan HITL is not skipped.
+
+`/pr-review` resolves a GitHub PR, optionally builds a **PR Review Canvas** (Cursor plugin `pr-review-canvas`; skip with `no-canvas`), then runs the same engineer-review phases. Canvas orients the diff; validated Findings remain the review contract.

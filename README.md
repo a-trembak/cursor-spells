@@ -129,7 +129,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`clean-decision-docs`](skills/clean-decision-docs/) | Specs/plans stay final-form decisions — no "fixed/changed to" archaeology after critique or revise |
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
-| [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — snippets + file links + humanizer prose; default report-only |
+| [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — canvas orientation + snippets + file links + humanizer prose; default report-only |
 | [`software-developer`](skills/software-developer/) | Implements a cleared plan — feature branch(es) in target repo(s), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
@@ -138,7 +138,7 @@ docs/        Design specs, plans, dogfood checklists
 |-------|------|
 | `software-developer` | Feature branch(es) then code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
 | `engineer-reviewer` | Orchestrator — phase agents; findings with snippets, clickable links, humanized What/Where/Why |
-| `pr-reviewer` | Same phases as engineer-reviewer; PR feedback with code snippets, clickable links, humanized prose |
+| `pr-reviewer` | Same phases as engineer-reviewer; PR Review Canvas + Findings with snippets, clickable links, humanized prose |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
 | `review-patterns` | Project patterns MD (create/enforce) |
@@ -165,6 +165,8 @@ npx skills add abpai/skills@dead-code-eliminator
 npx skills add everyinc/compound-engineering-plugin@ce-test-browser
 # preferred when present for review scoping / multi-repo (optional install):
 npx skills add graphify-labs/graphify@graphify
+# PR Review Canvas (Cursor plugin — not npx): install "PR Review Canvas" / pr-review-canvas
+# so /pr-review can emit a diff-orientation canvas (skip with no-canvas)
 ```
 
 
@@ -188,7 +190,7 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers/Блокери digests without paths and snippets. Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped; draft reports must pass `scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
 
 **Manual review:** `/engineer-review` — evidence-gated snippets + file links; validator before emit; `english-humanizer` on prose.  
-**PR review:** `/pr-review [url|number|branch] [apply] [no-figma]` — same gate (plus required GitHub blob links); never a Verdict/Блокери digest; report-only unless `apply`.
+**PR review:** `/pr-review [url|number|branch] [apply] [no-figma] [no-canvas]` — same gate (plus required GitHub blob links); default PR Review Canvas for diff orientation (`no-canvas` to skip); never a Verdict/Блокери digest; report-only unless `apply`.
 
 ### Start a task (full pipeline)
 
