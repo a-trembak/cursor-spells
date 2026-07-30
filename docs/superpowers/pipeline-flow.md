@@ -271,7 +271,7 @@ Writing shape: skill `update-docs` + `references/writing-guide.md`. For `docs_re
 flowchart TD
   orch(["engineer-reviewer"])
   lint[["review-lint first"]]
-  parallelFind["Parallel find: logic / patterns / deadcode / architecture / performance / security? / figma?"]
+  parallelFind["Parallel find: logic / patterns / deadcode / simplify / architecture / performance / security? / figma?"]
   autofix{Auto-fix eligible?}
   apply["Serialize apply: lint then patterns deadcode logic arch perf security figma"]
   clarifyItem[/"clarify — never silent apply"/]

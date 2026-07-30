@@ -43,11 +43,11 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
 7. Ensure `.cursor/project-patterns.md` in the **current project** (create via `review-patterns` if missing).
 8. **Early Figma** on `react-web` / `react-native` unless `no-figma` (same ask as engineer-review).
 9. Dispatch the same phase agents as `engineer-reviewer` (pass `graphify_available` + optional `impact_hint`):
-   - `review-lint` first (and verify pass after apply, if apply ran)
-   - then heuristic phases in parallel for **find**
+   - `review-lint` first (and lint + simplify verify passes after apply, if apply ran)
+   - then heuristic phases in parallel for **find** (including `review-simplify`)
    - coordinated **apply** only if `apply` was requested — and only `unambiguous && (P0|P1)` that pass auto-fix eligibility
    - Phase JSON **must** include `path` / `start_line` / `end_line` / `snippet` on every finding
-10. Apply-conflict order unchanged: lint → patterns → deadcode → logic → architecture → performance → security → figma.
+10. Apply-conflict order: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma.
 11. **Merge → evidence gate → feedback (mandatory):**
    - Require `path` + `start_line` + `end_line` + `snippet`; backfill with `extract-review-snippet.sh` using `HEAD_SHA` (see `evidence-gate.md`). Drop items that still lack evidence.
    - Build **Findings** only in the full Where + numbered fence shape — never a Blockers digest.
@@ -59,7 +59,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
 
 ## Subagents
 
-Identical to `engineer-reviewer`: `review-lint`, `review-logic`, `review-patterns`, `review-deadcode`, `review-architecture`, `review-performance`, `review-security` (conditional), `review-figma-markup` (frontend).
+Identical to `engineer-reviewer`: `review-lint`, `review-logic`, `review-patterns`, `review-deadcode`, `review-simplify` (ce-simplify-code), `review-architecture`, `review-performance`, `review-security` (conditional), `review-figma-markup` (frontend).
 
 Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, plus `graphify_available` and optional `impact_hint` when graphify scoping ran. Return phase-protocol JSON only — **required** `path` / `start_line` / `end_line` / `snippet` on every fixed/clarify item.
 

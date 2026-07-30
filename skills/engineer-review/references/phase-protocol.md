@@ -66,11 +66,17 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 
 ## Phase order
 
-`lint` runs **first**, before every heuristic phase, and does not depend on `patterns` or a stack skill — it just executes the project's own linter/typechecker/build. Its findings are deterministic (a tool said so, not an LLM guess), so they are cheap to trust and apply. Heuristic phases (`patterns`, `deadcode`, `logic`, `architecture`, `performance`, `security`, `figma`) run after, in parallel for `find`.
+`lint` runs **first**, before every heuristic phase, and does not depend on `patterns` or a stack skill — it just executes the project's own linter/typechecker/build. Its findings are deterministic (a tool said so, not an LLM guess), so they are cheap to trust and apply. Heuristic phases (`patterns`, `deadcode`, `simplify`, `logic`, `architecture`, `performance`, `security`, `figma`) run after, in parallel for `find`.
 
-**Apply-conflict order** when phases touch the same lines: `lint → patterns → deadcode → logic → architecture → performance → security → figma`.
+**Apply-conflict order** when phases touch the same lines: `lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma`.
 
-**Verify pass:** after the orchestrator applies unambiguous `P0`/`P1` fixes across all phases, re-run `review-lint` once more in `find` mode over the final diff. This catches lint regressions introduced by another phase's fix (e.g. a `deadcode` removal that leaves a now-unused import). Fold any new `lint` findings into the same apply/clarify pass; do not repeat the verify pass more than once per review round.
+`simplify` sits after `deadcode` so unused junk is owned by deadcode first; simplify then challenges overbuilt / redundant / locally wasteful code that still runs. It does not steal hot-path systemic perf (`performance`) or layering (`architecture`).
+
+**Verify passes:** after the orchestrator applies unambiguous `P0`/`P1` fixes across all phases:
+1. Re-run `review-lint` once in `find` mode over the final diff (lint regressions, e.g. unused import left by a deadcode removal).
+2. Re-run `review-simplify` once in `find` mode as a **quality verify** (leftover overbuilt / redundant / locally wasteful solutions).
+
+Fold any new findings into the same apply/clarify pass; do not repeat either verify pass more than once per review round.
 
 ## Apply rules
 
@@ -83,7 +89,7 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 
 ```json
 {
-  "phase": "lint|logic|patterns|deadcode|architecture|performance|security|figma",
+  "phase": "lint|logic|patterns|deadcode|simplify|architecture|performance|security|figma",
   "status": "ok|partial|failed",
   "skipped": false,
   "skip_reason": null,

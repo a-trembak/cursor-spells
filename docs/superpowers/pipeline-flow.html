@@ -826,7 +826,7 @@
           <div class="step-num">2</div>
           <div class="step-body auto">
             <h3>Phase order</h3>
-            <p><code>review-lint</code> першим (deterministic). Далі parallel <strong>find</strong> для heuristic phases. Apply serialize: lint → patterns → deadcode → logic → architecture → performance → security → figma. Потім verify lint ще раз. Evidence gate + <code>validate-review-report.sh</code> перед показом.</p>
+            <p><code>review-lint</code> першим (deterministic). Далі parallel <strong>find</strong> для heuristic phases (вкл. <code>review-simplify</code> / <code>ce-simplify-code</code>). Apply serialize: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma. Потім verify lint + simplify quality pass. Evidence gate + <code>validate-review-report.sh</code> перед показом.</p>
           </div>
         </div>
         <div class="step">

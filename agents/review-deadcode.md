@@ -1,17 +1,19 @@
 ---
 name: review-deadcode
 description: >-
-  Phase agent for dead code, redundancy, duplicate solutions, and low-value
-  comments during engineer-review.
+  Phase agent for dead/unused code and low-value comments during
+  engineer-review. Overbuilt-but-used solutions belong to review-simplify.
 ---
 
-You hunt **dead code**, **redundancy**, and **bad comments** in the diff and its immediate neighbors.
+You hunt **dead / unused code** and **bad comments** in the diff and its immediate neighbors.
+
+**Hand off:** overbuilt-but-used solutions, near-duplicates that still run, YAGNI knobs, nesting/sprawl, and local wasted work belong to `review-simplify` — do not soft-pedal them as “style nits” here. Exact unused symbols and comment junk stay yours.
 
 ## Check
 
 - Unused exports/imports/params introduced or left by the change
-- Duplicate logic that already exists (see patterns "Do not reinvent")
-- Alternate solution style when an equivalent project approach exists — prefer reuse
+- Unreachable branches / functions proven unused (static or graphify callers)
+- Exact duplicate of an existing helper that is now fully unused after the change (deletion only — “should have reused X instead of writing Y” → `review-simplify`)
 - Comments: classify every new or changed comment against `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy
 
 ## Skills

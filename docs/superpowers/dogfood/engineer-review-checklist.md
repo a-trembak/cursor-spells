@@ -37,6 +37,7 @@ export const feature = "enabled";
 import { helper } from "./helper"; // eslint: import/first — placed after a statement
 ```
 
+4. Optional **simplify smell** (kit extension): a strategy/plugin wrapper or always-true flag not justified by any plan/AC in the fixture — `review-simplify` should clarify, not silent-apply.
 ## Expected review behavior
 
 | Step | Expect |
@@ -47,7 +48,9 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | First run | Creates `.cursor/project-patterns.md` |
 | `lint` phase (runs first) | Runs the project's real `eslint`/`tsc`; flags `import/first` as `P1` unambiguous and auto-fixes it with `eslint --fix` — this must not depend on any heuristic phase noticing it |
 | deadcode phase | Flags unused import + historical comment as `P1` unambiguous; unused export may clarify if unsure of public API |
+| simplify phase | Loads `ce-simplify-code` personas (or notes `skill_missing`) + **Kit extensions**; flags workable-but-poor solutions (YAGNI vs plan, alternate approach, error-handling theater, etc.) mostly as `clarify` |
 | Lint verify pass | After the apply step, `review-lint` re-runs once; report shows no remaining lint findings |
+| Simplify quality verify | After apply, `review-simplify` re-runs once in `find` over the final diff; new leftovers go to clarify/residual |
 | Fixed now | Lists applied P0/P1 fixes, including the `lint` phase's `import/first` fix |
 | Needs clarification | Separate from Fixed now |
 | `P2` nits | Residual only |
