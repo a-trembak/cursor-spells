@@ -30,9 +30,9 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 6. If files > 40 or LOC > 2500 (and under catastrophic caps), split into chunks: prefer graph modules from the impact map when graphify answered; otherwise package/directory chunks as today. Run phases per chunk and merge.
 7. Ensure `.cursor/project-patterns.md` in the **current project** (not the kit). If missing, dispatch `review-patterns` first in create mode.
 8. **Early Figma:** if `react-web` / `react-native`, ask via skill `hitl-choice` preset **Figma ask** (prefer `AskQuestion`; or text: paste URLs / `no figma`) before/while dispatching (do not block other phases if unanswered — skip figma until answered).
-9. Dispatch phase subagents with the phase-protocol inputs (include `graphify_available` and optional `impact_hint` when graphify was used). Run `review-lint` first (deterministic tooling, no patterns/skill dependency), then the heuristic phases: parallel `find`, then one coordinated `apply` for `unambiguous && (P0|P1)`. Phase JSON **must** include `start_line` / `end_line` / `snippet` on every fixed/clarify item (evidence gate will backfill or drop).
-10. Phase order for apply conflicts: lint → patterns → deadcode → logic → architecture → performance → security → figma.
-11. **Lint verify pass:** after the coordinated apply step, re-dispatch `review-lint` once more in `find` mode over the final diff to confirm no lint/typecheck regressions were introduced by other phases' fixes. Fold any new findings into the same round.
+9. Dispatch phase subagents with the phase-protocol inputs (include `graphify_available` and optional `impact_hint` when graphify was used). Run `review-lint` first (deterministic tooling, no patterns/skill dependency), then the heuristic phases (**including** `review-simplify`): parallel `find`, then one coordinated `apply` for `unambiguous && (P0|P1)`. Phase JSON **must** include `start_line` / `end_line` / `snippet` on every fixed/clarify item (evidence gate will backfill or drop).
+10. Phase order for apply conflicts: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma.
+11. **Verify passes:** after the coordinated apply step, re-dispatch `review-lint` once more in `find` mode over the final diff to confirm no lint/typecheck regressions. Then re-dispatch `review-simplify` once in `find` mode as a **quality verify** — catch leftover overbuilt / redundant / locally wasteful code. Fold any new findings into the same round; do not loop indefinitely.
 12. **Merge → evidence gate → feedback (mandatory):**
    - For every `fixed`/`clarify` item: require `path`, `start_line`, `end_line`, `snippet`. If incomplete, backfill with the kit/project script:
      `scripts/extract-review-snippet.sh <HEAD_SHA|WORKTREE> <path> <start_line> <end_line>`
@@ -53,6 +53,7 @@ Dispatch these custom agents (or generalPurpose with their prompt files if custo
 - `review-logic`
 - `review-patterns`
 - `review-deadcode`
+- `review-simplify` (ce-simplify-code; + quality verify after apply)
 - `review-architecture`
 - `review-performance`
 - `review-security` (conditional)

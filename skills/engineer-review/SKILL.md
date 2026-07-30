@@ -46,8 +46,8 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 6. If changed files > 40 or changed LOC > 2500 (and under the catastrophic caps), split into chunks (prefer graph modules when graphify answered; otherwise directory/package — see [phase-protocol.md](references/phase-protocol.md)).
 7. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
 8. Early Figma ask when frontend (above).
-9. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases; serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
-10. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Add any new findings to the report; do not loop indefinitely.
+9. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases (**including** `review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
+10. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Then re-run `review-simplify` once in `find` mode over the final diff as a **quality verify** — catch leftover overbuilt / redundant / locally wasteful solutions that other phases' fixes did not remove. Add any new findings to the report; do not loop indefinitely.
 11. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → draft report per [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)):
    - Full Where block: File + Lines + Jump (+ GitHub when known)
    - Numbered code fence with real source
@@ -69,13 +69,16 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 | Lint / typecheck / build (deterministic tooling) | `review-lint` |
 | Logic + stack best practices | `review-logic` |
 | Project patterns | `review-patterns` |
-| Dead code / redundancy / comments | `review-deadcode` |
+| Dead code / unused / comments | `review-deadcode` |
+| Cleanliness / reuse / local efficiency | `review-simplify` (`ce-simplify-code`) |
 | Architecture | `review-architecture` |
 | Performance | `review-performance` |
 | Security (conditional) | `review-security` |
 | Figma markup (frontend + URLs) | `review-figma-markup` |
 
 `review-lint` runs actual project tooling (eslint/tsc/checkstyle/…) rather than LLM judgment — it exists specifically to catch mechanical rule violations (e.g. `eslint import/first`, unused vars, type errors) that heuristic phases can miss.
+
+`review-simplify` re-reads workable-but-messy solutions via compound-engineering **`ce-simplify-code`** (reuse / quality / efficiency personas), then always runs **Kit extensions** from [`references/simplify-checklist.md`](references/simplify-checklist.md). It defaults almost all findings to `clarify`; Lens A–C in that file are fallback only when the skill is missing.
 
 Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`. After a successful pipeline review (from `/start-task` / `finish-plan`), hand off to skill `update-docs` for the product-docs HITL destination gate — do not invent a docs destination. Manual `/engineer-review` does not auto-start `update-docs` unless the human asks.
 

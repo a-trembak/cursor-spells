@@ -43,8 +43,10 @@ cursor-spells/
 │   ├── review-logic.md
 │   ├── review-patterns.md
 │   ├── review-deadcode.md
+│   ├── review-simplify.md            # ce-simplify-code + kit extensions
 │   ├── review-architecture.md
 │   ├── review-performance.md
+│   ├── review-lint.md
 │   ├── review-security.md
 │   └── review-figma-markup.md
 ├── commands/
@@ -110,7 +112,8 @@ Target orchestrator prompt size: ~2–4k tokens + summaries.
 | 1 | `review-lint` | always (deterministic tooling; skips if no lint config resolvable) | project's own eslint/tsc/checkstyle/ktlint |
 | 2 | `review-logic` | always | stack skill (Vercel React BP / RN / Java Spring) |
 | 3 | `review-patterns` | always | project-patterns.md; prefer graphify when present |
-| 4 | `review-deadcode` | always | dead-code-eliminator + local redundancy rules; prefer graphify callers when present |
+| 4 | `review-deadcode` | always | dead-code-eliminator + local unused/comment rules; prefer graphify callers when present |
+| 4b | `review-simplify` | always | **Primary** `ce-simplify-code` personas + kit extensions ([simplify-checklist.md](../../../skills/engineer-review/references/simplify-checklist.md)); quality verify after apply |
 | 5 | `review-architecture` | always | architecture-review skill; prefer graphify call/impact when present |
 | 6 | `review-performance` | always | addyosmani performance + Vercel on frontend; prefer graphify impact when present |
 | 7 | `review-security` | if auth/data/network/secrets touch diff | security-review |

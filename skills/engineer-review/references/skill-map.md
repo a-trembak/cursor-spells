@@ -12,6 +12,8 @@ npx skills add affaan-m/everything-claude-code@security-review
 npx skills add addyosmani/agent-skills@performance-optimization
 npx skills add getsentry/warden@architecture-review
 npx skills add abpai/skills@dead-code-eliminator
+# simplify phase primary (compound-engineering Cursor plugin):
+# ce-simplify-code under ~/.cursor/plugins/.../skills/ce-simplify-code
 # preferred when graphify-out/ exists (optional install):
 npx skills add graphify-labs/graphify@graphify
 ```
@@ -71,6 +73,7 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 | logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
 | patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)) |
 | deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent"; prefer graphify callers when available |
+| simplify | **Primary:** compound-engineering `ce-simplify-code` (read SKILL + `references/personas/{code-reuse,code-quality,efficiency}-reviewer.md` verbatim), then **always** [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **Fallback** if skill missing: Lens A–C + Kit extensions + note `skill_missing: ce-simplify-code`. Prefer graphify callers when available |
 | architecture | `architecture-review` (Sentry Warden) + patterns; prefer graphify call/impact queries when available; add the matching row from Database skill routing above whenever the diff includes a migration |
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native`; prefer graphify impact neighborhood when available |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |

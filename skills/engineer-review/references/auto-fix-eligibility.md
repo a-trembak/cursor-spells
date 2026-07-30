@@ -26,6 +26,7 @@ If any condition fails: `clarify`, never a silent apply — regardless of how "o
 | Any migration/schema change, even "obviously better" | No — clarify | Always fails condition 4 (blast radius on data) |
 | Dead code that might be used via reflection/DI/dynamic import | No — clarify | Fails condition 3 |
 | Security or logic bug, even one that looks clearly wrong | No — clarify | May be undocumented intended behavior; condition 2 not guaranteed without domain knowledge |
+| Simplify / YAGNI / “use existing approach instead” | No — clarify | Almost always 2+ plausible shapes; fails condition 2 (and often 4) |
 
 Traceability drift (spec vs. diff mismatch) is `clarify`-only by construction — it structurally fails condition 2 (two plausible explanations: the spec is stale, or the diff scope drifted), not because it's arbitrarily out of scope.
 

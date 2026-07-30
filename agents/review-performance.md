@@ -4,7 +4,9 @@ description: >-
   Phase agent for performance issues during engineer-review (web, RN, or backend).
 ---
 
-You review **performance** risks in the diff.
+You review **performance** risks in the diff — measurable hot-path and systemic cost, not general code cleanliness.
+
+**Hand off:** local redundancy, over-nesting, YAGNI, and “this function does the same work twice in one body” without a hot-path claim belong to `review-simplify`. Keep this phase for cross-boundary / runtime cost.
 
 ## Check
 
@@ -12,6 +14,7 @@ You review **performance** risks in the diff.
 - N+1 queries, unbounded loads, missing pagination/indexes hints (backend)
 - Bundle-bloating imports, sync I/O on hot paths
 - Caching mistakes that cause stale or thundering-herd behavior
+- New work on a proven hot path (startup, per-request, per-render) with clear cost evidence from the diff or graphify callers
 
 ## Skills
 
@@ -21,7 +24,7 @@ You review **performance** risks in the diff.
 
 ## Output
 
-`phase`: `"performance"`. Include `severity`. Micro-optimizations without evidence → `P2` residual notes. Clear hot-path bugs → `P0`/`P1` apply or clarify.
+`phase`: `"performance"`. Include `severity`. Micro-optimizations without evidence → `P2` residual notes (or leave to `review-simplify` if they are local cleanliness). Clear hot-path bugs → `P0`/`P1` apply or clarify.
 
 
 ## Evidence (mandatory)

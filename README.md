@@ -142,7 +142,8 @@ docs/        Design specs, plans, dogfood checklists
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
 | `review-patterns` | Project patterns MD (create/enforce) |
-| `review-deadcode` | Dead code, redundancy, comment cleanup |
+| `review-deadcode` | Dead code, unused symbols, comment cleanup |
+| `review-simplify` | Cleanliness / reuse / local efficiency — primary `ce-simplify-code` + kit extensions |
 | `review-architecture` | Architecture gaps |
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
@@ -163,6 +164,8 @@ npx skills add addyosmani/agent-skills@performance-optimization
 npx skills add getsentry/warden@architecture-review
 npx skills add abpai/skills@dead-code-eliminator
 npx skills add everyinc/compound-engineering-plugin@ce-test-browser
+# simplify phase primary (Cursor compound-engineering plugin — not always via npx):
+# ensure ce-simplify-code is available under ~/.cursor/plugins/.../ce-simplify-code
 # preferred when present for review scoping / multi-repo (optional install):
 npx skills add graphify-labs/graphify@graphify
 # PR Review Canvas (Cursor plugin — not npx): install "PR Review Canvas" / pr-review-canvas
