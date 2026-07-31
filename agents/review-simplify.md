@@ -105,4 +105,4 @@ Before setting `applied: true`, check `skills/engineer-review/references/auto-fi
 
 ## Evidence (mandatory)
 
-Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, and `snippet` (exact lines of the problem). Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, `snippet`, and `context`. Clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`. Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.

@@ -61,8 +61,9 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 3. **Neighbors / call graph:** when `graphify_available` is true (or detect succeeds per [graphify-protocol.md](graphify-protocol.md)), prefer `graphify query` / short `GRAPH_REPORT.md` excerpts for callers, callees, and impact before walking path-adjacent files. When false or unqueryable, keep the phase’s existing diff-scoped / neighbor heuristics.
 4. Review **changed code** against checklist; use patterns file for local conventions.
 5. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
-6. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, and `snippet` (exact 3–15 lines of the problem). No path-only findings. See [evidence-gate.md](evidence-gate.md).
-7. Return **only** the JSON summary below.
+6. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, `snippet` (exact 3–15 lines of the problem), and `context` (1–2 sentences). No path-only findings. See [evidence-gate.md](evidence-gate.md).
+7. **Clarify choices (mandatory):** every `clarify` item **must** include structured `options` (`[{ "id", "label" }, …]`, 2–3 choices). Prefer `recommended` (option id) + `recommendation_why` for P0/P1 — safest / closest to patterns or AC. Use `recommended: null` only when product intent is genuinely unknown; never invent a fake recommendation.
+8. Return **only** the JSON summary below.
 
 ## Phase order
 
@@ -100,6 +101,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
       "start_line": 18,
       "end_line": 24,
       "snippet": "  const x = await load();\n  return x.value;\n",
+      "context": "load() fetches the current session user before reading .value.",
       "summary": "Removed unused import",
       "severity": "P1",
       "unambiguous": true,
@@ -110,7 +112,14 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
     {
       "id": "C1",
       "question": "Should X use existing helper Y?",
-      "options": ["Use Y", "Keep new helper", "Need more context"],
+      "context": "New load path duplicates existing user fetch used by the auth middleware.",
+      "options": [
+        { "id": "A", "label": "Use existing helper Y" },
+        { "id": "B", "label": "Keep the new helper" },
+        { "id": "C", "label": "Need more product context" }
+      ],
+      "recommended": "A",
+      "recommendation_why": "Matches patterns Do not reinvent; same semantics as Y.",
       "path": "src/foo.ts",
       "start_line": 40,
       "end_line": 48,
@@ -122,7 +131,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 }
 ```
 
-**Required** on every `fixed`/`clarify` with code: `path`, `start_line`, `end_line`, `snippet`. Orchestrators must run the [evidence gate](evidence-gate.md) before user-facing output — backfill via `scripts/extract-review-snippet.sh` or drop the item. Never emit a bare `path: summary` line.
+**Required** on every `fixed`/`clarify` with code: `path`, `start_line`, `end_line`, `snippet`, `context`. **Required** on every `clarify`: `options` (id+label objects). Prefer `recommended` + `recommendation_why`; `recommended` may be `null`. Orchestrators must run the [evidence gate](evidence-gate.md) before user-facing output — backfill via `scripts/extract-review-snippet.sh` or drop the item. Never emit a bare `path: summary` line. Legacy string-array `options` must be normalized to `{ id, label }` (A/B/C…) before emit.
 
 ## Skip conditions
 

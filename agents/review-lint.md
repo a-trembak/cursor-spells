@@ -39,7 +39,7 @@ You run **real tooling**, not judgment. You do not eyeball style; you execute th
 
 ## Evidence (mandatory)
 
-Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line` (from the tool), and `snippet` (file lines at that range). Follow `evidence-gate.md`. No path-only findings.
+Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line` (from the tool), `snippet`, and `context`. Clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`. Follow `evidence-gate.md`. No path-only findings.
 
 ## Skip conditions
 

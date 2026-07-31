@@ -18,8 +18,8 @@ Run the portable **engineer-review** flow (orchestrator `engineer-reviewer`).
 2. Invoke agent `engineer-reviewer` with:
    - `BASE_SHA` / `HEAD_SHA` from git
    - `mode`: find then apply unambiguous fixes
-3. Run `evidence-gate.md` (backfill via `scripts/extract-review-snippet.sh` or drop). Draft the full Findings template — **never** a Verdict/Блокери digest. Validate with `scripts/validate-review-report.sh`; rebuild until exit 0. Then emit; `english-humanizer` on prose.
-4. If clarifications remain, wait for answers like `C1: A`, then re-dispatch affected phases and re-emit with the same evidence bar.
+3. Run `evidence-gate.md` (backfill via `scripts/extract-review-snippet.sh` or drop). Draft the full Findings template with **Context** on every item; Clarify items also **Options** + **Recommendation** — **never** a Verdict/Блокери digest. Validate with `scripts/validate-review-report.sh`; rebuild until exit 0. Then emit; `english-humanizer` on prose.
+4. If clarifications remain, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK), then re-dispatch affected phases and re-emit with the same evidence bar.
 
 ## Notes
 

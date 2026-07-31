@@ -54,8 +54,18 @@ Return **only** this JSON summary — no prose report:
     {
       "id": "C_CR1",
       "severity": "P0",
+      "context": "Profile settings screen loads user prefs on mount.",
       "question": "api removed GET /users/{id}/settings; web ProfileScreen.tsx still calls it.",
-      "options": ["Restore endpoint", "Update web client"],
+      "options": [
+        { "id": "A", "label": "Restore endpoint" },
+        { "id": "B", "label": "Update web client" }
+      ],
+      "recommended": "B",
+      "recommendation_why": "API removal looks intentional; client should follow the new contract.",
+      "path": "web/src/screens/ProfileScreen.tsx",
+      "start_line": 42,
+      "end_line": 48,
+      "snippet": "  const settings = await api.get(`/users/${id}/settings`);",
       "repos": ["api", "web"],
       "unambiguous": false
     }
@@ -73,5 +83,4 @@ Rules:
 
 ## Evidence (mandatory)
 
-Each `clarify` item that names a file or contract location **must** include `path`, `start_line`, `end_line`, and `snippet` for at least one side of the drift. Follow `evidence-gate.md`.
-
+Each `clarify` item that names a file or contract location **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` for at least one side of the drift. **Required** on every `clarify`: structured `options` (`[{ id, label }, …]`). Prefer `recommended` + `recommendation_why` for P0/P1 — never invent when null. Follow `evidence-gate.md`.

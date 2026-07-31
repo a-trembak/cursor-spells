@@ -21,7 +21,7 @@ FAIL=0
 fail() { echo "FAIL: $*" >&2; FAIL=1; }
 
 count_re() {
-  # $1 = regex, $2 = haystack via stdin or use BODY
+  # $1 = regex against BODY
   local re="$1"
   local n
   n="$(printf '%s\n' "$BODY" | grep -E -c -- "$re" || true)"
@@ -38,10 +38,18 @@ if printf '%s\n' "$BODY" | grep -E -iq -- '^Verdict:'; then
   fail "leading Verdict: digest line is forbidden as the report body"
 fi
 
-FINDINGS="$(count_re '^#{2,3}[[:space:]]+(F|C)[0-9]+')"
+# F1 / C1 / C_CR1 / api:C1 / C1@api
+FINDING_RE='^#{2,3}[[:space:]]+([A-Za-z0-9_.-]+[:@])?(F|C)(_CR)?[0-9]+'
+C_FINDING_RE='^#{2,3}[[:space:]]+([A-Za-z0-9_.-]+[:@])?C(_CR)?[0-9]+'
+
+FINDINGS="$(count_re "$FINDING_RE")"
+C_FINDINGS="$(count_re "$C_FINDING_RE")"
 WHERE="$(count_re '\*\*Where:\*\*')"
 JUMP="$(count_re 'Jump:')"
 FILE_LINK="$(count_re 'File:')"
+CONTEXT="$(count_re '\*\*Context:\*\*')"
+RECOMMENDATION="$(count_re '\*\*Recommendation:\*\*')"
+RECOMMENDED_MARK="$(count_re '\(recommended\)')"
 FENCES="$(grep -E -c -- '^```' "$FILE" || true)"
 [[ -n "$FENCES" ]] || FENCES=0
 FENCE_BLOCKS=$((FENCES / 2))
@@ -66,8 +74,16 @@ else
   if [[ "$FILE_LINK" -lt "$FINDINGS" ]]; then
     fail "each finding needs File: link (found $FILE_LINK File for $FINDINGS findings)"
   fi
+  if [[ "$CONTEXT" -lt "$FINDINGS" ]]; then
+    fail "each finding needs **Context:** (found $CONTEXT Context for $FINDINGS findings)"
+  fi
   if [[ "$FENCE_BLOCKS" -lt "$FINDINGS" ]]; then
     fail "each finding needs a code fence snippet (found $FENCE_BLOCKS fences for $FINDINGS findings)"
+  fi
+  if [[ "$C_FINDINGS" -gt 0 ]]; then
+    if [[ "$RECOMMENDATION" -lt "$C_FINDINGS" ]] && [[ "$RECOMMENDED_MARK" -lt "$C_FINDINGS" ]]; then
+      fail "each C# clarify needs **Recommendation:** or (recommended) (found $RECOMMENDATION Recommendation / $RECOMMENDED_MARK (recommended) for $C_FINDINGS C findings)"
+    fi
   fi
 fi
 
@@ -76,5 +92,8 @@ if [[ "$FAIL" -ne 0 ]]; then
   exit 1
 fi
 
-echo "OK: $FINDINGS finding(s) with Where/Jump/File + code fences"
+echo "OK: $FINDINGS finding(s) with Context/Where/Jump/File + code fences"
+if [[ "$C_FINDINGS" -gt 0 ]]; then
+  echo "OK: $C_FINDINGS C finding(s) with Recommendation/(recommended)"
+fi
 exit 0

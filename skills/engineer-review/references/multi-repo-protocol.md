@@ -114,8 +114,14 @@ The supervisor holds only the repo map, compact per-repo JSON summaries, and the
       {
         "id": "C_CR1",
         "severity": "P0",
-        "question": "...",
-        "options": ["A", "B"],
+        "context": "Profile settings screen loads user prefs on mount.",
+        "question": "api removed GET /users/{id}/settings; web ProfileScreen.tsx still calls it.",
+        "options": [
+          { "id": "A", "label": "Restore endpoint" },
+          { "id": "B", "label": "Update web client" }
+        ],
+        "recommended": "B",
+        "recommendation_why": "API removal looks intentional; client should follow the new contract.",
         "repos": ["api", "web"],
         "unambiguous": false
       }
@@ -151,21 +157,23 @@ Emit this markdown to the user. Keep it scannable. No persona dump, no skill int
 - mobile/ (react-native) [0 fixed, 2 clarify]
 
 ## Cross-repo impact
-- C_CR1 (P0) — api removed GET /users/{id}/settings; web ProfileScreen.tsx
-  still calls it. Options: A) restore endpoint  B) update web client
-  Repos: api, web
+- C_CR1 (P0) — api removed GET /users/{id}/settings; web ProfileScreen.tsx still calls it.
+  - **Context:** Profile settings screen loads user prefs on mount.
+  - **Options:** A) restore endpoint  B) **update web client (recommended)**
+  - **Recommendation:** B — API removal looks intentional; client should follow the new contract.
+  - Repos: api, web
 
 ## Per-repo details
 ### api/
-Fixed now / Needs clarification / Residual (standard engineer-review report)
+Fixed now / Needs clarification / Residual (standard engineer-review report — each item with **Context**; clarify items with **Options** + **Recommendation**)
 ### web/
 ...
 ### mobile/
 ...
 ```
 
-If **Needs clarification** (per-repo or cross-repo) is non-empty, end with:
+If **Needs clarification** (per-repo or cross-repo) is non-empty, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per item; recommended option labeled). Text fallback tokens:
 
-> Reply with answers like `api:C1: A` or `C_CR1: B` (or free text). I will route each answer to the correct repo orchestrator or cross-repo phase and apply agreed per-repo fixes only.
+> `api:C1:A`, `C_CR1:B`, or batch `api:C1: A; C_CR1: B` (or free text). I will route each answer to the correct repo orchestrator or cross-repo phase and apply agreed per-repo fixes only.
 
 Per-repo detail sections follow [output-schema.md](output-schema.md). Cross-repo items appear only under **Cross-repo impact** and in the clarification prompt — never under **Fixed now**.
