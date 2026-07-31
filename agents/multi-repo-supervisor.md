@@ -47,8 +47,8 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
    - Cross-repo ids stay `C_CR1`, `C_CR2`, … — never renumber into per-repo sequences.
    - Cross-repo findings always land in **Needs clarification** / `cross_repo.clarify`; never in **Fixed now** or `fixed`.
    - Per-repo `fixed` / clarify items must already pass `evidence-gate.md` (snippets + File/Lines/Jump) — each per-repo `engineer-reviewer` enforces that before returning. Cross-repo clarify items that name files must include the same evidence.
-   - Emit the unified markdown template from the protocol; do not flatten findings back into bare `path: summary` one-liners.
-8. **Clarification round:** if any per-repo or `C_CR*` clarify item is non-empty, stop and wait for one consolidated answer round. Route answers:
+   - Emit the unified markdown template from the protocol (each item with **Context**; clarify items with **Options** + **Recommendation**); do not flatten findings back into bare `path: summary` one-liners.
+8. **Clarification round:** if any per-repo or `C_CR*` clarify item is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#` / `C_CR#`; recommended option labeled; tokens `api:C1:A`, `C_CR1:B`; batch text OK). Route answers:
    - `api:C1: A` / `C1@api: A` → re-dispatch `engineer-reviewer` for that repo with the answer in `clarifications`; apply agreed per-repo fixes only.
    - `C_CR1: B` → re-dispatch `review-cross-repo` with the answer for clarify follow-up only — **still no auto-apply for `C_CR*`** even when the fix looks trivial.
    - Re-merge and re-emit the unified report after follow-ups complete.

@@ -4,8 +4,10 @@ description: >-
   Use when a plan just finished and human-in-the-loop review gate is next, when
   the user runs /engineer-review or asks for engineer-reviewer, or when
   approving automated post-plan code review across Java/Spring, React,
-  TypeScript, or React Native changes. Findings must include code snippets,
-  clickable file:line links, and english-humanizer prose.
+  TypeScript, or React Native changes. Findings must include Context,
+  code snippets, clickable file:line links, english-humanizer prose, and
+  structured clarify Options with a marked Recommendation (never invent
+  recommended).
 ---
 
 # Engineer Review
@@ -46,15 +48,16 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 6. If changed files > 40 or changed LOC > 2500 (and under the catastrophic caps), split into chunks (prefer graph modules when graphify answered; otherwise directory/package — see [phase-protocol.md](references/phase-protocol.md)).
 7. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
 8. Early Figma ask when frontend (above).
-9. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases (**including** `review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `start_line` / `end_line` / `snippet`.
+9. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases (**including** `review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `path`, `start_line`, `end_line`, `snippet`, and `context`. Every clarify item **must** carry structured `options` (`[{ id, label }, …]`) and prefer `recommended` + `recommendation_why` for P0/P1 — never invent a recommendation when the phase left `recommended` null.
 10. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Then re-run `review-simplify` once in `find` mode over the final diff as a **quality verify** — catch leftover overbuilt / redundant / locally wasteful solutions that other phases' fixes did not remove. Add any new findings to the report; do not loop indefinitely.
 11. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → draft report per [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)):
-   - Full Where block: File + Lines + Jump (+ GitHub when known)
+   - **Context** + full Where block: File + Lines + Jump (+ GitHub when known)
    - Numbered code fence with real source
-   - What / Why / Ask-or-fix; `english-humanizer` on prose
+   - What / Why / Ask-or-fix; Clarify items also **Options** + **Recommendation** (or explicit “none”)
+   - `english-humanizer` on prose
    - Coverage notes `graphify: used|absent|unqueryable`
    - Run `scripts/validate-review-report.sh` on the draft; rebuild until exit 0, then show the user
-12. If **Needs clarification** is non-empty, stop and wait. On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar.
+12. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A` / `C2:B`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar.
 
 ## Fix policy
 

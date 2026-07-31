@@ -39,6 +39,7 @@ Never ship a short digest first and promise the real report. The **first** (and 
 
 ```markdown
 ### F1 — `P0` — System roles seeded with NULL org uuid never match org lookup
+- **Context:** Migration seeds default system roles for new tenants; org-scoped lookup runs on every assign.
 - **What:** Migration inserts `SWEGON_*` rows with `organization_uuid = NULL`, but lookup only queries by concrete org uuid.
 - **Where:**
   - File: [`src/main/resources/db/migration/V044__….sql`](src/main/resources/db/migration/V044__….sql)
