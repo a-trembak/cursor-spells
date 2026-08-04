@@ -30,7 +30,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
    rm -f .cursor/plan-critique.clear
    ```
 
-3. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Approve-plan gate**. Prompt/text fallback:
+3. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Approve-plan gate**. Prompt/text fallback:
 
    > Plan ready. Review it, then reply:
    > - `approve-plan` — accept this plan; critic runs next automatically

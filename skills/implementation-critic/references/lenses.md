@@ -1,6 +1,8 @@
 # Critic lenses
 
-Both lenses run on every critic invocation — one alone misses a different class of plan defect (a plan can be simple but silently unsafe on migration, or safe but over-engineered).
+Passes A and B run on every critic invocation — one alone misses a different class of plan defect (a plan can be simple but silently unsafe on migration, or safe but over-engineered).
+
+**Pass C** runs whenever the plan is a **bug-fix plan** (path/topic contains `-fix`, caller is `/start-issue-task`, or the plan states it addresses a defect/regression). Skip Pass C for feature/implementation plans that are not bug fixes; note `pass_c: n/a (not a bug-fix plan)` in Coverage.
 
 ## Pass A — Design (skill: `plan-reviewer`, mblode/agent-skills)
 
@@ -30,10 +32,21 @@ Used verbatim when the skill is installed; used as the built-in fallback checkli
 - **Edges + safety** — Are boundary, empty, and error cases named (not assumed)? Is every auth / migration-order / data-loss / concurrency surface called out with its safeguard?
 - **Soundness** — Does the approach match the repo's existing architecture (not introduce a second, competing one)? Are dependencies between tasks correctly ordered? Is this the smallest plan that meets the tech spec?
 
-## Anti-confabulation rule (applies to both passes)
+## Pass C — Bug fix (built-in; no third-party skill)
+
+Run for bug-fix plans only (see above). Built-in checklist — always available.
+
+### Checklist
+
+- **Root cause vs symptom** — Does the plan name the causal chain and change the underlying fault, not only mask the symptom (extra null-check, swallow error, retry without fixing the producer)?
+- **Regression / blast radius** — Are call sites, shared helpers, migrations, and user-visible flows that could break named with safeguards or explicit accept-risk?
+- **Better alternative** — Is there a simpler or more correct fix (existing helper, smaller diff, fix at the source module) that still resolves the reported failure? If yes and the plan ignores it without rationale → finding.
+- **Test catches the bug** — Does the verification/test plan include a case that fails before the fix and passes after for the reported failure mode?
+
+## Anti-confabulation rule (applies to all passes)
 
 Before recording any finding, quote the exact plan/spec line or the exact repo `file:line` it is judging, read fresh in this pass — never infer from the branch name, working directory, or memory of an earlier pass. If a finding cannot be backed by a fresh quote, do not record it.
 
 ## Skill-missing fallback
 
-If `plan-reviewer` or `project-verify-plan` is not installed, run the corresponding checklist above directly (it is written to work standalone) and set that pass's Coverage line to `ran (built-in fallback)` plus `skill_missing: <skill-id>`. Do not skip the pass and do not block the run.
+If `plan-reviewer` or `project-verify-plan` is not installed, run the corresponding checklist above directly (it is written to work standalone) and set that pass's Coverage line to `ran (built-in fallback)` plus `skill_missing: <skill-id>`. Do not skip the pass and do not block the run. Pass C has no external skill — always `ran (built-in)`.

@@ -376,8 +376,9 @@
     <section id="view-overview" class="view active" aria-label="Overview">
       <h2 class="view-title">Огляд пайплайна</h2>
       <p class="view-desc">
-        Від Acceptance Criteria до reviewed PR. Натисніть етап, щоб побачити
-        умови, HITL-відповіді та петлі повернення.
+        Від Acceptance Criteria до draft PR (<code>create-pr</code>). Також:
+        <code>/start-task --fast</code> і <code>/start-issue-task</code>.
+        Натисніть етап, щоб побачити умови, HITL-відповіді та петлі повернення.
       </p>
 
       <div class="canvas">
@@ -443,11 +444,19 @@
           <div class="hint">skip / docs_md / docs_repo / confluence</div>
           <span class="open-detail">деталі →</span>
         </div>
+        <div class="connector"><span class="edge-label">then</span></div>
+
+        <div class="node auto" tabindex="0" data-go="standalone" role="button">
+          <div class="kind">9 · automatic</div>
+          <div class="label">create-pr</div>
+          <div class="hint">draft GitHub PR per changed repo</div>
+          <span class="open-detail">деталі →</span>
+        </div>
         <div class="connector"><span class="edge-label">done</span></div>
 
         <div class="node ok" tabindex="0" data-go="markers" role="button">
           <div class="kind">markers · state</div>
-          <div class="label">Reviewed / PR + docs</div>
+          <div class="label">Draft PR + docs</div>
           <div class="hint">таблиця маркерів .cursor/*</div>
           <span class="open-detail">деталі →</span>
         </div>
@@ -461,8 +470,8 @@
         </div>
         <div class="node auto" tabindex="0" data-go="standalone" role="button">
           <div class="kind">shortcuts</div>
-          <div class="label">Standalone commands</div>
-          <div class="hint">/write-tech-spec, /approve-plan, /pr-review…</div>
+          <div class="label">Standalone + lean paths</div>
+          <div class="hint">--fast · /start-issue-task · /pr-review…</div>
           <span class="open-detail">деталі →</span>
         </div>
       </div>
@@ -899,7 +908,7 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="review">← Review</button>
-        <button type="button" class="primary" data-go="markers">Markers →</button>
+        <button type="button" class="primary" data-go="standalone">Далі: create-pr →</button>
       </div>
     </section>
 
@@ -950,8 +959,29 @@
     <section id="view-standalone" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">Standalone entry points</h2>
-      <p class="view-desc">Команди поза повним оркестратором <code>/start-task</code>.</p>
+      <p class="view-desc">Lean paths, bug-fix pipeline, create-pr finale, та команди поза повним оркестратором.</p>
       <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body auto">
+            <h3>create-pr (фінал кожного пайплайна)</h3>
+            <p>Skill <code>create-pr</code>: commit/push + <strong>draft</strong> GitHub PR. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body auto">
+            <h3>/start-task --fast</h3>
+            <p>Без tech-spec / plan / critic / finish-plan / docs: brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">·</div>
+          <div class="step-body auto">
+            <h3>/start-issue-task</h3>
+            <p>Jira через Atlassian MCP → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → create-pr.</p>
+          </div>
+        </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
@@ -988,7 +1018,7 @@
   </main>
 
   <footer>
-    Джерело: commands/start-task.md + approve-plan / start-build / finish-plan / update-docs / hitl-choice
+    Джерело: commands/start-task.md · start-issue-task.md + create-pr / bug-fix / hitl-choice
     · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
   </footer>
 

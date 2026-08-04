@@ -1,0 +1,18 @@
+---
+description: Closed-set kit HITL gates must use hitl-choice with AskQuestion (or alias) first — no voluntary text-only skips.
+alwaysApply: true
+---
+
+# HITL AskQuestion required
+
+For every **closed-set** human-in-the-loop gate in this kit (`approve-plan` / `revise`, `approve-spec` / `skip`, finish-plan `skip` / `approve` / `done` / `fixes`, docs destination, tech-spec `human` / `agent`, Decision/Blocker options, blocked-critic `accept F<id>`, engineer-review `Ci:X`, Figma `no_figma` / `have_urls`):
+
+1. Use skill **`hitl-choice`**.
+2. **Call** the interactive question tool as the first action (`AskQuestion` → `AskUserQuestion` → `ask_question` → `ask_user` / `request_user_input`).
+3. **Do not** paste a chat-only bullet list of options unless the tool call failed twice (or hard unknown-tool with no alias left).
+4. Retry once on error/cancel; then use the calling skill's typed-token text fallback and say buttons failed.
+5. Never invent a HITL answer.
+
+Open-ended follow-ups (paths, URLs, revise prose, pasted Jira text) stay in chat after the closed choice when needed.
+
+Violating “text-only while the question tool exists / without attempting it” is a **protocol bug** — fix by calling the tool.

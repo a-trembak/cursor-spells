@@ -7,7 +7,7 @@ description: HITL gate — choose product-docs destination (skip / docs MD / doc
 Run skill `update-docs`:
 
 1. Write `.cursor/docs-gate.pending`
-2. Stop and ask HITL via skill `hitl-choice` (prefer `AskQuestion` buttons). Preset **Docs update destination**:
+2. Stop and ask HITL via skill `hitl-choice` (AskQuestion required; text only after failed/missing tool). Preset **Docs update destination**:
    - `skip` — no docs this run
    - `docs_md` — Markdown under `docs/` in the current repo
    - `docs_repo` — separate documentation repository (path/URL next)

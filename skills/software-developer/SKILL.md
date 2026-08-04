@@ -2,30 +2,45 @@
 name: software-developer
 description: >-
   Use when an approved tech spec and a critiqued-clear implementation plan are
-  ready to turn into code. Creates feature branch(es) in every repo the plan
-  will touch, routes stack/DB skills from skill-map, applies code-comments, and
-  verifies before handoff. On react-web UI work, compares the rendered result
-  to Figma via ce-test-browser when URLs exist. Use from /start-task execution
-  or when asked to implement a cleared plan.
+  ready to turn into code, or from /start-task --fast (mode:fast) with a short
+  AC brief. Creates feature branch(es), routes stack/DB skills from skill-map,
+  applies code-comments, and verifies before handoff. On react-web UI work,
+  compares the rendered result to Figma via ce-test-browser when URLs exist.
 ---
 
 # Software Developer
 
-Writes code **strictly** to the tech spec + implementation plan. Skill routing is a mechanical lookup against `engineer-review`'s `skill-map.md` — never silent third-party installs.
+Writes code **strictly** to the tech spec + implementation plan (full path), or to the short AC brief in **`mode:fast`**. Skill routing is a mechanical lookup against `engineer-review`'s `skill-map.md` — never silent third-party installs.
 
 ## When to Use
 
 - `/start-task` execution after `approve-plan` → clear critic → `start-build`
+- `/start-task --fast` with `mode:fast` (no tech-spec / critique-clear required)
 - Human asks to implement a plan that already passed `/approve-plan` (`Verdict: clear`)
+- Not for bug-fix plans from `/start-issue-task` (use `bug-fix` / `bug-fixer`)
 - Not for drafting specs/plans, critiquing plans, or running engineer-review
 
-## Entry conditions (all required)
+## Entry conditions
+
+### Full path (default)
+
+All required:
 
 1. Tech spec `Status` is `approved`, or explicitly `skip (<reason>)` with the reason logged
 2. Implementation plan exists (from `writing-plans`)
 3. `implementation-critic` has no open Must-fix findings (or each is explicitly `accept`ed) — typically already enforced by `approve-plan` (HITL approve → auto critic → `.cursor/plan-critique.clear`) before `start-build`
 
 If any condition fails: **stop** and say which gate is missing. Do not start coding.
+
+### `mode:fast` (explicit)
+
+When the caller passes **`mode:fast`** (only from `/start-task --fast` or an explicit human ask for the lean path):
+
+1. AC source / short task brief is present in the conversation
+2. Tech-spec Status, implementation-plan file, and `.cursor/plan-critique.clear` are **not** required
+3. Scope is the AC brief only — do not invent a full tech-spec
+
+If the brief is missing: stop and ask for AC. Do not silently enter `mode:fast` from the full path.
 
 ## Branch setup (mandatory, before any code)
 
@@ -57,17 +72,18 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 
 ## Hard rules
 
-- Do not expand scope beyond the plan's tasks
+- Do not expand scope beyond the plan's tasks (full) or the AC brief (`mode:fast`)
 - Do not make "while I'm here" improvements outside scope
-- Do not silently change the data model described in the tech spec
-- If plan/spec conflicts with the repo: **stop and ask** — do not silently deviate from the spec
+- Do not silently change the data model described in the tech spec (full path)
+- If plan/spec/brief conflicts with the repo: **stop and ask** — do not silently deviate
 - Source-code comments: English only; apply `code-comments` Keep/Remove taxonomy
 - Do not write implementation commits on `main` / `master` / the default branch
 
 ## Execution engine
 
-Default: dispatch `subagent-driven-development` (fresh implementer + task reviewer per task) with the skill set for this run loaded into context, **after** branch setup succeeds. If the user already asked for a separate session, honor `executing-plans` instead.
+Default: dispatch `subagent-driven-development` (fresh implementer + task reviewer per task) with the skill set for this run loaded into context, **after** branch setup succeeds. If the user already asked for a separate session, honor `executing-plans` instead. In `mode:fast`, a single-pass implement + verify is acceptable when the change is tiny; still run verification before handoff.
 
 ## Handoff
 
-When all plan tasks are done and verification evidence exists, hand off to `finish-plan` (do not skip the HITL review gate). Include the `repo → branch` map from branch setup.
+- **Full path:** when all plan tasks are done and verification evidence exists, hand off to `finish-plan` (do not skip the HITL review gate). Include the `repo → branch` map from branch setup.
+- **`mode:fast`:** hand off to the caller for `engineer-reviewer` then `create-pr` — do **not** invoke `finish-plan`. Include the `repo → branch` map and verification evidence.

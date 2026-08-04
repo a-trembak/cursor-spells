@@ -77,6 +77,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/after-plan-review-gate.mdc` | Copied / refreshed |
 | `<project>/.cursor/rules/before-build-critique-gate.mdc` | Copied / refreshed |
 | `<project>/.cursor/rules/clean-decision-docs.mdc` | Copied / refreshed — specs/plans stay final-form (no revision archaeology) |
+| `<project>/.cursor/rules/hitl-askquestion.mdc` | Copied / refreshed — closed-set HITL must call AskQuestion first |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
@@ -118,25 +119,28 @@ docs/        Design specs, plans, dogfood checklists
 
 | Skill | What it does |
 |-------|----------------|
-| [`hitl-choice`](skills/hitl-choice/) | HITL UX — prefer Cursor `AskQuestion` buttons; typed reply tokens as fallback |
+| [`hitl-choice`](skills/hitl-choice/) | HITL UX — AskQuestion (or alias) required first; typed tokens only after failed/missing tool |
+| [`bug-fix`](skills/bug-fix/) | Root-cause bug fix — reproduce, minimal fix, regression test; used by `bug-fixer` / `/start-issue-task` |
+| [`create-pr`](skills/create-pr/) | Pipeline finale — commit/push + draft GitHub PR (`gh` or `ce-commit-push-pr mode:pipeline`) |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
 | [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
-| [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — complexity/YAGNI lens + risk/migration lens, must-fix/should-fix/accept-risk |
+| [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — Pass A/B (+ Pass C for bug-fix plans), must-fix/should-fix/accept-risk |
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 | [`clean-decision-docs`](skills/clean-decision-docs/) | Specs/plans stay final-form decisions — no "fixed/changed to" archaeology after critique or revise |
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
 | [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — canvas orientation + snippets + file links + humanizer prose; default report-only |
-| [`software-developer`](skills/software-developer/) | Implements a cleared plan — feature branch(es) in target repo(s), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
+| [`software-developer`](skills/software-developer/) | Implements a cleared plan (or `mode:fast` AC brief) — feature branch(es), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
 
 | Agent | Role |
 |-------|------|
-| `software-developer` | Feature branch(es) then code to tech spec + plan after critic clear — routes skills, verifies; web → browser vs Figma |
+| `software-developer` | Feature branch(es) then code to tech spec + plan after critic clear (or `mode:fast`) — routes skills, verifies; web → browser vs Figma |
+| `bug-fixer` | Reproduce → root cause → regression test → minimal fix — used by `/start-issue-task` |
 | `engineer-reviewer` | Orchestrator — phase agents; findings with snippets, clickable links, humanized What/Where/Why |
 | `pr-reviewer` | Same phases as engineer-reviewer; PR Review Canvas + Findings with snippets, clickable links, humanized prose |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
@@ -150,7 +154,7 @@ docs/        Design specs, plans, dogfood checklists
 | `review-figma-markup` | Markup vs Figma (needs node URLs); on web also `ce-test-browser` |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
-| `implementation-critic` | Audits a plan before code — complexity (Pass A) + risk (Pass B) lenses, read-only |
+| `implementation-critic` | Audits a plan before code — Pass A/B (+ Pass C bug-fix), read-only |
 | `tech-spec` | Drafts/structures the technical action plan pre-plan — asks one question at a time, never invents business facts |
 
 ## Recommended third-party skills
@@ -199,7 +203,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 **Canvas (all stages, HITL gates, branches):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md)
 
-`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks prefer Cursor **`AskQuestion`** interactive buttons (skill [`hitl-choice`](skills/hitl-choice/)); typed reply tokens remain the fallback when the tool is unavailable.
+`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. Ends with skill [`create-pr`](skills/create-pr/) (draft PR).
 
 1. Bootstraps context (project patterns, stack) — automatic
 2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
@@ -211,10 +215,21 @@ On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skill
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises
 8. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write)
+9. `/create-pr` skill — draft GitHub PR per changed repo
 
-A Jira/tracker URL works as the AC source, recorded as a reference — this kit does not fetch ticket contents via an API.
+In **full** `/start-task`, a Jira/tracker URL is an AC reference only — paste description/AC text alongside the link (no API fetch). For MCP-backed Jira bug fixes use `/start-issue-task`.
 
 Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, without triggering the rest of the pipeline.
+
+### Start a task (fast — no planning HITL)
+
+`/start-task --fast [ac-source]` for small work: bootstrap → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no finish-plan HITL) → `create-pr`. No tech-spec, plan approval, critic, or update-docs.
+
+### Start an issue task (Jira bug fix)
+
+`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (stops if MCP fails — paste text then), writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr`.
+
+Design: [`docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md`](docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md)
 
 ### Update product docs
 
@@ -232,7 +247,7 @@ npx skills add everyinc/compound-engineering-plugin@ce-explain
 
 ### Approve plan → critic → build
 
-`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise` via `hitl-choice` buttons when available), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/plan-critique.clear` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
+`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise` via `hitl-choice` (AskQuestion required)), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/plan-critique.clear` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
 
 `/start-build [path]` no longer runs the critic — it only starts `software-developer` when `.cursor/plan-critique.clear` matches the plan.
 

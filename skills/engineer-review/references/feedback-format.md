@@ -77,7 +77,7 @@ If a phase left `recommended` null, still list Options, omit `(recommended)` on 
 
 > **Recommendation:** none — pick based on product intent.
 
-If **Needs clarification** is non-empty, end with the clarify HITL (skill `hitl-choice` preset **Engineer-review clarify**): prefer sequential `AskQuestion` buttons per `C#` (recommended option labeled); text fallback:
+If **Needs clarification** is non-empty, end with the clarify HITL (skill `hitl-choice` preset **Engineer-review clarify**): sequential AskQuestion per `C#` required (recommended option labeled); text only after failed/missing tool:
 
 > Prefer the buttons for each `C#` (one question at a time). Or reply in one message like `C1: A; C2: B` (or free text). I will re-run the affected phases and apply agreed fixes.
 

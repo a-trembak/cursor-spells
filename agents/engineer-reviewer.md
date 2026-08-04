@@ -18,7 +18,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 
 1. Read skill `engineer-review` (`skills/engineer-review/SKILL.md` in the cursor-spells kit, or linked install path), including `references/feedback-format.md`, `references/evidence-gate.md`, `references/forbidden-formats.md`, and `references/output-schema.md`.
 2. Read skill `english-humanizer` before writing any user-visible finding prose (if missing, apply its engineer-voice rules inline).
-3. If this invocation follows a **finished plan** and the user has not yet said `skip` / `approve` / `done`, stop and ask via skill `hitl-choice` (prefer `AskQuestion`; or tell them to run `/finish-plan`). Do not dispatch phases.
+3. If this invocation follows a **finished plan** and the user has not yet said `skip` / `approve` / `done`, stop and ask via skill `hitl-choice` (AskQuestion required; or tell them to run `/finish-plan`). Do not dispatch phases.
 4. Manual `/engineer-review` → proceed immediately.
 
 ## Spine
@@ -30,7 +30,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 5. **Graphify scoping (preferred when present):** apply `references/graphify-protocol.md` — detect `graphify-out/`, query impact for changed paths, build a compact `impact_hint`. If absent/unqueryable, no-op (same as today). Never rebuild the graph during review; never paste `graph.json`.
 6. If files > 40 or LOC > 2500 (and under catastrophic caps), split into chunks: prefer graph modules from the impact map when graphify answered; otherwise package/directory chunks as today. Run phases per chunk and merge.
 7. Ensure `.cursor/project-patterns.md` in the **current project** (not the kit). If missing, dispatch `review-patterns` first in create mode.
-8. **Early Figma:** if `react-web` / `react-native`, ask via skill `hitl-choice` preset **Figma ask** (prefer `AskQuestion`; or text: paste URLs / `no figma`) before/while dispatching (do not block other phases if unanswered — skip figma until answered).
+8. **Early Figma:** if `react-web` / `react-native`, ask via skill `hitl-choice` preset **Figma ask** (AskQuestion required; or text: paste URLs / `no figma`) before/while dispatching (do not block other phases if unanswered — skip figma until answered).
 9. Dispatch phase subagents with the phase-protocol inputs (include `graphify_available` and optional `impact_hint` when graphify was used). Run `review-lint` first (deterministic tooling, no patterns/skill dependency), then the heuristic phases (**including** `review-simplify`): parallel `find`, then one coordinated `apply` for `unambiguous && (P0|P1)`. Phase JSON **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` on every fixed/clarify item; clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why` (never invent when null).
 10. Phase order for apply conflicts: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma.
 11. **Verify passes:** after the coordinated apply step, re-dispatch `review-lint` once more in `find` mode over the final diff to confirm no lint/typecheck regressions. Then re-dispatch `review-simplify` once in `find` mode as a **quality verify** — catch leftover overbuilt / redundant / locally wasteful code. Fold any new findings into the same round; do not loop indefinitely.

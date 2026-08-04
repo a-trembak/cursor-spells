@@ -39,7 +39,7 @@ Load **`references/writing-guide.md`** before drafting.
    printf 'pending\n' > .cursor/docs-gate.pending
    ```
 
-2. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Docs update destination**. Prompt/text fallback:
+2. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Docs update destination**. Prompt/text fallback:
 
    > Update product docs for what shipped?
    > - `skip` — no docs this run
