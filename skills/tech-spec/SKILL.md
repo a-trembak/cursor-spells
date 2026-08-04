@@ -20,7 +20,7 @@ Produces a **developer's technical action plan**, not a PRD or user-story prose:
 
 ## Entry question (always ask first)
 
-Ask via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Tech-spec entry**. Prompt/text fallback:
+Ask via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Tech-spec entry**. Prompt/text fallback:
 
 > Tech spec: write it yourself, or have the agent draft it?
 > - `human` — you provide the file; the agent only structures/asks about gaps
@@ -55,7 +55,7 @@ See [references/template.md](references/template.md) for the full 7-section temp
 
 Plan-writing does not start until the spec is `approved` (or the human explicitly says `skip`, with the reason logged in the spec file).
 
-**Stop.** Ask via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Tech-spec gate**. Prompt/text fallback:
+**Stop.** Ask via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Tech-spec gate**. Prompt/text fallback:
 
 > Spec ready at `<path>`. Reply:
 > - `approve-spec` — accept; planning may proceed

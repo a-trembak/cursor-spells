@@ -22,7 +22,7 @@ Thin orchestrator for multi-phase code review. Keeps the spine small; each phase
 
 ## HITL gate (required before auto-review)
 
-If this run was triggered because a **plan finished**, do **not** start phases until the user answers via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Finish-plan / engineer-review / multi-repo HITL**:
+If this run was triggered because a **plan finished**, do **not** start phases until the user answers via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Finish-plan / engineer-review / multi-repo HITL**:
 
 - `skip` — start review now
 - `approve` or `done` — start after their own pass
@@ -34,7 +34,7 @@ Manual `/engineer-review` skips this gate.
 
 ## Early Figma ask (frontend)
 
-After HITL approval (or at the start of manual review), if stack is `react-web` or `react-native`, ask **before** phase dispatch via skill **`hitl-choice`** preset **Figma ask** (prefer `AskQuestion`; text fallback: paste links or `no figma`).
+After HITL approval (or at the start of manual review), if stack is `react-web` or `react-native`, ask **before** phase dispatch via skill **`hitl-choice`** preset **Figma ask** (AskQuestion required; text fallback only after failed/missing tool: paste links or `no figma`).
 
 Pass URLs into clarifications for `review-figma-markup`. Do not block other phases on the answer if the user already said `no figma` / `no_figma`; if they have not answered yet, run non-figma phases first and keep figma skipped until URLs arrive.
 

@@ -1,5 +1,5 @@
 ---
-description: Audit an implementation plan for complexity, risk, and scope drift before coding starts
+description: Audit an implementation plan for complexity, risk, scope drift, and (for bug-fix plans) root-cause / regression quality before coding starts
 argument-hint: "[path/to/plan.md]"
 ---
 

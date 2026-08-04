@@ -1,6 +1,6 @@
 # Quality pipeline flow (canvas)
 
-Canonical flowchart of `/start-task` — every stage, HITL gate, condition, and branch as shipped in this kit.
+Canonical flowchart of `/start-task` (full + `--fast`), `/start-issue-task`, and shared finale `create-pr` — every stage, HITL gate, condition, and branch as shipped in this kit.
 
 **Interactive canvas (click stages → detail branches):** open [`pipeline-flow.html`](pipeline-flow.html) in a browser.
 
@@ -19,7 +19,9 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Cross `--x` | Stop / blocked |
 | Dotted `-.->` | Loop / re-entry |
 
-Source of truth: [`commands/start-task.md`](../../commands/start-task.md), plus `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `hitl-choice`.
+Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), plus `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
+
+Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
 ---
 
@@ -39,7 +41,8 @@ flowchart TD
   finishPlan[["finish-plan"]]
   engReview[["engineer-reviewer or multi-repo-supervisor"]]
   updateDocs[["update-docs"]]
-  doneNode(["Reviewed PR + docs path"])
+  createPr["create-pr draft"]
+  doneNode(["Draft PR + docs path"])
 
   startNode ==> noAc
   noAc -->|"no"| stopNoAc
@@ -52,7 +55,8 @@ flowchart TD
   softwareDev ==>|"all tasks verified"| finishPlan
   finishPlan ==>|"skip / approve / done"| engReview
   engReview ==> updateDocs
-  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| doneNode
+  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| createPr
+  createPr ==> doneNode
 ```
 
 ---
@@ -350,8 +354,57 @@ flowchart LR
   docs["/update-docs"] --> docsFlow[["HITL destination then write"]]
   pr["/pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
   multi["/multi-review"] --> multiDirect[["multi-repo-supervisor"]]
+  issue["/start-issue-task"] --> issuePipe[["Jira MCP + bug-fixer + create-pr"]]
+  fast["/start-task --fast"] --> fastPipe[["brief + mode:fast + review + create-pr"]]
 ```
 
 `/critique-plan` alone does **not** write `plan-critique.clear` for build — prefer `/approve-plan` so plan HITL is not skipped.
 
 `/pr-review` resolves a GitHub PR, optionally builds a **PR Review Canvas** (Cursor plugin `pr-review-canvas`; skip with `no-canvas`), then runs the same engineer-review phases. Canvas orients the diff; validated Findings remain the review contract.
+
+---
+
+## 10. Fast mode (`/start-task --fast`)
+
+```mermaid
+flowchart TD
+  startFast(["/start-task --fast ac-source"])
+  boot["Bootstrap"]
+  brief["Short AC brief in chat"]
+  exec["software-developer mode:fast"]
+  review["engineer-reviewer no finish-plan HITL"]
+  prNode["create-pr draft"]
+  doneFast(["Draft PR"])
+
+  startFast ==> boot ==> brief ==> exec ==> review ==> prNode ==> doneFast
+```
+
+No tech-spec, writing-plans, approve-plan, critic, finish-plan, or update-docs. Clarify HITL only if engineer-review needs it.
+
+---
+
+## 11. Issue mode (`/start-issue-task`)
+
+```mermaid
+flowchart TD
+  startIssue(["/start-issue-task jira-key"])
+  boot["Bootstrap"]
+  jira["Atlassian MCP getJiraIssue"]
+  jiraFail{MCP ok?}
+  stopJira[/"Stop: paste ticket text"/]
+  planFix["Write fix plan"]
+  critic["implementation-critic Pass A B C"]
+  verdict{Verdict clear?}
+  hitlCrit[/"HITL: revise or accept F-id"/]
+  fixer["bug-fixer"]
+  review["engineer-reviewer"]
+  prNode["create-pr draft"]
+  doneIssue(["Draft PR"])
+
+  startIssue ==> boot ==> jira ==> jiraFail
+  jiraFail -->|"no"| stopJira
+  jiraFail -->|"yes"| planFix ==> critic ==> verdict
+  verdict -->|"blocked or pending accept"| hitlCrit
+  hitlCrit --> planFix
+  verdict -->|"clear"| fixer ==> review ==> prNode ==> doneIssue
+```

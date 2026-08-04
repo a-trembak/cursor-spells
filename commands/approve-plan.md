@@ -8,7 +8,7 @@ argument-hint: "[path/to/plan.md]"
 Run skill `approve-plan`:
 
 1. Write `.cursor/plan-gate.pending` with the plan path; clear any stale `.cursor/plan-critique.clear`.
-2. **HITL:** wait for `approve-plan` or `revise` via skill `hitl-choice` (prefer `AskQuestion` buttons; typed tokens still work).
+2. **HITL:** wait for `approve-plan` or `revise` via skill `hitl-choice` (AskQuestion required; typed tokens only after failed/missing tool).
 3. On `approve-plan`, auto-run `implementation-critic` (no permission needed — read-only).
 4. If `Verdict: clear`, write `.cursor/plan-critique.clear` and invoke `/start-build`.
 5. If `Verdict` is `blocked` or `clear pending accept`, stop; ask via `hitl-choice` (`revise` / `accept F<id>`) or wait for a plan revision / typed `accept F<id>`.

@@ -24,7 +24,7 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
    printf 'pending\n' > .cursor/review-gate.pending
    ```
 
-2. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (prefer `AskQuestion` buttons; text fallback). Preset: **Finish-plan / engineer-review / multi-repo HITL**. Prompt/text fallback:
+2. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Finish-plan / engineer-review / multi-repo HITL**. Prompt/text fallback:
 
    > Plan done. Want to do your own review first?
    > - `skip` — start review now (engineer-reviewer or multi-repo-supervisor)
