@@ -16,7 +16,7 @@ Run the **implementation-critic** agent against an existing plan.
 1. Read and follow skill `implementation-critic` (`skills/implementation-critic/SKILL.md`).
 2. Invoke agent `implementation-critic` with the plan path (and tech spec path, if discoverable).
 3. Emit the report per `references/output-schema.md`.
-4. If `Verdict` is `blocked` or `clear pending accept`, stop and wait for the user to either revise the plan and re-run this command, or reply `accept F<id>` for a specific finding.
+4. If `Verdict` is `blocked` or `clear pending accept`, stop and ask via skill `hitl-choice` (AskQuestion required) for `revise` / `accept F<id>`, or wait for the user to revise the plan and re-run this command.
 
 ## Notes
 
