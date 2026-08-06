@@ -76,3 +76,10 @@ Fill when the UI has stateful inputs inside hosts that re-render children on eac
 - Nested search/edit inside Menu/Popover/Select: stabilize Menu props identity; disable host autofocus that steals from the input; stable item keys
 - Changing filter-in-menu requires a competing-actor test: typing N characters keeps focus and value
 - Kit: `skills/engineer-review/references/interaction-replay-checklist.md` (**R4**, **R6**)
+
+## Review learnings (self-strengthen)
+
+- Ledger path: `.cursor/review-learnings.md` (create on first eligible miss; template in kit)
+- Protocol: kit `skills/engineer-review/references/review-learn-protocol.md`
+- Kit seed always loaded: `skills/engineer-review/references/learned-misses.md`
+- After P0 / production-escape: append generalized miss class (dedup by id); never auto-edit kit checklists from this repo

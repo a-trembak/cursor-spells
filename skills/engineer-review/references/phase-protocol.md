@@ -13,6 +13,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 - `chunk_id`: optional string when the orchestrator split a large diff
 - `graphify_available`: optional boolean — `true` when orchestrator detect/query succeeded ([graphify-protocol.md](graphify-protocol.md))
 - `impact_hint`: optional compact module/path list from graphify impact (never raw `graph.json`)
+- `learned_hints`: optional compact miss-class hints from kit `learned-misses.md` + consumer `.cursor/review-learnings.md` ([review-learn-protocol.md](review-learn-protocol.md)) — never paste full ledgers
 
 ## Budget hard caps (per phase invocation)
 
@@ -59,7 +60,7 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 1. Respect the file list / chunk from the orchestrator (do not widen scope).
 2. Load mapped skill for this phase if available (see skill-map.md).
 3. **Neighbors / call graph:** when `graphify_available` is true (or detect succeeds per [graphify-protocol.md](graphify-protocol.md)), prefer `graphify query` / short `GRAPH_REPORT.md` excerpts for callers, callees, and impact before walking path-adjacent files. When false or unqueryable, keep the phase’s existing diff-scoped / neighbor heuristics.
-4. Review **changed code** against checklist; use patterns file for local conventions.
+4. Review **changed code** against checklist; use patterns file for local conventions. When `learned_hints` is present, apply any hint whose `triggers` match the diff **before** closing related items (link `gate` / R# — do not ignore loaded learnings).
 5. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
 6. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, `snippet` (exact 3–15 lines of the problem), and `context` (1–2 sentences). No path-only findings. See [evidence-gate.md](evidence-gate.md).
 7. **Clarify choices (mandatory):** every `clarify` item **must** include structured `options` (`[{ "id", "label" }, …]`, 2–3 choices). Prefer `recommended` (option id) + `recommendation_why` for P0/P1 — safest / closest to patterns or AC. Use `recommended: null` only when product intent is genuinely unknown; never invent a fake recommendation.
@@ -147,6 +148,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
 - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
+- Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
 
 ## Post-clarify re-sim (R1 — timing / listeners / host remount)
 

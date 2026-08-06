@@ -55,7 +55,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
    - Skip the post-plan HITL gate (user already asked for PR review).
    - Default `mode`: **find only** (report-only). Run apply only if the user passed `apply` (or explicitly asked to fix in-repo).
 4. Early Figma ask on frontend unless `no-figma`.
-5. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`). Phase JSON **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` on every finding; clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`.
+5. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`), including `learned_hints` from kit `learned-misses.md` + consumer `.cursor/review-learnings.md` when present. Phase JSON **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` on every finding; clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`.
 6. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md), shared [evidence-gate.md](../engineer-review/references/evidence-gate.md), and [forbidden-formats.md](../engineer-review/references/forbidden-formats.md):
    - Require `path` + lines + `snippet` + `context`; backfill with `extract-review-snippet.sh` + `HEAD_SHA` or **drop** the item.
    - **Context** + full Where block including **required** GitHub `blob/<HEAD_SHA>/…#L…` when PR resolve succeeded; numbered code fence.
@@ -65,6 +65,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 7. **Humanize** all prose with skill `english-humanizer` before showing the report or PR comment draft (paths and code fences unchanged). If missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
 8. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Point at the canvas (if built). Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 9. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch affected phases and re-emit with the same evidence bar.
+10. After the report is settled, run `review-learn` per [`review-learn-protocol.md`](../engineer-review/references/review-learn-protocol.md) (same self-strengthen loop as engineer-review).
 
 ## Fix policy
 
