@@ -2,6 +2,8 @@
 
 Full protocol for agent-assisted tech-spec drafting. This reuses the question-loop mechanics from the `brainstorming` skill (one question at a time, multiple-choice preferred, 2-3 options with trade-offs) as the reference implementation for this narrower, engineering-only artifact — it is not `brainstorming` itself, and does not produce a product/UX design.
 
+**Full-path note:** Designer↔critic disagreements are resolved by `skills/system-design/references/consensus-protocol.md`, not by Decision-tier HITL. Decision-tier HITL still applies on the light path, and on the full path only for human-facing forks the orchestrator chooses to surface (or Blockers when AC is silent).
+
 ## The three tiers
 
 **Blocker** — no happy path, unclear data ownership, a security implication, or a breaking change with no named mitigation. The spec cannot be finalized while a Blocker is open. Stop and ask; do not draft around it with a guess.

@@ -26,6 +26,16 @@ Ask via skill **`hitl-choice`** (AskQuestion required; text only after failed/mi
 > - `human` — you provide the file; the agent only structures/asks about gaps
 > - `agent` — the agent drives the interview and writes the draft
 
+## Depth question (agent mode only)
+
+If entry was `agent`, ask via skill `hitl-choice` preset **Tech-spec depth**:
+
+> Tech spec depth?
+> - `light` — standard 7-section tech-spec (current path)
+> - `full` — system-design designer + critic, then merge into tech-spec
+
+If entry was `human`, skip this question — always **full**. Require a plan file path or pasted notes before starting the designer.
+
 ## Three tiers of uncertainty (agent-assisted mode)
 
 See [references/question-discipline.md](references/question-discipline.md) for the full protocol. Summary:
@@ -44,12 +54,13 @@ See [references/template.md](references/template.md) for the full 7-section temp
 
 ## Spine
 
-1. Ask the entry question. If `human`, wait for the file path and check it against `references/template.md`'s section list and Status header — report any structural gaps as questions.
-2. If `agent`: read AC and `.cursor/project-patterns.md` (current project) if present.
-3. Draft the spec section by section, following [references/template.md](references/template.md), applying the three-tier protocol from [references/question-discipline.md](references/question-discipline.md) as each section surfaces uncertainty.
-4. Write the file per the template's path convention. Apply skill **`clean-decision-docs`**: the file is final-form current truth, never a changelog of prior drafts.
-5. Present it for `approve-spec` (see Gate).
-6. On `revise`: rewrite affected sections in place per `clean-decision-docs` (chat may summarize what changed; the file body must not). Re-present for `approve-spec`.
+1. Ask entry (`human` / `agent`) via `hitl-choice`.
+2. If `human`: wait for plan path/paste; then follow [references/full-path.md](references/full-path.md) with designer mode `format-human-plan`.
+3. If `agent`: ask depth (`light` / `full`).
+4. If `light`: read AC + patterns; draft 7 sections per `template.md` + `question-discipline.md`; write tech-spec `Status: draft`.
+5. If `full`: follow [references/full-path.md](references/full-path.md) with designer mode `draft-from-ac`.
+6. Present `approve-spec` / `revise` / `skip` via `hitl-choice`.
+7. On `revise`: rewrite affected tech-spec sections as current truth (`clean-decision-docs`); if revision needs design rework, re-enter full-path consensus on the system-design file then re-merge — chat summarizes; files stay final-form.
 
 ## Gate
 
@@ -64,4 +75,4 @@ Plan-writing does not start until the spec is `approved` (or the human explicitl
 
 ## Context budget
 
-Load this skill, its two reference files, `hitl-choice`, and `clean-decision-docs` when drafting or revising.
+Load this skill, `hitl-choice`, and `clean-decision-docs` when drafting or revising. **Light path:** `template.md` + `question-discipline.md` only — do not load system-design pair skills. **Full path:** per [references/full-path.md](references/full-path.md) (may also load `system-design`, `system-design-critic`, and their references).
