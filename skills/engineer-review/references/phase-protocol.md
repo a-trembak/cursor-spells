@@ -146,18 +146,18 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - **Needs clarification**: all `clarify` (renumber ids globally to `C1…`)
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
-- When auth/session/RTK surfaces were in scope: Coverage also notes `auth_flow_walk: view-as|skipped|n/a`
+- When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
 
-## Post-clarify re-sim (auth / timing / matchers)
+## Post-clarify re-sim (R1 — timing / listeners / host remount)
 
-After HITL clarify answers that change timing of cache reset, listener effects, or auth matchers:
+After HITL clarify answers that change **when** something runs (cache reset sync vs defer, listener effects, auth matchers, remount/`key=`, overlay autofocus / Menu props):
 
 1. Re-dispatch **logic** and **architecture** (not only the phase that asked) with the answers embedded.
-2. Require an explicit `interaction_replay` in phase notes (or a matching regression test in the tree):
+2. Require an explicit `interaction_replay` brief in phase notes (or a competing-actor regression in the tree) per **R1**:
 
-   `route_at_fire → active_subscriptions → session_writers → post_navigate_scope`
+   `trigger → route/shell still mounted → active subscriptions / host widgets → shared writers (auth, focus, selection) → user-visible outcome`
 
-3. Do **not** treat the clarify answer as applied until that replay is recorded in phase notes **or** a matching regression test exists.
-4. Detail checklist: `skills/engineer-review/references/auth-rtk-checklist.md`.
+3. Do **not** treat the clarify answer as applied until that replay is recorded in phase notes **or** a matching competing-actor regression exists (**R6**).
+4. Detail: `skills/engineer-review/references/interaction-replay-checklist.md` (auth specialization: `auth-rtk-checklist.md`).
 
-Example failure mode this catches: choosing sync `resetApiState` (C1:B) without re-simulating live admin subscribers that still hold a NONE probe query — fulfill can overwrite the org session via an auth writer.
+Example miss class: picking sync `resetApiState` without re-simulating live shell subscribers that still hold a probe query (fulfill writes auth); or accepting filter-in-menu without checking whether the host steals focus on each filtered re-render.

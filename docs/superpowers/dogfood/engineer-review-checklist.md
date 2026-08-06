@@ -57,7 +57,8 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | Large synthetic diff (>40 files) | Coverage mentions chunking |
 | Catastrophic diff (>200 files or >50k LOC) | Orchestrator aborts before phase spam; asks to narrow scope |
 | No lint config in fixture repo | `lint` phase reports `skipped: true` / `no_lint_config` in Coverage instead of silently disappearing |
-| Auth/session clarify that picks sync `resetApiState` | Logic + architecture re-dispatched with `interaction_replay`; Coverage can show `auth_flow_walk: view-as` when that surface was walked; must name live competing subscriptions (e.g. admin NONE probe) before closing |
+| Auth/session clarify that picks sync `resetApiState` | Logic + architecture re-dispatched with R1 `interaction_replay`; Coverage shows `interaction_replay: auth` (or `both`); must name live competing shell subscriptions before closing |
+| Overlay/filter clarify that keeps filter-in-menu | Logic + architecture check **R4** (host focus/remount); Coverage `interaction_replay: overlay-focus` (or `both`); competing-actor note or test for typing N chars |
 
 ## Patterns CI helper
 

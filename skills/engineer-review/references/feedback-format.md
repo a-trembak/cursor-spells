@@ -28,7 +28,8 @@ User-facing output for `engineer-review` / `engineer-reviewer` (and the shared b
 - skills_missing: …
 - budget: …
 - graphify: used | absent | unqueryable
-- auth_flow_walk: view-as | skipped | n/a   <!-- when auth/session/RTK touched; else omit or n/a -->
+- interaction_replay: auth | overlay-focus | both | skipped | n/a   <!-- R7: required when auth/session or overlay/filter in scope -->
+- auth_flow_walk: …   <!-- optional detail when auth walked -->
 
 ## Fixed now
 

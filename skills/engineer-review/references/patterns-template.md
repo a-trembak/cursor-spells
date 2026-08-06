@@ -60,11 +60,19 @@ This project follows `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy as
 
 ## Auth / membership scope (RTK)
 
-Fill when the project uses RTK Query + auth slice (or equivalent). Leave N/A otherwise.
+Fill when the project uses RTK Query + auth slice (or equivalent). Leave N/A otherwise. Product-specific writer/probe endpoint names go here (not in the kit).
 
-- **Session writers** (may write full auth / `AuthenticationResponse` into the auth slice): e.g. `login`, `refreshMembershipTokenTrigger` (mutation), `getOrganizationToken`
-- **Probes** (must **not** write auth; must **not** be wired into scope-reset listeners): e.g. admin NONE `refreshMembershipToken` **query**, `hasRoles`
+- **Session writers** (may write full auth into the auth slice): <!-- list project endpoints -->
+- **Probes** (must **not** write auth; must **not** be wired into scope-reset listeners): <!-- list project endpoints -->
 - `prepareHeaders` token source: Redux | localStorage | other — must match what UI/portal assumes after scope switch
 - Scope-change `resetApiState` owner (single place):
-- Changing `api.util.resetApiState` on scope change requires a regression that keeps an **active competing subscription** (e.g. admin NONE probe) across the writer mutation
-- Checklist: kit `skills/engineer-review/references/auth-rtk-checklist.md`
+- Changing reset on scope change requires a competing-actor regression (active shell subscription across the writer mutation)
+- Kit: `skills/engineer-review/references/auth-rtk-checklist.md` + parent `interaction-replay-checklist.md` (R1–R7)
+
+## Interaction replay (host widgets)
+
+Fill when the UI has stateful inputs inside hosts that re-render children on each keystroke (Select Menu search, virtualized lists, accordions). Leave N/A otherwise.
+
+- Nested search/edit inside Menu/Popover/Select: stabilize Menu props identity; disable host autofocus that steals from the input; stable item keys
+- Changing filter-in-menu requires a competing-actor test: typing N characters keeps focus and value
+- Kit: `skills/engineer-review/references/interaction-replay-checklist.md` (**R4**, **R6**)

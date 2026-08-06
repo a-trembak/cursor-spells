@@ -20,21 +20,21 @@ You review **logic correctness** and **stack best practices** for the given diff
 - Idiomatic use of the stack (hooks rules, Spring layers, etc.)
 - No contradictory control flow introduced by the diff
 
-### Auth / session / RTK (when triggered)
+### Interaction replay (R1–R7, when triggered)
 
-Trigger when the diff touches `resetApiState`, auth listeners, `*matchFulfilled` on auth, `prepareHeaders`, membership/org token endpoints, or store/auth / `*Scope*` / `*Teardown*` / `services/auth*` paths. Full walk: `skills/engineer-review/references/auth-rtk-checklist.md`.
+Canonical rules: `skills/engineer-review/references/interaction-replay-checklist.md`. Auth detail: `skills/engineer-review/references/auth-rtk-checklist.md`.
 
-Must cover:
+**Triggers (any):** side-effect timing changes (`resetApiState`, invalidate, sync vs defer, remount/`key=`, overlay open/close, loading→disabled); auth/session matchers/listeners/`prepareHeaders`; stateful input inside a host that re-filters children each keystroke (Select Menu, virtualized list, accordion).
 
-- List every matcher/listener that **writes** token/user/org into auth
-- Separate **session writers** (login, membership trigger mutation, `getOrganizationToken`) from **probes** (admin NONE refresh **query**, `hasRoles`, etc.)
-- If sync `resetApiState` on scope change: name which hooks stay subscribed on the route where the mutation fires (e.g. still on `/admin` during view-as)
-- Ask: after reset, which queries refetch immediately, and do any fulfillments hit auth writers?
-- Token source of truth: Redux vs localStorage — does `prepareHeaders` match what the UI assumes?
-- Required flow walk when membership/org token changes: view-as org, membership switch, logout/soft-401
-- Tests: if reset/listener/matcher changed, require a test with an **active competing subscription**, not only unwrap-vs-reset
+Must apply the matching rules (do not hardcode product probes or filter widgets):
 
-When a prior clarify answer changed reset timing / listener effects / auth matchers, re-run this block with explicit `interaction_replay` (`route_at_fire → active_subscriptions → session_writers → post_navigate_scope`) before closing related items.
+- **R1** — After timing/side-effect changes: record brief `trigger → route/shell still mounted → active subscriptions / host widgets → shared writers (auth, focus, selection) → user-visible outcome`. HITL sync/defer/reset answers do not close without this (or a competing-actor test).
+- **R2** — List shared-state writers; separate session writers from probes; probes must not share fulfill→write with writers after reset/refetch.
+- **R3** — Force-include unchanged nav/layout shells and global overlays that stay mounted across the trigger.
+- **R4** — Host must not steal focus / remount the input when the list filters; check Menu/Popover prop identity, item keys, autofocus; note or test typing N chars keeps focus+value.
+- **R5** — Dual sources of truth: verify what the next screen actually reads after mutation/reset.
+- **R6** — Listener / matcher / `resetApiState` / filter-in-menu changes need a competing-actor regression, not only isolated unwrap tests.
+- **R7** — Coverage must note `interaction_replay: auth|overlay-focus|both|skipped|n/a` when those surfaces are in scope.
 
 ## Output
 

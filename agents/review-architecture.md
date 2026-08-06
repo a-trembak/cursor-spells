@@ -14,15 +14,16 @@ You review **architecture and structural gaps** for the diff.
 - Explicit gaps vs plan requirements if a plan path was provided
 - Consistency with existing architecture (not greenfield fantasy)
 
-### Session seam (when auth / RTK scope touched)
+### Interaction seams (R1–R7, when triggered)
 
-Trigger alongside logic’s Auth / session / RTK block. Shared detail: `skills/engineer-review/references/auth-rtk-checklist.md`.
+Canonical: `skills/engineer-review/references/interaction-replay-checklist.md`. Auth: `skills/engineer-review/references/auth-rtk-checklist.md`.
 
-- Scope-change `resetApiState` owned in **one** place; probe endpoints excluded from reset triggers **and** from auth writers
-- Cross-route shells (e.g. AppNavigation on `/admin`) may keep subscriptions across logical scope changes — treat as coupling
-- Options that choose sync vs deferred reset **must** re-evaluate live subscribers before closing the item (name the competing subscriptions; ask whether their fulfill writes auth)
+- **R2 / session seam:** Scope-change reset owned in **one** place; probe endpoints excluded from reset triggers **and** from shared-state writers
+- **R3:** Cross-route shells and global overlays that stay mounted across logical scope / trigger changes are coupling — force-include even if unchanged
+- **R4:** Host widgets that re-render filtered children (menus, virtualized lists) are architectural hosts for focus/selection — unstable Menu/Popover props or autofocus that remounts nested inputs are seam bugs
+- Options that choose sync vs deferred reset, remount vs stable host, or filter-in-menu **must** re-evaluate live actors (**R1**) before closing the item
 
-When a prior clarify answer changed reset timing / listener effects / auth matchers, re-run with explicit `interaction_replay` before treating the answer as applied.
+When a prior clarify answer changed timing / listener effects / auth matchers / host remount behavior, re-run with explicit R1 `interaction_replay` before treating the answer as applied.
 
 ## Skills
 

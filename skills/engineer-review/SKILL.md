@@ -56,9 +56,9 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
    - What / Why / Ask-or-fix; Clarify items also **Options** + **Recommendation** (or explicit “none”)
    - `english-humanizer` on prose
    - Coverage notes `graphify: used|absent|unqueryable`
-   - When auth/session/RTK was in scope: Coverage notes `auth_flow_walk: view-as|skipped|n/a`
+   - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**); optional `auth_flow_walk: …` for concrete auth flows
    - Run `scripts/validate-review-report.sh` on the draft; rebuild until exit 0, then show the user
-12. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A` / `C2:B`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar. **Exception — auth/timing/matchers:** if an answer changes cache-reset timing, listener effects, or auth matchers, also re-dispatch **logic + architecture** with explicit `interaction_replay` per [phase-protocol.md](references/phase-protocol.md) / [auth-rtk-checklist.md](references/auth-rtk-checklist.md); do not treat the answer as applied until replay is in phase notes or a matching regression test exists.
+12. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A` / `C2:B`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar. **Exception — R1 timing / host remount:** if an answer changes cache-reset timing, listener effects, auth matchers, remount/`key=`, or overlay autofocus/Menu props, also re-dispatch **logic + architecture** with explicit `interaction_replay` per [phase-protocol.md](references/phase-protocol.md) / [interaction-replay-checklist.md](references/interaction-replay-checklist.md); do not treat the answer as applied until replay is in phase notes or a competing-actor regression exists.
 
 ## Fix policy
 
