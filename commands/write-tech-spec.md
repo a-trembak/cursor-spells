@@ -15,9 +15,13 @@ Run the **tech-spec** agent.
 
 1. Read and follow skill `tech-spec` (`skills/tech-spec/SKILL.md`).
 2. Invoke agent `tech-spec` with the AC source.
-3. Follow the entry question (`human` / `agent`) via skill `hitl-choice` and, in agent mode, the three-tier question protocol from `references/question-discipline.md` (Blocker/Decision asks also use `hitl-choice` (AskQuestion required)).
-4. Stop for `approve-spec` / `revise` / `skip <reason>` via `hitl-choice` before any implementation plan is written.
-5. On `revise`, rewrite the file as current truth per skill `clean-decision-docs` (summarize the turn's edits in chat only).
+3. Follow the entry question (`human` / `agent`) via skill `hitl-choice` (AskQuestion required; text only after failed/missing tool).
+4. **If `agent`:** follow the depth HITL (`light` / `full`) via `hitl-choice`.
+   - **`light`:** draft the 7-section tech-spec per `references/template.md` + `references/question-discipline.md` (Blocker/Decision asks also use `hitl-choice`).
+   - **`full`:** run the system-design designer + critic consensus loop, then merge into tech-spec per `references/full-path.md` (designer mode `draft-from-ac`).
+5. **If `human`:** wait for a plan path or pasted notes; always run the full path per `references/full-path.md` (designer mode `format-human-plan`), then merge into tech-spec.
+6. Stop for `approve-spec` / `revise` / `skip <reason>` via `hitl-choice` before any implementation plan is written.
+7. On `revise`, rewrite the file as current truth per skill `clean-decision-docs` (summarize the turn's edits in chat only); if revision needs design rework, re-enter full-path consensus on the system-design file then re-merge.
 
 ## Notes
 

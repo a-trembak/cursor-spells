@@ -31,8 +31,10 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - Detect the project's stack mechanically (same signals as `skill-map.md`'s stack-detection table: `package.json`, `pom.xml`, `docker-compose`, dependency names) — no reasoning call, a table lookup.
 2. **Tech spec** — invoke skill `tech-spec` (agent `tech-spec`) with the AC source, the patterns file path (if found), and the detected stack label:
    - **HITL:** the entry question (`human` / `agent`) via skill `hitl-choice` (AskQuestion required; text only after failed/missing tool).
-   - **HITL:** any Blocker/Decision-tier questions the draft surfaces, per `references/question-discipline.md` + `hitl-choice`.
-   - **HITL:** `approve-spec` / `revise` / `skip <reason>` via `hitl-choice`. On `revise`, rewrite the spec as current truth (`clean-decision-docs`); chat may summarize edits.
+   - **HITL (agent only):** depth (`light` / `full`) via `hitl-choice`.
+   - **If `human` or `full`:** system-design designer + critic consensus per `references/full-path.md`, merge into tech-spec (`format-human-plan` for human entry; `draft-from-ac` for agent+full).
+   - **If `light`:** existing tech-spec interview path — draft 7 sections per `references/template.md` + `references/question-discipline.md`; **HITL** any Blocker/Decision-tier questions via `hitl-choice`.
+   - **HITL:** `approve-spec` / `revise` / `skip <reason>` via `hitl-choice`. On `revise`, rewrite the spec as current truth (`clean-decision-docs`); if revision needs design rework, re-enter full-path consensus then re-merge; chat may summarize edits.
 3. **Plan** (automatic once the spec's `Status` is `approved` or explicitly `skip`ped): invoke `writing-plans` with the tech spec as input to produce the implementation plan.
 4. **Approve plan + critic** — invoke skill `approve-plan` on the new plan:
    - **HITL:** `approve-plan` / `revise` via `hitl-choice`. Plan revisions follow `clean-decision-docs` (no revision archaeology in the file).
