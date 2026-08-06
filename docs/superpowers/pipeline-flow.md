@@ -67,8 +67,9 @@ flowchart TD
 flowchart TD
   entry([tech-spec start])
   entryHitl[/"HITL: human or agent"/]
-  humanMode["Human provides file; agent structures gaps"]
-  agentMode["Agent interview + draft"]
+  requirePlan["Require plan path or paste"]
+  depthHitl[/"HITL: light or full"/]
+  fullPath[["system-design pair"]]
   uncertainty{Uncertainty tier?}
   blocker[/"HITL Blocker: stop ask"/]
   decision[/"HITL Decision: options A/B/C"/]
@@ -81,10 +82,12 @@ flowchart TD
   toPlan(["Hand off to writing-plans"])
 
   entry ==> entryHitl
-  entryHitl -->|"human"| humanMode
-  entryHitl -->|"agent"| agentMode
-  humanMode --> writeFile
-  agentMode --> uncertainty
+  entryHitl -->|"human"| requirePlan
+  requirePlan --> fullPath
+  entryHitl -->|"agent"| depthHitl
+  depthHitl -->|"light"| uncertainty
+  depthHitl -->|"full"| fullPath
+  fullPath --> writeFile
   uncertainty -->|"Blocker"| blocker
   blocker --> uncertainty
   uncertainty -->|"Decision"| decision

@@ -524,7 +524,7 @@
     <section id="view-tech-spec" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">2. Tech Spec</h2>
-      <p class="view-desc">Developer technical action plan (не PRD). Три HITL-точки. Бізнес-вимоги не вигадуються.</p>
+      <p class="view-desc">Developer technical action plan (не PRD). Entry + depth (agent) + gate HITL. Бізнес-вимоги не вигадуються.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">A</div>
@@ -534,11 +534,11 @@
             <div class="branches">
               <div class="branch">
                 <span class="token">human</span>
-                <div class="then">Людина дає файл; агент лише структурує / питає про gaps</div>
+                <div class="then">План (path або paste) → завжди full path (<code>system-design</code> pair) → merge в tech-spec</div>
               </div>
               <div class="branch">
                 <span class="token">agent</span>
-                <div class="then">Агент веде інтерв’ю і пише draft</div>
+                <div class="then">Далі depth HITL (крок B)</div>
               </div>
             </div>
           </div>
@@ -546,7 +546,20 @@
         <div class="step">
           <div class="step-num">B</div>
           <div class="step-body hitl">
-            <h3>Три тири невизначеності (agent mode)</h3>
+            <h3>Depth (agent) або full path</h3>
+            <p>Skill <code>hitl-choice</code> · preset Tech-spec depth (лише після <code>agent</code>)</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token">light</span>
+                <div class="then">Стандартний 7-section draft → три тири невизначеності нижче</div>
+              </div>
+              <div class="branch">
+                <span class="token">full</span>
+                <div class="then"><code>system-design-designer</code> + <code>system-design-critic</code> (auto-consensus ≤3) → merge в tech-spec</div>
+              </div>
+            </div>
+            <p style="margin-top:0.75rem;font-size:0.9em;color:var(--muted)">Human entry пропускає depth — завжди full path.</p>
+            <h4 style="margin:1rem 0 0.5rem;font-size:0.95em">Три тири невизначеності (agent + light)</h4>
             <div class="branches">
               <div class="branch">
                 <span class="token stop">Blocker</span>

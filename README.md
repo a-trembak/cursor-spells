@@ -127,7 +127,9 @@ docs/        Design specs, plans, dogfood checklists
 | [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — Pass A/B (+ Pass C for bug-fix plans), must-fix/should-fix/accept-risk |
-| [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
+| [`tech-spec`](skills/tech-spec/) | Developer technical action plan — human always full system-design path; agent chooses light\|full; Blocker/Decision/Assumption on light path |
+| [`system-design`](skills/system-design/) | Anthropic-style system design draft for tech-spec full path (format human plan or draft-from-ac) |
+| [`system-design-critic`](skills/system-design-critic/) | Read-only audit of system-design drafts inside auto-consensus |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 | [`clean-decision-docs`](skills/clean-decision-docs/) | Specs/plans stay final-form decisions — no "fixed/changed to" archaeology after critique or revise |
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
@@ -156,7 +158,9 @@ docs/        Design specs, plans, dogfood checklists
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
 | `implementation-critic` | Audits a plan before code — Pass A/B (+ Pass C bug-fix), read-only |
-| `tech-spec` | Drafts/structures the technical action plan pre-plan — asks one question at a time, never invents business facts |
+| `tech-spec` | Drafts technical action plan pre-plan — human plan → full path; agent light\|full; one question at a time, never invents business facts |
+| `system-design-designer` | Formats/drafts system-design for tech-spec full path |
+| `system-design-critic` | Critiques system-design drafts; no human asks mid-loop |
 
 ## Recommended third-party skills
 
