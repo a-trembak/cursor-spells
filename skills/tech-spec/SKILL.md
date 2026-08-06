@@ -22,8 +22,8 @@ Produces a **developer's technical action plan**, not a PRD or user-story prose:
 
 Ask via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Tech-spec entry**. Prompt/text fallback:
 
-> Tech spec: write it yourself, or have the agent draft it?
-> - `human` — you provide the file; the agent only structures/asks about gaps
+> Tech spec: provide your own plan, or have the agent draft it?
+> - `human` — you provide plan path or pasted notes; agent runs the full system-design path (`format-human-plan`), then merges into tech-spec
 > - `agent` — the agent drives the interview and writes the draft
 
 ## Depth question (agent mode only)
