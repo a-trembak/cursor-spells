@@ -48,6 +48,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 5. **Minimal fix** — change only what the root cause requires. No “while I’m here” refactors.
 6. **Verify** — run the new/updated test plus relevant project lint/test/typecheck (`verification-before-completion`). Keep evidence.
 7. **Handoff** — return `repo → branch` map, root-cause summary (1–3 sentences), verification evidence, and any `skill_missing` notes. Callers run `engineer-reviewer` then `create-pr` (do not skip those for `/start-issue-task`).
+8. **Review-learn on escapes** — if this defect was a **production escape** (or the plan states prior review should have caught it), after the fix is verified invoke agent `review-learn` with `source: production-escape` per `skills/engineer-review/references/review-learn-protocol.md` so the miss class strengthens future reviews. Do not block the fix handoff on HITL promote.
 
 ## Hard rules
 

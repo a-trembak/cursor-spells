@@ -13,6 +13,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 - `chunk_id`: optional string when the orchestrator split a large diff
 - `graphify_available`: optional boolean — `true` when orchestrator detect/query succeeded ([graphify-protocol.md](graphify-protocol.md))
 - `impact_hint`: optional compact module/path list from graphify impact (never raw `graph.json`)
+- `learned_hints`: optional compact miss-class rows from `review-learn` `mode:load` ([review-learn-protocol.md](review-learn-protocol.md)) — **only** rows whose `phases` include this phase; never full ledgers. On match the phase **must** open `checklist` and run those gates (one-liner is not enough).
 
 ## Budget hard caps (per phase invocation)
 
@@ -59,7 +60,7 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 1. Respect the file list / chunk from the orchestrator (do not widen scope).
 2. Load mapped skill for this phase if available (see skill-map.md).
 3. **Neighbors / call graph:** when `graphify_available` is true (or detect succeeds per [graphify-protocol.md](graphify-protocol.md)), prefer `graphify query` / short `GRAPH_REPORT.md` excerpts for callers, callees, and impact before walking path-adjacent files. When false or unqueryable, keep the phase’s existing diff-scoped / neighbor heuristics.
-4. Review **changed code** against checklist; use patterns file for local conventions.
+4. Review **changed code** against checklist; use patterns file for local conventions. When `learned_hints` is present, apply any hint whose `triggers` match the diff **before** closing related items (link `gate` / R# — do not ignore loaded learnings).
 5. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
 6. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, `snippet` (exact 3–15 lines of the problem), and `context` (1–2 sentences). No path-only findings. See [evidence-gate.md](evidence-gate.md).
 7. **Clarify choices (mandatory):** every `clarify` item **must** include structured `options` (`[{ "id", "label" }, …]`, 2–3 choices). Prefer `recommended` (option id) + `recommendation_why` for P0/P1 — safest / closest to patterns or AC. Use `recommended: null` only when product intent is genuinely unknown; never invent a fake recommendation.
@@ -146,3 +147,19 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - **Needs clarification**: all `clarify` (renumber ids globally to `C1…`)
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
+- When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
+- Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
+
+## Post-clarify re-sim (R1 — timing / listeners / host remount)
+
+After HITL clarify answers that change **when** something runs (cache reset sync vs defer, listener effects, auth matchers, remount/`key=`, overlay autofocus / Menu props):
+
+1. Re-dispatch **logic** and **architecture** (not only the phase that asked) with the answers embedded.
+2. Require an explicit `interaction_replay` brief in phase notes (or a competing-actor regression in the tree) per **R1**:
+
+   `trigger → route/shell still mounted → active subscriptions / host widgets → shared writers (auth, focus, selection) → user-visible outcome`
+
+3. Do **not** treat the clarify answer as applied until that replay is recorded in phase notes **or** a matching competing-actor regression exists (**R6**).
+4. Detail: `skills/engineer-review/references/interaction-replay-checklist.md` (auth specialization: `auth-rtk-checklist.md`).
+
+Example miss class: picking sync `resetApiState` without re-simulating live shell subscribers that still hold a probe query (fulfill writes auth); or accepting filter-in-menu without checking whether the host steals focus on each filtered re-render.

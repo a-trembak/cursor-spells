@@ -57,6 +57,11 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | Large synthetic diff (>40 files) | Coverage mentions chunking |
 | Catastrophic diff (>200 files or >50k LOC) | Orchestrator aborts before phase spam; asks to narrow scope |
 | No lint config in fixture repo | `lint` phase reports `skipped: true` / `no_lint_config` in Coverage instead of silently disappearing |
+| Auth/session clarify that picks sync `resetApiState` | Logic + architecture re-dispatched with R1 `interaction_replay`; Coverage shows `interaction_replay: auth` (or `both`); must name live competing shell subscriptions before closing |
+| Overlay/filter clarify that keeps filter-in-menu | Logic + architecture check **R4** (host focus/remount); Coverage `interaction_replay: overlay-focus` (or `both`); competing-actor note or test for typing N chars |
+| P0 correctness finding settled | `review-learn` `mode:capture` appends or dedupes; Coverage `review_learn: appended\|deduped` |
+| Next review with matching triggers | `review-learn` `mode:load` returns hints; orchestrator stays thin; matching phases **open** linked checklist (not one-liner-only) |
+| New gate proposed (`propose:…`) | HITL **Review-learn promote**; default `consumer_only`; kit checklists never auto-edited from a leaf app |
 
 ## Patterns CI helper
 

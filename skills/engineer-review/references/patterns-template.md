@@ -57,3 +57,29 @@ This project follows `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy as
 - Enabled: yes | no   # yes when `graphify-out/` exists (auto-detect); no otherwise
 - Report path: `graphify-out/GRAPH_REPORT.md`
 - Review uses [graphify-protocol.md](graphify-protocol.md): prefer query / report for scoping; never required
+
+## Auth / membership scope (RTK)
+
+Fill when the project uses RTK Query + auth slice (or equivalent). Leave N/A otherwise. Product-specific writer/probe endpoint names go here (not in the kit).
+
+- **Session writers** (may write full auth into the auth slice): <!-- list project endpoints -->
+- **Probes** (must **not** write auth; must **not** be wired into scope-reset listeners): <!-- list project endpoints -->
+- `prepareHeaders` token source: Redux | localStorage | other — must match what UI/portal assumes after scope switch
+- Scope-change `resetApiState` owner (single place):
+- Changing reset on scope change requires a competing-actor regression (active shell subscription across the writer mutation)
+- Kit: `skills/engineer-review/references/auth-rtk-checklist.md` + parent `interaction-replay-checklist.md` (R1–R7)
+
+## Interaction replay (host widgets)
+
+Fill when the UI has stateful inputs inside hosts that re-render children on each keystroke (Select Menu search, virtualized lists, accordions). Leave N/A otherwise.
+
+- Nested search/edit inside Menu/Popover/Select: stabilize Menu props identity; disable host autofocus that steals from the input; stable item keys
+- Changing filter-in-menu requires a competing-actor test: typing N characters keeps focus and value
+- Kit: `skills/engineer-review/references/interaction-replay-checklist.md` (**R4**, **R6**)
+
+## Review learnings (self-strengthen)
+
+- Ledger path: `.cursor/review-learnings.md` (create on first eligible miss; template in kit)
+- Protocol: kit `skills/engineer-review/references/review-learn-protocol.md`
+- Kit seed always loaded: `skills/engineer-review/references/learned-misses.md`
+- After P0 / production-escape: append generalized miss class (dedup by id); never auto-edit kit checklists from this repo

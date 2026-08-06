@@ -138,6 +138,18 @@ Rules:
 
 7. When every `Ci` is answered, return control to the calling skill to re-dispatch affected phases.
 
+### Review-learn promote
+
+Use after `review-learn` proposes a **new** kit gate (`gate: propose:…`) that is not already an R# / checklist section.
+
+| id | label |
+|----|-------|
+| `consumer_only` | Keep learning in this project's `.cursor/review-learnings.md` only (recommended default) |
+| `promote` | Also promote into the cursor-spells kit (only when editing the kit repo, or as a human follow-up PR) |
+| `skip` | Do not write this learning |
+
+Prompt: one-line miss class + `rule_one_liner`. Default recommendation: `consumer_only`. Never auto-edit kit checklists from a leaf app on `promote` — if not in the kit repo, record the proposal for the human and still write the consumer entry unless `skip`.
+
 ### Decision-tier / Blocker questions
 
 Use the question tool with 2–3 options. Option `id`s must be stable slugs you can record into the spec (e.g. `opt_a_outbox`, `opt_b_sync`). Prompt includes the recommendation. One question per message (see `tech-spec` question-discipline).
