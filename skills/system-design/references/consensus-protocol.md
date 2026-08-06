@@ -14,6 +14,7 @@ Used only on tech-spec **full** path. The human is not asked to break designerâ†
 2. Critic runs against that file path (barrier: never start critic before the draft file exists).
 3. If Verdict is `clear`: exit loop; proceed to merge.
 4. If open **must-fix** findings exist: designer revises the draft to address each Must-fix (or documents an explicit trade-off the critic can clear on re-check). Do **not** ask the human.
+   - In `format-human-plan` mode, a Must-fix against the human's stated approach is resolved by documenting the trade-off and residual risk in the draft (so the critic can clear or Accept-risk it) â€” never by silently re-architecting away from the human's intent. The human decides at `approve-spec`.
 5. Critic re-checks the updated file.
 6. Repeat until Verdict `clear` or `MAX_ROUNDS` (3) is reached.
 

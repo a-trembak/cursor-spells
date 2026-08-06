@@ -211,7 +211,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 `/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. Ends with skill [`create-pr`](skills/create-pr/) (draft PR).
 
 1. Bootstraps context (project patterns, stack) — automatic
-2. Runs `tech-spec` — **HITL** at the entry question, any Blocker/Decision question, and `approve-spec`/`revise`/`skip`
+2. Runs `tech-spec` — **HITL** at entry (`human` / `agent`), depth (`light` / `full` when agent), any Blocker/Decision question (light path), and `approve-spec`/`revise`/`skip`
 3. Generates the implementation plan via `writing-plans` — automatic once the spec's `Status` is `approved` or explicitly `skip`ped
 4. `/approve-plan` — **HITL** `approve-plan`/`revise`, then **automatic** `implementation-critic`; **HITL** only if findings block; on `Verdict: clear` → `start-build`
 

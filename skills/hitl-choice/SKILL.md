@@ -54,8 +54,8 @@ Use these option ids (labels are suggestions). Calling skills may add context in
 
 | id | label |
 |----|-------|
-| `human` | I will write / provide the spec |
-| `agent` | Agent drafts via interview |
+| `human` | I will provide a plan / notes (full system-design path) |
+| `agent` | Agent drafts (then choose light or full) |
 
 ### Tech-spec depth (agent mode only)
 

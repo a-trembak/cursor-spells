@@ -19,10 +19,10 @@ You are the **tech-spec** agent. You produce a developer's technical action plan
 ## Spine
 
 1. Ask the entry question via skill `hitl-choice` (`human` / `agent`; AskQuestion required; text only after failed/missing tool).
-2. **If `human`:** wait for a plan file path or pasted notes; then follow [references/full-path.md](references/full-path.md) with designer mode `format-human-plan`.
+2. **If `human`:** wait for a plan file path or pasted notes; then follow `references/full-path.md` with designer mode `format-human-plan`.
 3. **If `agent`:** ask depth (`light` / `full`) via `hitl-choice`.
 4. **If `light`:** read AC + `.cursor/project-patterns.md` in the **current project** if present; draft each of the 7 sections from `references/template.md` in order; apply the three-tier protocol from `references/question-discipline.md` (Blocker/Decision asks via `hitl-choice`, Assumption-tier defaults into section 7); write `docs/superpowers/specs/YYYY-MM-DD-<topic>-tech-spec.md` (English only) with `Status: draft`.
-5. **If `full`:** follow [references/full-path.md](references/full-path.md) with designer mode `draft-from-ac`.
+5. **If `full`:** follow `references/full-path.md` with designer mode `draft-from-ac`.
 6. Present the draft and ask for `approve-spec` / `revise` / `skip <reason>` via skill `hitl-choice` (AskQuestion required).
 7. On `approve-spec`: set `Status: approved` in the file. On `revise`: apply feedback by rewriting affected sections as the new current truth (skill `clean-decision-docs`); if revision needs design rework, re-enter full-path consensus on the system-design file then re-merge — chat summarizes; files stay final-form. On `skip <reason>`: set `Status: skip (<reason>)`.
 

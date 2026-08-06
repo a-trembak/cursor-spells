@@ -14,6 +14,7 @@ Collect once: AC source, optional human plan path/text, `.cursor/project-pattern
 1. Dispatch `system-design-designer`:
    - `human` → mode `format-human-plan`
    - `agent`+`full` → mode `draft-from-ac`
+   - In `format-human-plan`, Must-fix findings against the human's stated approach are resolved by documenting trade-off and residual risk in the draft (critic clears or Accept-risk) — never by silently re-architecting away from human intent; human decides at `approve-spec`.
 2. Wait until `…-system-design.md` exists with `Status: draft`.
 3. Run consensus loop per `skills/system-design/references/consensus-protocol.md` (dispatch `system-design-critic`, revise via designer, max 3 rounds).
 4. On Blocker from missing business fact: one `hitl-choice` ask; resume loop with updated brief.
