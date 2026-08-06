@@ -13,7 +13,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 - `chunk_id`: optional string when the orchestrator split a large diff
 - `graphify_available`: optional boolean — `true` when orchestrator detect/query succeeded ([graphify-protocol.md](graphify-protocol.md))
 - `impact_hint`: optional compact module/path list from graphify impact (never raw `graph.json`)
-- `learned_hints`: optional compact miss-class hints from kit `learned-misses.md` + consumer `.cursor/review-learnings.md` ([review-learn-protocol.md](review-learn-protocol.md)) — never paste full ledgers
+- `learned_hints`: optional compact miss-class rows from `review-learn` `mode:load` ([review-learn-protocol.md](review-learn-protocol.md)) — **only** rows whose `phases` include this phase; never full ledgers. On match the phase **must** open `checklist` and run those gates (one-liner is not enough).
 
 ## Budget hard caps (per phase invocation)
 

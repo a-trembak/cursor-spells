@@ -27,7 +27,7 @@ When a prior clarify answer changed timing / listener effects / auth matchers / 
 
 ## Skills
 
-Use `architecture-review` (Sentry Warden) if installed; patterns file; and **prefer** graphify when present (`skills/engineer-review/references/graphify-protocol.md`) — short `GRAPH_REPORT.md` excerpts and/or `graphify query` for “what calls what”, layering, and circular deps. If graphify is absent or unqueryable, fall back to patterns + diff-scoped reads (same as today). Never rebuild the graph during this phase. If the diff includes a migration, also load the matching DB skill row from `skill-map.md`'s Database skill routing. When `learned_hints` is present, apply matching miss-class gates (see `review-learn-protocol.md`).
+Use `architecture-review` (Sentry Warden) if installed; patterns file; and **prefer** graphify when present (`skills/engineer-review/references/graphify-protocol.md`) — short `GRAPH_REPORT.md` excerpts and/or `graphify query` for “what calls what”, layering, and circular deps. If graphify is absent or unqueryable, fall back to patterns + diff-scoped reads (same as today). Never rebuild the graph during this phase. If the diff includes a migration, also load the matching DB skill row from `skill-map.md`'s Database skill routing. When `learned_hints` is present, open each hint’s `checklist` and run those gates (one-liner is a pointer only — see `review-learn-protocol.md`).
 
 ## Output
 

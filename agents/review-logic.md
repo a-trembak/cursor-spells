@@ -12,7 +12,7 @@ You review **logic correctness** and **stack best practices** for the given diff
 1. Load the stack skill from engineer-review `skill-map.md` (Vercel React BP, RN, or Java Spring). If the diff includes a migration (matches `skill-map.md`'s Database skill routing trigger), also load the matching DB skill row. If a mapped skill is missing, use a solid built-in checklist and set `notes` with `skill_missing`. If the stack itself isn't covered by the map at all, follow `skill-map.md`'s Skill resolution protocol — do not install or invent a skill yourself.
 2. Read `.cursor/project-patterns.md` for local constraints (do not re-derive the whole project).
 3. When `graphify_available` / `impact_hint` is present (see `graphify-protocol.md`), prefer that neighborhood for related reads instead of expanding scope by path heuristics alone.
-4. When `learned_hints` is present (see `review-learn-protocol.md`), apply matching miss-class gates before closing related items.
+4. When `learned_hints` is present (see `review-learn-protocol.md`), for each matching hint **open** its `checklist` path and execute those gates — do not treat `rule_one_liner` as the full check.
 
 ## Check
 

@@ -45,24 +45,16 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 3. **Budget**: compute changed files / LOC (`git diff --name-only` + `--numstat`).
 4. **Catastrophic abort** (see [phase-protocol.md](references/phase-protocol.md)): if files > **200** or LOC > **50_000**, stop and ask the user to narrow (path allow/deny list, smaller range, exclude generated/lockfile noise). Do not chunk-spam or sample randomly.
 5. **Graphify scoping** (preferred when present): apply [references/graphify-protocol.md](references/graphify-protocol.md). Query impact for changed paths; build a compact `impact_hint`. If graphify is absent or unqueryable, skip this step — behavior matches today’s diff-only path. Never rebuild the graph during review.
-6. **Load learnings:** read kit [references/learned-misses.md](references/learned-misses.md) and consumer `.cursor/review-learnings.md` if present. Build compact `learned_hints` per [references/review-learn-protocol.md](references/review-learn-protocol.md). Pass into logic / architecture / security (and any phase named on an entry). Coverage: `review_learnings: loaded N|absent`.
+6. **Learnings (thin):** dispatch `review-learn` `mode:load` — orchestrator does **not** read ledgers. Forward ≤5 `learned_hints` only to listed phases. See [review-learn-protocol.md](references/review-learn-protocol.md). Coverage: `review_learnings: loaded N|absent`.
 7. If changed files > 40 or changed LOC > 2500 (and under the catastrophic caps), split into chunks (prefer graph modules when graphify answered; otherwise directory/package — see [phase-protocol.md](references/phase-protocol.md)).
 8. Ensure consumer `.cursor/project-patterns.md` exists (create via patterns agent + [patterns-template.md](references/patterns-template.md) on first run).
 9. Early Figma ask when frontend (above).
-10. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint` + optional `learned_hints`). Run `review-lint` (deterministic tooling) first — it does not need patterns/skills and its findings are cheap and unambiguous. Then prefer parallel **find** passes for the remaining heuristic phases (**including** `review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only. Every fixed/clarify item **must** carry `path`, `start_line`, `end_line`, `snippet`, and `context`. Every clarify item **must** carry structured `options` (`[{ id, label }, …]`) and prefer `recommended` + `recommendation_why` for P0/P1 — never invent a recommendation when the phase left `recommended` null.
-11. After the apply pass, re-run `review-lint` once in `find` mode as a verify step to confirm the diff still lints/typechecks clean. Then re-run `review-simplify` once in `find` mode over the final diff as a **quality verify** — catch leftover overbuilt / redundant / locally wasteful solutions that other phases' fixes did not remove. Add any new findings to the report; do not loop indefinitely.
-12. Merge summaries → run [evidence-gate.md](references/evidence-gate.md) (backfill snippets via `scripts/extract-review-snippet.sh` or **drop** incomplete items) → draft report per [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)):
-   - **Context** + full Where block: File + Lines + Jump (+ GitHub when known)
-   - Numbered code fence with real source
-   - What / Why / Ask-or-fix; Clarify items also **Options** + **Recommendation** (or explicit “none”)
-   - `english-humanizer` on prose
-   - Coverage notes `graphify: used|absent|unqueryable`
-   - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**); optional `auth_flow_walk: …` for concrete auth flows
-   - Coverage notes `review_learnings: loaded N|absent`
-   - Run `scripts/validate-review-report.sh` on the draft; rebuild until exit 0, then show the user
-13. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A` / `C2:B`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch only the affected phases with the answers embedded, then re-emit with the same evidence bar. **Exception — R1 timing / host remount:** if an answer changes cache-reset timing, listener effects, auth matchers, remount/`key=`, or overlay autofocus/Menu props, also re-dispatch **logic + architecture** with explicit `interaction_replay` per [phase-protocol.md](references/phase-protocol.md) / [interaction-replay-checklist.md](references/interaction-replay-checklist.md); do not treat the answer as applied until replay is in phase notes or a competing-actor regression exists.
-14. **Review-learn (self-strengthen):** after the report is settled (clarify round done or empty), dispatch `review-learn` per [review-learn-protocol.md](references/review-learn-protocol.md). Eligible P0 mechanisms / R1 hazards / production escapes → append or dedupe in `.cursor/review-learnings.md`. Never auto-edit kit checklists from a consumer repo. If a **new** gate is proposed, ask HITL preset **Review-learn promote**. Coverage: `review_learn: appended|deduped|skipped|n/a`.
-15. **Pipeline docs handoff:** when this review was entered via `/start-task` or `finish-plan` (not bare `/engineer-review` / `/pr-review`), after learn + report are settled, invoke skill `update-docs` for the product-docs HITL destination gate. Do not invent a docs destination.
+10. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint` + per-phase `learned_hints`). Run `review-lint` first; then parallel **find** for remaining heuristic phases (**including** `review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only. Evidence fields mandatory; clarify needs structured `options` + prefer `recommended` (never invent when null).
+11. After apply: verify `review-lint` + `review-simplify` once each in `find`; do not loop.
+12. Merge → [evidence-gate.md](references/evidence-gate.md) → [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)). Coverage: `graphify:…`, `review_learnings:…`, and when in scope `interaction_replay:…` (**R7**). Validate with `scripts/validate-review-report.sh`; `english-humanizer` on prose.
+13. Needs clarification → HITL **Engineer-review clarify**; re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
+14. **Capture:** `review-learn` `mode:capture` after settled report. Coverage: `review_learn: appended|deduped|skipped|n/a`. New gates → HITL **Review-learn promote**. Never auto-edit kit checklists from a consumer repo.
+15. Pipeline docs handoff via `update-docs` after `/start-task` / `finish-plan` (not bare `/engineer-review`), once learn + report are settled.
 
 ## Fix policy
 
@@ -89,7 +81,7 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 
 `review-simplify` re-reads workable-but-messy solutions via compound-engineering **`ce-simplify-code`** (reuse / quality / efficiency personas), then always runs **Kit extensions** from [`references/simplify-checklist.md`](references/simplify-checklist.md). It defaults almost all findings to `clarify`; Lens A–C in that file are fallback only when the skill is missing.
 
-`review-learn` appends generalized miss classes to `.cursor/review-learnings.md` so the next review loads them as `learned_hints` — see [`review-learn-protocol.md`](references/review-learn-protocol.md). It never auto-edits kit checklists from a consumer repo.
+`review-learn` runs in two modes: **`load`** (before phases — returns compact hints; orchestrator never reads ledgers) and **`capture`** (after settled report — append/dedupe consumer ledger). Matched hints require phases to open the linked checklist — see [`review-learn-protocol.md`](references/review-learn-protocol.md). Never auto-edits kit checklists from a consumer repo.
 
 Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`. After a successful pipeline review (from `/start-task` / `finish-plan`), hand off to skill `update-docs` for the product-docs HITL destination gate — do not invent a docs destination. Manual `/engineer-review` does not auto-start `update-docs` unless the human asks.
 
@@ -99,6 +91,8 @@ If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos*
 
 ## Context budget
 
-Orchestrator loads this SKILL + reference indexes + `english-humanizer` for the final feedback pass. Do **not** paste full third-party skill bodies into the orchestrator. Subagents load stack skills themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
+Orchestrator loads this SKILL + reference **indexes** + `english-humanizer` for the final feedback pass. Do **not** paste full third-party skill bodies, ledger files, or interaction-replay / auth checklist bodies into the orchestrator — that is how quality stays high without bloating the reviewer. Subagents and `review-learn` load those themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
+
+`learned_hints` in orchestrator context: ≤**~200 tokens** total (≤5 rows). Quality lives in the phase that opens `checklist` on a match.
 
 When [graphify-protocol.md](references/graphify-protocol.md) detects a usable build, **prefer** short `GRAPH_REPORT.md` excerpts and `graphify query` answers over broad repo reads or pasting large diffs. Never paste full `graph.json`. When graphify is absent or unqueryable, keep the diff + chunk path unchanged.

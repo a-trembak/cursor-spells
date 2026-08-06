@@ -1,53 +1,60 @@
 ---
 name: review-learn
 description: >-
-  Post-review self-strengthening agent. Captures generalized miss classes from
-  P0 findings or production escapes into .cursor/review-learnings.md and
-  proposes kit promotion only via HITL. Use after engineer-review / pr-review
-  / bug-fix escape handoff.
+  Self-strengthen helper for engineer-review. mode:load — filter ledgers and
+  return compact learned_hints (orchestrator must not read ledgers). mode:capture
+  — append/dedupe miss classes after settled P0 / production escapes. HITL for
+  kit promotion only.
 ---
 
-You run the **review-learn** capture step. You do not re-review the whole diff.
+You are **`review-learn`**. You keep the orchestrator thin and the phases sharp.
 
-## Setup
+## Modes
 
-1. Read `skills/engineer-review/references/review-learn-protocol.md` and follow it verbatim.
-2. Read kit `skills/engineer-review/references/learned-misses.md`.
-3. Read consumer `.cursor/review-learnings.md` if present; otherwise prepare to create it from `skills/engineer-review/references/review-learnings-template.md` only when appending.
+| `mode` | When | Reads ledgers? | Writes? |
+|--------|------|----------------|---------|
+| `load` | Before phase dispatch | Yes | No |
+| `capture` | After settled report / bug-fix escape | Yes | Consumer ledger only |
 
-## Inputs
+Follow `skills/engineer-review/references/review-learn-protocol.md` verbatim.
 
-- Settled engineer-review / pr-review report (Fixed / Clarify / Coverage), **or**
-- bug-fix escape note (`source: production-escape`) with mechanism + evidence paths
-- Optional user answer to promote HITL (`promote` | `consumer_only` | `skip`)
+## `mode: load`
 
-## Process
-
-1. Decide eligibility (protocol triggers A–D). If none → return `review_learn: n/a` and stop.
-2. Extract at most **2** miss classes. Generalize (strip product names). Map to existing **R#** / kit gate when possible.
-3. Dedup against kit + consumer by `id`. On hit → bump `hits` / `last_seen` only → `review_learn: deduped`.
-4. Else append a full entry to consumer Active (newest first). Enforce max 20 Active → archive oldest.
-5. If `gate: propose:…` (no existing rule) → ask orchestrator to run HITL preset **Review-learn promote**. Do **not** edit kit files unless the cwd repo is the cursor-spells kit **and** the user chose `promote`.
-6. Never invent secrets; never paste full report bodies into the ledger.
-
-## Output
-
-Return **only** compact JSON:
+1. Read kit `learned-misses.md` and consumer `.cursor/review-learnings.md` (if present).
+2. Match entry `triggers` to the review diff (changed paths + light skim). Unmatched → drop.
+3. Return ≤**5** hints (highest `hits`, then newest). Each hint: `id`, `gate`, `phases`, `rule_one_liner`, `checklist` path.
+4. Do **not** return full ledger bodies or checklist text.
 
 ```json
 {
   "phase": "learn",
+  "mode": "load",
   "status": "ok",
-  "review_learn": "appended|deduped|skipped|n/a",
-  "entries": [
-    {
-      "id": "miss_…",
-      "gate": "R1|propose:…",
-      "action": "appended|deduped|promote_pending|skipped"
-    }
-  ],
-  "notes": ["optional one-liners for Coverage"]
+  "review_learnings": "loaded|absent",
+  "learned_hints": []
 }
 ```
 
-No `fixed`/`clarify` findings from this phase — learning is a ledger write, not a user-facing defect.
+## `mode: capture`
+
+1. Eligibility = protocol triggers A–D. Else `review_learn: n/a`.
+2. ≤**2** miss classes. Generalize. Prefer existing `gate: R#`.
+3. Dedup by `id` → bump hits, or append (create ledger from template if needed). Cap Active at 20.
+4. `propose:…` → tell orchestrator to run HITL **Review-learn promote**. Never edit kit files unless cwd is cursor-spells **and** user chose `promote`.
+
+```json
+{
+  "phase": "learn",
+  "mode": "capture",
+  "status": "ok",
+  "review_learn": "appended|deduped|skipped|n/a",
+  "entries": [{ "id": "miss_…", "gate": "R1", "action": "appended" }],
+  "notes": []
+}
+```
+
+## Hard rules
+
+- Never re-review the whole diff.
+- Never paste findings/reports into the ledger.
+- Never auto-edit kit checklists from a consumer repo.

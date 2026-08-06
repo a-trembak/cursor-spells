@@ -1,85 +1,107 @@
 # Review-learn protocol (self-strengthening)
 
-After engineer-review (or a post-escape bug-fix) surfaces a **real miss**, capture a durable learning so the next review loads it. This is the kit's self-strengthening loop — find → generalize → store → reload.
+After engineer-review (or a post-escape bug-fix) surfaces a **real miss**, capture a durable learning so the next review loads it. Loop: find → generalize → store → reload.
+
+## Quality vs orchestrator size (do not trade these off)
+
+| Layer | Responsibility | Token rule |
+|-------|----------------|------------|
+| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
+| **`review-learn` (`mode:load`)** | Filter ledgers against the diff; return compact `learned_hints` JSON | Reads ledgers; returns ≤**5** matching hints, ≤**80 tokens** each |
+| **Phase agents** (logic / architecture / security…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
+
+Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched hint is a **quality regression**; bloating the orchestrator with full ledgers is a **budget regression**. Fix by keeping work in `review-learn` + phases.
 
 **Reliability rules (non-negotiable):**
 
-1. **Never** silently edit kit checklists (`agents/review-*.md`, `interaction-replay-checklist.md`, etc.) from a consumer-app review.
+1. **Never** silently edit kit checklists from a consumer-app review.
 2. **Always** generalize: strip product names, ticket ids, and one-off widgets before writing.
-3. **Prefer link-over-invent:** if the miss is already covered by R1–R7 (or another kit gate), record `links_to: R#` and a one-line trigger — do not duplicate the rule body.
-4. **Dedup** by `miss_class` id. Same class → bump `hits` / `last_seen`, do not append a twin.
-5. **Cap** consumer file at **20** active entries; move oldest to `## Archive` (keep last 20 archived).
-6. Consumer writes are **append/update only** under `.cursor/review-learnings.md`. Kit promotion is **HITL-gated** (or only when the current repo *is* `cursor-spells`).
+3. **Prefer link-over-invent:** if covered by R1–R7 (or another kit gate), record `gate: R#` — do not duplicate the rule body in the ledger.
+4. **Dedup** by `id`. Same class → bump `hits` / `last_seen`.
+5. **Cap** consumer Active at **20**; archive oldest (keep last 20 archived).
+6. Kit promotion is **HITL-gated** (or only when cwd is `cursor-spells`).
+7. Orchestrator **must not** paste ledger markdown or checklist bodies into its own context — delegate to `review-learn` / phases.
 
 ## Stores
 
-| Store | Path | Who writes | Loaded by |
+| Store | Path | Who writes | Who reads |
 |-------|------|------------|-----------|
-| Consumer ledger | `<project>/.cursor/review-learnings.md` | Orchestrator / `review-learn` after eligible findings | Every engineer-review / pr-review |
-| Kit seed | `skills/engineer-review/references/learned-misses.md` | Humans or kit PRs after HITL promote | Every engineer-review (always) |
-| Template | `skills/engineer-review/references/review-learnings-template.md` | — | First create of consumer file |
+| Consumer ledger | `<project>/.cursor/review-learnings.md` | `review-learn` `mode:capture` | `review-learn` `mode:load` only |
+| Kit seed | `skills/engineer-review/references/learned-misses.md` | Humans / kit PRs | `review-learn` `mode:load` only |
+| Template | `skills/engineer-review/references/review-learnings-template.md` | — | First create on capture |
 
-Optional durable write-up: offer `ce-compound` separately — do not block review-learn on it.
+Optional: `ce-compound` as a separate follow-up — never block review-learn on it.
 
 ## When to capture (triggers)
 
-Run the learn step when **any** of:
+| Trigger | When |
+|---------|------|
+| A | Settled report has **P0** correctness/security with a clear mechanism (not lint noise) |
+| B | Post-clarify R1 replay exposed a live-actor hazard the first pass missed |
+| C | bug-fix / user: **production escape** prior review should have caught |
+| D | Human chose HITL **Review-learn promote** / `learn:yes` |
 
-| Trigger | Example |
-|---------|---------|
-| A | Report has applied or clarify **P0** correctness/security with a clear mechanism (not lint noise) |
-| B | Post-clarify R1 replay exposed a live-actor hazard that the first pass missed |
-| C | User / bug-fix states a **production escape** that prior review should have caught |
-| D | Human answers HITL **review-learn promote** / `learn:yes` |
-
-Skip when only P2 residuals, pure style/lint, or no new miss class (`review_learn: n/a`).
+Skip otherwise → `review_learn: n/a`.
 
 ## Capture shape (one entry)
 
 ```yaml
-# frontmatter-ish fields inside the markdown entry
-id: miss_<kebab-class>          # stable; e.g. miss_side-effect-live-actor
+id: miss_<kebab-class>
 miss_class: side-effect × live actor
-triggers:                       # diff signals that should load this hint
+triggers:
   - resetApiState | sync vs defer | remount/key=
-  - stateful input inside filtering host
-phases: [logic, architecture]   # which phases must apply the gate
-gate: R1                        # existing kit rule id, or "propose:<name>"
+phases: [logic, architecture]
+gate: R1                          # or propose:<name>
 rule_one_liner: >-
-  After side-effect timing changes, replay live subscriptions/host widgets
-  before closing.
+  After side-effect timing changes, replay live actors before closing.
 anti_pattern: >-
-  Diff-only review of the writer without naming still-mounted consumers.
+  Diff-only review of the writer without still-mounted consumers.
 hits: 1
 last_seen: YYYY-MM-DD
 source: engineer-review | bug-fix | production-escape
 ```
 
-Body (3–6 lines max): mechanism → required check → test shape (competing actor). **No** product-specific endpoint or widget names.
+Body ≤6 lines. No product-specific names.
 
 ## Process
 
-### Load (before phase dispatch)
+### `mode:load` (before phase dispatch) — orchestrator stays thin
 
-1. Read kit `learned-misses.md` (always).
-2. Read consumer `.cursor/review-learnings.md` if present; if missing, do not create yet.
-3. Build compact `learned_hints` (max ~15 lines / ~400 tokens): id, triggers, gate, rule_one_liner, phases.
-4. Pass `learned_hints` into logic, architecture, security, and any phase listed on an entry. Coverage: `review_learnings: loaded N | absent`.
+1. Orchestrator dispatches **`review-learn`** with `mode: load`, `BASE_SHA`/`HEAD_SHA` (or changed-path list). It does **not** read ledger files itself.
+2. `review-learn` reads kit seed + consumer ledger (if any), matches `triggers` against the diff (path names + short diff skim — not full-tree).
+3. Return compact JSON only:
 
-### Capture (after report settled)
+```json
+{
+  "phase": "learn",
+  "mode": "load",
+  "review_learnings": "loaded",
+  "learned_hints": [
+    {
+      "id": "miss_side-effect-live-actor",
+      "gate": "R1",
+      "phases": ["logic", "architecture", "security"],
+      "rule_one_liner": "…",
+      "checklist": "skills/engineer-review/references/interaction-replay-checklist.md"
+    }
+  ]
+}
+```
 
-1. From Fixed / Clarify / production-escape notes, extract candidate miss class(es). Max **2** per review round.
-2. Generalize; map to existing **R#** / checklist section when possible.
-3. If duplicate `id` in consumer or kit → increment `hits`, update `last_seen`, stop (`review_learn: deduped`).
-4. Else append to consumer `.cursor/review-learnings.md` (create from template if needed) → `review_learn: appended`.
-5. If the rule is **new** (no existing gate) **and** general across projects → ask HITL preset **Review-learn promote** (`promote` / `consumer_only` / `skip`).  
-   - `promote` only when editing the kit repo, or open a kit checklist PR task for the human — **never** auto-patch kit from a leaf app.  
-   - `consumer_only` → keep ledger entry only.  
-   - `skip` → do not write (rare; prefer consumer_only).
+Caps: **≤5** hints; prefer highest `hits` then newest `last_seen`. Unmatched / empty → `learned_hints: []`, `review_learnings: absent|loaded`.
+4. Orchestrator forwards `learned_hints` only to phases listed on each hint (do not broadcast to every phase).
+5. **Phase quality rule:** if a hint’s `phases` includes this phase, the phase **must** read `checklist` (and auth specialization when `gate` is auth-shaped) and execute those checks. Skipping the checklist after a match is forbidden.
+
+### `mode:capture` (after report settled)
+
+1. Max **2** miss classes per round. Generalize; map to existing **R#** when possible.
+2. Dedup → bump hits (`review_learn: deduped`) or append (`appended`).
+3. New gate (`propose:…`) → HITL **Review-learn promote**. Never auto-patch kit from a leaf app.
+4. Orchestrator records Coverage line only — does not re-read the ledger.
 
 ### bug-fix escape path
 
-When `bug-fix` / `/start-issue-task` closes a defect with “review should have caught this”, invoke the same capture with `source: production-escape` before ending.
+Production escape → `mode:capture` with `source: production-escape` (does not require a full engineer-review re-run).
 
 ## Coverage lines
 
@@ -90,7 +112,9 @@ review_learn: appended | deduped | skipped | n/a
 
 ## Anti-patterns
 
-- Auto-rewriting `interaction-replay-checklist.md` from an app review
-- Storing ticket-only or component-only “learnings” that cannot fire on another diff
-- Pasting full finding reports into the ledger (bloated; useless as hints)
-- Creating a new R-number without HITL when R1–R7 already cover the miss
+- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 into its own prompt
+- Phase treating `rule_one_liner` as sufficient and skipping the linked checklist (**quality miss**)
+- Auto-rewriting kit checklists from an app review
+- Ticket-only or widget-only ledger entries
+- Pasting full findings into the ledger
+- Inventing a new R-number when R1–R7 already cover the miss
