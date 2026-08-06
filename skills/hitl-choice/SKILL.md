@@ -14,7 +14,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -56,6 +56,15 @@ Use these option ids (labels are suggestions). Calling skills may add context in
 |----|-------|
 | `human` | I will write / provide the spec |
 | `agent` | Agent drafts via interview |
+
+### Tech-spec depth (agent mode only)
+
+| id | label |
+|----|-------|
+| `light` | Light tech-spec (7 sections, no design pair) |
+| `full` | Full system-design (designer + critic, then merge) |
+
+Ask only after the human chose `agent` on Tech-spec entry. Do not ask in `human` mode (always full).
 
 ### Tech-spec gate
 
