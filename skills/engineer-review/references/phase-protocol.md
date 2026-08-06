@@ -146,3 +146,18 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - **Needs clarification**: all `clarify` (renumber ids globally to `C1…`)
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
+- When auth/session/RTK surfaces were in scope: Coverage also notes `auth_flow_walk: view-as|skipped|n/a`
+
+## Post-clarify re-sim (auth / timing / matchers)
+
+After HITL clarify answers that change timing of cache reset, listener effects, or auth matchers:
+
+1. Re-dispatch **logic** and **architecture** (not only the phase that asked) with the answers embedded.
+2. Require an explicit `interaction_replay` in phase notes (or a matching regression test in the tree):
+
+   `route_at_fire → active_subscriptions → session_writers → post_navigate_scope`
+
+3. Do **not** treat the clarify answer as applied until that replay is recorded in phase notes **or** a matching regression test exists.
+4. Detail checklist: `skills/engineer-review/references/auth-rtk-checklist.md`.
+
+Example failure mode this catches: choosing sync `resetApiState` (C1:B) without re-simulating live admin subscribers that still hold a NONE probe query — fulfill can overwrite the org session via an auth writer.

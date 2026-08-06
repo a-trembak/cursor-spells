@@ -57,3 +57,14 @@ This project follows `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy as
 - Enabled: yes | no   # yes when `graphify-out/` exists (auto-detect); no otherwise
 - Report path: `graphify-out/GRAPH_REPORT.md`
 - Review uses [graphify-protocol.md](graphify-protocol.md): prefer query / report for scoping; never required
+
+## Auth / membership scope (RTK)
+
+Fill when the project uses RTK Query + auth slice (or equivalent). Leave N/A otherwise.
+
+- **Session writers** (may write full auth / `AuthenticationResponse` into the auth slice): e.g. `login`, `refreshMembershipTokenTrigger` (mutation), `getOrganizationToken`
+- **Probes** (must **not** write auth; must **not** be wired into scope-reset listeners): e.g. admin NONE `refreshMembershipToken` **query**, `hasRoles`
+- `prepareHeaders` token source: Redux | localStorage | other — must match what UI/portal assumes after scope switch
+- Scope-change `resetApiState` owner (single place):
+- Changing `api.util.resetApiState` on scope change requires a regression that keeps an **active competing subscription** (e.g. admin NONE probe) across the writer mutation
+- Checklist: kit `skills/engineer-review/references/auth-rtk-checklist.md`

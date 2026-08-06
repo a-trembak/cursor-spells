@@ -20,6 +20,22 @@ You review **logic correctness** and **stack best practices** for the given diff
 - Idiomatic use of the stack (hooks rules, Spring layers, etc.)
 - No contradictory control flow introduced by the diff
 
+### Auth / session / RTK (when triggered)
+
+Trigger when the diff touches `resetApiState`, auth listeners, `*matchFulfilled` on auth, `prepareHeaders`, membership/org token endpoints, or store/auth / `*Scope*` / `*Teardown*` / `services/auth*` paths. Full walk: `skills/engineer-review/references/auth-rtk-checklist.md`.
+
+Must cover:
+
+- List every matcher/listener that **writes** token/user/org into auth
+- Separate **session writers** (login, membership trigger mutation, `getOrganizationToken`) from **probes** (admin NONE refresh **query**, `hasRoles`, etc.)
+- If sync `resetApiState` on scope change: name which hooks stay subscribed on the route where the mutation fires (e.g. still on `/admin` during view-as)
+- Ask: after reset, which queries refetch immediately, and do any fulfillments hit auth writers?
+- Token source of truth: Redux vs localStorage — does `prepareHeaders` match what the UI assumes?
+- Required flow walk when membership/org token changes: view-as org, membership switch, logout/soft-401
+- Tests: if reset/listener/matcher changed, require a test with an **active competing subscription**, not only unwrap-vs-reset
+
+When a prior clarify answer changed reset timing / listener effects / auth matchers, re-run this block with explicit `interaction_replay` (`route_at_fire → active_subscriptions → session_writers → post_navigate_scope`) before closing related items.
+
 ## Output
 
 Follow `skills/engineer-review/references/phase-protocol.md`.  

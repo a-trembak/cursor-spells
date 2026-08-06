@@ -23,6 +23,7 @@ If the diff has no sensitive surface (auth, sessions, crypto, PII, queries, uplo
 - XSS / dangerous HTML
 - Insecure deserialization, path traversal
 - SSRF / open redirects where applicable
+- Session overwrite via refetch/matcher after `resetApiState` (probe or stale subscription writes token/user/org into auth and clobbers a deliberate scope switch — see `skills/engineer-review/references/auth-rtk-checklist.md`)
 
 ## Skills
 

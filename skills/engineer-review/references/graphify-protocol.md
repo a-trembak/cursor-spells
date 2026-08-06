@@ -72,3 +72,13 @@ When false or unqueryable: keep the phase’s existing diff-scoped / patterns-fi
 ## Multi-repo
 
 Workspace-parent discovery and cross-repo impact queries remain documented in [`multi-repo-protocol.md`](multi-repo-protocol.md). That protocol’s detect checks and “absent or unqueryable” language match this file; do not create `multi-repo.json` when graphify answers successfully.
+
+## Auth / session impact extras
+
+When changed paths include `store/auth*`, `*Scope*`, `*Teardown*`, or `services/auth*` (or equivalent session/token modules):
+
+1. Run the normal impact query on those paths.
+2. **Force-include** navigation shell files that call `refreshMembershipToken` / `getOrganizationToken` (or the project’s membership/org token hooks) even if those files are unchanged — they may keep live subscriptions across scope changes.
+3. Never rely on a graphify path between RTK endpoint symbols alone: RTK query/mutation symbols often collapse in the graph; a path edge ≠ the runtime refetch graph after `resetApiState`.
+
+Use this neighborhood when logic/architecture walk `skills/engineer-review/references/auth-rtk-checklist.md`.
