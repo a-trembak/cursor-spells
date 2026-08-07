@@ -16,50 +16,101 @@ if command -v jq >/dev/null 2>&1; then
   fi
 fi
 
-# Legacy alias: older installs used build-gate.pending for blocked critique
-plan_marker="$root/.cursor/plan-gate.pending"
-critique_marker="$root/.cursor/critique-gate.pending"
-legacy_marker="$root/.cursor/build-gate.pending"
-
-marker=""
-kind=""
-if [[ -f "$plan_marker" ]]; then
-  marker="$plan_marker"
-  kind="plan-gate"
-elif [[ -f "$critique_marker" ]]; then
-  marker="$critique_marker"
-  kind="critique-gate"
-elif [[ -f "$legacy_marker" ]]; then
-  marker="$legacy_marker"
-  kind="build-gate (legacy critique)"
-fi
-
-if [[ -n "$marker" ]]; then
-  status=""
-  if command -v jq >/dev/null 2>&1; then
-    status="$(printf '%s' "$input" | jq -r '.status // empty' 2>/dev/null || true)"
-  else
-    status="$(printf '%s' "$input" | sed -n 's/.*"status"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
-  fi
-
-  if [[ "$status" == "aborted" || "$status" == "error" ]]; then
-    printf '%s\n' '{}'
-    exit 0
-  fi
-
-  plan_path="$(cat "$marker" 2>/dev/null || true)"
-  if [[ "$kind" == "plan-gate" ]]; then
-    message="Plan-gate marker still present (.cursor/plan-gate.pending, plan: ${plan_path}). Wait for approve-plan or revise before running the critic or dispatching Task 1."
-  else
-    message="Critique-gate marker still present (${marker#"$root"/}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /approve-plan, or reply accept F<id>) before dispatching Task 1."
-  fi
+emit_followup() {
+  local message="$1"
   if command -v jq >/dev/null 2>&1; then
     printf '{"followup_message":%s}\n' "$(printf '%s' "$message" | jq -Rs .)"
   else
+    local safe_message
     safe_message="$(printf '%s' "$message" | tr -d '"\\' | tr '\n' ' ')"
     printf '%s\n' "{\"followup_message\":\"${safe_message}\"}"
   fi
+}
+
+status=""
+if command -v jq >/dev/null 2>&1; then
+  status="$(printf '%s' "$input" | jq -r '.status // empty' 2>/dev/null || true)"
+else
+  status="$(printf '%s' "$input" | sed -n 's/.*"status"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+fi
+
+if [[ "$status" == "aborted" || "$status" == "error" ]]; then
+  printf '%s\n' '{}'
   exit 0
+fi
+
+pg_lib="$root/scripts/pipeline-gates.sh"
+if [[ ! -f "$pg_lib" ]]; then
+  hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [[ "$hook_dir" == */.cursor/hooks ]]; then
+    pg_lib="$(cd "$hook_dir/../.." && pwd)/scripts/pipeline-gates.sh"
+  else
+    pg_lib="$(cd "$hook_dir/.." && pwd)/scripts/pipeline-gates.sh"
+  fi
+fi
+
+if [[ ! -f "$pg_lib" ]]; then
+  emit_followup "pipeline-gates helper missing at $root/scripts/pipeline-gates.sh. Run csp update to refresh kit scripts."
+  exit 0
+fi
+
+# shellcheck source=/dev/null
+source "$pg_lib"
+
+pg_migrate_legacy "$root" plan-gate
+pg_migrate_legacy "$root" critique-gate
+
+plan_path=""
+if [[ -n "${CURSOR_PLAN_PATH:-}" ]]; then
+  plan_path="$(printf '%s\n' "$CURSOR_PLAN_PATH" | head -n 1 | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+fi
+if [[ -z "$plan_path" ]] && command -v jq >/dev/null 2>&1; then
+  plan_path="$(printf '%s' "$input" | jq -r '.plan_path // .plan // empty' 2>/dev/null || true)"
+fi
+
+if [[ -n "$plan_path" ]]; then
+  for kind in plan-gate critique-gate; do
+    slug="$(pg_slug_for_plan "$root" "$plan_path" "$kind")"
+    gate_file="$(pg_gate_path "$root" "$kind" "$slug")"
+    if [[ -f "$gate_file" ]]; then
+      rel_gate="${gate_file#"$root"/}"
+      if [[ "$kind" == "plan-gate" ]]; then
+        message="Plan-gate marker still present (${rel_gate}, plan: ${plan_path}). Wait for approve-plan or revise before running the critic or dispatching Task 1."
+      else
+        message="Critique-gate marker still present (${rel_gate}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /approve-plan, or reply accept F<id>) before dispatching Task 1."
+      fi
+      emit_followup "$message"
+      exit 0
+    fi
+  done
+else
+  plan_entries=()
+  critique_entries=()
+  while IFS=$'\t' read -r slug path; do
+    [[ -n "$slug" ]] || continue
+    plan_entries+=("${slug} (${path})")
+  done < <(pg_list_gates "$root" plan-gate)
+  while IFS=$'\t' read -r slug path; do
+    [[ -n "$slug" ]] || continue
+    critique_entries+=("${slug} (${path})")
+  done < <(pg_list_gates "$root" critique-gate)
+
+  if ((${#plan_entries[@]} + ${#critique_entries[@]} > 0)); then
+    message=""
+    if ((${#plan_entries[@]} > 0)); then
+      message="Open plan-gate: $(IFS=', '; echo "${plan_entries[*]}")"
+    fi
+    if ((${#critique_entries[@]} > 0)); then
+      if [[ -n "$message" ]]; then
+        message="${message}; Open critique-gate: $(IFS=', '; echo "${critique_entries[*]}")"
+      else
+        message="Open critique-gate: $(IFS=', '; echo "${critique_entries[*]}")"
+      fi
+    fi
+    message="${message}. Resolve in the owning chat; do not delete foreign slugs."
+    emit_followup "$message"
+    exit 0
+  fi
 fi
 
 printf '%s\n' '{}'
