@@ -283,6 +283,9 @@ install_project_bits() {
   cp "$KIT_ROOT/scripts/validate-review-report.sh" "$PROJECT/scripts/validate-review-report.sh"
   chmod +x "$PROJECT/scripts/validate-review-report.sh"
   echo "copied: $PROJECT/scripts/validate-review-report.sh"
+  cp "$KIT_ROOT/scripts/pipeline-gates.sh" "$PROJECT/scripts/pipeline-gates.sh"
+  chmod +x "$PROJECT/scripts/pipeline-gates.sh"
+  echo "copied: $PROJECT/scripts/pipeline-gates.sh"
 }
 
 echo "kit: $KIT_ROOT"

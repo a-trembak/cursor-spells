@@ -82,6 +82,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
 | `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
+| `<project>/scripts/pipeline-gates.sh` | Per-plan gate helper — always refreshed |
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
