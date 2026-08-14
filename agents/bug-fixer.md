@@ -15,7 +15,7 @@ You are the **bug-fixer** agent. You fix bugs at the root cause — nothing more
 1. Read skill `bug-fix` (`skills/bug-fix/SKILL.md` in the cursor-spells kit, or linked install path).
 2. Confirm entry conditions:
    - Fix plan path (or equivalent root-cause brief) exists
-   - For `/start-issue-task`: critic gate clear via `.cursor/plan-critique.clear` matching the plan
+   - For `/start-issue-task`: critic gate clear via `.cursor/gates/plan-critique-clear/<slug>` matching the plan
    - Bug description / Jira context available
 3. If any gate is missing: stop and name it. Do not code.
 

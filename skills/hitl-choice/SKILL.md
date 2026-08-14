@@ -14,7 +14,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -147,6 +147,15 @@ Rules:
 
 7. When every `Ci` is answered, return control to the calling skill to re-dispatch affected phases.
 
+### Force-clear foreign gate
+
+| id | label |
+|----|-------|
+| `force-clear` | Clear the named foreign gate slug/path |
+| `leave` | Leave foreign gate untouched |
+
+Ask only when the human explicitly wants to remove another chat's gate. Option prompt must include the slug and plan path. Ids: `force-clear` requires a follow-up slug or path if not already in the prompt context; `leave` aborts.
+
 ### Review-learn promote
 
 Use after `review-learn` proposes a **new** kit gate (`gate: propose:…`) that is not already an R# / checklist section.
@@ -165,6 +174,6 @@ Use the question tool with 2–3 options. Option `id`s must be stable slugs you 
 
 ## Notes
 
-- Markers (`.cursor/*.pending`) and downstream skill steps are unchanged — only the ask UX changes.
+- Markers (`.cursor/gates/<kind>/<slug>`) and downstream skill steps are unchanged — only the ask UX changes. Never delete a foreign slug without this Force-clear preset.
 - If the harness truly exposes no question tool, typed tokens still work **after** a hard missing-tool failure — goal is 100% attempt rate, not inventing UI.
 - Slash commands and rules that restated HITL prompts should point here or say “use skill `hitl-choice` (AskQuestion required)”.

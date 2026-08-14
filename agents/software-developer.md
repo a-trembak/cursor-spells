@@ -14,7 +14,7 @@ You are the **software-developer** agent. You write code to the tech spec + plan
 
 1. Read skill `software-developer` (`skills/software-developer/SKILL.md` in the cursor-spells kit, or linked install path).
 2. Confirm entry conditions for the active mode:
-   - **Full:** tech spec `Status: approved` **or** `Status: skip (<reason>)`; implementation plan path; critic gate clear (typically `.cursor/plan-critique.clear`)
+   - **Full:** tech spec `Status: approved` **or** `Status: skip (<reason>)`; implementation plan path; critic gate clear (typically `.cursor/gates/plan-critique-clear/<slug>` matching this plan)
    - **`mode:fast`:** AC brief present; tech-spec / critique-clear **not** required (only when caller explicitly set `mode:fast`)
 3. If any gate is missing: stop and name it. Do not code.
 

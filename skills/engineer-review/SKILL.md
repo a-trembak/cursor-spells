@@ -28,7 +28,7 @@ If this run was triggered because a **plan finished**, do **not** start phases u
 - `approve` or `done` — start after their own pass
 - `fixes` / typed fix description — treat as “fix first”, then re-ask
 
-Prefer skill/command `finish-plan` to set `.cursor/review-gate.pending` reliably. If `skip` / `approve` / `done` already appear in chat after the gate was asked, clear the marker and start — do not re-prompt.
+Prefer skill/command `finish-plan` to set `.cursor/gates/review-gate/<slug>` reliably. If `skip` / `approve` / `done` already appear in chat after the gate was asked, clear this plan's marker and start — do not re-prompt.
 
 Manual `/engineer-review` skips this gate.
 

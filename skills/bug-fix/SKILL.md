@@ -21,7 +21,7 @@ Implements a **minimal, root-cause fix** from a critiqued-clear fix plan (or an 
 ## Entry conditions
 
 1. Fix plan exists (typically `docs/superpowers/plans/YYYY-MM-DD-<jira-key>-fix.md`) **or** the caller passed an equivalent root-cause brief with reproduction steps.
-2. For `/start-issue-task`: `.cursor/plan-critique.clear` matches that plan path (critic `Verdict: clear`).
+2. For `/start-issue-task`: `.cursor/gates/plan-critique-clear/<slug>` matches that plan path (critic `Verdict: clear`).
 3. Ticket / bug description is available (Jira fields already fetched by the orchestrator, or pasted text).
 
 If a gate is missing: **stop** and name it. Do not code.

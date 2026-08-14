@@ -28,7 +28,7 @@ All required:
 
 1. Tech spec `Status` is `approved`, or explicitly `skip (<reason>)` with the reason logged
 2. Implementation plan exists (from `writing-plans`)
-3. `implementation-critic` has no open Must-fix findings (or each is explicitly `accept`ed) — typically already enforced by `approve-plan` (HITL approve → auto critic → `.cursor/plan-critique.clear`) before `start-build`
+3. `implementation-critic` has no open Must-fix findings (or each is explicitly `accept`ed) — typically already enforced by `approve-plan` (HITL approve → auto critic → `.cursor/gates/plan-critique-clear/<slug>`) before `start-build`
 
 If any condition fails: **stop** and say which gate is missing. Do not start coding.
 
@@ -37,7 +37,7 @@ If any condition fails: **stop** and say which gate is missing. Do not start cod
 When the caller passes **`mode:fast`** (only from `/start-task --fast` or an explicit human ask for the lean path):
 
 1. AC source / short task brief is present in the conversation
-2. Tech-spec Status, implementation-plan file, and `.cursor/plan-critique.clear` are **not** required
+2. Tech-spec Status, implementation-plan file, and `.cursor/gates/plan-critique-clear/<slug>` are **not** required
 3. Scope is the AC brief only — do not invent a full tech-spec
 
 If the brief is missing: stop and ask for AC. Do not silently enter `mode:fast` from the full path.

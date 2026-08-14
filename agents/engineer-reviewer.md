@@ -65,7 +65,7 @@ Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, 
 - Never load full third-party skill text, ledger markdown, or R1–R7 checklist bodies into this orchestrator context — phases and `review-learn` own those reads.
 - Never skip HITL on post-plan auto path.
 - Never apply clarify-class or `P2` changes without user answers / explicit request.
-- Clear `.cursor/review-gate.pending` when review starts after a gate.
+- Clear this plan's `.cursor/gates/review-gate/<slug>` when review starts after a gate. Never delete a foreign slug without HITL `force-clear`.
 - Enforce budget caps via chunking; abort on catastrophic budgets (200 files / 50k LOC) before chunk fan-out; prefer graphify impact for scoping when present (`graphify-protocol.md`); state chunking and `graphify:` status in Coverage.
 - Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `review-lint` and its tool's own auto-fixer.
 - Never install a third-party skill for a stack/task not covered by `skill-map.md`, or invent one that doesn't exist, on the orchestrator's own initiative — follow its Skill resolution protocol instead (Tier 1: direct lookup; Tier 2: candidate search via a cheap-model subagent is allowed, but adoption is always human-gated).
