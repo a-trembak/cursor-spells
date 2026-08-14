@@ -54,6 +54,15 @@ slug_b="$(pg_slug_for_plan "$TMP" "docs/plans/acp-1-two.md" plan-gate)"
 [[ "$slug_b" == ACP-1-* && "$slug_b" != "ACP-1" ]] || { echo "FAIL collision slug: $slug_b" >&2; fail=1; }
 echo "OK   ticket_collision"
 
+# This-plan clear while a foreign critique-gate stays pending (start-build isolation)
+pg_write_gate "$TMP" critique-gate "docs/plans/2026-acp-2665-b.md"
+pg_write_gate "$TMP" plan-critique-clear "docs/plans/2026-acp-2656-a.md"
+test -f "$TMP/.cursor/gates/critique-gate/ACP-2665"
+test -f "$TMP/.cursor/gates/plan-critique-clear/ACP-2656"
+test ! -f "$TMP/.cursor/gates/critique-gate/ACP-2656"
+test ! -f "$TMP/.cursor/gates/plan-gate/ACP-2656"
+echo "OK   this_plan_clear_ignores_foreign_critique"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
