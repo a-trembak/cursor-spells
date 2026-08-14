@@ -42,7 +42,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 
 | Step | Expect |
 |------|--------|
-| `/finish-plan` after fake plan | Creates `.cursor/review-gate.pending`, asks HITL |
+| `/finish-plan` after fake plan | Creates `.cursor/gates/review-gate/<slug>`, asks HITL |
 | User `skip` | Starts engineer-reviewer; deletes marker |
 | Frontend stack | Asks for Figma URLs or `no figma` early |
 | First run | Creates `.cursor/project-patterns.md` |

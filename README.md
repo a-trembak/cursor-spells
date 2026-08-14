@@ -86,7 +86,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
-Runtime markers the agents write later (not created by install): e.g. `.cursor/plan-gate.pending`, `.cursor/critique-gate.pending`, `.cursor/plan-critique.clear`, `.cursor/review-gate.pending`, `.cursor/docs-gate.pending`, `.cursor/project-patterns.md`.
+Runtime markers the agents write later (not created by install): `.cursor/gates/<kind>/<slug>` for `plan-gate`, `critique-gate`, `plan-critique-clear`, `review-gate`, `docs-gate` (legacy flat `.cursor/*.pending` / `plan-critique.clear` migrate-on-read), plus `.cursor/project-patterns.md`.
 
 ### What update does (step by step)
 
@@ -253,9 +253,9 @@ npx skills add everyinc/compound-engineering-plugin@ce-explain
 
 ### Approve plan → critic → build
 
-`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise` via `hitl-choice` (AskQuestion required)), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/plan-critique.clear` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
+`/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise` via `hitl-choice` (AskQuestion required)), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/gates/plan-critique-clear/<slug>` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
 
-`/start-build [path]` no longer runs the critic — it only starts `software-developer` when `.cursor/plan-critique.clear` matches the plan.
+`/start-build [path]` no longer runs the critic — it only starts `software-developer` when this plan's `.cursor/gates/plan-critique-clear/<slug>` matches the plan. Other slugs' pending gates do not block.
 
 ### Critique a plan before coding
 

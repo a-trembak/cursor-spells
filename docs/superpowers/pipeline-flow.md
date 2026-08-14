@@ -111,16 +111,16 @@ flowchart TD
 ```mermaid
 flowchart TD
   planReady(["Plan exists"])
-  writeGate{{".cursor/plan-gate.pending"}}
-  clearStale["rm plan-critique.clear"]
+  writeGate{{".cursor/gates/plan-gate/slug"}}
+  clearStale["clear this slug plan-critique-clear"]
   hitlApprove[/"HITL: approve-plan / revise"/]
   revisePlan["clean-decision-docs rewrite plan"]
-  delGate["Delete plan-gate.pending"]
-  writeCritique{{".cursor/critique-gate.pending"}}
+  delGate["Clear this slug plan-gate"]
+  writeCritique{{".cursor/gates/critique-gate/slug"}}
   critic[["implementation-critic Pass A + Pass B"]]
   verdict{Verdict?}
-  writeClear{{".cursor/plan-critique.clear"}}
-  delCritique["Delete critique-gate.pending"]
+  writeClear{{".cursor/gates/plan-critique-clear/slug"}}
+  delCritique["Clear this slug critique-gate"]
   toBuild(["start-build"])
   blockedHitl[/"HITL: revise / accept F-id"/]
   acceptIds["Accept findings; recompute Verdict"]
@@ -162,8 +162,8 @@ Should-fix findings are visible but never block.
 ```mermaid
 flowchart TD
   startBuildCmd(["start-build"])
-  checkClear{".cursor/plan-critique.clear matches plan?"}
-  checkPending{"plan-gate or critique-gate pending?"}
+  checkClear{".cursor/gates/plan-critique-clear/slug matches this plan?"}
+  checkPending{"this slug plan-gate or critique-gate pending?"}
   stopApprove[/"Stop: run approve-plan first"/]
   stopPending[/"Stop: approval or critique still open"/]
   entryOk{Entry: spec + plan + critic clear?}
@@ -199,10 +199,10 @@ flowchart TD
 ```mermaid
 flowchart TD
   planDone(["Plan tasks complete"])
-  writeReview{{".cursor/review-gate.pending"}}
+  writeReview{{".cursor/gates/review-gate/slug"}}
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
   doFixes["Implement fixes; re-ask gate"]
-  delReview["Delete review-gate.pending"]
+  delReview["Clear this slug review-gate"]
   probe["Non-mutating multi-repo probe"]
   repoCount{Changed repo count?}
   stopZero[/"Stop: no changed repos"/]
@@ -238,14 +238,14 @@ flowchart TD
 ```mermaid
 flowchart TD
   reviewDone(["Review complete"])
-  writeDocs{{".cursor/docs-gate.pending"}}
+  writeDocs{{".cursor/gates/docs-gate/slug"}}
   hitlDocs[/"HITL: skip / docs_md / docs_repo / confluence"/]
-  skipDocs["Delete marker; no docs"]
+  skipDocs["Clear this slug; no docs"]
   needLoc{Location follow-up?}
   waitLoc[/"Chat: path, URL, or Confluence space"/]
   draft["Dual-audience draft + english-humanizer"]
   publish["Publish to chosen destination"]
-  clearDocs["Delete docs-gate.pending"]
+  clearDocs["Clear this slug docs-gate"]
   doneDocs(["Pipeline done"])
 
   reviewDone ==> writeDocs
@@ -310,37 +310,37 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 ## 8. Marker state machine
 
-Runtime markers live in the **consumer project** `.cursor/` (never the kit).
+Runtime markers live in the **consumer project** `.cursor/gates/<kind>/<slug>` (never the kit). Parallel tickets use different slugs; a foreign slug never blocks this plan. Legacy flat files (`.cursor/*.pending`, `plan-critique.clear`) migrate-on-read then delete.
 
 ```mermaid
 stateDiagram-v2
   [*] --> Idle
 
-  Idle --> PlanGate: approve-plan writes plan-gate.pending
+  Idle --> PlanGate: approve-plan writes plan-gate/slug
   PlanGate --> CritiqueGate: approve-plan + critic starts
-  PlanGate --> PlanGate: revise clears plan-critique.clear
+  PlanGate --> PlanGate: revise clears this slug plan-critique-clear
   CritiqueGate --> CritiqueClear: Verdict clear
   CritiqueGate --> CritiqueGate: blocked / pending accept
   CritiqueClear --> Building: start-build + software-developer
-  Building --> ReviewGate: finish-plan writes review-gate.pending
+  Building --> ReviewGate: finish-plan writes review-gate/slug
   ReviewGate --> Reviewing: skip / approve / done
   ReviewGate --> ReviewGate: fixes then re-ask
-  Reviewing --> DocsGate: update-docs writes docs-gate.pending
+  Reviewing --> DocsGate: update-docs writes docs-gate/slug
   DocsGate --> [*]: skip / publish complete
   DocsGate --> DocsGate: waiting location follow-up
 
   note right of CritiqueClear
-    plan-critique.clear must match plan path
+    plan-critique-clear/slug must match this plan path
   end note
 ```
 
 | Marker | Written by | Cleared when |
 |--------|------------|--------------|
-| `.cursor/plan-gate.pending` | `approve-plan` | Human replies `approve-plan` |
-| `.cursor/critique-gate.pending` | after plan approval | `Verdict: clear` |
-| `.cursor/plan-critique.clear` | on `Verdict: clear` | invalidated on `revise` / re-approve |
-| `.cursor/review-gate.pending` | `finish-plan` | `skip` / `approve` / `done` |
-| `.cursor/docs-gate.pending` | `update-docs` | `skip` or publish/abort complete |
+| `.cursor/gates/plan-gate/<slug>` | `approve-plan` | Human replies `approve-plan` |
+| `.cursor/gates/critique-gate/<slug>` | after plan approval | `Verdict: clear` |
+| `.cursor/gates/plan-critique-clear/<slug>` | on `Verdict: clear` | invalidated on `revise` / re-approve |
+| `.cursor/gates/review-gate/<slug>` | `finish-plan` | `skip` / `approve` / `done` |
+| `.cursor/gates/docs-gate/<slug>` | `update-docs` | `skip` or publish/abort complete |
 
 ---
 
@@ -351,7 +351,7 @@ flowchart LR
   writeSpec["/write-tech-spec"] --> techOnly[["tech-spec only"]]
   critique["/critique-plan"] --> criticOnly[["implementation-critic ad-hoc"]]
   approve["/approve-plan"] --> approveFlow[["approve + critic + start-build"]]
-  build["/start-build"] --> buildOnly[["requires plan-critique.clear"]]
+  build["/start-build"] --> buildOnly[["requires this slug plan-critique-clear"]]
   finish["/finish-plan"] --> finishFlow[["HITL then review"]]
   eng["/engineer-review"] --> reviewDirect[["skip finish-plan HITL"]]
   docs["/update-docs"] --> docsFlow[["HITL destination then write"]]
@@ -361,7 +361,7 @@ flowchart LR
   fast["/start-task --fast"] --> fastPipe[["brief + mode:fast + review + create-pr"]]
 ```
 
-`/critique-plan` alone does **not** write `plan-critique.clear` for build — prefer `/approve-plan` so plan HITL is not skipped.
+`/critique-plan` alone does **not** write `plan-critique-clear/<slug>` for build — prefer `/approve-plan` so plan HITL is not skipped.
 
 `/pr-review` resolves a GitHub PR, optionally builds a **PR Review Canvas** (Cursor plugin `pr-review-canvas`; skip with `no-canvas`), then runs the same engineer-review phases. Canvas orients the diff; validated Findings remain the review contract.
 

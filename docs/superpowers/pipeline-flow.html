@@ -641,7 +641,7 @@
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>Markers</h3>
-            <p>Пише <code>plan-gate.pending</code>; видаляє stale <code>plan-critique.clear</code>.</p>
+            <p>Пише <code>.cursor/gates/plan-gate/&lt;slug&gt;</code>; чистить stale <code>plan-critique-clear/&lt;slug&gt;</code> цього плану.</p>
           </div>
         </div>
         <div class="step">
@@ -651,11 +651,11 @@
             <div class="branches">
               <div class="branch">
                 <span class="token ok">approve-plan</span>
-                <div class="then">Видалити plan-gate → писати critique-gate → auto critic</div>
+                <div class="then">Видалити plan-gate цього slug → писати critique-gate → auto critic</div>
               </div>
               <div class="branch">
                 <span class="token">revise</span>
-                <div class="then">Переписати план (clean-decision-docs); знову HITL<small>plan-critique.clear лишається видаленим</small></div>
+                <div class="then">Переписати план (clean-decision-docs); знову HITL<small>plan-critique-clear цього slug лишається видаленим</small></div>
               </div>
             </div>
           </div>
@@ -674,7 +674,7 @@
             <div class="branches">
               <div class="branch">
                 <span class="token ok">clear</span>
-                <div class="then">Видалити critique-gate → писати plan-critique.clear → start-build</div>
+                <div class="then">Видалити critique-gate цього slug → писати plan-critique-clear → start-build</div>
               </div>
               <div class="branch">
                 <span class="token stop">blocked</span>
@@ -719,7 +719,7 @@
               </div>
               <div class="branch">
                 <span class="token stop">pending gate</span>
-                <div class="then">Stop якщо plan-gate або critique-gate ще є</div>
+                <div class="then">Stop якщо <em>цей</em> slug має plan-gate або critique-gate. Інші тікети не блокують.</div>
               </div>
             </div>
           </div>
@@ -772,7 +772,7 @@
     <section id="view-finish-plan" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">6. finish-plan</h2>
-      <p class="view-desc">HITL перед engineer-review. Marker <code>review-gate.pending</code>.</p>
+      <p class="view-desc">HITL перед engineer-review. Marker <code>.cursor/gates/review-gate/&lt;slug&gt;</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -885,7 +885,7 @@
     <section id="view-update-docs" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">8. update-docs</h2>
-      <p class="view-desc">HITL після review: куди писати продуктову / внутрішню документацію. Marker <code>docs-gate.pending</code>.</p>
+      <p class="view-desc">HITL після review: куди писати продуктову / внутрішню документацію. Marker <code>.cursor/gates/docs-gate/&lt;slug&gt;</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -929,34 +929,34 @@
     <section id="view-markers" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">Markers · state</h2>
-      <p class="view-desc">Усі маркери в consumer project <code>.cursor/</code>, не в kit.</p>
+      <p class="view-desc">Усі маркери в consumer project <code>.cursor/gates/&lt;kind&gt;/&lt;slug&gt;</code>, не в kit. Паралельні тікети — різні slug; чужий slug не блокує цей план. Legacy flat-файли мігрують при читанні.</p>
       <table class="meta">
         <thead>
           <tr><th>Marker</th><th>Пише</th><th>Чистить / інвалідує</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>plan-gate.pending</code></td>
+            <td><code>gates/plan-gate/&lt;slug&gt;</code></td>
             <td>approve-plan (до HITL)</td>
             <td>відповідь <code>approve-plan</code></td>
           </tr>
           <tr>
-            <td><code>critique-gate.pending</code></td>
+            <td><code>gates/critique-gate/&lt;slug&gt;</code></td>
             <td>після approve, перед critic</td>
             <td><code>Verdict: clear</code></td>
           </tr>
           <tr>
-            <td><code>plan-critique.clear</code></td>
+            <td><code>gates/plan-critique-clear/&lt;slug&gt;</code></td>
             <td>на clear verdict</td>
             <td><code>revise</code> / повторний approve-plan</td>
           </tr>
           <tr>
-            <td><code>review-gate.pending</code></td>
+            <td><code>gates/review-gate/&lt;slug&gt;</code></td>
             <td>finish-plan</td>
             <td><code>skip</code> / <code>approve</code> / <code>done</code></td>
           </tr>
           <tr>
-            <td><code>docs-gate.pending</code></td>
+            <td><code>gates/docs-gate/&lt;slug&gt;</code></td>
             <td>update-docs</td>
             <td><code>skip</code> / publish complete</td>
           </tr>
