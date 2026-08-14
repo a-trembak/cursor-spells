@@ -11,15 +11,17 @@ globs:
 
 > Install this rule **per consumer project** (`.cursor/rules/`), not as a user-global always-on rule.
 > Reliable path: `/approve-plan` (HITL approve → auto critic → `/start-build` on clear).
+> Markers: `.cursor/gates/<kind>/<slug>` (see `scripts/pipeline-gates.sh`). Legacy flat files migrate-on-read.
 
 Before you **dispatch Task 1** of an implementation plan (via `software-developer`, `subagent-driven-development`, or `executing-plans`):
 
-1. Prefer invoking skill **`approve-plan`** if `.cursor/plan-critique.clear` is missing or does not match this plan (HITL `approve-plan`/`revise` via `hitl-choice` (AskQuestion required; text only after failed/missing tool), then auto `implementation-critic`).
-2. Prefer **`start-build`** only when `.cursor/plan-critique.clear` already matches the plan — it dispatches `software-developer` and does **not** re-run the critic.
+1. Prefer invoking skill **`approve-plan`** if this plan's `.cursor/gates/plan-critique-clear/<slug>` is missing or does not match this plan (HITL `approve-plan`/`revise` via `hitl-choice` (AskQuestion required; text only after failed/missing tool), then auto `implementation-critic`).
+2. Prefer **`start-build`** only when this plan's `plan-critique-clear/<slug>` already matches the plan — it dispatches `software-developer` and does **not** re-run the critic.
 3. If you cannot load those skills, still:
    - Do not start Task 1 until the human has approved the plan and `implementation-critic` reports `Verdict: clear`
-   - Keep `.cursor/critique-gate.pending` while blocked / accept-risk is open
-4. Do **not** dispatch Task 1 while `.cursor/plan-gate.pending` or `.cursor/critique-gate.pending` exists.
-5. On a clean `Verdict: clear`: ensure `.cursor/plan-critique.clear` lists the plan path, then proceed to execution.
+   - Keep `.cursor/gates/critique-gate/<slug>` while blocked / accept-risk is open
+4. Do **not** dispatch Task 1 while **this plan's** `plan-gate/<slug>` or `critique-gate/<slug>` exists. Other slugs' pending gates do not block this plan.
+5. On a clean `Verdict: clear`: ensure `.cursor/gates/plan-critique-clear/<slug>` lists the plan path, then proceed to execution.
+6. Never delete or overwrite another slug's gate without HITL `force-clear`.
 
 Does not apply to pure Q&A, docs-only answers, or when the user already completed `/approve-plan` for this plan revision and is explicitly asking to proceed with `/start-build`.

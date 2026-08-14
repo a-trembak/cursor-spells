@@ -29,10 +29,10 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
    - Plan must include: reported failure, reproduction, hypothesized root cause, proposed minimal fix, regression/blast-radius notes, test plan that would catch the bug, rejected alternatives (one line each).
 
 4. **Critic** (automatic — no plan-approve HITL):
-   - Write `.cursor/critique-gate.pending` (one line: plan path); remove any stale `.cursor/plan-critique.clear` for a prior revision.
+   - `pg_write_gate` critique-gate for this plan path; `pg_clear_gate` plan-critique-clear for a prior revision of **this** plan only.
    - Run `implementation-critic` / agent `implementation-critic` with **Pass A, B, and C** (bug-fix plan).
-   - On `Verdict: clear`: delete `.cursor/critique-gate.pending`; write `.cursor/plan-critique.clear` (plan path); continue.
-   - On `blocked` or `clear pending accept`: keep critique-gate pending; **stop** and ask via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (AskQuestion required; text only after failed/missing tool). On `revise`, rewrite the plan (`clean-decision-docs`) and re-run from step 4. On `accept F<id>` until clear, continue.
+   - On `Verdict: clear`: `pg_clear_gate` critique-gate; `pg_write_gate` plan-critique-clear (plan path); continue.
+   - On `blocked` or `clear pending accept`: keep this plan's `critique-gate/<slug>`; **stop** and ask via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (AskQuestion required; text only after failed/missing tool). On `revise`, rewrite the plan (`clean-decision-docs`) and re-run from step 4. On `accept F<id>` until clear, continue.
 
 5. **Fix** (automatic on clear): dispatch agent **`bug-fixer`** / skill **`bug-fix`** for that plan (feature branch, reproduce, root cause, regression test, minimal fix, verify).
 

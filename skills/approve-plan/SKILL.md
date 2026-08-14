@@ -21,14 +21,18 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 
 1. **Resolve plan path.** Argument, else most recently modified under `docs/**/plans/`, confirm with the user if ambiguous.
 
-2. **Write HITL marker** in the **current project** (not the kit):
+2. **Write HITL marker** in the **current project** (not the kit), per-plan only:
 
    ```bash
-   mkdir -p .cursor
-   printf '%s\n' "<plan-path>" > .cursor/plan-gate.pending
-   # A revise invalidates any prior clear critique for this plan:
-   rm -f .cursor/plan-critique.clear
+   # Prefer (consumer project):
+   #   source scripts/pipeline-gates.sh
+   #   pg_write_gate "$(pwd)" plan-gate "<plan-path>"
+   #   pg_clear_gate "$(pwd)" plan-critique-clear "<plan-path>"
+   # Equivalent: .cursor/gates/plan-gate/<slug> line 1 = plan path
+   # (slug = ticket from path, else SHA-256 prefix — see pipeline-gates.sh)
    ```
+
+   Never delete or overwrite another slug's gate. If the human explicitly wants to remove a **foreign** chat's marker, ask HITL via skill **`hitl-choice`** preset **Force-clear foreign gate** (`force-clear` / `leave`) first.
 
 3. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Approve-plan gate**. Prompt/text fallback:
 
@@ -39,17 +43,17 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 4. Do **not** run the critic or start build until `approve-plan`.
 
 5. **On `approve-plan`:**
-   - Delete `.cursor/plan-gate.pending`
-   - Write `.cursor/critique-gate.pending` (one line: the plan path)
+   - `pg_clear_gate "$(pwd)" plan-gate "<plan-path>"`
+   - `pg_write_gate "$(pwd)" critique-gate "<plan-path>"`
    - Auto-run `implementation-critic` / `/critique-plan` against the plan (read-only — no permission needed to start it)
 6. **On `Verdict: clear`:**
-   - Delete `.cursor/critique-gate.pending`
-   - Write `.cursor/plan-critique.clear` (one line: the plan path)
+   - `pg_clear_gate "$(pwd)" critique-gate "<plan-path>"`
+   - `pg_write_gate "$(pwd)" plan-critique-clear "<plan-path>"`
    - Proceed automatically to skill `start-build` for that plan (branches + `software-developer`)
 7. **On `Verdict: blocked` or `clear pending accept`:**
-   - Keep `.cursor/critique-gate.pending`
+   - Keep this plan's `critique-gate/<slug>` (do not touch other slugs)
    - **Stop** and show the critic's report. Ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (`revise` + `accept F<id>` per open finding). Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6.
-8. **On `revise`:** keep or re-write `.cursor/plan-gate.pending`, ensure `.cursor/plan-critique.clear` is removed. When you (or the plan author) update the plan file, follow skill **`clean-decision-docs`**: rewrite the plan as current truth only — no "fixed/changed to", What-changed sections, or strikethrough of the prior draft inside the file; chat may list what changed for the human's verify step. Then re-ask step 3.
+8. **On `revise`:** `pg_write_gate "$(pwd)" plan-gate "<plan-path>"`; `pg_clear_gate "$(pwd)" plan-critique-clear "<plan-path>"`. When you (or the plan author) update the plan file, follow skill **`clean-decision-docs`**: rewrite the plan as current truth only — no "fixed/changed to", What-changed sections, or strikethrough of the prior draft inside the file; chat may list what changed for the human's verify step. Then re-ask step 3.
 9. **On plan edits after a blocked critique:** same `clean-decision-docs` rewrite rule — the next draft the human (re-)approves must not carry critic archaeology (`after F3`, dual old+new text, etc.).
 
 ## Notes
