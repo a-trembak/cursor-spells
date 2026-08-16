@@ -376,12 +376,21 @@
     <section id="view-overview" class="view active" aria-label="Overview">
       <h2 class="view-title">Огляд пайплайна</h2>
       <p class="view-desc">
-        Від Acceptance Criteria до draft PR (<code>create-pr</code>). Також:
-        <code>/start-task --fast</code> і <code>/start-issue-task</code>.
+        Від Acceptance Criteria до PR (<code>create-pr</code> draft, потім HITL finale).
+        <code>/start-task</code> спочатку fetch+route (Jira MCP), ніколи не обирає <code>--fast</code> сам.
+        Також: <code>/start-task --fast</code>, <code>/start-issue-task</code>, <code>/capture-escape</code>.
         Натисніть етап, щоб побачити умови, HITL-відповіді та петлі повернення.
       </p>
 
       <div class="canvas">
+        <div class="node hitl" tabindex="0" data-go="route" role="button">
+          <div class="kind">0 · fetch + route</div>
+          <div class="label">Jira fetch + router</div>
+          <div class="hint">MCP · Bug → issue · never auto --fast</div>
+          <span class="open-detail">деталі →</span>
+        </div>
+        <div class="connector"><span class="edge-label">AC є</span></div>
+
         <div class="node auto" tabindex="0" data-go="bootstrap" role="button">
           <div class="kind">1 · automatic</div>
           <div class="label">Bootstrap</div>
@@ -446,18 +455,18 @@
         </div>
         <div class="connector"><span class="edge-label">then</span></div>
 
-        <div class="node auto" tabindex="0" data-go="standalone" role="button">
-          <div class="kind">9 · automatic</div>
+        <div class="node hitl" tabindex="0" data-go="create-pr" role="button">
+          <div class="kind">9 · HITL</div>
           <div class="label">create-pr</div>
-          <div class="hint">draft GitHub PR per changed repo</div>
+          <div class="hint">draft first · keep_draft / ready / Jira comment</div>
           <span class="open-detail">деталі →</span>
         </div>
         <div class="connector"><span class="edge-label">done</span></div>
 
         <div class="node ok" tabindex="0" data-go="markers" role="button">
           <div class="kind">markers · state</div>
-          <div class="label">Draft PR + docs</div>
-          <div class="hint">таблиця маркерів .cursor/*</div>
+          <div class="label">PR + docs</div>
+          <div class="hint">draft або ready · таблиця маркерів .cursor/gates</div>
           <span class="open-detail">деталі →</span>
         </div>
       </div>
@@ -471,9 +480,67 @@
         <div class="node auto" tabindex="0" data-go="standalone" role="button">
           <div class="kind">shortcuts</div>
           <div class="label">Standalone + lean paths</div>
-          <div class="hint">--fast · /start-issue-task · /pr-review…</div>
+          <div class="hint">--fast · /start-issue-task · /capture-escape · /pr-review…</div>
           <span class="open-detail">деталі →</span>
         </div>
+      </div>
+    </section>
+
+    <!-- ROUTE -->
+    <section id="view-route" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">0. Jira fetch + router</h2>
+      <p class="view-desc">Перед AC guard. Fetch лише коли source виглядає як ticket (<code>PROJ-123</code> або <code>*.atlassian.net</code>). Агент ніколи не обирає <code>--fast</code>.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>jira-fetch</h3>
+            <p>Skill <code>jira-fetch</code> · MCP <code>getJiraIssue</code> (markdown). <code>cloudId</code> = hostname URL, інакше <code>getAccessibleAtlassianResources</code>.</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token stop">MCP fail</span>
+                <div class="then">Stop + paste ticket text<small>не продовжувати на URL-stub</small></div>
+              </div>
+              <div class="branch">
+                <span class="token ok">ok</span>
+                <div class="then"><code>ac_text</code> + <code>jira_class</code> bug | feature | unknown</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body hitl">
+            <h3>Route</h3>
+            <p>Механічна таблиця. HITL лише коли потрібно.</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token">--fast + bug</span>
+                <div class="then">HITL Fast vs issue · <code>issue</code> / <code>stay_fast</code></div>
+              </div>
+              <div class="branch">
+                <span class="token">--fast + not bug</span>
+                <div class="then">Fast pipeline</div>
+              </div>
+              <div class="branch">
+                <span class="token ok">no --fast + bug</span>
+                <div class="then">Issue pipeline (без повторного fetch)</div>
+              </div>
+              <div class="branch">
+                <span class="token">no --fast + unknown</span>
+                <div class="then">HITL Pipeline route · <code>full</code> / <code>fast</code> / <code>issue</code></div>
+              </div>
+              <div class="branch">
+                <span class="token ok">feature / pasted AC</span>
+                <div class="then">Full pipeline (або fast якщо людина передала <code>--fast</code>)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" class="primary" data-go="bootstrap">Далі: Bootstrap →</button>
       </div>
     </section>
 
@@ -487,7 +554,7 @@
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>Перевірка AC</h3>
-            <p>Якщо Acceptance Criteria немає — stop. Написання AC поза scope kit.</p>
+            <p>Після fetch/route. Якщо Acceptance Criteria немає — stop. Написання AC поза scope kit. Jira URL без успішного fetch — не stub, а stop + paste.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token stop">no AC</span>
@@ -921,7 +988,52 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="review">← Review</button>
-        <button type="button" class="primary" data-go="standalone">Далі: create-pr →</button>
+        <button type="button" class="primary" data-go="create-pr">Далі: create-pr →</button>
+      </div>
+    </section>
+
+    <!-- CREATE-PR -->
+    <section id="view-create-pr" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">9. create-pr · Pipeline finale</h2>
+      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge, ніколи Jira status transition.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1–7</div>
+          <div class="step-body auto">
+            <h3>Draft PR</h3>
+            <p>Commit/push + <code>gh pr create --draft</code> (або reuse existing). Multi-repo — по одному PR на змінений репозиторій.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">8</div>
+          <div class="step-body hitl">
+            <h3>HITL Pipeline finale</h3>
+            <p>Skill <code>hitl-choice</code>. Jira-опції лише коли відомий <code>jira_key</code>.</p>
+            <div class="branches">
+              <div class="branch">
+                <span class="token">keep_draft</span>
+                <div class="then">Stop. Draft лишається draft.</div>
+              </div>
+              <div class="branch">
+                <span class="token">ready</span>
+                <div class="then"><code>gh pr ready</code></div>
+              </div>
+              <div class="branch">
+                <span class="token">keep_draft_jira</span>
+                <div class="then">Draft + <code>addCommentToJiraIssue</code> з URL PR</div>
+              </div>
+              <div class="branch">
+                <span class="token">ready_jira</span>
+                <div class="then">Ready + Jira comment. Не <code>transitionJiraIssue</code>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="update-docs">← Update Docs</button>
+        <button type="button" class="primary" data-go="standalone">Standalone →</button>
       </div>
     </section>
 
@@ -978,28 +1090,28 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: commit/push + <strong>draft</strong> GitHub PR. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. Не Jira transition. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / finish-plan / docs: brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr.</p>
+            <p>Без tech-spec / plan / critic / finish-plan / docs: fetch (якщо ticket) → brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-issue-task</h3>
-            <p>Jira через Atlassian MCP → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → create-pr.</p>
+            <p><code>jira-fetch</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/write-tech-spec</h3>
-            <p>Лише tech-spec, без решти пайплайна.</p>
+            <p>Лише tech-spec, без решти пайплайна. Якщо AC source схожий на Jira — той самий <code>jira-fetch</code>.</p>
           </div>
         </div>
         <div class="step">
@@ -1019,8 +1131,8 @@
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/finish-plan · /engineer-review · /update-docs · /pr-review · /multi-review</h3>
-            <p>Post-plan / docs / PR / multi-repo входи. Manual engineer-review пропускає finish-plan HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas.</p>
+            <h3>/finish-plan · /engineer-review · /update-docs · /pr-review · /multi-review · /capture-escape</h3>
+            <p>Post-plan / docs / PR / multi-repo входи. Manual engineer-review пропускає finish-plan HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> пише production miss у <code>review-learn</code> без повного review.</p>
           </div>
         </div>
       </div>
@@ -1031,7 +1143,7 @@
   </main>
 
   <footer>
-    Джерело: commands/start-task.md · start-issue-task.md + create-pr / bug-fix / hitl-choice
+    Джерело: commands/start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / create-pr / bug-fix / hitl-choice
     · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
   </footer>
 

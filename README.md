@@ -83,6 +83,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
 | `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
 | `<project>/scripts/pipeline-gates.sh` | Per-plan gate helper — always refreshed |
+| `<project>/scripts/jira-issue.sh` | Jira key / URL / type classifier — always refreshed |
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
@@ -122,7 +123,8 @@ docs/        Design specs, plans, dogfood checklists
 |-------|----------------|
 | [`hitl-choice`](skills/hitl-choice/) | HITL UX — AskQuestion (or alias) required first; typed tokens only after failed/missing tool |
 | [`bug-fix`](skills/bug-fix/) | Root-cause bug fix — reproduce, minimal fix, regression test; used by `bug-fixer` / `/start-issue-task` |
-| [`create-pr`](skills/create-pr/) | Pipeline finale — commit/push + draft GitHub PR (`gh` or `ce-commit-push-pr mode:pipeline`) |
+| [`jira-fetch`](skills/jira-fetch/) | Fetch Jira issue text via Atlassian MCP; classify Bug vs Story for `/start-task` routing |
+| [`create-pr`](skills/create-pr/) | Commit/push + **draft** GitHub PR, then HITL Pipeline finale (`keep_draft` / `ready` / Jira comment). Never merge |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
 | [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
@@ -209,7 +211,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 **Canvas (all stages, HITL gates, branches):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md)
 
-`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. Ends with skill [`create-pr`](skills/create-pr/) (draft PR).
+`/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. When the AC source looks like a Jira ticket (`PROJ-123` or `*.atlassian.net` URL), it **fetches** via Atlassian MCP (`jira-fetch`) then **routes** (Bug → `/start-issue-task`; unknown type → HITL **Pipeline route**; never auto-selects `--fast`). Ends with skill [`create-pr`](skills/create-pr/) (draft PR, then HITL **Pipeline finale**).
 
 1. Bootstraps context (project patterns, stack) — automatic
 2. Runs `tech-spec` — **HITL** at entry (`human` / `agent`), depth (`light` / `full` when agent), any Blocker/Decision question (light path), and `approve-spec`/`revise`/`skip`
@@ -221,21 +223,25 @@ On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skill
 6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
 7. `engineer-review` — **HITL** only for clarifications it raises
 8. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write)
-9. `/create-pr` skill — draft GitHub PR per changed repo
+9. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). Never merge. Never transition Jira status.
 
-In **full** `/start-task`, a Jira/tracker URL is an AC reference only — paste description/AC text alongside the link (no API fetch). For MCP-backed Jira bug fixes use `/start-issue-task`.
+Full `/start-task` **does** fetch Jira when the prompt looks like a ticket. MCP failure → stop and paste the ticket (never a URL-only stub). Writing AC is still out of scope. Explicit `/start-issue-task` always stays on the issue path even if the type is Story.
 
 Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, without triggering the rest of the pipeline.
 
 ### Start a task (fast — no planning HITL)
 
-`/start-task --fast [ac-source]` for small work: bootstrap → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no finish-plan HITL) → `create-pr`. No tech-spec, plan approval, critic, or update-docs.
+`/start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no finish-plan HITL) → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
 
 ### Start an issue task (Jira bug fix)
 
-`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (stops if MCP fails — paste text then), writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr`.
+`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr` (Pipeline finale; Jira comment options when the key is known). Always this path when invoked explicitly, even if the type is Story.
 
-Design: [`docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md`](docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md)
+### Capture a production escape
+
+`/capture-escape [what slipped]` records a production miss via `review-learn` `mode:capture` `source: production-escape`. It does **not** run a full `engineer-review`. New kit gates still go through HITL **Review-learn promote**.
+
+Design: [`docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md`](docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md) · Jira fetch + router + PR finale: [`docs/superpowers/specs/2026-08-16-jira-ac-router-finale-design.md`](docs/superpowers/specs/2026-08-16-jira-ac-router-finale-design.md)
 
 ### Update product docs
 
@@ -274,7 +280,7 @@ Use multi-repo review when a task changes **2+ sibling repositories**. If routin
   - `/multi-review [path ...] [--refresh]` runs the multi-repo routing manually. Explicit paths override discovery for that run.
   - `/finish-plan` auto-routes after HITL approval: single-repo tasks use `engineer-reviewer`; multi-repo tasks use `multi-repo-supervisor`.
 - Cross-repo contract drift is clarify-only in v1 (`C_CR*`); it is not auto-applied or listed under Fixed now.
-- Jira/Linear ticket-driven discovery is deferred to v1.1. v1 routing uses explicit `/multi-review` paths, graphify, parent `.cursor/multi-repo.json`, or sibling scan.
+- Jira/Linear **ticket→repo** discovery is deferred to v1.1. v1 routing uses explicit `/multi-review` paths, graphify, parent `.cursor/multi-repo.json`, or sibling scan. Jira **issue fetch** for `/start-task` / `/start-issue-task` is in v1; Jira **status transitions** are still out of scope.
 
 Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md)
 
@@ -283,7 +289,7 @@ Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](do
 **Patterns CI (optional):** `scripts/check-project-patterns.sh --strict`  
 Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/project-patterns.yml)
 
-**Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md)
+**Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md) · Jira fetch / router / PR finale: [`docs/superpowers/dogfood/jira-ac-router-finale-checklist.md`](docs/superpowers/dogfood/jira-ac-router-finale-checklist.md)
 
 Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md`](docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md)
 

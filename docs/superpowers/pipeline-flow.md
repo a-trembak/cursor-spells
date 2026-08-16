@@ -19,7 +19,7 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Cross `--x` | Stop / blocked |
 | Dotted `-.->` | Loop / re-entry |
 
-Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), plus `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
+Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
@@ -30,6 +30,12 @@ Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first;
 ```mermaid
 flowchart TD
   startNode(["/start-task ac-source"])
+  looksJira{Looks like Jira?}
+  fetch[["jira-fetch MCP"]]
+  fetchFail{MCP ok?}
+  stopPaste[/"Stop: paste ticket text"/]
+  route{"Route"}
+  hitlRoute[/"HITL Pipeline route: full / fast / issue"/]
   noAc{AC exist?}
   stopNoAc[/"Stop: writing AC out of scope"/]
   bootstrap["Bootstrap: patterns + stack detect"]
@@ -41,10 +47,21 @@ flowchart TD
   finishPlan[["finish-plan"]]
   engReview[["engineer-reviewer or multi-repo-supervisor"]]
   updateDocs[["update-docs"]]
-  createPr["create-pr draft"]
-  doneNode(["Draft PR + docs path"])
+  createPr[["create-pr draft then HITL finale"]]
+  doneNode(["PR URL + docs path"])
 
-  startNode ==> noAc
+  startNode ==> looksJira
+  looksJira -->|"yes"| fetch
+  looksJira -->|"no"| noAc
+  fetch ==> fetchFail
+  fetchFail -->|"no"| stopPaste
+  fetchFail -->|"yes"| route
+  route -->|"bug, no --fast"| issuePipe[["issue pipeline"]]
+  route -->|"unknown, no --fast"| hitlRoute
+  hitlRoute -->|"full"| noAc
+  hitlRoute -->|"fast"| fastPipe[["fast pipeline"]]
+  hitlRoute -->|"issue"| issuePipe
+  route -->|"feature or --fast not-bug"| noAc
   noAc -->|"no"| stopNoAc
   noAc -->|"yes"| bootstrap
   bootstrap ==> techSpec
@@ -56,8 +73,10 @@ flowchart TD
   finishPlan ==>|"skip / approve / done"| engReview
   engReview ==> updateDocs
   updateDocs ==>|"skip / docs_md / docs_repo / confluence"| createPr
-  createPr ==> doneNode
+  createPr ==>|"keep_draft / ready / *_jira"| doneNode
 ```
+
+`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/start-issue-task` always stays on the issue path.
 
 ---
 
@@ -357,8 +376,9 @@ flowchart LR
   docs["/update-docs"] --> docsFlow[["HITL destination then write"]]
   pr["/pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
   multi["/multi-review"] --> multiDirect[["multi-repo-supervisor"]]
-  issue["/start-issue-task"] --> issuePipe[["Jira MCP + bug-fixer + create-pr"]]
-  fast["/start-task --fast"] --> fastPipe[["brief + mode:fast + review + create-pr"]]
+  issue["/start-issue-task"] --> issuePipe[["Jira MCP + bug-fixer + create-pr finale"]]
+  fast["/start-task --fast"] --> fastPipe[["fetch + brief + mode:fast + review + create-pr finale"]]
+  escape["/capture-escape"] --> learnPipe[["review-learn capture production-escape"]]
 ```
 
 `/critique-plan` alone does **not** write `plan-critique-clear/<slug>` for build — prefer `/approve-plan` so plan HITL is not skipped.
@@ -372,17 +392,23 @@ flowchart LR
 ```mermaid
 flowchart TD
   startFast(["/start-task --fast ac-source"])
+  looksJira{Looks like Jira?}
+  fetch[["jira-fetch"]]
+  fastVsIssue[/"HITL Fast vs issue if class bug"/]
   boot["Bootstrap"]
   brief["Short AC brief in chat"]
   exec["software-developer mode:fast"]
   review["engineer-reviewer no finish-plan HITL"]
-  prNode["create-pr draft"]
-  doneFast(["Draft PR"])
+  prNode[["create-pr draft then HITL finale"]]
+  doneFast(["PR URL"])
 
-  startFast ==> boot ==> brief ==> exec ==> review ==> prNode ==> doneFast
+  startFast ==> looksJira
+  looksJira -->|"yes"| fetch --> fastVsIssue --> boot
+  looksJira -->|"no"| boot
+  boot ==> brief ==> exec ==> review ==> prNode ==> doneFast
 ```
 
-No tech-spec, writing-plans, approve-plan, critic, finish-plan, or update-docs. Clarify HITL only if engineer-review needs it.
+No tech-spec, writing-plans, approve-plan, critic, finish-plan, or update-docs. Clarify HITL only if engineer-review needs it. `--fast` is explicit only.
 
 ---
 
@@ -392,7 +418,7 @@ No tech-spec, writing-plans, approve-plan, critic, finish-plan, or update-docs. 
 flowchart TD
   startIssue(["/start-issue-task jira-key"])
   boot["Bootstrap"]
-  jira["Atlassian MCP getJiraIssue"]
+  jira[["jira-fetch getJiraIssue"]]
   jiraFail{MCP ok?}
   stopJira[/"Stop: paste ticket text"/]
   planFix["Write fix plan"]
@@ -401,8 +427,8 @@ flowchart TD
   hitlCrit[/"HITL: revise or accept F-id"/]
   fixer["bug-fixer"]
   review["engineer-reviewer"]
-  prNode["create-pr draft"]
-  doneIssue(["Draft PR"])
+  prNode[["create-pr draft then HITL finale"]]
+  doneIssue(["PR URL"])
 
   startIssue ==> boot ==> jira ==> jiraFail
   jiraFail -->|"no"| stopJira
@@ -411,3 +437,28 @@ flowchart TD
   hitlCrit --> planFix
   verdict -->|"clear"| fixer ==> review ==> prNode ==> doneIssue
 ```
+
+Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). Jira comment options appear on the Pipeline finale when `jira_key` is known. Never `transitionJiraIssue`.
+
+---
+
+## 12. Create-pr Pipeline finale
+
+```mermaid
+flowchart TD
+  startPr["create-pr"]
+  draft["Always draft first"]
+  hitl[/"HITL Pipeline finale"/]
+  keep["keep_draft"]
+  ready["gh pr ready"]
+  jiraC["addCommentToJiraIssue PR URL"]
+  done(["Report PR URL"])
+
+  startPr ==> draft ==> hitl
+  hitl -->|"keep_draft"| keep --> done
+  hitl -->|"ready"| ready --> done
+  hitl -->|"keep_draft_jira"| jiraC --> done
+  hitl -->|"ready_jira"| ready --> jiraC --> done
+```
+
+`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. Never transition Jira status.
