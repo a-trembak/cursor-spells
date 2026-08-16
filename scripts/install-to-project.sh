@@ -286,6 +286,9 @@ install_project_bits() {
   cp "$KIT_ROOT/scripts/pipeline-gates.sh" "$PROJECT/scripts/pipeline-gates.sh"
   chmod +x "$PROJECT/scripts/pipeline-gates.sh"
   echo "copied: $PROJECT/scripts/pipeline-gates.sh"
+  cp "$KIT_ROOT/scripts/jira-issue.sh" "$PROJECT/scripts/jira-issue.sh"
+  chmod +x "$PROJECT/scripts/jira-issue.sh"
+  echo "copied: $PROJECT/scripts/jira-issue.sh"
 }
 
 echo "kit: $KIT_ROOT"

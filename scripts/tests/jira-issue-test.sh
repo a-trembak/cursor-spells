@@ -43,6 +43,8 @@ looks2="$(jira_looks_like_issue "paste this AC: users can export" && echo yes ||
 assert_eq looks_prose "no" "$looks2"
 looks3="$(jira_looks_like_issue "ACP-1" && echo yes || echo no)"
 assert_eq looks_key "yes" "$looks3"
+looks4="$(jira_looks_like_issue "please fix ACP-2656 in login" && echo yes || echo no)"
+assert_eq looks_prose_with_key "no" "$looks4"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

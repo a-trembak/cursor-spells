@@ -18,9 +18,8 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
    - Detect stack mechanically via `skills/engineer-review/references/skill-map.md`.
 
 2. **Fetch Jira** (automatic):
-   - Resolve issue key from the argument/URL.
-   - Read the issue via **Atlassian MCP** (`getJiraIssue` or equivalent after discovering tools with the MCP schema helpers).
-   - Use summary, description, acceptance criteria / repro steps, status, and links as the bug source of truth.
+   - Invoke skill **`jira-fetch`** (key or browse URL). Reuse an already-fetched payload if `/start-task` routed here.
+   - Use `ac_text` / summary, description, type, and status as the bug source of truth.
    - If MCP is missing, unauthenticated, or the fetch fails: **stop**. Ask the human to paste the ticket text (and optionally retry MCP). Do not invent ticket contents. Do not continue on a URL-only stub.
 
 3. **Fix plan** (automatic):
@@ -38,10 +37,10 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
 
 6. **Engineer review** (automatic): run agent **`engineer-reviewer`** (or `multi-repo-supervisor` when 2+ repos changed per multi-repo probe). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the ticket/context. HITL only for **Needs clarification** via `hitl-choice`.
 
-7. **Create PR** (automatic): invoke skill **`create-pr`**. Draft PR title includes the Jira key; body links the ticket and fix plan path.
+7. **Create PR** (automatic): invoke skill **`create-pr`**. Draft PR title includes the Jira key; body links the ticket and fix plan path. Pass `jira_key` / `jira_cloud_id` for the Pipeline finale HITL.
 
 ## Notes
 
 - This command never invents answers at critic/clarify HITL gates.
-- Full feature work with AC → use `/start-task`. Small non-bug tasks without Jira → `/start-task --fast`.
-- Unlike full `/start-task`, this pipeline **does** fetch Jira via MCP (it does not treat the URL as a reference-only stub).
+- Full feature work with AC → use `/start-task` (it fetches Jira and routes Bugs here). Small non-bug tasks without Jira → `/start-task --fast`.
+- Explicit `/start-issue-task` always stays on the issue pipeline even if the Jira type is Story/Task.
