@@ -5,7 +5,8 @@ description: >-
   Cursor AskQuestion (or alias) first for closed-set choices; typed reply tokens
   are fallback only after the tool fails or is missing. Use from approve-plan,
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
-  start-issue-task blocked critic, and blocked implementation-critic gates.
+  start-issue-task blocked critic, blocked implementation-critic gates,
+  pipeline route / Fast vs issue, and create-pr Pipeline finale.
 ---
 
 # HITL Choice
@@ -14,7 +15,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Pipeline route**, **Fast vs issue**, **Pipeline finale**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -167,6 +168,38 @@ Use after `review-learn` proposes a **new** kit gate (`gate: propose:…`) that 
 | `skip` | Do not write this learning |
 
 Prompt: one-line miss class + `rule_one_liner`. Default recommendation: `consumer_only`. Never auto-edit kit checklists from a leaf app on `promote` — if not in the kit repo, record the proposal for the human and still write the consumer entry unless `skip`.
+
+### Pipeline route
+
+Ask only from `/start-task` when a Jira issue was fetched and `jira_class` is `unknown` (and the human did **not** pass `--fast`). Never invent `--fast`.
+
+| id | label |
+|----|-------|
+| `full` | Full pipeline (tech-spec → design → implement) |
+| `fast` | Fast pipeline (`--fast`: skip spec) |
+| `issue` | Issue pipeline (`/start-issue-task` / bug-fixer) |
+
+### Fast vs issue
+
+Ask only from `/start-task --fast` when `jira_class` is `bug`. The agent never auto-selects `--fast`; this gate only chooses whether to **leave** fast.
+
+| id | label |
+|----|-------|
+| `issue` | Switch to `/start-issue-task` (root-cause bug path) |
+| `stay_fast` | Stay on `--fast` |
+
+### Pipeline finale
+
+Ask from skill `create-pr` **after** a draft PR exists (never before). Default if the human abandons the picker: treat as `keep_draft` only after protocol retry/fallback — do not invent `ready`. Show Jira options **only** when `jira_key` is known.
+
+| id | label | When shown |
+|----|-------|------------|
+| `keep_draft` | Keep draft (stop) | always |
+| `ready` | Mark ready for review | always |
+| `keep_draft_jira` | Keep draft + comment PR URL on Jira | Jira key known |
+| `ready_jira` | Ready for review + comment PR URL on Jira | Jira key known |
+
+On `ready` / `ready_jira`: `gh pr ready` per opened PR. On `*_jira`: `addCommentToJiraIssue` with PR URL(s) only — never `transitionJiraIssue`, never merge.
 
 ### Decision-tier / Blocker questions
 

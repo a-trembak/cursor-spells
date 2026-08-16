@@ -101,7 +101,7 @@ Caps: **≤5** hints; prefer highest `hits` then newest `last_seen`. Unmatched /
 
 ### bug-fix escape path
 
-Production escape → `mode:capture` with `source: production-escape` (does not require a full engineer-review re-run).
+Production escape → `mode:capture` with `source: production-escape` (does not require a full engineer-review re-run). Slash command `/capture-escape` is the standalone entry for that path.
 
 ## Coverage lines
 
