@@ -41,3 +41,48 @@ jira_classify_type() {
       ;;
   esac
 }
+
+# Lowercase and strip spaces, hyphens, underscores, apostrophes for status compare.
+jira_normalize_status() {
+  local s
+  s="$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]')"
+  s="${s// /}"
+  s="${s//	/}"
+  s="${s//-/}"
+  s="${s//_/}"
+  s="${s//\'/}"
+  printf '%s' "$s"
+}
+
+# Usage: jira_status_matches_target in_progress|review "<status or to.name>"
+jira_status_matches_target() {
+  local target="${1:-}" n
+  n="$(jira_normalize_status "${2:-}")"
+  case "$target" in
+    in_progress)
+      case "$n" in
+        inprogress|doing|wip|started) return 0 ;;
+      esac
+      ;;
+    review)
+      case "$n" in
+        review|inreview|codereview|peerreview|toreview|readyforreview) return 0 ;;
+      esac
+      ;;
+  esac
+  return 1
+}
+
+# stdin: lines of "id<TAB>destination-status-name". Prints the first matching id.
+# Usage: jira_pick_transition_id in_progress|review
+jira_pick_transition_id() {
+  local target="${1:-}" id name
+  while IFS=$'\t' read -r id name || [[ -n "${id:-}" ]]; do
+    [[ -z "$id" ]] && continue
+    if jira_status_matches_target "$target" "$name"; then
+      printf '%s' "$id"
+      return 0
+    fi
+  done
+  return 1
+}

@@ -377,7 +377,7 @@
       <h2 class="view-title">Огляд пайплайна</h2>
       <p class="view-desc">
         Від Acceptance Criteria до PR (<code>create-pr</code> draft, потім HITL finale).
-        <code>/start-task</code> спочатку fetch+route (Jira MCP), ніколи не обирає <code>--fast</code> сам.
+        <code>/start-task</code> спочатку fetch → In Progress → route (Jira MCP), ніколи не обирає <code>--fast</code> сам.
         Також: <code>/start-task --fast</code>, <code>/start-issue-task</code>, <code>/capture-escape</code>.
         Натисніть етап, щоб побачити умови, HITL-відповіді та петлі повернення.
       </p>
@@ -386,7 +386,7 @@
         <div class="node hitl" tabindex="0" data-go="route" role="button">
           <div class="kind">0 · fetch + route</div>
           <div class="label">Jira fetch + router</div>
-          <div class="hint">MCP · Bug → issue · never auto --fast</div>
+          <div class="hint">MCP · In Progress · Bug → issue · never auto --fast</div>
           <span class="open-detail">деталі →</span>
         </div>
         <div class="connector"><span class="edge-label">AC є</span></div>
@@ -458,7 +458,7 @@
         <div class="node hitl" tabindex="0" data-go="create-pr" role="button">
           <div class="kind">9 · HITL</div>
           <div class="label">create-pr</div>
-          <div class="hint">draft first · keep_draft / ready / Jira comment</div>
+          <div class="hint">draft first · keep_draft / ready / Jira Review</div>
           <span class="open-detail">деталі →</span>
         </div>
         <div class="connector"><span class="edge-label">done</span></div>
@@ -504,7 +504,7 @@
               </div>
               <div class="branch">
                 <span class="token ok">ok</span>
-                <div class="then"><code>ac_text</code> + <code>jira_class</code> bug | feature | unknown</div>
+                <div class="then"><code>ac_text</code> + <code>jira_class</code> bug | feature | unknown. Потім <code>jira-transition</code> → <code>in_progress</code> (skip якщо вже; fail не стопає пайплайн)</div>
               </div>
             </div>
           </div>
@@ -996,7 +996,7 @@
     <section id="view-create-pr" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">9. create-pr · Pipeline finale</h2>
-      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge, ніколи Jira status transition.</p>
+      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge. <code>ready</code> / <code>ready_jira</code> з ключем → Jira <code>review</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1–7</div>
@@ -1017,15 +1017,15 @@
               </div>
               <div class="branch">
                 <span class="token">ready</span>
-                <div class="then"><code>gh pr ready</code></div>
+                <div class="then"><code>gh pr ready</code> + <code>jira-transition</code> target <code>review</code> (якщо є ключ)</div>
               </div>
               <div class="branch">
                 <span class="token">keep_draft_jira</span>
-                <div class="then">Draft + <code>addCommentToJiraIssue</code> з URL PR</div>
+                <div class="then">Draft + <code>addCommentToJiraIssue</code> з URL PR. Статус лишається In Progress.</div>
               </div>
               <div class="branch">
                 <span class="token">ready_jira</span>
-                <div class="then">Ready + Jira comment. Не <code>transitionJiraIssue</code>.</div>
+                <div class="then">Ready + Jira comment + <code>jira-transition</code> target <code>review</code>.</div>
               </div>
             </div>
           </div>
@@ -1090,21 +1090,21 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. Не Jira transition. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. <code>ready</code> / <code>ready_jira</code> з Jira-ключем → <code>jira-transition</code> target <code>review</code>. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / finish-plan / docs: fetch (якщо ticket) → brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>Без tech-spec / plan / critic / finish-plan / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-issue-task</h3>
-            <p><code>jira-fetch</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
+            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
           </div>
         </div>
         <div class="step">
@@ -1143,7 +1143,7 @@
   </main>
 
   <footer>
-    Джерело: commands/start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / create-pr / bug-fix / hitl-choice
+    Джерело: commands/start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / jira-transition / create-pr / bug-fix / hitl-choice
     · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
   </footer>
 

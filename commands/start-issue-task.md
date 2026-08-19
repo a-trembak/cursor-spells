@@ -21,6 +21,7 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
    - Invoke skill **`jira-fetch`** (key or browse URL). Reuse an already-fetched payload if `/start-task` routed here.
    - Use `ac_text` / summary, description, type, and status as the bug source of truth.
    - If MCP is missing, unauthenticated, or the fetch fails: **stop**. Ask the human to paste the ticket text (and optionally retry MCP). Do not invent ticket contents. Do not continue on a URL-only stub.
+   - After a successful fetch (or reused payload) with `jira_key` and `jira_cloud_id`: invoke skill **`jira-transition`** with target `in_progress`. Already In Progress is a skip. If `/start-task` already moved the issue, this is a no-op. Report and continue on skip/failure — do not stop the pipeline.
 
 3. **Fix plan** (automatic):
    - Investigate enough to draft a root-cause-oriented fix plan (read-only exploration + ticket facts). Prefer loading `systematic-debugging` / `ce-debug mode:pipeline` while diagnosing for the plan.
