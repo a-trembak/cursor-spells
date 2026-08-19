@@ -236,7 +236,7 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Start an issue task (Jira bug fix)
 
-`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr` (Pipeline finale; Jira comment options when the key is known). Always this path when invoked explicitly, even if the type is Story.
+`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review**). Always this path when invoked explicitly, even if the type is Story.
 
 ### Capture a production escape
 
@@ -281,7 +281,7 @@ Use multi-repo review when a task changes **2+ sibling repositories**. If routin
   - `/multi-review [path ...] [--refresh]` runs the multi-repo routing manually. Explicit paths override discovery for that run.
   - `/finish-plan` auto-routes after HITL approval: single-repo tasks use `engineer-reviewer`; multi-repo tasks use `multi-repo-supervisor`.
 - Cross-repo contract drift is clarify-only in v1 (`C_CR*`); it is not auto-applied or listed under Fixed now.
-- Jira/Linear **ticket→repo** discovery is deferred to v1.1. v1 routing uses explicit `/multi-review` paths, graphify, parent `.cursor/multi-repo.json`, or sibling scan. Jira **issue fetch** for `/start-task` / `/start-issue-task` is in v1; Jira **status transitions** are still out of scope.
+- Jira/Linear **ticket→repo** discovery is deferred to v1.1. v1 routing uses explicit `/multi-review` paths, graphify, parent `.cursor/multi-repo.json`, or sibling scan. Jira **issue fetch** and **status transitions** (In Progress on start, Review when the PR is marked ready) for `/start-task` / `/start-issue-task` are in v1.
 
 Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md)
 
