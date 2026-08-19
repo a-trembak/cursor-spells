@@ -36,15 +36,20 @@
     header {
       padding: 1.25rem 1.5rem 0.75rem;
       display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 0.75rem 1.5rem;
+      flex-direction: column;
+      gap: 0.75rem;
       border-bottom: 1px solid var(--line);
       background: rgba(15, 20, 25, 0.85);
       backdrop-filter: blur(8px);
       position: sticky;
       top: 0;
       z-index: 20;
+    }
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.75rem 1.5rem;
     }
     header h1 {
       margin: 0;
@@ -225,30 +230,37 @@
     .seq-strip {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.35rem;
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1.35rem;
+      align-items: center;
+      gap: 0.3rem;
+      margin: 0;
       justify-content: center;
     }
-    .seq-strip li {
+    .seq-strip button {
+      appearance: none;
       display: inline-flex;
       align-items: center;
-      padding: 0.35rem 0.65rem;
+      padding: 0.35rem 0.7rem;
       background: var(--bg1);
       border: 1px solid var(--line);
       border-radius: 999px;
       font-size: 0.75rem;
       color: var(--muted);
+      cursor: pointer;
     }
-    .seq-strip li.here {
-      border-color: var(--hitl);
+    .seq-strip button:hover,
+    .seq-strip button:focus-visible {
+      border-color: var(--auto);
+      color: #fff;
+      outline: none;
+    }
+    .seq-strip button[aria-current="true"] {
+      border-color: var(--auto);
       color: var(--text);
     }
-    .seq-strip li:not(:last-child)::after {
-      content: "→";
-      margin-left: 0.45rem;
+    .seq-arrow {
       color: var(--line);
+      font-size: 0.75rem;
+      padding: 0 0.1rem;
     }
 
     .layer {
@@ -442,15 +454,30 @@
 </head>
 <body>
   <header>
-    <h1>cursor-spells · Pipeline canvas</h1>
-    <p class="sub">Шари зверху вниз · клік по етапу — гілки і цикли ↺</p>
-    <div class="legend">
-      <span><i class="swatch auto"></i> automatic</span>
-      <span><i class="swatch hitl"></i> HITL</span>
-      <span><i class="swatch stop"></i> stop</span>
-      <span><i class="swatch ok"></i> clear / proceed</span>
-      <span><i class="swatch cycle"></i> cycle ↺</span>
+    <div class="header-top">
+      <h1>cursor-spells · Pipeline canvas</h1>
+      <p class="sub">Шари зверху вниз · пігулки ведуть до шару · клік по етапу — гілки і цикли ↺</p>
+      <div class="legend">
+        <span><i class="swatch auto"></i> automatic</span>
+        <span><i class="swatch hitl"></i> HITL</span>
+        <span><i class="swatch stop"></i> stop</span>
+        <span><i class="swatch ok"></i> clear / proceed</span>
+        <span><i class="swatch cycle"></i> cycle ↺</span>
+      </div>
     </div>
+    <nav class="seq-strip" aria-label="Перейти до шару пайплайна">
+      <button type="button" data-layer="layer-fetch">Fetch</button>
+      <span class="seq-arrow" aria-hidden="true">→</span>
+      <button type="button" data-layer="layer-plan">Plan</button>
+      <span class="seq-arrow" aria-hidden="true">→</span>
+      <button type="button" data-layer="layer-build">Build</button>
+      <span class="seq-arrow" aria-hidden="true">→</span>
+      <button type="button" data-layer="layer-review">Review</button>
+      <span class="seq-arrow" aria-hidden="true">→</span>
+      <button type="button" data-layer="layer-docs">Docs</button>
+      <span class="seq-arrow" aria-hidden="true">→</span>
+      <button type="button" data-layer="layer-pr">PR</button>
+    </nav>
   </header>
 
   <main>
@@ -462,19 +489,11 @@
         Пунктир ↺ — цикл у тому ж шарі або на <em>один</em> шар назад.
         <code>review-gate</code> стоїть <em>після</em> коду: команда <code>/finish-plan</code> лише відкриває цей HITL, не шар плану.
         <code>/start-task</code> починає з fetch → In Progress → route і ніколи не обирає <code>--fast</code> сам.
+        Смуга шарів зверху — перехід до шару, не індикатор «де ми зараз».
       </p>
 
-      <ol class="seq-strip" aria-label="Happy path sequence">
-        <li>Fetch</li>
-        <li>Plan</li>
-        <li>Build</li>
-        <li class="here">Review</li>
-        <li>Docs</li>
-        <li>PR</li>
-      </ol>
-
       <div class="canvas">
-        <div class="layer fetch">
+        <div class="layer fetch" id="layer-fetch">
           <div class="layer-head">Fetch</div>
           <div class="node hitl" tabindex="0" data-go="route" role="button">
             <div class="kind">0 · fetch + route</div>
@@ -486,7 +505,7 @@
 
         <div class="flow-down">↓ AC є</div>
 
-        <div class="layer plan">
+        <div class="layer plan" id="layer-plan">
           <div class="layer-head">Plan · spec і план, ще без коду</div>
           <div class="node auto" tabindex="0" data-go="bootstrap" role="button">
             <div class="kind">1 · automatic</div>
@@ -521,7 +540,7 @@
 
         <div class="flow-down ok">↓ Verdict: clear — шар плану закрито</div>
 
-        <div class="layer build">
+        <div class="layer build" id="layer-build">
           <div class="layer-head">Build · написання коду</div>
           <div class="node auto" tabindex="0" data-go="build" role="button">
             <div class="kind">5 · automatic</div>
@@ -533,7 +552,7 @@
 
         <div class="flow-down">↓ tasks verified</div>
 
-        <div class="layer review">
+        <div class="layer review" id="layer-review">
           <div class="layer-head">Review · план уже виконано</div>
           <div class="node hitl" tabindex="0" data-go="review-gate" role="button">
             <div class="kind">6 · HITL review-gate</div>
@@ -556,7 +575,7 @@
 
         <div class="layer ship">
           <div class="layer-head">Docs + PR</div>
-          <div class="node hitl" tabindex="0" data-go="update-docs" role="button">
+          <div class="node hitl" id="layer-docs" tabindex="0" data-go="update-docs" role="button">
             <div class="kind">8 · HITL</div>
             <div class="label">update-docs</div>
             <div class="hint">skip / docs_md / docs_repo / confluence</div>
@@ -564,7 +583,7 @@
           </div>
           <div class="cycle-chip">↺ чекати path / URL / Confluence space</div>
           <div class="connector"><span class="edge-label">then</span></div>
-          <div class="node hitl" tabindex="0" data-go="create-pr" role="button">
+          <div class="node hitl" id="layer-pr" tabindex="0" data-go="create-pr" role="button">
             <div class="kind">9 · HITL</div>
             <div class="label">create-pr</div>
             <div class="hint">draft first · keep_draft / ready / Jira Review</div>
@@ -1261,7 +1280,7 @@
 
     const aliases = { "finish-plan": "review-gate" };
 
-    function show(id) {
+    function show(id, opts) {
       id = aliases[id] || id;
       const target = "view-" + id;
       views.forEach((v) => {
@@ -1269,21 +1288,60 @@
         v.classList.toggle("active", on);
         v.hidden = !on;
       });
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (!opts || !opts.preserveScroll) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       history.replaceState(null, "", "#" + id);
     }
 
+    function markLayer(layerId) {
+      document.querySelectorAll(".seq-strip [data-layer]").forEach((b) => {
+        if (b.getAttribute("data-layer") === layerId) {
+          b.setAttribute("aria-current", "true");
+        } else {
+          b.removeAttribute("aria-current");
+        }
+      });
+    }
+
+    function goLayer(layerId) {
+      show("overview", { preserveScroll: true });
+      markLayer(layerId);
+      const el = document.getElementById(layerId);
+      const header = document.querySelector("header");
+      const offset = header ? header.offsetHeight + 12 : 12;
+      const scroll = () => {
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      };
+      requestAnimationFrame(() => requestAnimationFrame(scroll));
+    }
+
     document.addEventListener("click", (e) => {
+      const layerBtn = e.target.closest("[data-layer]");
+      if (layerBtn) {
+        goLayer(layerBtn.getAttribute("data-layer"));
+        return;
+      }
       const btn = e.target.closest("[data-go]");
       if (!btn) return;
+      markLayer(null);
       show(btn.getAttribute("data-go"));
     });
 
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
+      const layerBtn = e.target.closest("[data-layer]");
+      if (layerBtn) {
+        e.preventDefault();
+        goLayer(layerBtn.getAttribute("data-layer"));
+        return;
+      }
       const btn = e.target.closest("[data-go]");
       if (!btn) return;
       e.preventDefault();
+      markLayer(null);
       show(btn.getAttribute("data-go"));
     });
 

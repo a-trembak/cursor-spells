@@ -2,7 +2,7 @@
 
 Canonical flowchart of `/start-task` (full + `--fast`), `/start-issue-task`, and shared finale `create-pr` — every stage, HITL gate, condition, and branch as shipped in this kit.
 
-**Interactive canvas (click stages → detail branches):** open [`pipeline-flow.html`](pipeline-flow.html) in a browser.
+**Interactive canvas (click stages → detail branches):** open [`pipeline-flow.html`](pipeline-flow.html) in a browser. The Fetch → Plan → Build → Review → Docs → PR strip jumps to that layer; it is not a “current stage” indicator.
 
 Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 

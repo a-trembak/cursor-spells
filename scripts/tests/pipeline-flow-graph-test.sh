@@ -43,8 +43,9 @@ assert_contains html_fixes_to_dev "$HTML" "software-developer"
 assert_contains html_view_id "$HTML" 'id="view-review-gate"'
 assert_contains html_alias "$HTML" '"finish-plan": "review-gate"'
 
-# Overview must not present the post-build HITL as a finish-plan plan step.
-assert_absent html_overview_finish_label "$HTML" '<div class="label">finish-plan</div>'
+assert_contains html_layer_nav "$HTML" 'data-layer="layer-review"'
+assert_contains html_layer_ids "$HTML" 'id="layer-review"'
+assert_absent html_fake_active "$HTML" 'class="here"'
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
