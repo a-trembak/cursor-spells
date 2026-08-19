@@ -19,7 +19,7 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Cross `--x` | Stop / blocked |
 | Dotted `-.->` | Loop / re-entry |
 
-Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
+Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `jira-transition`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
@@ -34,6 +34,7 @@ flowchart TD
   fetch[["jira-fetch MCP"]]
   fetchFail{MCP ok?}
   stopPaste[/"Stop: paste ticket text"/]
+  inProgress[["jira-transition in_progress"]]
   route{"Route"}
   hitlRoute[/"HITL Pipeline route: full / fast / issue"/]
   noAc{AC exist?}
@@ -55,7 +56,8 @@ flowchart TD
   looksJira -->|"no"| noAc
   fetch ==> fetchFail
   fetchFail -->|"no"| stopPaste
-  fetchFail -->|"yes"| route
+  fetchFail -->|"yes"| inProgress
+  inProgress ==> route
   route -->|"bug, no --fast"| issuePipe[["issue pipeline"]]
   route -->|"unknown, no --fast"| hitlRoute
   hitlRoute -->|"full"| noAc
@@ -394,6 +396,7 @@ flowchart TD
   startFast(["/start-task --fast ac-source"])
   looksJira{Looks like Jira?}
   fetch[["jira-fetch"]]
+  inProgress[["jira-transition in_progress"]]
   fastVsIssue[/"HITL Fast vs issue if class bug"/]
   boot["Bootstrap"]
   brief["Short AC brief in chat"]
@@ -403,7 +406,7 @@ flowchart TD
   doneFast(["PR URL"])
 
   startFast ==> looksJira
-  looksJira -->|"yes"| fetch --> fastVsIssue --> boot
+  looksJira -->|"yes"| fetch --> inProgress --> fastVsIssue --> boot
   looksJira -->|"no"| boot
   boot ==> brief ==> exec ==> review ==> prNode ==> doneFast
 ```
@@ -421,6 +424,7 @@ flowchart TD
   jira[["jira-fetch getJiraIssue"]]
   jiraFail{MCP ok?}
   stopJira[/"Stop: paste ticket text"/]
+  inProgress[["jira-transition in_progress"]]
   planFix["Write fix plan"]
   critic["implementation-critic Pass A B C"]
   verdict{Verdict clear?}
@@ -432,13 +436,13 @@ flowchart TD
 
   startIssue ==> boot ==> jira ==> jiraFail
   jiraFail -->|"no"| stopJira
-  jiraFail -->|"yes"| planFix ==> critic ==> verdict
+  jiraFail -->|"yes"| inProgress ==> planFix ==> critic ==> verdict
   verdict -->|"blocked or pending accept"| hitlCrit
   hitlCrit --> planFix
   verdict -->|"clear"| fixer ==> review ==> prNode ==> doneIssue
 ```
 
-Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). Jira comment options appear on the Pipeline finale when `jira_key` is known. Never `transitionJiraIssue`.
+Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` also run `jira-transition` target `review`. Never `gh pr merge`.
 
 ---
 
@@ -452,13 +456,14 @@ flowchart TD
   keep["keep_draft"]
   ready["gh pr ready"]
   jiraC["addCommentToJiraIssue PR URL"]
+  jiraRev[["jira-transition review"]]
   done(["Report PR URL"])
 
   startPr ==> draft ==> hitl
   hitl -->|"keep_draft"| keep --> done
-  hitl -->|"ready"| ready --> done
+  hitl -->|"ready"| ready --> jiraRev --> done
   hitl -->|"keep_draft_jira"| jiraC --> done
-  hitl -->|"ready_jira"| ready --> jiraC --> done
+  hitl -->|"ready_jira"| ready --> jiraC --> jiraRev --> done
 ```
 
-`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. Never transition Jira status.
+`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. `ready` / `ready_jira` with a key → `jira-transition` target `review` (skip if already Review; report and continue on failure). `keep_draft` / `keep_draft_jira` leave the ticket In Progress.

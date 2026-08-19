@@ -8,7 +8,7 @@
 
 1. Full and fast `/start-task` **fetch** Jira ticket text via Atlassian MCP when the AC source is a key or browse URL — never invent AC, never treat a URL as a stub.
 2. **Route** mechanically among full / fast / issue so a Bug ticket does not silently take the feature path, and `--fast` is never chosen automatically.
-3. After `create-pr` opens a **draft** PR, one HITL gate can mark it ready and/or comment the PR URL on Jira. Never transition Jira. Never merge.
+3. After `create-pr` opens a **draft** PR, one HITL gate can mark it ready and/or comment the PR URL on Jira. Never merge. **Status transitions** are specified in [`2026-08-19-jira-status-transitions-design.md`](2026-08-19-jira-status-transitions-design.md) (In Progress on start; Review on ready).
 4. Thin `/capture-escape` entry for production misses → `review-learn` `mode:capture` `source:production-escape`.
 
 ## Decisions
@@ -23,7 +23,7 @@
 | Jira type unknown | HITL `full` / `fast` / `issue` |
 | `/start-issue-task` | Always issue path even if type is Story |
 | PR finale | One HITL after draft exists; default `keep_draft` |
-| Jira write | Comment with PR URL only; **no** status transition |
+| Jira write | Comment with PR URL; status moves as in the 2026-08-19 transitions spec |
 | Writing AC | Still out of scope |
 
 ## Jira fetch
@@ -72,7 +72,7 @@ Steps 1–7 unchanged (always create/reuse **draft** first). Then:
 | `keep_draft_jira` | Jira key known | Draft + Jira comment with PR URL(s). |
 | `ready_jira` | Jira key known | Ready + Jira comment. |
 
-Comment body: PR URL(s) + one-line summary. `addCommentToJiraIssue` only. If comment fails, report and do not retry as a transition. Never `transitionJiraIssue`. Never merge. Never approve reviews.
+Comment body: PR URL(s) + one-line summary. `addCommentToJiraIssue` for `*_jira`. `ready` / `ready_jira` also run `jira-transition` target `review` when a key is known. If comment fails, report and do not retry as a transition. Never merge. Never approve reviews.
 
 ## Capture-escape
 
@@ -80,7 +80,7 @@ Command `/capture-escape`: invoke `review-learn` `mode:capture` with `source: pr
 
 ## Out of scope
 
-Writing AC; auto-installing skills; Jira status transitions; merge / CI babysit / deploy; a11y/i18n phases; Linear fetch; multi-repo ticket→repo discovery (still v1.1).
+Writing AC; auto-installing skills; merge / CI babysit / deploy; a11y/i18n phases; Linear fetch; multi-repo ticket→repo discovery (still v1.1). Jira status transitions: see 2026-08-19 spec.
 
 ## New/changed artifacts
 

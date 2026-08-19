@@ -54,12 +54,14 @@ After a **draft** PR exists, `create-pr` must AskQuestion **Pipeline finale**:
 
 | Token | Shown | Effect |
 |-------|-------|--------|
-| `keep_draft` | always | Draft stays draft |
-| `ready` | always | `gh pr ready` |
-| `keep_draft_jira` | only if `jira_key` known | Draft + `addCommentToJiraIssue` (PR URL) |
-| `ready_jira` | only if `jira_key` known | Ready + Jira comment |
+| `keep_draft` | always | Draft stays draft (Jira stays In Progress) |
+| `ready` | always | `gh pr ready` + `jira-transition` target `review` when key known |
+| `keep_draft_jira` | only if `jira_key` known | Draft + `addCommentToJiraIssue` (PR URL); no Review transition |
+| `ready_jira` | only if `jira_key` known | Ready + Jira comment + `jira-transition` target `review` |
 
-Forbidden: `transitionJiraIssue`, `gh pr merge`, review approve, opening ready-for-review before this HITL.
+Forbidden: inventing transition ids, `gh pr merge`, review approve, opening ready-for-review before this HITL, transitioning from `/write-tech-spec`.
+
+After a successful `/start-task` or `/start-issue-task` fetch: `jira-transition` target `in_progress` (skip if already there; failure does not stop the pipeline).
 
 ## Capture-escape
 
