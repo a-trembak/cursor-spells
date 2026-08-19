@@ -79,6 +79,10 @@
     .swatch.hitl { background: var(--hitl); }
     .swatch.stop { background: var(--stop); }
     .swatch.ok { background: var(--ok); }
+    .swatch.cycle {
+      background: transparent;
+      border: 1px dashed var(--hitl);
+    }
 
     main {
       padding: 1.5rem;
@@ -217,6 +221,83 @@
       background: var(--bg0);
       padding: 0 0.35rem;
     }
+
+    .seq-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.35rem;
+      justify-content: center;
+    }
+    .seq-strip li {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      background: var(--bg1);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .seq-strip li.here {
+      border-color: var(--hitl);
+      color: var(--text);
+    }
+    .seq-strip li:not(:last-child)::after {
+      content: "→";
+      margin-left: 0.45rem;
+      color: var(--line);
+    }
+
+    .layer {
+      width: min(100%, 520px);
+      padding: 0.85rem 0.85rem 0.65rem;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: rgba(21, 32, 43, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0.15rem 0;
+    }
+    .layer-head {
+      width: 100%;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 0.7rem;
+    }
+    .layer.fetch { border-color: var(--line); }
+    .layer.plan { border-color: #a78bfa; }
+    .layer.build { border-color: var(--auto); }
+    .layer.review { border-color: var(--hitl); }
+    .layer.ship { border-color: var(--ok); }
+    .layer .node { width: min(100%, 420px); }
+
+    .flow-down {
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 0.35rem 0;
+      text-align: center;
+    }
+    .flow-down.ok { color: var(--ok); }
+
+    .cycle-chip {
+      width: min(100%, 420px);
+      margin: 0.35rem 0 0.55rem;
+      padding: 0.4rem 0.7rem;
+      border: 1px dashed var(--hitl);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: var(--hitl);
+      text-align: center;
+      line-height: 1.35;
+    }
+    .cycle-chip code { color: var(--text); }
 
     .branch-row {
       display: flex;
@@ -362,12 +443,13 @@
 <body>
   <header>
     <h1>cursor-spells · Pipeline canvas</h1>
-    <p class="sub">Клік по етапу — деталі з умовами і гілками</p>
+    <p class="sub">Шари зверху вниз · клік по етапу — гілки і цикли ↺</p>
     <div class="legend">
       <span><i class="swatch auto"></i> automatic</span>
       <span><i class="swatch hitl"></i> HITL</span>
       <span><i class="swatch stop"></i> stop</span>
       <span><i class="swatch ok"></i> clear / proceed</span>
+      <span><i class="swatch cycle"></i> cycle ↺</span>
     </div>
   </header>
 
@@ -376,98 +458,125 @@
     <section id="view-overview" class="view active" aria-label="Overview">
       <h2 class="view-title">Огляд пайплайна</h2>
       <p class="view-desc">
-        Від Acceptance Criteria до PR (<code>create-pr</code> draft, потім HITL finale).
-        <code>/start-task</code> спочатку fetch → In Progress → route (Jira MCP), ніколи не обирає <code>--fast</code> сам.
-        Також: <code>/start-task --fast</code>, <code>/start-issue-task</code>, <code>/capture-escape</code>.
-        Натисніть етап, щоб побачити умови, HITL-відповіді та петлі повернення.
+        Час іде <strong>зверху вниз</strong>. Рамки — шари (Plan → Build → Review → Docs).
+        Пунктир ↺ — цикл у тому ж шарі або на <em>один</em> шар назад.
+        <code>review-gate</code> стоїть <em>після</em> коду: команда <code>/finish-plan</code> лише відкриває цей HITL, не шар плану.
+        <code>/start-task</code> починає з fetch → In Progress → route і ніколи не обирає <code>--fast</code> сам.
       </p>
 
+      <ol class="seq-strip" aria-label="Happy path sequence">
+        <li>Fetch</li>
+        <li>Plan</li>
+        <li>Build</li>
+        <li class="here">Review</li>
+        <li>Docs</li>
+        <li>PR</li>
+      </ol>
+
       <div class="canvas">
-        <div class="node hitl" tabindex="0" data-go="route" role="button">
-          <div class="kind">0 · fetch + route</div>
-          <div class="label">Jira fetch + router</div>
-          <div class="hint">MCP · In Progress · Bug → issue · never auto --fast</div>
-          <span class="open-detail">деталі →</span>
+        <div class="layer fetch">
+          <div class="layer-head">Fetch</div>
+          <div class="node hitl" tabindex="0" data-go="route" role="button">
+            <div class="kind">0 · fetch + route</div>
+            <div class="label">Jira fetch + router</div>
+            <div class="hint">MCP · In Progress · Bug → issue · never auto --fast</div>
+            <span class="open-detail">деталі →</span>
+          </div>
         </div>
-        <div class="connector"><span class="edge-label">AC є</span></div>
 
-        <div class="node auto" tabindex="0" data-go="bootstrap" role="button">
-          <div class="kind">1 · automatic</div>
-          <div class="label">Bootstrap</div>
-          <div class="hint">project-patterns + stack detect</div>
-          <span class="open-detail">деталі →</span>
+        <div class="flow-down">↓ AC є</div>
+
+        <div class="layer plan">
+          <div class="layer-head">Plan · spec і план, ще без коду</div>
+          <div class="node auto" tabindex="0" data-go="bootstrap" role="button">
+            <div class="kind">1 · automatic</div>
+            <div class="label">Bootstrap</div>
+            <div class="hint">project-patterns + stack detect</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="connector"><span class="edge-label">AC є</span></div>
+          <div class="node hitl" tabindex="0" data-go="tech-spec" role="button">
+            <div class="kind">2 · HITL</div>
+            <div class="label">Tech Spec</div>
+            <div class="hint">entry → depth → approve-spec</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="cycle-chip">↺ <code>revise</code> лишається в Tech Spec</div>
+          <div class="connector"><span class="edge-label">approved | skip</span></div>
+          <div class="node auto" tabindex="0" data-go="plan" role="button">
+            <div class="kind">3 · automatic</div>
+            <div class="label">writing-plans</div>
+            <div class="hint">implementation plan з tech spec</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="connector"></div>
+          <div class="node hitl" tabindex="0" data-go="approve-plan" role="button">
+            <div class="kind">4 · HITL + auto critic</div>
+            <div class="label">approve-plan → critic</div>
+            <div class="hint">Verdict: clear → Build</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="cycle-chip">↺ <code>revise</code> / <code>accept F-id</code> → writing-plans або цей самий critic, не код</div>
         </div>
-        <div class="connector"><span class="edge-label">AC є</span></div>
 
-        <div class="node hitl" tabindex="0" data-go="tech-spec" role="button">
-          <div class="kind">2 · HITL</div>
-          <div class="label">Tech Spec</div>
-          <div class="hint">entry → (agent) depth → tiers/Blocker → approve</div>
-          <span class="open-detail">деталі →</span>
+        <div class="flow-down ok">↓ Verdict: clear — шар плану закрито</div>
+
+        <div class="layer build">
+          <div class="layer-head">Build · написання коду</div>
+          <div class="node auto" tabindex="0" data-go="build" role="button">
+            <div class="kind">5 · automatic</div>
+            <div class="label">start-build → software-developer</div>
+            <div class="hint">чекати developer → далі review-gate, не новий план</div>
+            <span class="open-detail">деталі →</span>
+          </div>
         </div>
-        <div class="connector"><span class="edge-label">approved | skip</span></div>
 
-        <div class="node auto" tabindex="0" data-go="plan" role="button">
-          <div class="kind">3 · automatic</div>
-          <div class="label">writing-plans</div>
-          <div class="hint">implementation plan з tech spec</div>
-          <span class="open-detail">деталі →</span>
+        <div class="flow-down">↓ tasks verified</div>
+
+        <div class="layer review">
+          <div class="layer-head">Review · план уже виконано</div>
+          <div class="node hitl" tabindex="0" data-go="review-gate" role="button">
+            <div class="kind">6 · HITL review-gate</div>
+            <div class="label">review-gate</div>
+            <div class="hint"><code>/finish-plan</code> пише маркер · skip / approve / done</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="cycle-chip">↺ <code>fixes</code> повертає в <strong>software-developer</strong> (Build), не в writing-plans</div>
+          <div class="connector"><span class="edge-label">skip / approve / done</span></div>
+          <div class="node hitl" tabindex="0" data-go="review" role="button">
+            <div class="kind">7 · conditional HITL</div>
+            <div class="label">engineer-review</div>
+            <div class="hint">1 repo vs ≥2 · Figma · clarify</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="cycle-chip">↺ Needs clarification → цей самий review</div>
         </div>
-        <div class="connector"></div>
 
-        <div class="node hitl" tabindex="0" data-go="approve-plan" role="button">
-          <div class="kind">4 · HITL + auto critic</div>
-          <div class="label">approve-plan → critic</div>
-          <div class="hint">approve/revise → Verdict → clear?</div>
-          <span class="open-detail">деталі →</span>
-        </div>
-        <div class="connector"><span class="edge-label">Verdict: clear</span></div>
+        <div class="flow-down">↓ review settled</div>
 
-        <div class="node auto" tabindex="0" data-go="build" role="button">
-          <div class="kind">5 · automatic</div>
-          <div class="label">start-build → software-developer</div>
-          <div class="hint">wait for developer → finish-plan → engineer-reviewer</div>
-          <span class="open-detail">деталі →</span>
-        </div>
-        <div class="connector"><span class="edge-label">tasks verified</span></div>
-
-        <div class="node hitl" tabindex="0" data-go="finish-plan" role="button">
-          <div class="kind">6 · HITL</div>
-          <div class="label">finish-plan</div>
-          <div class="hint">skip / approve / done / fixes</div>
-          <span class="open-detail">деталі →</span>
-        </div>
-        <div class="connector"></div>
-
-        <div class="node hitl" tabindex="0" data-go="review" role="button">
-          <div class="kind">7 · conditional HITL</div>
-          <div class="label">engineer-review</div>
-          <div class="hint">1 repo vs ≥2 · Figma · clarify</div>
-          <span class="open-detail">деталі →</span>
-        </div>
-        <div class="connector"></div>
-
-        <div class="node hitl" tabindex="0" data-go="update-docs" role="button">
-          <div class="kind">8 · HITL</div>
-          <div class="label">update-docs</div>
-          <div class="hint">skip / docs_md / docs_repo / confluence</div>
-          <span class="open-detail">деталі →</span>
-        </div>
-        <div class="connector"><span class="edge-label">then</span></div>
-
-        <div class="node hitl" tabindex="0" data-go="create-pr" role="button">
-          <div class="kind">9 · HITL</div>
-          <div class="label">create-pr</div>
-          <div class="hint">draft first · keep_draft / ready / Jira Review</div>
-          <span class="open-detail">деталі →</span>
-        </div>
-        <div class="connector"><span class="edge-label">done</span></div>
-
-        <div class="node ok" tabindex="0" data-go="markers" role="button">
-          <div class="kind">markers · state</div>
-          <div class="label">PR + docs</div>
-          <div class="hint">draft або ready · таблиця маркерів .cursor/gates</div>
-          <span class="open-detail">деталі →</span>
+        <div class="layer ship">
+          <div class="layer-head">Docs + PR</div>
+          <div class="node hitl" tabindex="0" data-go="update-docs" role="button">
+            <div class="kind">8 · HITL</div>
+            <div class="label">update-docs</div>
+            <div class="hint">skip / docs_md / docs_repo / confluence</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="cycle-chip">↺ чекати path / URL / Confluence space</div>
+          <div class="connector"><span class="edge-label">then</span></div>
+          <div class="node hitl" tabindex="0" data-go="create-pr" role="button">
+            <div class="kind">9 · HITL</div>
+            <div class="label">create-pr</div>
+            <div class="hint">draft first · keep_draft / ready / Jira Review</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="connector"><span class="edge-label">done</span></div>
+          <div class="node ok" tabindex="0" data-go="markers" role="button">
+            <div class="kind">markers · state</div>
+            <div class="label">PR + docs</div>
+            <div class="hint">draft або ready · таблиця маркерів .cursor/gates</div>
+            <span class="open-detail">деталі →</span>
+          </div>
         </div>
       </div>
 
@@ -480,7 +589,7 @@
         <div class="node auto" tabindex="0" data-go="standalone" role="button">
           <div class="kind">shortcuts</div>
           <div class="label">Standalone + lean paths</div>
-          <div class="hint">--fast · /start-issue-task · /capture-escape · /pr-review…</div>
+          <div class="hint">--fast пропускає Plan і review-gate · /start-issue-task · /pr-review…</div>
           <span class="open-detail">деталі →</span>
         </div>
       </div>
@@ -824,22 +933,22 @@
         <div class="step">
           <div class="step-num">5</div>
           <div class="step-body auto">
-            <h3>Wait → finish-plan → engineer-reviewer</h3>
-            <p><code>start-build</code> <strong>чекає</strong> return від nested Task <code>software-developer</code> (fire-and-forget заборонено). Потім у цьому ж чаті викликає <code>finish-plan</code>, який після <code>skip</code> / <code>approve</code> / <code>done</code> запускає <code>engineer-reviewer</code>.</p>
+            <h3>Wait → review-gate → engineer-reviewer</h3>
+            <p><code>start-build</code> <strong>чекає</strong> return від nested Task <code>software-developer</code> (fire-and-forget заборонено). Потім у цьому ж чаті викликає <code>/finish-plan</code> — це HITL <code>review-gate</code>, не повернення до writing-plans. Після <code>skip</code> / <code>approve</code> / <code>done</code> стартує <code>engineer-reviewer</code>.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
         <button type="button" data-go="approve-plan">← Approve + Critic</button>
-        <button type="button" class="primary" data-go="finish-plan">Далі: Finish Plan →</button>
+        <button type="button" class="primary" data-go="review-gate">Далі: review-gate →</button>
       </div>
     </section>
 
-    <!-- FINISH -->
-    <section id="view-finish-plan" class="view" hidden>
+    <!-- REVIEW-GATE -->
+    <section id="view-review-gate" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
-      <h2 class="view-title">6. finish-plan</h2>
-      <p class="view-desc">HITL перед engineer-review. Marker <code>.cursor/gates/review-gate/&lt;slug&gt;</code>.</p>
+      <h2 class="view-title">6. review-gate</h2>
+      <p class="view-desc">HITL <em>після</em> коду, перед engineer-review. Шар плану вже закритий. Команда <code>/finish-plan</code> пише <code>.cursor/gates/review-gate/&lt;slug&gt;</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -856,7 +965,7 @@
               </div>
               <div class="branch">
                 <span class="token">fixes</span>
-                <div class="then">Описати фікси → implement → знову gate<small>marker лишається</small></div>
+                <div class="then">Описати фікси → <code>software-developer</code> (Build) → знову цей самий gate<small>не writing-plans · marker лишається</small></div>
               </div>
             </div>
           </div>
@@ -938,12 +1047,12 @@
           <div class="step-num">4</div>
           <div class="step-body hitl">
             <h3>Needs clarification</h3>
-            <p>Якщо список не порожній — stop і чекати відповіді (напр. <code>C1: A</code>). Потім re-dispatch лише affected phases і знову merge/validate.</p>
+            <p>Якщо список не порожній — stop і чекати відповіді (напр. <code>C1: A</code>). Потім re-dispatch лише affected phases і знову merge/validate. Цикл лишається в Review, не в Plan.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" data-go="finish-plan">← Finish Plan</button>
+        <button type="button" data-go="review-gate">← review-gate</button>
         <button type="button" class="primary" data-go="update-docs">Далі: Update Docs →</button>
       </div>
     </section>
@@ -1064,7 +1173,7 @@
           </tr>
           <tr>
             <td><code>gates/review-gate/&lt;slug&gt;</code></td>
-            <td>finish-plan</td>
+            <td><code>/finish-plan</code> (<code>review-gate</code> HITL)</td>
             <td><code>skip</code> / <code>approve</code> / <code>done</code></td>
           </tr>
           <tr>
@@ -1097,7 +1206,7 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / finish-plan / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
@@ -1132,7 +1241,7 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/finish-plan · /engineer-review · /update-docs · /pr-review · /multi-review · /capture-escape</h3>
-            <p>Post-plan / docs / PR / multi-repo входи. Manual engineer-review пропускає finish-plan HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> пише production miss у <code>review-learn</code> без повного review.</p>
+            <p><code>/finish-plan</code> входить у <code>review-gate</code> HITL (код уже написаний). Manual <code>/engineer-review</code> пропускає цей HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> пише production miss у <code>review-learn</code> без повного review.</p>
           </div>
         </div>
       </div>
@@ -1150,7 +1259,10 @@
   <script>
     const views = document.querySelectorAll(".view");
 
+    const aliases = { "finish-plan": "review-gate" };
+
     function show(id) {
+      id = aliases[id] || id;
       const target = "view-" + id;
       views.forEach((v) => {
         const on = v.id === target;
@@ -1176,7 +1288,8 @@
     });
 
     const hash = (location.hash || "#overview").slice(1);
-    if (document.getElementById("view-" + hash)) show(hash);
+    const resolved = aliases[hash] || hash;
+    if (document.getElementById("view-" + resolved)) show(hash);
   </script>
 </body>
 </html>

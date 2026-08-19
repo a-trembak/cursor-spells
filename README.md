@@ -200,10 +200,10 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 - `@english-humanizer` / ask to humanize a PR comment or problem description
 - Humanizer does **not** expand abbreviations. Chat with you still goes through [`plain-language-chat`](skills/plain-language-chat/) (always-on rule after `csp update`)
 
-### Finish plan → HITL → engineer review
+### review-gate → HITL → engineer review
 
-1. When a plan is done: `/finish-plan`
-2. Answer via interactive buttons when offered (`AskQuestion`), or type `skip` / `approve` / `done`
+1. When coding from a plan is done: `/finish-plan` (this is the **review-gate** HITL, not another planning step)
+2. Answer via interactive buttons when offered (`AskQuestion`), or type `skip` / `approve` / `done`. Type `fixes` to return to `software-developer`, then the same gate.
 3. On frontend, use the Figma picker or paste node URLs / `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
@@ -214,7 +214,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 ### Start a task (full pipeline)
 
-**Canvas (all stages, HITL gates, branches):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md)
+**Canvas (layers, sequence, cycles):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md). After code the graph names the HITL **`review-gate`** (skill `/finish-plan` writes the marker). `fixes` returns to Build, not to `writing-plans`.
 
 `/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. When the AC source looks like a Jira ticket (`PROJ-123` or `*.atlassian.net` URL), it **fetches** via Atlassian MCP (`jira-fetch`), moves the ticket to **In Progress** (`jira-transition`), then **routes** (Bug → `/start-issue-task`; unknown type → HITL **Pipeline route**; never auto-selects `--fast`). Ends with skill [`create-pr`](skills/create-pr/) (draft PR, then HITL **Pipeline finale**).
 
@@ -225,7 +225,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skills/clean-decision-docs/): rewrite the file as current truth; put "what changed" in chat, not as changelog archaeology inside the document.
 5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
-6. `/finish-plan` — **HITL** `skip`/`approve`/`done`
+6. `review-gate` via `/finish-plan` — **HITL** `skip`/`approve`/`done` (or `fixes` back to `software-developer`)
 7. `engineer-review` — **HITL** only for clarifications it raises
 8. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write)
 9. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). `ready` / `ready_jira` also move the Jira issue to **Review**. Never merge.
@@ -236,7 +236,7 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Start a task (fast — no planning HITL)
 
-`/start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no finish-plan HITL) → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
+`/start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no review-gate HITL) → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
 
 ### Start an issue task (Jira bug fix)
 

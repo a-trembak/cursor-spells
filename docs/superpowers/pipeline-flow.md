@@ -15,9 +15,12 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Diamond `{…}` | Decision / condition |
 | Trapezoid `[/…/]` | HITL gate (human must answer) |
 | Hexagon `{{…}}` | Artifact / marker handoff |
-| Thick `==>` | Happy path |
+| Subgraph box | Layer in time (Plan → Build → Review → Docs) |
+| Thick `==>` | Happy-path sequence |
 | Cross `--x` | Stop / blocked |
-| Dotted `-.->` | Loop / re-entry |
+| Dotted `-.->` | Cycle: stay in this layer, or go **one layer back** |
+
+`review-gate` is the HITL **after code**. Skill `/finish-plan` writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
 
 Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `jira-transition`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
 
@@ -25,7 +28,67 @@ Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first;
 
 ---
 
-## 1. Full pipeline (end-to-end)
+## 1. Layers, sequence, and cycles
+
+Time flows **down**. Thick arrows are the happy path. Dotted arrows are the only legal loops.
+
+```mermaid
+flowchart TB
+  fetch["0 Fetch + route"]
+
+  subgraph planLayer [Plan layer — spec and plan, no code yet]
+    direction TB
+    spec["tech-spec"]
+    plans["writing-plans"]
+    critic["approve-plan + critic"]
+    spec ==> plans ==> critic
+    spec -.->|"revise"| spec
+    critic -.->|"revise"| plans
+    critic -.->|"blocked / accept F-id"| critic
+  end
+
+  subgraph buildLayer [Build layer — write the code]
+    direction TB
+    startB["start-build"]
+    code["software-developer"]
+    startB ==> code
+  end
+
+  subgraph reviewLayer [Review layer — the plan is already executed]
+    direction TB
+    gate[/"review-gate"/]
+    review["engineer-review"]
+    gate ==>|"skip / approve / done"| review
+    review -.->|"Needs clarification"| review
+  end
+
+  subgraph shipLayer [Docs and PR]
+    direction TB
+    docs["update-docs"]
+    pr["create-pr"]
+    docs ==> pr
+  end
+
+  fetch ==> spec
+  critic ==>|"Verdict: clear"| startB
+  code ==>|"tasks verified"| gate
+  gate -.->|"fixes — back to Build, not Plan"| code
+  review ==> docs
+```
+
+| Cycle | Returns to | Does not return to |
+|-------|------------|--------------------|
+| `revise` on tech-spec | Plan / tech-spec | Build |
+| `revise` / `accept F-id` on critic | Plan / writing-plans or the same critic HITL | Build |
+| **`fixes` on review-gate** | **Build / `software-developer`, then the same review-gate** | **`writing-plans`** |
+| Needs clarification | Review / engineer-review | Plan |
+| Docs location follow-up | Docs | Review |
+
+`--fast` skips the Plan layer and skips `review-gate`; it still runs engineer-review. `/start-issue-task` has its own fix-plan loop, not this full Plan layer.
+
+---
+
+## 2. Full pipeline (end-to-end)
 
 ```mermaid
 flowchart TD
@@ -45,7 +108,7 @@ flowchart TD
   approvePlan[["approve-plan + critic"]]
   startBuild[["start-build"]]
   softwareDev[["software-developer"]]
-  finishPlan[["finish-plan"]]
+  reviewGate[/"review-gate"/]
   engReview[["engineer-reviewer or multi-repo-supervisor"]]
   updateDocs[["update-docs"]]
   createPr[["create-pr draft then HITL finale"]]
@@ -68,21 +131,25 @@ flowchart TD
   noAc -->|"yes"| bootstrap
   bootstrap ==> techSpec
   techSpec ==>|"Status approved or skip"| planWrite
+  techSpec -.->|"revise"| techSpec
   planWrite ==> approvePlan
+  approvePlan -.->|"revise"| planWrite
   approvePlan ==>|"Verdict: clear"| startBuild
   startBuild ==> softwareDev
-  softwareDev ==>|"all tasks verified"| finishPlan
-  finishPlan ==>|"skip / approve / done"| engReview
+  softwareDev ==>|"all tasks verified"| reviewGate
+  reviewGate -.->|"fixes"| softwareDev
+  reviewGate ==>|"skip / approve / done"| engReview
+  engReview -.->|"Needs clarification"| engReview
   engReview ==> updateDocs
   updateDocs ==>|"skip / docs_md / docs_repo / confluence"| createPr
   createPr ==>|"keep_draft / ready / *_jira"| doneNode
 ```
 
-`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/start-issue-task` always stays on the issue path.
+`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/start-issue-task` always stays on the issue path. Skill `/finish-plan` is how the orchestrator enters `review-gate` after `software-developer` returns.
 
 ---
 
-## 2. Tech spec — modes, tiers, gate
+## 3. Tech spec — modes, tiers, gate
 
 ```mermaid
 flowchart TD
@@ -127,7 +194,7 @@ flowchart TD
 
 ---
 
-## 3. Approve plan → critic → build
+## 4. Approve plan → critic → build
 
 ```mermaid
 flowchart TD
@@ -178,7 +245,7 @@ Should-fix findings are visible but never block.
 
 ---
 
-## 4. Start-build → software-developer
+## 5. Start-build → software-developer
 
 ```mermaid
 flowchart TD
@@ -195,7 +262,7 @@ flowchart TD
   sdd[["subagent-driven-development"]]
   ep[["executing-plans separate session"]]
   verify["verification-before-completion"]
-  toFinish(["finish-plan"])
+  toReviewGate(["review-gate"])
 
   startBuildCmd ==> checkClear
   checkClear -->|"no"| stopApprove
@@ -210,21 +277,23 @@ flowchart TD
   execMode -->|"yes"| ep
   sdd ==> verify
   ep ==> verify
-  verify ==> toFinish
+  verify ==> toReviewGate
 ```
 
-`start-build` **must Wait for** the `software-developer` Task to return, then invoke `finish-plan` in the parent chat so `engineer-reviewer` starts. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
+`start-build` **must Wait for** the `software-developer` Task to return, then invoke `/finish-plan` in the parent chat. That skill **is** the `review-gate` HITL; after `skip` / `approve` / `done` it starts `engineer-reviewer`. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
 
 ---
 
-## 5. Finish-plan → review routing
+## 6. review-gate → review routing
+
+Coding is done. This gate is **not** another Plan-layer step. Skill `/finish-plan` writes the marker, asks HITL, then routes to review. `fixes` returns to `software-developer` (Build), then re-asks this same gate.
 
 ```mermaid
 flowchart TD
-  planDone(["Plan tasks complete"])
+  planDone(["Build complete — plan already executed"])
   writeReview{{".cursor/gates/review-gate/slug"}}
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
-  doFixes["Implement fixes; re-ask gate"]
+  doFixes["software-developer implements fixes"]
   delReview["Clear this slug review-gate"]
   probe["Non-mutating multi-repo probe"]
   repoCount{Changed repo count?}
@@ -239,7 +308,7 @@ flowchart TD
   planDone ==> writeReview
   writeReview ==> hitlFinish
   hitlFinish -->|"fixes"| doFixes
-  doFixes --> hitlFinish
+  doFixes -.->|"re-ask same gate"| hitlFinish
   hitlFinish -->|"skip or approve or done"| delReview
   delReview ==> probe
   probe ==> repoCount
@@ -251,12 +320,13 @@ flowchart TD
   figmaHitl --> single
   multi --> clarify
   single --> clarify
+  clarify -.->|"C-id answers"| clarify
   clarify ==> reviewed
 ```
 
 ---
 
-## 6. Update-docs destination
+## 7. Update-docs destination
 
 ```mermaid
 flowchart TD
@@ -295,7 +365,7 @@ Writing shape: skill `update-docs` + `references/writing-guide.md`. For `docs_re
 
 ---
 
-## 7. Engineer-review internals (phase graph)
+## 8. Engineer-review internals (phase graph)
 
 ```mermaid
 flowchart TD
@@ -331,7 +401,7 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 ---
 
-## 8. Marker state machine
+## 9. Marker state machine
 
 Runtime markers live in the **consumer project** `.cursor/gates/<kind>/<slug>` (never the kit). Parallel tickets use different slugs; a foreign slug never blocks this plan. Legacy flat files (`.cursor/*.pending`, `plan-critique.clear`) migrate-on-read then delete.
 
@@ -345,9 +415,11 @@ stateDiagram-v2
   CritiqueGate --> CritiqueClear: Verdict clear
   CritiqueGate --> CritiqueGate: blocked / pending accept
   CritiqueClear --> Building: start-build + software-developer
-  Building --> ReviewGate: finish-plan writes review-gate/slug
+  Building --> ReviewGate: /finish-plan writes review-gate/slug
   ReviewGate --> Reviewing: skip / approve / done
-  ReviewGate --> ReviewGate: fixes then re-ask
+  ReviewGate --> Building: fixes then software-developer
+  Building --> ReviewGate: re-ask review-gate
+  Reviewing --> Reviewing: Needs clarification
   Reviewing --> DocsGate: update-docs writes docs-gate/slug
   DocsGate --> [*]: skip / publish complete
   DocsGate --> DocsGate: waiting location follow-up
@@ -362,12 +434,12 @@ stateDiagram-v2
 | `.cursor/gates/plan-gate/<slug>` | `approve-plan` | Human replies `approve-plan` |
 | `.cursor/gates/critique-gate/<slug>` | after plan approval | `Verdict: clear` |
 | `.cursor/gates/plan-critique-clear/<slug>` | on `Verdict: clear` | invalidated on `revise` / re-approve |
-| `.cursor/gates/review-gate/<slug>` | `finish-plan` | `skip` / `approve` / `done` |
+| `.cursor/gates/review-gate/<slug>` | `/finish-plan` (`review-gate` HITL) | `skip` / `approve` / `done` |
 | `.cursor/gates/docs-gate/<slug>` | `update-docs` | `skip` or publish/abort complete |
 
 ---
 
-## 9. Standalone entry points (bypass full orchestrator)
+## 10. Standalone entry points (bypass full orchestrator)
 
 ```mermaid
 flowchart LR
@@ -375,8 +447,8 @@ flowchart LR
   critique["/critique-plan"] --> criticOnly[["implementation-critic ad-hoc"]]
   approve["/approve-plan"] --> approveFlow[["approve + critic + start-build"]]
   build["/start-build"] --> buildOnly[["requires this slug plan-critique-clear"]]
-  finish["/finish-plan"] --> finishFlow[["HITL then review"]]
-  eng["/engineer-review"] --> reviewDirect[["skip finish-plan HITL"]]
+  finish["/finish-plan"] --> finishFlow[["review-gate HITL then review"]]
+  eng["/engineer-review"] --> reviewDirect[["skip review-gate HITL"]]
   docs["/update-docs"] --> docsFlow[["HITL destination then write"]]
   pr["/pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
   multi["/multi-review"] --> multiDirect[["multi-repo-supervisor"]]
@@ -391,7 +463,7 @@ flowchart LR
 
 ---
 
-## 10. Fast mode (`/start-task --fast`)
+## 11. Fast mode (`/start-task --fast`)
 
 ```mermaid
 flowchart TD
@@ -403,7 +475,7 @@ flowchart TD
   boot["Bootstrap"]
   brief["Short AC brief in chat"]
   exec["software-developer mode:fast"]
-  review["engineer-reviewer no finish-plan HITL"]
+  review["engineer-reviewer no review-gate HITL"]
   prNode[["create-pr draft then HITL finale"]]
   doneFast(["PR URL"])
 
@@ -413,11 +485,11 @@ flowchart TD
   boot ==> brief ==> exec ==> review ==> prNode ==> doneFast
 ```
 
-No tech-spec, writing-plans, approve-plan, critic, finish-plan, or update-docs. Clarify HITL only if engineer-review needs it. `--fast` is explicit only.
+No tech-spec, writing-plans, approve-plan, critic, review-gate, or update-docs. Clarify HITL only if engineer-review needs it. `--fast` is explicit only.
 
 ---
 
-## 11. Issue mode (`/start-issue-task`)
+## 12. Issue mode (`/start-issue-task`)
 
 ```mermaid
 flowchart TD
@@ -448,7 +520,7 @@ Always this path when `/start-issue-task` is invoked explicitly (even if type is
 
 ---
 
-## 12. Create-pr Pipeline finale
+## 13. Create-pr Pipeline finale
 
 ```mermaid
 flowchart TD
