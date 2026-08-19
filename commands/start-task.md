@@ -53,9 +53,10 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - **Automatic after `approve-plan`:** run `implementation-critic` (no HITL to start the critic).
    - **HITL:** only if `Verdict` is `blocked` or `clear pending accept` — wait for a plan revision or `accept F<id>` replies (`hitl-choice`).
    - **Automatic on `Verdict: clear`:** hand off to `start-build`.
-5. **Execution** (automatic once critique is clear): skill `start-build` dispatches `software-developer` — feature branch(es) in every repo the plan will touch, skill-map routing, then `subagent-driven-development` by default. Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
-6. **Finish plan** (automatic invocation of the existing HITL gate): once all tasks are complete, invoke skill `finish-plan`:
+5. **Execution** (automatic once critique is clear): skill `start-build` dispatches `software-developer` as a nested Task — feature branch(es) in every repo the plan will touch, skill-map routing, then `subagent-driven-development` by default. **Wait for** the Task to return. **Do not treat dispatch as the end** of the pipeline. `start-build` then immediately invokes `finish-plan` in this parent chat. Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
+6. **Finish plan** (automatic, from `start-build` after the developer returns — do not wait for the human to type `/finish-plan`):
    - **HITL:** `skip` / `approve` / `done` via `hitl-choice` before `engineer-review` starts.
+   - If `finish-plan` already started in this chat after the developer returned, do not re-ask — continue from its remaining steps.
 7. **Engineer review** (automatic once the HITL gate clears): run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ changed repos).
    - **HITL:** only for `Needs clarification` items the review surfaces.
 8. **Update docs** (automatic invocation after review completes): invoke skill `update-docs`:
@@ -66,6 +67,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 ### Full-mode notes
 
 - This command never invents an answer at any HITL gate above — it always stops and waits for the human's reply at exactly those points, and only those points.
+- **Do not treat dispatch as the end** of the pipeline: after `software-developer` returns, `finish-plan` then `engineer-reviewer` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
 - Pass `jira_key` / `jira_cloud_id` through to `create-pr` when fetch succeeded.
 
@@ -80,8 +82,8 @@ For small tasks that do not need tech-spec, plan approval, critic, finish-plan, 
 1. **Bootstrap** — same as full mode (patterns + stack detect).
 2. **AC required** — fetched `ac_text` or pasted/file source. If still empty, stop.
 3. **Short task brief** (automatic, in chat only — not a tech-spec file): 3–6 bullets covering goal, touched areas if obvious, and done criteria from the AC. Do not run `tech-spec`, `writing-plans`, `approve-plan`, or `implementation-critic`.
-4. **Execute** — create feature branch(es) per `software-developer` branch-setup; implement with skill **`software-developer`** using **`mode:fast`** (entry gates for tech-spec Status / critique-clear are skipped — see that skill). Prefer `subagent-driven-development` when available; verify with lint/test/typecheck before handoff.
-5. **Engineer review** — run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ repos). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the AC/context. HITL only for **Needs clarification**.
+4. **Execute** — create feature branch(es) per `software-developer` branch-setup; implement with skill **`software-developer`** using **`mode:fast`** as a nested Task (entry gates for tech-spec Status / critique-clear are skipped — see that skill). Prefer `subagent-driven-development` when available; verify with lint/test/typecheck before handoff. **Wait for** `software-developer` to return. Do not treat dispatch as the end.
+5. **Engineer review** — immediately after that return, run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ repos). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the AC/context. HITL only for **Needs clarification**.
 6. **Create PR** — invoke skill **`create-pr`** (draft PR, then Pipeline finale HITL).
 
 ### Fast-mode notes

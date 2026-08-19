@@ -10,6 +10,7 @@ Manual checklist to verify the kit behaves. Do not require CI to execute agents.
 chmod +x scripts/*.sh
 ./scripts/install-to-project.sh /tmp/er-dogfood --hooks --rule
 # or create a tiny git repo and point the script at it
+bash scripts/tests/developer-reviewer-handoff-test.sh   # parent wait + next_skill contract
 ```
 
 2. In the consumer repo, add a deliberate smell file, e.g. `src/smells.ts`:
@@ -43,6 +44,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | Step | Expect |
 |------|--------|
 | `/finish-plan` after fake plan | Creates `.cursor/gates/review-gate/<slug>`, asks HITL |
+| After `software-developer` Task returns | Parent (`start-build` / `/start-task`) invokes `finish-plan` (full) or `engineer-reviewer` (`--fast`); nested Task does not `AskQuestion` |
 | User `skip` | Starts engineer-reviewer; deletes marker |
 | Frontend stack | Asks for Figma URLs or `no figma` early |
 | First run | Creates `.cursor/project-patterns.md` |

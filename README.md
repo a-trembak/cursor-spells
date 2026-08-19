@@ -138,7 +138,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`system-design-critic`](skills/system-design-critic/) | Read-only audit of system-design drafts inside auto-consensus |
 | [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
 | [`clean-decision-docs`](skills/clean-decision-docs/) | Specs/plans stay final-form decisions — no "fixed/changed to" archaeology after critique or revise |
-| [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer` (no critic here) |
+| [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer`, **waits**, then `finish-plan` → `engineer-reviewer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
 | [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — canvas orientation + snippets + file links + humanizer prose; default report-only |
 | [`software-developer`](skills/software-developer/) | Implements a cleared plan (or `mode:fast` AC brief) — feature branch(es), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
@@ -265,7 +265,7 @@ npx skills add everyinc/compound-engineering-plugin@ce-explain
 
 `/approve-plan [path]` is the plan gate: the human reads the plan (`approve-plan` / `revise` via `hitl-choice` (AskQuestion required)), then `implementation-critic` runs **automatically** (no HITL to start it). On `Verdict: clear` it writes `.cursor/gates/plan-critique-clear/<slug>` and invokes `/start-build`. On `blocked` / `clear pending accept`, it stops for a revision or `accept F<id>`.
 
-`/start-build [path]` no longer runs the critic — it only starts `software-developer` when this plan's `.cursor/gates/plan-critique-clear/<slug>` matches the plan. Other slugs' pending gates do not block.
+`/start-build [path]` no longer runs the critic — it starts `software-developer` when this plan's `.cursor/gates/plan-critique-clear/<slug>` matches the plan, **waits for that agent to return**, then invokes `finish-plan` (human-in-the-loop, then `engineer-reviewer`). Other slugs' pending gates do not block.
 
 ### Critique a plan before coding
 
