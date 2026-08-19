@@ -5,7 +5,7 @@ Patterns tuned for **bug reports, colleague messages, and PR comments**. SKILL.m
 ## Contents
 
 - [English / LLM tells (1–14)](#english--llm-tells)
-- [Universal patterns in English (15–26)](#universal-patterns-in-english)
+- [Universal patterns in English (15–27)](#universal-patterns-in-english)
 - [Style markers](#style-markers)
 - [Full example (PR comment)](#full-example-pr-comment)
 - [Full example (problem for colleagues)](#full-example-problem-for-colleagues)
@@ -212,6 +212,17 @@ After: Race window is ~50ms when two saves overlap.
 Before: Please don't hesitate to reach out with any further questions or concerns.
 After: (delete) — or "Ping me if the staging repro differs."
 
+### 27. Unexplained abbreviations
+
+Letter-clump jargon that a non-insider has to decode. Short sentences are fine; shortened terms are not.
+
+Markers: PR, CI, HITL, AC, SHA, P0/P1, MCP, TTL, JWT, WIP, LGTM (when used as words in prose)
+
+Before: CI failed on the PR after HITL; SHA abc is P0.
+After: Continuous integration failed on the pull request after the human-in-the-loop step; commit hash abc is highest severity.
+
+For Cursor chat with the kit owner, skill **`plain-language-chat`** is mandatory after this pass.
+
 ---
 
 ## Style markers
@@ -257,7 +268,7 @@ Not grammar errors — formatting habits common in AI output:
 
 ### After
 
-> iOS clients get `401` on refresh after ~15 minutes even though refresh TTL is 24h. Android looks fine.  
+> iOS clients get `401` on refresh after about 15 minutes even though refresh time-to-live is 24 hours. Android looks fine.  
 > Suspect: gateway drops `Escloud-Authorization` on `POST /auth/refresh` (see gateway logs around 14:02 UTC).  
 > Can someone on API gateway confirm? I can provide a failing Charles session.
 

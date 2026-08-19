@@ -62,7 +62,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
    - Clarify items: **Options** + **Recommendation** (or explicit “none” — never invent `recommended`).
    - **Never** a Verdict / Blockers / Блокери digest — even if shorter.
    - What / Where / Why / Ask-or-fix.
-7. **Humanize** all prose with skill `english-humanizer` before showing the report or PR comment draft (paths and code fences unchanged). If missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
+7. **Humanize** all prose with skill `english-humanizer`, then expand abbreviations with skill `plain-language-chat`, before showing the report or PR comment draft (paths and code fences unchanged). If humanizer is missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
 8. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Point at the canvas (if built). Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 9. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch affected phases and re-emit with the same evidence bar.
 10. After the report is settled, run `review-learn` per [`review-learn-protocol.md`](../engineer-review/references/review-learn-protocol.md) (same self-strengthen loop as engineer-review).
@@ -79,4 +79,4 @@ Single-repo PRs use this path. If the workspace is multi-repo and the PR touches
 
 ## Context budget
 
-Orchestrator loads this SKILL + feedback-format + canvas reference + `engineer-review` indexes + `english-humanizer` (for the final pass). Load `pr-review-canvas` / Canvas only for the canvas step. Phase subagents load stack skills. Do not paste full third-party or plugin skill bodies here.
+Orchestrator loads this SKILL + feedback-format + canvas reference + `engineer-review` indexes + `english-humanizer` + `plain-language-chat` (for the final pass). Load `pr-review-canvas` / Canvas only for the canvas step. Phase subagents load stack skills. Do not paste full third-party or plugin skill bodies here.

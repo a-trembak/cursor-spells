@@ -26,7 +26,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
 
 1. Read skill `pr-review` (`skills/pr-review/SKILL.md`), `references/pr-resolve.md`, `references/feedback-format.md`, and `references/canvas.md`.
 2. Read skill `engineer-review` for phase dispatch, skill-map, budget, fix eligibility, **`references/evidence-gate.md`**, and **`references/forbidden-formats.md`**.
-3. Read skill `english-humanizer` before writing any user-visible finding prose or the PR comment draft (if missing, apply its engineer-voice rules inline).
+3. Read skill `english-humanizer` before writing any user-visible finding prose or the PR comment draft (if missing, apply its engineer-voice rules inline). Then read skill `plain-language-chat` and expand every remaining abbreviation in chat prose (paths and code fences unchanged).
 4. Skip the post-plan HITL gate (this entry is always manual / PR-driven).
 
 ## Spine
@@ -52,7 +52,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
 11. **Merge → evidence gate → feedback (mandatory):**
    - Require `path`, `start_line`, `end_line`, `snippet`, and `context`; backfill with `extract-review-snippet.sh` using `HEAD_SHA` (see `evidence-gate.md`). Drop items that still lack evidence.
    - Build **Findings** only in the full Context + Where + numbered fence shape — never a Blockers digest. Clarify items include **Options** + **Recommendation** (or “none”).
-   - What / Where / Why / Ask-or-fix; run `english-humanizer` on prose.
+   - What / Where / Why / Ask-or-fix; run `english-humanizer` then `plain-language-chat` on prose.
    - Validate: `validate-review-report.sh` on the draft markdown; rebuild until exit 0.
    - Coverage notes `graphify: used|absent|unqueryable` and canvas `built|skipped|skill_missing`.
 12. Emit the validated **PR Review** report; point at the canvas if built; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.

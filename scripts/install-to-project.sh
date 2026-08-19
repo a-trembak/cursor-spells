@@ -3,6 +3,7 @@
 # Prefer: bin/csp install <project>   |   bin/csp update <project>
 #
 # Default: symlink kit skills/commands/agents into ~/.cursor;
+#          copy always-on plain-language-chat rule into ~/.cursor/rules;
 #          copy hooks + rules (+ optional patterns helper) into the project.
 
 set -euo pipefail
@@ -28,7 +29,7 @@ With no project-path: uses the current repo / multi-repo workspace (cwd).
 
 Flags:
   --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
-  --user-only      Only ~/.cursor (no project files)
+  --user-only      Only ~/.cursor (no project files); still copies the plain-language-chat rule
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
   -h, --help       Show help
@@ -232,6 +233,10 @@ sync_kit_entries_into() {
 
 install_user_bits() {
   sync_kit_entries_into "$HOME/.cursor"
+  # Always-on chat language. Pipeline gate rules stay project-only.
+  mkdir -p "$HOME/.cursor/rules"
+  cp "$KIT_ROOT/rules/plain-language-chat.mdc" "$HOME/.cursor/rules/plain-language-chat.mdc"
+  echo "copied: $HOME/.cursor/rules/plain-language-chat.mdc"
 }
 
 install_project_bits() {
@@ -261,7 +266,7 @@ install_project_bits() {
 
   # Rules — always refresh from kit
   local rule
-  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc hitl-askquestion.mdc; do
+  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc hitl-askquestion.mdc plain-language-chat.mdc; do
     cp "$KIT_ROOT/rules/$rule" "$PROJECT/.cursor/rules/$rule"
     echo "copied: $PROJECT/.cursor/rules/$rule"
   done

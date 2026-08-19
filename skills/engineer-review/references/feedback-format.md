@@ -11,7 +11,7 @@ User-facing output for `engineer-review` / `engineer-reviewer` (and the shared b
 1. **Context** — 1–2 sentences: what this code/scenario does and why the finding sits here (not a repeat of What).
 2. **Clickable location (exact Where block)** — see evidence-gate.md. Must include File link, Lines, Jump (`path#L…`), and GitHub blob when known (`#Lstart-Lend`).
 3. **Code snippet** — fenced, preferably `N| code` line prefixes matching `start_line`…`end_line`. Never “see file above” or empty fences. For Clarify, the fence must be the lines the question is about.
-4. **Human wording** — `english-humanizer` (or its voice rules). Never humanize paths/code.
+4. **Human wording** — `english-humanizer` then `plain-language-chat` (full words, no abbreviations). Never rewrite paths/code.
 5. **What / Where / Why / Ask-or-fix** structure. Clarify items also need **Options** with a marked recommendation (or explicit “no recommendation”).
 
 ## Report template
