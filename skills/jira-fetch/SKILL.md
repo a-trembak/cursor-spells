@@ -69,3 +69,5 @@ Pass to the caller (do not start tech-spec or bug-fixer yourself):
 | `browse_url` | Source URL if it was a URL, else empty |
 
 Record `jira_key` (and browse URL when known) as the tech-spec **AC references** entry. The assembled `ac_text` is the AC body — not a stub link.
+
+Callers `/start-task` and `/start-issue-task` next invoke skill `jira-transition` target `in_progress`. `/write-tech-spec` does not.

@@ -5,7 +5,7 @@ description: >-
   /start-issue-task) or when asked to open a draft PR for the current feature
   branch work. Commits remaining changes if needed, pushes, creates or updates a
   draft GitHub PR, then HITL Pipeline finale (keep draft / ready / Jira comment).
-  Never merges. Never transitions Jira status.
+  Never merges. On ready / ready_jira with a Jira key, transitions the ticket to Review.
 ---
 
 # Create PR
@@ -55,17 +55,19 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
    - `ready_jira` — `gh pr ready` then comment Jira.
 9. **Jira comment** (only for `keep_draft_jira` / `ready_jira`):
    - Discover Atlassian MCP; call `addCommentToJiraIssue` with `cloudId` (`jira_cloud_id`), `issueIdOrKey` (`jira_key`), `commentBody` = PR URL(s) plus a one-line summary.
-   - If the comment fails, report the error and **stop**. Do not retry as a status transition. Do not call `transitionJiraIssue`.
-10. Report each `repo → PR URL`, draft vs ready, and whether a Jira comment was posted.
+   - If the comment fails, report the error and **stop**. Do not retry the comment as a status transition.
+10. **Jira Review** (only for `ready` / `ready_jira` when `jira_key` and `jira_cloud_id` are known): invoke skill **`jira-transition`** with target `review`. This is the Review column while the GitHub PR is ready for review — still **never merge**. Skip if already Review-like. Report and continue on skip/failure; do not block the finale report. Do **not** transition on `keep_draft` or `keep_draft_jira`.
+11. Report each `repo → PR URL`, draft vs ready, Jira comment result when requested, and Jira transition result when attempted.
 
 ## Hard rules
 
 - Never force-push to shared default branches.
 - Never open a non-draft PR in steps 1–7. Ready-for-review is **only** after the human picks `ready` or `ready_jira`.
 - Never duplicate PRs for the same head when an open PR already exists.
-- Never invent Jira transitions or PR review approvals.
+- Never invent Jira transition ids (skill `jira-transition` only, after listing real transitions).
+- Never invent PR review approvals.
 - Never merge. Never `gh pr merge`. Never approve reviews.
 
 ## Output
 
-One PR URL per changed repo (draft or ready per the finale choice), commit/push evidence, and Jira comment result when requested.
+One PR URL per changed repo (draft or ready per the finale choice), commit/push evidence, Jira comment result when requested, and Jira Review transition result when `ready` / `ready_jira` ran with a key.
