@@ -12,6 +12,7 @@ From kit root:
 bash scripts/tests/jira-issue-test.sh
 bash scripts/tests/pipeline-gates-test.sh
 bash scripts/tests/jira-ac-router-finale-test.sh
+bash scripts/tests/pipeline-flow-graph-test.sh
 ```
 
 | Check | Expect |
@@ -69,4 +70,4 @@ After a successful `/start-task` or `/start-issue-task` fetch: `jira-transition`
 
 ## Canvas
 
-Open `docs/superpowers/pipeline-flow.html`: overview shows **Jira fetch + router** before bootstrap, and **create-pr** as HITL (not automatic-only).
+Open `docs/superpowers/pipeline-flow.html`: overview shows **Jira fetch + router** before bootstrap, **create-pr** as HITL (not automatic-only), layers Plan → Build → Review, and **review-gate** after `software-developer` (not a return to the plan layer).

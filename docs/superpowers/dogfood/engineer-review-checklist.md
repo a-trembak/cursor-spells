@@ -11,6 +11,7 @@ chmod +x scripts/*.sh
 ./scripts/install-to-project.sh /tmp/er-dogfood --hooks --rule
 # or create a tiny git repo and point the script at it
 bash scripts/tests/developer-reviewer-handoff-test.sh   # parent wait + next_skill contract
+bash scripts/tests/pipeline-flow-graph-test.sh          # canvas layers + review-gate naming
 ```
 
 2. In the consumer repo, add a deliberate smell file, e.g. `src/smells.ts`:
