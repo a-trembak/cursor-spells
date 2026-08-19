@@ -46,6 +46,35 @@ assert_eq looks_key "yes" "$looks3"
 looks4="$(jira_looks_like_issue "please fix ACP-2656 in login" && echo yes || echo no)"
 assert_eq looks_prose_with_key "no" "$looks4"
 
+assert_eq norm_in_progress "inprogress" "$(jira_normalize_status "In Progress")"
+assert_eq norm_hyphen "inprogress" "$(jira_normalize_status "in-progress")"
+assert_eq norm_review "inreview" "$(jira_normalize_status "In Review")"
+
+match_ip="$(jira_status_matches_target in_progress "In Progress" && echo yes || echo no)"
+assert_eq match_in_progress "yes" "$match_ip"
+match_doing="$(jira_status_matches_target in_progress "Doing" && echo yes || echo no)"
+assert_eq match_doing "yes" "$match_doing"
+match_todo="$(jira_status_matches_target in_progress "To Do" && echo yes || echo no)"
+assert_eq match_todo_not_in_progress "no" "$match_todo"
+
+match_rev="$(jira_status_matches_target review "Review" && echo yes || echo no)"
+assert_eq match_review "yes" "$match_rev"
+match_in_rev="$(jira_status_matches_target review "In Review" && echo yes || echo no)"
+assert_eq match_in_review "yes" "$match_in_rev"
+match_code_rev="$(jira_status_matches_target review "Code Review" && echo yes || echo no)"
+assert_eq match_code_review "yes" "$match_code_rev"
+match_rfr="$(jira_status_matches_target review "Ready for Review" && echo yes || echo no)"
+assert_eq match_ready_for_review "yes" "$match_rfr"
+match_ip_as_rev="$(jira_status_matches_target review "In Progress" && echo yes || echo no)"
+assert_eq match_in_progress_not_review "no" "$match_ip_as_rev"
+
+picked="$(printf '11\tTo Do\n21\tIn Progress\n31\tDone\n' | jira_pick_transition_id in_progress)"
+assert_eq pick_in_progress "21" "$picked"
+picked_rev="$(printf '11\tStart Progress\n41\tIn Review\n' | jira_pick_transition_id review)"
+assert_eq pick_review "41" "$picked_rev"
+picked_none="$(printf '11\tTo Do\n31\tDone\n' | jira_pick_transition_id review || true)"
+assert_eq pick_none "" "$picked_none"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
