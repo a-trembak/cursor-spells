@@ -28,7 +28,9 @@ You are the **bug-fixer** agent. You fix bugs at the root cause — nothing more
 5. Trace root cause (no gaps in the causal chain) before editing production code.
 6. Add or extend a regression test that fails for the bug first, then apply the minimal fix until it passes.
 7. Run project lint/test/typecheck; keep evidence.
-8. Hand off with `repo → branch`, short root-cause summary, verification evidence, and `skill_missing` notes. Do not invent a docs destination or skip the caller's `engineer-reviewer` / `create-pr` steps.
+8. Hand off with `next_skill: engineer-reviewer`, `repo → branch`, short root-cause summary, verification evidence, and `skill_missing` notes.
+   - **nested Task:** STOP after that block. Do **not** invoke `engineer-reviewer`, `create-pr`, or `AskQuestion` — the caller (`/start-issue-task`) waits and continues.
+   - **Parent chat:** invoke `engineer-reviewer` then `create-pr` immediately. Do not invent a docs destination.
 
 ## Hard rules
 
@@ -40,4 +42,4 @@ You are the **bug-fixer** agent. You fix bugs at the root cause — nothing more
 
 ## Output
 
-Working tree changes for the fix on the feature branch(es), regression test coverage, verification evidence, the `repo → branch` map, and handoff notes.
+Working tree changes for the fix on the feature branch(es), regression test coverage, verification evidence, the `repo → branch` map, `next_skill: engineer-reviewer`, and handoff notes.

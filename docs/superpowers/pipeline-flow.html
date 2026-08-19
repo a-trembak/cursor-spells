@@ -426,7 +426,7 @@
         <div class="node auto" tabindex="0" data-go="build" role="button">
           <div class="kind">5 · automatic</div>
           <div class="label">start-build → software-developer</div>
-          <div class="hint">branches → skill-map → SDD / executing-plans</div>
+          <div class="hint">wait for developer → finish-plan → engineer-reviewer</div>
           <span class="open-detail">деталі →</span>
         </div>
         <div class="connector"><span class="edge-label">tasks verified</span></div>
@@ -824,8 +824,8 @@
         <div class="step">
           <div class="step-num">5</div>
           <div class="step-body auto">
-            <h3>Verify → finish-plan</h3>
-            <p>Lint/test/typecheck evidence обов’язкові. Потім handoff на <code>finish-plan</code> з map <code>repo → branch</code>.</p>
+            <h3>Wait → finish-plan → engineer-reviewer</h3>
+            <p><code>start-build</code> <strong>чекає</strong> return від nested Task <code>software-developer</code> (fire-and-forget заборонено). Потім у цьому ж чаті викликає <code>finish-plan</code>, який після <code>skip</code> / <code>approve</code> / <code>done</code> запускає <code>engineer-reviewer</code>.</p>
           </div>
         </div>
       </div>

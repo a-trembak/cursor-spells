@@ -49,7 +49,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 6. **On `Verdict: clear`:**
    - `pg_clear_gate "$(pwd)" critique-gate "<plan-path>"`
    - `pg_write_gate "$(pwd)" plan-critique-clear "<plan-path>"`
-   - Proceed automatically to skill `start-build` for that plan (branches + `software-developer`)
+   - Proceed automatically to skill `start-build` for that plan (branches + `software-developer`; `start-build` waits, then `finish-plan` → `engineer-reviewer`)
 7. **On `Verdict: blocked` or `clear pending accept`:**
    - Keep this plan's `critique-gate/<slug>` (do not touch other slugs)
    - **Stop** and show the critic's report. Ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (`revise` + `accept F<id>` per open finding). Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6.

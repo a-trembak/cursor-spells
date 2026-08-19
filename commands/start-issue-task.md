@@ -33,9 +33,9 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
    - On `Verdict: clear`: `pg_clear_gate` critique-gate; `pg_write_gate` plan-critique-clear (plan path); continue.
    - On `blocked` or `clear pending accept`: keep this plan's `critique-gate/<slug>`; **stop** and ask via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (AskQuestion required; text only after failed/missing tool). On `revise`, rewrite the plan (`clean-decision-docs`) and re-run from step 4. On `accept F<id>` until clear, continue.
 
-5. **Fix** (automatic on clear): dispatch agent **`bug-fixer`** / skill **`bug-fix`** for that plan (feature branch, reproduce, root cause, regression test, minimal fix, verify).
+5. **Fix** (automatic on clear): dispatch agent **`bug-fixer`** / skill **`bug-fix`** for that plan as a nested Task (feature branch, reproduce, root cause, regression test, minimal fix, verify). **Wait for** it to return. Do not treat dispatch as the end.
 
-6. **Engineer review** (automatic): run agent **`engineer-reviewer`** (or `multi-repo-supervisor` when 2+ repos changed per multi-repo probe). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the ticket/context. HITL only for **Needs clarification** via `hitl-choice`.
+6. **Engineer review** (automatic): immediately after `bug-fixer` returns, run agent **`engineer-reviewer`** (or `multi-repo-supervisor` when 2+ repos changed per multi-repo probe). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the ticket/context. HITL only for **Needs clarification** via `hitl-choice`.
 
 7. **Create PR** (automatic): invoke skill **`create-pr`**. Draft PR title includes the Jira key; body links the ticket and fix plan path. Pass `jira_key` / `jira_cloud_id` for the Pipeline finale HITL.
 

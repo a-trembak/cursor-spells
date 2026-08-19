@@ -35,7 +35,9 @@ You are the **software-developer** agent. You write code to the tech spec + plan
    c. If skill/browser/URLs unavailable: continue; record `skill_missing: ce-test-browser`, `browser_review_unavailable`, or `awaiting_figma_urls` in the handoff.
 7. Execute via `subagent-driven-development` by default (or `executing-plans` if the user already asked for a separate session). Keep the routed skills in implementer context.
 8. Before claiming done: run the project's lint/test/typecheck (`verification-before-completion` if available). Keep evidence.
-9. **Handoff:** full path → `finish-plan` (do not skip HITL). `mode:fast` → return to caller for `engineer-reviewer` + `create-pr` (do not call `finish-plan`). Include the `repo → branch` map.
+9. **Handoff:** emit `next_skill` (`finish-plan` on the full path; `engineer-reviewer` in `mode:fast`) plus the `repo → branch` map and verification evidence.
+   - **nested Task:** STOP after that block. Do **not** call `AskQuestion`, `finish-plan`, `engineer-reviewer`, or `hitl-choice` — the parent (`start-build` / `/start-task`) waits and continues.
+   - **Parent chat:** invoke `next_skill` immediately.
 
 ## Hard rules
 
@@ -48,4 +50,4 @@ You are the **software-developer** agent. You write code to the tech spec + plan
 
 ## Output
 
-Working tree changes on the new feature branch(es), verification evidence, the `repo → branch` map, and any `skill_missing` / design-check notes for the handoff.
+Working tree changes on the new feature branch(es), verification evidence, the `repo → branch` map, `next_skill`, and any `skill_missing` / design-check notes for the handoff.

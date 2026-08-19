@@ -85,5 +85,21 @@ Default: dispatch `subagent-driven-development` (fresh implementer + task review
 
 ## Handoff
 
-- **Full path:** when all plan tasks are done and verification evidence exists, hand off to `finish-plan` (do not skip the HITL review gate). Include the `repo → branch` map from branch setup.
-- **`mode:fast`:** hand off to the caller for `engineer-reviewer` then `create-pr` — do **not** invoke `finish-plan`. Include the `repo → branch` map and verification evidence.
+Emit this block to the caller (required), then follow the nested-vs-parent rule:
+
+```
+next_skill: finish-plan          # full path
+next_skill: engineer-reviewer    # mode:fast only
+mode: full | fast
+plan_path: <path or none>
+repo_branch_map:
+  - <repo> → <branch>
+verification: <lint/test/typecheck evidence>
+```
+
+- **Full path `next_skill`:** `finish-plan` (do not skip the HITL review gate).
+- **`mode:fast` `next_skill`:** `engineer-reviewer` then the caller runs `create-pr` — do **not** invoke `finish-plan`.
+
+**nested Task** (dispatched by `start-build` / `/start-task` / `/start-task --fast`): after the block, **STOP** and return to the caller. Do **not** invoke `finish-plan`, `engineer-reviewer`, `AskQuestion`, or `hitl-choice` from the nested Task — the parent chat owns that continue.
+
+**Parent chat** (user invoked `@software-developer` with no caller waiting): after the block, immediately invoke `next_skill` in this chat.

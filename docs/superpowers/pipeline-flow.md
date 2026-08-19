@@ -211,6 +211,8 @@ flowchart TD
   verify ==> toFinish
 ```
 
+`start-build` **must Wait for** the `software-developer` Task to return, then invoke `finish-plan` in the parent chat so `engineer-reviewer` starts. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
+
 ---
 
 ## 5. Finish-plan → review routing
