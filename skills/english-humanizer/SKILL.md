@@ -21,9 +21,9 @@ Internalize this voice before fixing any pattern.
 
 **Lead with the point.** State what broke, what changed, or what you need. No throat-clearing.
 
-**Short is precise.** A short sentence is not lazy. Long sentences need a reason (reproduction steps, multi-condition failure).
+**Short sentences, full words.** A short sentence is not lazy. Abbreviations are not precision — they hide meaning. Long sentences need a reason (reproduction steps, multi-condition failure).
 
-**Concrete over grand.** Prefer "the JWT expires before the refresh runs" over "this presents a significant challenge for the authentication landscape."
+**Concrete over grand.** Prefer "the JSON Web Token expires before the refresh runs" over "this presents a significant challenge for the authentication landscape."
 
 **Neutral, not warm.** Skip praise, enthusiasm, and "Great catch!". Peers do not need cheerleading.
 
@@ -37,7 +37,7 @@ Internalize this voice before fixing any pattern.
 > It's worth noting that this appears to be a potentially significant issue that could impact the overall authentication experience. I'd be happy to dive deeper if helpful!
 
 **Alive:**
-> Refresh tokens are rejected after ~15 minutes even though TTL is 24h. Happens on iOS only so far. Can someone check whether the gateway strips `Escloud-Authorization` on the refresh path?
+> Refresh tokens are rejected after about 15 minutes even though the time-to-live is 24 hours. Happens on iOS only so far. Can someone check whether the gateway strips `Escloud-Authorization` on the refresh path?
 
 ### For this skill's targets
 
@@ -101,6 +101,12 @@ After: (delete, or: "I can push a failing test if useful.")
 Before: Studies show that this is a best practice in modern systems.
 After: Same pattern as the gateway timeout handling in #4821 — or drop the claim.
 
+**#8 Unexplained abbreviations**
+Before: CI failed on the PR after HITL; SHA abc is P0.
+After: Continuous integration failed on the pull request after the human-in-the-loop step; commit hash abc is highest severity.
+
+For Cursor chat with the kit owner, also load skill **`plain-language-chat`**. This humanizer removes AI filler; it does not satisfy the full-words contract.
+
 ## Output format
 
 Return:
@@ -126,6 +132,7 @@ Optional labels when useful:
 - **Already natural.** Say so and leave it alone.
 - **Code and quotes.** Keep code blocks, error messages, and symbol names verbatim.
 - **Mixed language.** Only rewrite English. Leave Ukrainian/other passages untouched unless asked.
+- **User-facing chat in this kit.** After the humanizer pass, run skill **`plain-language-chat`** so remaining abbreviations become full words.
 
 ## References
 

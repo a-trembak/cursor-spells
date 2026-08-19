@@ -1,0 +1,15 @@
+---
+description: User-facing chat must use full words — never abbreviations, acronyms, or clipped jargon
+alwaysApply: true
+---
+
+# Plain language in chat
+
+Every message to the human uses **full words**. This is a communication contract, not optional style.
+
+1. Load and follow skill **`plain-language-chat`** before writing user-facing chat, status, or review prose.
+2. Write the complete phrase. Never shorten: pull request (not PR), continuous integration (not CI), human-in-the-loop (not HITL), acceptance criteria (not AC), commit hash (not SHA), highest severity (not P0).
+3. Skill `english-humanizer` does **not** satisfy this rule — it prefers short engineer jargon. After humanizer, expand every remaining abbreviation.
+4. Keep exact only inside backticks or fences: file paths, code, error strings, ticket keys, URLs, slash-command names.
+
+Violating “the human already knows” or “this is standard jargon” is a protocol bug — rewrite with full words.

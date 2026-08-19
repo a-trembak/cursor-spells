@@ -17,7 +17,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 ## Preconditions
 
 1. Read skill `engineer-review` (`skills/engineer-review/SKILL.md` in the cursor-spells kit, or linked install path), including `references/feedback-format.md`, `references/evidence-gate.md`, `references/forbidden-formats.md`, and `references/output-schema.md`.
-2. Read skill `english-humanizer` before writing any user-visible finding prose (if missing, apply its engineer-voice rules inline).
+2. Read skill `english-humanizer` before writing any user-visible finding prose (if missing, apply its engineer-voice rules inline). Then read skill `plain-language-chat` and expand every remaining abbreviation in chat prose (paths and code fences unchanged).
 3. If this invocation follows a **finished plan** and the user has not yet said `skip` / `approve` / `done`, stop and ask via skill `hitl-choice` (AskQuestion required; or tell them to run `/finish-plan`). Do not dispatch phases.
 4. Manual `/engineer-review` → proceed immediately.
 
@@ -60,7 +60,7 @@ Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, 
 ## Hard rules
 
 - Never emit a finding without **Context**, File + Lines + Jump links **and** a real code fence (see `evidence-gate.md`). Never emit Verdict/Blockers/Блокери digests (`forbidden-formats.md`). Path-only or “see file” is a hard failure — drop or backfill first. Never invent `recommended` when the phase left it null.
-- Never emit unhumanized / jargon-only feedback or bare `path: summary` one-liners.
+- Never emit unhumanized / jargon-only / abbreviated feedback or bare `path: summary` one-liners. Chat prose must pass `plain-language-chat`.
 - Always run `validate-review-report.sh` before showing the report; do not show on failure.
 - Never load full third-party skill text, ledger markdown, or R1–R7 checklist bodies into this orchestrator context — phases and `review-learn` own those reads.
 - Never skip HITL on post-plan auto path.

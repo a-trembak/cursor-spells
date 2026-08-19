@@ -78,4 +78,4 @@ If **Needs clarification** is non-empty, after the validated report ask via skil
 1. Evidence-gate every finding (backfill via `extract-review-snippet.sh` or drop).
 2. Write draft markdown to a temp file.
 3. Run `scripts/validate-review-report.sh` — exit non-zero → rebuild, do not show.
-4. `english-humanizer` on prose only (not paths/code).
+4. `english-humanizer` then `plain-language-chat` on prose only (not paths/code).

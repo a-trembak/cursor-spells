@@ -2,7 +2,7 @@
 
 Emit user-facing markdown per [feedback-format.md](feedback-format.md) and [evidence-gate.md](evidence-gate.md). Reject [forbidden-formats.md](forbidden-formats.md).
 
-Every Fixed / Clarify / Findings item must include **Context**, the full **Where** block (File + Lines + Jump links), a **numbered code fence**, and What/Why/Ask-or-fix prose through **`english-humanizer`**.
+Every Fixed / Clarify / Findings item must include **Context**, the full **Where** block (File + Lines + Jump links), a **numbered code fence**, and What/Why/Ask-or-fix prose through **`english-humanizer`** then **`plain-language-chat`**.
 
 Every Clarify item must include **Options** (each choice labeled; recommended marked with `(recommended)` when set) and a **Recommendation:** line (`A — why` or `none — pick based on product intent`).
 

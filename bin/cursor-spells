@@ -34,7 +34,7 @@ With no project-path: uses the current git repo, or the multi-repo workspace
 you are standing in (cwd with multi-repo.json / graphify-out / 2+ sibling repos).
 
 Flags (install / update):
-  --user-only     Only ~/.cursor (no project files)
+  --user-only     Only ~/.cursor (no project files); still copies the plain-language-chat rule
   --humanizer     Also install english-humanizer
   --copy          Copy instead of symlink into ~/.cursor
   -h, --help      Show help

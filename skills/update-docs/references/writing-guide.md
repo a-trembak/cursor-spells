@@ -51,7 +51,7 @@ If the house style keeps user and engineer material on **separate pages**, write
 | Link to specs/PRs for depth | Paste the whole tech spec into product docs |
 | State limits and edge cases honestly | Marketing adjectives (seamless, robust, unlock, leverage) |
 
-Reuse skill **`english-humanizer`** patterns for the engineer section: direct, neutral, concrete. User section may be slightly warmer but still plain — no hype.
+Reuse skill **`english-humanizer`** patterns for the engineer section: direct, neutral, concrete. User section may be slightly warmer but still plain — no hype. Chat notes to the human that announce the docs run skill **`plain-language-chat`** (full words, no abbreviations).
 
 ## Content rules
 
