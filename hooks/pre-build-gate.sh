@@ -83,35 +83,10 @@ if [[ -n "$plan_path" ]]; then
       exit 0
     fi
   done
-else
-  plan_entries=()
-  critique_entries=()
-  while IFS=$'\t' read -r slug path; do
-    [[ -n "$slug" ]] || continue
-    plan_entries+=("${slug} (${path})")
-  done < <(pg_list_gates "$root" plan-gate)
-  while IFS=$'\t' read -r slug path; do
-    [[ -n "$slug" ]] || continue
-    critique_entries+=("${slug} (${path})")
-  done < <(pg_list_gates "$root" critique-gate)
-
-  if ((${#plan_entries[@]} + ${#critique_entries[@]} > 0)); then
-    message=""
-    if ((${#plan_entries[@]} > 0)); then
-      message="Open plan-gate: $(IFS=', '; echo "${plan_entries[*]}")"
-    fi
-    if ((${#critique_entries[@]} > 0)); then
-      if [[ -n "$message" ]]; then
-        message="${message}; Open critique-gate: $(IFS=', '; echo "${critique_entries[*]}")"
-      else
-        message="Open critique-gate: $(IFS=', '; echo "${critique_entries[*]}")"
-      fi
-    fi
-    message="${message}. Resolve in the owning chat; do not delete foreign slugs."
-    emit_followup "$message"
-    exit 0
-  fi
 fi
+# Unknown plan path: stay silent. followup_message auto-continues every chat
+# in this workspace. Listing foreign slugs is unresolvable there (do not
+# delete) and loops until hooks.json loop_limit. Skills still gate this plan.
 
 printf '%s\n' '{}'
 exit 0
