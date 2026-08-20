@@ -80,19 +80,11 @@ if [[ -n "$plan_path" ]]; then
     emit_followup "$message"
     exit 0
   fi
-else
-  review_entries=()
-  while IFS=$'\t' read -r slug path; do
-    [[ -n "$slug" ]] || continue
-    review_entries+=("${slug} (${path})")
-  done < <(pg_list_gates "$root" review-gate)
-
-  if ((${#review_entries[@]} > 0)); then
-    message="Open review-gate: $(IFS=', '; echo "${review_entries[*]}"). If the user already replied skip, approve, or done anywhere in this chat after the gate was asked, delete the matching .cursor/gates/review-gate/<slug> immediately and continue skill finish-plan (start engineer-reviewer or multi-repo-supervisor). Do not re-ask. Only ask HITL via skill hitl-choice (AskQuestion when available; else typed skip / approve / done) if they have not answered yet. Resolve in the owning chat; do not delete foreign slugs."
-    emit_followup "$message"
-    exit 0
-  fi
 fi
+# Unknown plan path: stay silent. followup_message auto-continues every chat
+# in this workspace. Listing foreign slugs is unresolvable there (do not
+# delete) and loops until hooks.json loop_limit. finish-plan still writes
+# this plan's review-gate; honor skip/approve/done in the owning chat.
 
 printf '%s\n' '{}'
 exit 0

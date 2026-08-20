@@ -23,5 +23,6 @@ Before you **dispatch Task 1** of an implementation plan (via `software-develope
 4. Do **not** dispatch Task 1 while **this plan's** `plan-gate/<slug>` or `critique-gate/<slug>` exists. Other slugs' pending gates do not block this plan.
 5. On a clean `Verdict: clear`: ensure `.cursor/gates/plan-critique-clear/<slug>` lists the plan path, then proceed to execution.
 6. Never delete or overwrite another slug's gate without HITL `force-clear`.
+7. If a stop-hook followup names a slug that is not this chat's plan, ignore it and continue this work. Do not stop to explain the foreign gate.
 
 Does not apply to pure Q&A, docs-only answers, or when the user already completed `/approve-plan` for this plan revision and is explicitly asking to proceed with `/start-build`.

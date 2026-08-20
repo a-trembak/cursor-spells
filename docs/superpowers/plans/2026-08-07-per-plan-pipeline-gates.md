@@ -216,7 +216,7 @@ Replace single-file checks with:
 2. `source "$root/scripts/pipeline-gates.sh"` when file exists; if missing, fall back to message telling user to `csp update` (still exit 0 with followup).
 3. Call `pg_migrate_legacy` for `plan-gate` and `critique-gate` (no plan_path → list-pass migrate).
 4. If plan path known: compute slug; if `pg_gate_path` file exists for `plan-gate` or `critique-gate`, emit followup naming that kind + plan path (same tone as today).
-5. If plan path unknown: `pg_list_gates` both kinds; if any rows, followup listing them ("Open plan-gate: …; Open critique-gate: …. Resolve in the owning chat; do not delete foreign slugs.").
+5. If plan path unknown: emit `{}`. Do **not** list open gates (a followup auto-continues every chat; foreign slugs cannot be cleared there).
 6. If none open: `{}` exit 0.
 7. Keep aborted/error short-circuit.
 
@@ -227,9 +227,9 @@ TMP=$(mktemp -d)
 mkdir -p "$TMP/scripts" "$TMP/.cursor/gates/critique-gate"
 cp scripts/pipeline-gates.sh "$TMP/scripts/"
 printf '%s\n' 'docs/plans/acp-9.md' > "$TMP/.cursor/gates/critique-gate/ACP-9"
-# Simulate unknown plan path — should list ACP-9
-printf '{}' | env -i PATH="$PATH" bash -c "cd '$TMP' && bash hooks/pre-build-gate.sh" 
-# Expect followup_message containing ACP-9 or docs/plans/acp-9.md
+# Simulate unknown plan path — must stay silent (no foreign-gate followup)
+printf '{}' | env -i PATH="$PATH" bash -c "cd '$TMP' && bash hooks/pre-build-gate.sh"
+# Expect {}
 rm -rf "$TMP"
 ```
 
@@ -255,7 +255,7 @@ Mirror Task 3 patterns for kind `review-gate` only:
 
 - Source helper; migrate legacy `review-gate.pending`.
 - Known plan path → nudge only that slug.
-- Unknown → list open `review-gate/*`.
+- Unknown → emit `{}` (do not list `review-gate/*`).
 - Preserve "honor skip/approve/done already in chat; do not re-ask forever" wording, updated to mention `.cursor/gates/review-gate/<slug>`.
 
 - [ ] **Step 2: Commit**
@@ -449,7 +449,7 @@ git commit -m "fix: remove remaining flat pipeline-gate write instructions"
 | Migrate-on-read | Tasks 1, 3, 4 |
 | Foreign slug hands-off + force-clear | Tasks 5, 6 |
 | start-build this-slug only | Task 5 |
-| Hooks per-slug / list fallback | Tasks 3, 4 |
+| Hooks per-slug / silent unknown path | Tasks 3, 4 |
 | Install helper | Task 2 |
 | Docs + dogfood | Tasks 7, 8 |
 
