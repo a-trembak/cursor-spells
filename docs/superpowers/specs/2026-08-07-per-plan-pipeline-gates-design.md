@@ -31,7 +31,7 @@ Content is typically one line: the plan path. Hooks such as `pre-build-gate.sh` 
 | Legacy | Migrate-on-read: copy legacy → per-plan file for that path, then delete legacy |
 | Slug | Ticket id from plan path/basename (`ACP-\d+`, case-insensitive); else first 12 hex of SHA-256 of normalized relative plan path; ticket collision → `TICKET-<hash12>` |
 | Foreign gates | Never delete/overwrite another slug without explicit HITL `force-clear <slug\|path>` |
-| Hook semantics | Block / nudge only for the **current** plan's slug when known; otherwise list open gates of that kind |
+| Hook semantics | Block / nudge only for the **current** plan's slug when the plan path is known. If the plan path is unknown, stay silent (`{}`) — do not list other slugs. |
 
 ## Layout
 
@@ -102,13 +102,14 @@ Applies to: `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `start-
 
 - Prefer plan path from hook payload / cwd context when available.
 - If plan path known: followup only when `plan-gate/<slug>` or `critique-gate/<slug>` exists for that slug (after migrate-on-read for those kinds).
-- If plan path unknown: list all open files under `plan-gate/` and `critique-gate/` (line-1 paths) in the followup; do not delete anything.
-- Stop treating a single global pending file as a repo-wide hard block for unrelated plans.
+- If plan path unknown: emit `{}`. Do **not** list open gates. `followup_message` auto-continues every chat in the workspace; a foreign slug cannot be cleared there, so listing re-creates a repo-wide unresolvable loop (stop-hook `loop_limit`).
+- Stop treating a single global pending file — or a list of all per-plan files — as a repo-wide hard block for unrelated plans. Skills (`start-build`, `approve-plan`, `finish-plan`) remain the per-plan gate when the hook has no plan path.
 
 ### `post-plan-review-gate.sh` (and docs-gate consumers)
 
 - Same per-slug model under `review-gate/` and `docs-gate/`.
-- Unknown plan path → list open markers of that kind; honor existing skip/approve/done tokens in chat as today before re-asking.
+- Known plan path → nudge only that slug; honor existing skip/approve/done tokens in chat as today before re-asking.
+- Unknown plan path → emit `{}` (same reason as `pre-build-gate.sh`).
 
 ## Shared helper
 
@@ -132,7 +133,7 @@ Skills keep a markdown contract ("call these steps / equivalent bash") so agents
 |----------|--------|
 | `scripts/pipeline-gates.sh` | New helper |
 | `bin/csp` / install path | Install/refresh helper into consumer `scripts/` (same pattern as other kit scripts) |
-| `hooks/pre-build-gate.sh` | Per-slug + migrate + list fallback |
+| `hooks/pre-build-gate.sh` | Per-slug + migrate; silent when plan path unknown |
 | `hooks/post-plan-review-gate.sh` | Per-slug `review-gate/` |
 | `skills/approve-plan`, `start-build`, `finish-plan`, `update-docs` | Paths + foreign-slug rule |
 | `commands/approve-plan`, `start-build`, `start-issue-task`, `finish-plan`, `update-docs` | Document new paths |
@@ -146,6 +147,7 @@ Skills keep a markdown contract ("call these steps / equivalent bash") so agents
 
 - Chat A (ACP-2665) can hold `critique-gate/ACP-2665` while chat B (ACP-2656) writes/clears `critique-gate/ACP-2656` without HITL between them.
 - `start-build` for B succeeds when only B's clear marker matches B's plan, even if A's critique-gate is still pending.
+- A stop hook in chat B with unknown plan path does **not** emit `followup_message` for A's pending gate.
 - Opening a skill against a repo that still has legacy `.cursor/critique-gate.pending` migrates that plan's marker once and removes the legacy file.
 - Agents refuse to delete another slug's gate unless the human passes `force-clear`.
 

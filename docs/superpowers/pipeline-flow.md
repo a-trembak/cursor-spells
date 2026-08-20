@@ -403,7 +403,7 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 ## 9. Marker state machine
 
-Runtime markers live in the **consumer project** `.cursor/gates/<kind>/<slug>` (never the kit). Parallel tickets use different slugs; a foreign slug never blocks this plan. Legacy flat files (`.cursor/*.pending`, `plan-critique.clear`) migrate-on-read then delete.
+Runtime markers live in the **consumer project** `.cursor/gates/<kind>/<slug>` (never the kit). Parallel tickets use different slugs; a foreign slug never blocks this plan. Stop hooks emit `followup_message` only when the current plan path is known and that slug is pending. Unknown plan path stays silent — listing every open slug auto-continues unrelated chats and cannot be cleared there. Legacy flat files (`.cursor/*.pending`, `plan-critique.clear`) migrate-on-read then delete.
 
 ```mermaid
 stateDiagram-v2

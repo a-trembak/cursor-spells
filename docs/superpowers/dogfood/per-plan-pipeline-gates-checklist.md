@@ -52,13 +52,15 @@ test ! -f "$ROOT/.cursor/gates/plan-gate/ACP-2656"
 | Chat A (2665) | Still blocked on its own `critique-gate/ACP-2665` |
 | Foreign clear | Agent must **not** `rm` `ACP-2665` while finishing 2656 |
 
-Hook smoke (unknown plan path lists both; known 2656 path does not nudge 2665 after 2656 is clear):
+Hook smoke (unknown plan path stays silent even if 2665 is pending; known 2656 path does not nudge 2665 after 2656 is clear):
 
 ```bash
 mkdir -p /tmp/pg-dogfood/.cursor/hooks
 cp hooks/pre-build-gate.sh /tmp/pg-dogfood/.cursor/hooks/   # from kit
 printf '{}' | env -i PATH="$PATH" bash -c "cd /tmp/pg-dogfood && bash .cursor/hooks/pre-build-gate.sh"
-# Expect followup listing ACP-2665 (still pending). Must not treat 2656 as blocked.
+# Expect {} — do not list ACP-2665. A followup here would auto-continue every chat.
+printf '{"plan_path":"docs/superpowers/plans/2026-08-07-acp-2656-export-plan.md"}' | env -i PATH="$PATH" bash -c "cd /tmp/pg-dogfood && bash .cursor/hooks/pre-build-gate.sh"
+# Expect {} — 2656 is clear; must not treat 2665 as this chat's block.
 ```
 
 ---

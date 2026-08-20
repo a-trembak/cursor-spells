@@ -1150,7 +1150,7 @@
     <section id="view-markers" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">Markers · state</h2>
-      <p class="view-desc">Усі маркери в consumer project <code>.cursor/gates/&lt;kind&gt;/&lt;slug&gt;</code>, не в kit. Паралельні тікети — різні slug; чужий slug не блокує цей план. Legacy flat-файли мігрують при читанні.</p>
+      <p class="view-desc">Усі маркери в consumer project <code>.cursor/gates/&lt;kind&gt;/&lt;slug&gt;</code>, не в kit. Паралельні тікети — різні slug; чужий slug не блокує цей план. Stop-хуки нагадують лише коли відомий шлях поточного плану. Якщо шлях невідомий — мовчать, щоб не зациклити чужий чат. Legacy flat-файли мігрують при читанні.</p>
       <table class="meta">
         <thead>
           <tr><th>Marker</th><th>Пише</th><th>Чистить / інвалідує</th></tr>

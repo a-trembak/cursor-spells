@@ -89,7 +89,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
-Runtime markers the agents write later (not created by install): `.cursor/gates/<kind>/<slug>` for `plan-gate`, `critique-gate`, `plan-critique-clear`, `review-gate`, `docs-gate` (legacy flat `.cursor/*.pending` / `plan-critique.clear` migrate-on-read), plus `.cursor/project-patterns.md`.
+Runtime markers the agents write later (not created by install): `.cursor/gates/<kind>/<slug>` for `plan-gate`, `critique-gate`, `plan-critique-clear`, `review-gate`, `docs-gate` (legacy flat `.cursor/*.pending` / `plan-critique.clear` migrate-on-read), plus `.cursor/project-patterns.md`. Stop hooks follow up only when the current plan path is known; they stay silent if the path is missing so a foreign slug cannot loop another chat.
 
 ### What update does (step by step)
 
