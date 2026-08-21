@@ -38,6 +38,10 @@ assert_grep pr_agent_gate "agents/pr-reviewer.md" "Teach-review miss"
 assert_grep pr_skill_gate "skills/pr-review/SKILL.md" "Teach-review miss"
 assert_grep er_no_kit_git "agents/engineer-reviewer.md" "never edit kit git"
 assert_grep pr_invoke "agents/pr-reviewer.md" "teach-review"
+assert_grep readme_skill "README.md" "teach-review"
+assert_grep readme_cmd "README.md" "/teach-review"
+assert_grep flow_teach "docs/superpowers/pipeline-flow.md" "teach-review"
+assert_grep dogfood_miss "docs/superpowers/dogfood/engineer-review-checklist.md" "Teach-review miss"
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1

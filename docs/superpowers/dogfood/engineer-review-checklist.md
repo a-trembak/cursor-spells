@@ -65,6 +65,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | P0 correctness finding settled | `review-learn` `mode:capture` appends or dedupes; Coverage `review_learn: appended\|deduped` |
 | Next review with matching triggers | `review-learn` `mode:load` returns hints; orchestrator stays thin; matching phases **open** linked checklist (not one-liner-only) |
 | New gate proposed (`propose:…`) | HITL **Review-learn promote**; default `consumer_only`; kit checklists never auto-edited from a leaf app |
+| Validated report shown | HITL **Teach-review miss**; `no_miss` does not touch kit git; `miss` + description runs `teach-review` |
 
 ## Patterns CI helper
 

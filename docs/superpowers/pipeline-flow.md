@@ -22,7 +22,7 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 
 `review-gate` is the HITL **after code**. Skill `/finish-plan` writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
 
-Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `jira-transition`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`.
+Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `jira-transition`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`, `teach-review`.
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
@@ -398,6 +398,8 @@ flowchart TD
 ```
 
 Auto-fix requires all four: deterministic check, single correct answer, no information loss, zero blast radius on data/UX. Traceability drift and migrations are always `clarify`.
+
+After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch; does not merge to `main`).
 
 ---
 
