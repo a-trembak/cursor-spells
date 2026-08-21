@@ -66,7 +66,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 8. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Point at the canvas (if built). Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 9. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch affected phases and re-emit with the same evidence bar.
 10. After the report is settled, run `review-learn` per [`review-learn-protocol.md`](../engineer-review/references/review-learn-protocol.md) (same self-strengthen loop as engineer-review).
-11. **Teach-review miss:** ask `hitl-choice` preset **Teach-review miss**. `no_miss` → stop. `miss` → description then skill `teach-review`. Never edit kit git here.
+11. **Teach-review miss:** ask `hitl-choice` preset **Teach-review miss**. `no_miss` → stop. `miss` → description then skill `teach-review`. Never edit kit git here. If `teach-review` fails, keep the report.
 
 ## Fix policy
 

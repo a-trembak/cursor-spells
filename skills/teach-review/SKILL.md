@@ -19,7 +19,7 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
 
 - Miss description (required). Empty → stop; do not invent a class.
 - Current consumer project root (cwd) for config + kit-path files
-- Kit checkout from `tr_kit_path`
+- Kit checkout path (read from `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path`)
 
 ## Steps
 
@@ -40,23 +40,26 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
    4. Last resort: new `skills/<name>/SKILL.md` + `agents/<name>.md`, always-on dispatch in **both** `engineer-reviewer` and `pr-reviewer`, plus `skills/engineer-review/SKILL.md`, `skill-map.md`, and README tables.
    If a checklist already covers the class but the miss still happened, **strengthen that file** — do not no-op and do not clone a parallel skill.
    Never write a path outside the kit checkout.
-4. Source helpers (`scripts/teach-review.sh` in the kit). Resolve:
-   - `KIT="$(tr_kit_path "$PWD")"` then `tr_is_kit_checkout "$KIT"` — fail → stop with `csp install` / clone hint
+4. Resolve kit path, then source helpers (`"$KIT/scripts/teach-review.sh"`). Do not call `tr_kit_path` before sourcing.
+   - Read `KIT` from `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path` (trim newline). Empty or missing → stop with `csp install` / clone hint.
+   - `tr_is_kit_checkout "$KIT"` — fail → same stop
    - `tr_kit_is_dirty "$KIT"` — dirty → stop; do not stash-mix
    - `land="$(tr_resolve_land "$PWD")"`
-5. In the kit checkout only:
-   - `git fetch origin main`
+5. In the kit only (primary checkout stays on its current branch — never `checkout -b` on `$KIT` itself):
+   - `git -C "$KIT" fetch origin` (all heads, so remote `learn/…` names are visible)
    - `base="$(tr_learn_branch_base "$miss_class")"`
    - `branch="$(tr_unique_learn_branch "$KIT" "$base")"`
-   - `git -C "$KIT" checkout -b "$branch" origin/main`
-   - Apply instruction edits; `git add` only those kit files
-   - Commit: `feat(review): teach <miss_class>` (English; no secrets)
-6. **Land** (Do not merge; do not checkout `main`; do not run `csp update`):
-   - `git -C "$KIT" push -u origin "$branch"`
+   - `TMP="$(mktemp -d)"`; `git -C "$KIT" worktree add "$TMP" -b "$branch" origin/main`
+   - Apply instruction edits under `"$TMP"`; `git -C "$TMP" add` only those kit files
+   - `git -C "$TMP" commit -m "feat(review): teach <miss_class>"` (English; no secrets)
+6. **Land** (Do not merge; do not checkout `main` on `$KIT`; do not run `csp update`):
+   - `git -C "$TMP" push -u origin "$branch"`
+   - `repo="$(git -C "$KIT" remote get-url origin)"` — use for `gh --repo`
    - If `tr_land_opens_pr "$land"` (i.e. `draft_merge`):
-     `gh pr create --draft --repo <kit-origin> --base main --head "$branch" --title "feat(review): teach <miss_class>" --body "<rule one-liner + file list>"`
+     `gh pr create --draft --repo "$repo" --base main --head "$branch" --title "feat(review): teach <miss_class>" --body "<rule one-liner + file list>"`
    - `auto_push`: skip `gh pr create`
-   - Push or `gh` failure: report error + local branch name; do not claim success
+   - Push or `gh` failure: report error + branch name; do not claim success
+   - Always: `git -C "$KIT" worktree remove "$TMP"` (even after failure, if the worktree was added)
 7. Tell the human (full words in chat): `miss_class`, rule one-liner, kit-relative paths, branch name, pull request URL if `draft_merge` succeeded, and that reviews keep old instructions until `learn/…` is merged to `main` and this machine’s kit checkout points at that `main`.
 
 ## Hard rules

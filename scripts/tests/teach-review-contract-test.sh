@@ -28,6 +28,7 @@ assert_grep skill_no_local_merge "skills/teach-review/SKILL.md" "Do not merge"
 assert_grep skill_draft "skills/teach-review/SKILL.md" "gh pr create --draft"
 assert_grep skill_auto_push "skills/teach-review/SKILL.md" "auto_push"
 assert_grep skill_refuse "skills/teach-review/SKILL.md" "not generalizable"
+assert_grep skill_worktree "skills/teach-review/SKILL.md" "worktree"
 assert_grep cmd_invoke "commands/teach-review.md" "teach-review"
 assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Teach-review miss"
 assert_grep token_miss "skills/hitl-choice/SKILL.md" '`miss`'
