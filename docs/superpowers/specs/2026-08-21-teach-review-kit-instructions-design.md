@@ -2,7 +2,7 @@
 
 ## Status
 
-`draft` — brainstorm validated in chat; this file is the implementation target after human review of the written spec.
+`approved` — implementation target for cursor-spells kit (human approved the written spec). Plan: [`2026-08-21-teach-review-kit-instructions.md`](../plans/2026-08-21-teach-review-kit-instructions.md).
 
 ## Goal
 
@@ -26,6 +26,7 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 | Land modes | `auto_push` or `draft_merge`. Default `draft_merge` |
 | Config layers | User-global **and** consumer-project. Project wins when it sets `land` |
 | Config files | `csp install` / `csp update` create them with defaults if missing; never overwrite |
+| Config comments | Installed file has `//` notes above `land`: purpose + every legal value |
 | `auto_push` | Branch `learn/…` + `git push` only (no pull request) |
 | `draft_merge` | Same branch shape + **draft** pull request into kit `main` |
 | Local checkout | **Remote only** — do not merge/switch the kit checkout. Next review stays on old instructions until the human merges `learn/…` into `main` and updates the checkout |
