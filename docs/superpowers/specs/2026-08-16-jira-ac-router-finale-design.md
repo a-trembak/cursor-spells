@@ -76,7 +76,7 @@ Comment body: PR URL(s) + one-line summary. `addCommentToJiraIssue` for `*_jira`
 
 ## Capture-escape
 
-Command `/capture-escape`: invoke `review-learn` `mode:capture` with `source: production-escape`. Does not run engineer-review. Still generalizes; still HITL Review-learn promote for new kit gates.
+Command `/capture-escape`: ask HITL **Capture-escape destination**. `miss` → skill `teach-review`. `project_secret` → `review-learn` `mode:capture` with `source: production-escape`. Does not run engineer-review. Store routing: [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md).
 
 ## Out of scope
 

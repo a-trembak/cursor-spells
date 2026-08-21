@@ -1,28 +1,30 @@
 ---
-description: Record a production miss into review-learnings without running a full engineer-review. Uses review-learn mode:capture with source production-escape.
+description: Record a production miss into kit instructions or this project's private ledger. Does not run a full engineer-review.
 argument-hint: "[what slipped]"
 ---
 
 # /capture-escape
 
-Thin entry for a **production miss** the pipeline did not catch. Writes a generalized learning; does **not** run `engineer-review`.
+Thin entry for a **production miss** the pipeline did not catch. Does **not** run `engineer-review`.
 
 ## Arguments
 
-- Optional short description of what escaped (symptom + where it should have been caught). If omitted, ask in chat (open-ended — not a closed-set HITL gate).
+- Optional short description of what escaped (symptom + where it should have been caught). If omitted, ask in chat (open-ended — not a closed-set gate).
 
 ## Steps
 
-1. Read `skills/engineer-review/references/review-learn-protocol.md`.
-2. Invoke agent **`review-learn`** with:
+1. If the description is empty, ask open-ended. Empty still → stop. Do not invent a miss class.
+2. Ask via skill **`hitl-choice`** preset **Capture-escape destination** (`miss` / `project_secret`). Recommended: `miss`.
+3. `miss` → read skill `teach-review` (`skills/teach-review/SKILL.md`) and follow it verbatim. Do not write `.cursor/review-learnings.md`.
+4. `project_secret` → read `skills/engineer-review/references/review-learn-protocol.md`. Invoke agent **`review-learn`** with:
    - `mode: capture`
    - `source: production-escape`
-   - the human's description (and any linked ticket/PR if they pasted one)
-3. Follow capture rules: generalize; max 2 miss classes; map to existing R# when possible; dedup the consumer ledger `.cursor/review-learnings.md`.
-4. If the capture proposes a **new** kit gate (`gate: propose:…`), ask via skill **`hitl-choice`** preset **Review-learn promote** (`consumer_only` / `promote` / `skip`). Never auto-edit kit checklists from a consumer repo.
+   - destination `project_secret`
+   - the human's description
+   Follow capture rules: keep client / internal names; no passwords, tokens, or personal data; max 2 miss classes; dedup `.cursor/review-learnings.md`. Do **not** ask **Review-learn promote**. Never edit kit files.
+5. Do not run both stores on the same miss.
 
 ## Notes
 
-- Do **not** start `engineer-reviewer`, `bug-fixer`, or `/start-issue-task`. If the human also wants a fix, they run `/start-issue-task` or `/start-task` separately.
-- Do not invent a miss class from an empty description — wait for the human.
-- Coverage: `review_learn: appended|deduped|skipped|n/a`.
+- Do not start `engineer-reviewer`, `bug-fixer`, or `/start-issue-task` unless the human asks. If they also want a fix, they run `/start-issue-task` or `/start-task` separately.
+- Coverage: `teach_review: invoked` or `review_learn: appended|deduped|skipped|n/a`.

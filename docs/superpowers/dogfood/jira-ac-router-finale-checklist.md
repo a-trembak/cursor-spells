@@ -66,7 +66,7 @@ After a successful `/start-task` or `/start-issue-task` fetch: `jira-transition`
 
 ## Capture-escape
 
-`/capture-escape` → `review-learn` `mode:capture` `source: production-escape`. No `engineer-reviewer`. New kit gates → HITL **Review-learn promote**.
+`/capture-escape` → HITL **Capture-escape destination**. `miss` → `teach-review`. `project_secret` → `review-learn` `mode:capture` `source: production-escape`. No `engineer-reviewer`. No **Review-learn promote** on `project_secret`.
 
 ## Canvas
 

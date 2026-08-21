@@ -1,9 +1,10 @@
 # Review learnings
 
-> Consumer ledger for engineer-review self-strengthening.
+> Project-private ledger for miss classes that must not enter the shared kit
+> (client names, internal product terms).
 > Path: `.cursor/review-learnings.md`
 > Protocol: kit `skills/engineer-review/references/review-learn-protocol.md`
-> Do not put secrets, tokens, or PII here.
+> Do not put passwords, tokens, or personal data here.
 
 ## Active
 

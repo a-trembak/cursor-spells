@@ -57,8 +57,11 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
    - Coverage notes `graphify: used|absent|unqueryable` and canvas `built|skipped|skill_missing`.
 12. Emit the validated **PR Review** report; point at the canvas if built; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.
 13. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text OK). On answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator. Do **not** rebuild the canvas unless the PR head moved or the user asks.
-14. After the report is settled, run `review-learn` per `review-learn-protocol.md` (same self-strengthen loop as engineer-review). New gates → HITL **Review-learn promote**.
-15. **Teach-review miss:** ask `hitl-choice` preset **Teach-review miss**. `no_miss` → stop. `miss` → description then skill `teach-review`. Never edit kit git here. If `teach-review` fails, keep the report.
+14. **Teach-review miss:** after the report is settled, ask `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. Never edit kit git here. Do not auto-capture.
+    - `no_miss` → stop (no `teach-review`, no `review-learn` capture).
+    - `miss` → description then skill `teach-review`. If `teach-review` fails, keep the report.
+    - `project_secret` → description then `review-learn` `mode:capture` with destination `project_secret`. Do not ask **Review-learn promote**. Never edit kit files.
+    Do not write both stores on the same miss.
 
 ## Subagents
 

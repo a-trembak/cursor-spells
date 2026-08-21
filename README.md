@@ -144,7 +144,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer`, **waits**, then `finish-plan` → `engineer-reviewer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
 | [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — canvas orientation + snippets + file links + humanizer prose; default report-only |
-| [`teach-review`](skills/teach-review/) | After a review miss: generalize into kit instructions, `learn/…` branch, land via `cursor-spells-learn.json` (`draft_merge` / `auto_push`) |
+| [`teach-review`](skills/teach-review/) | After a shareable review miss (`miss`): generalize into kit instructions, `learn/…` branch, land via `cursor-spells-learn.json`. Project-private misses use `project_secret` instead. |
 | [`software-developer`](skills/software-developer/) | Implements a cleared plan (or `mode:fast` AC brief) — feature branch(es), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
@@ -164,7 +164,7 @@ docs/        Design specs, plans, dogfood checklists
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
 | `review-figma-markup` | Markup vs Figma (needs node URLs); on web also `ce-test-browser` |
-| `review-learn` | After settled review — append generalized miss classes to `.cursor/review-learnings.md` (self-strengthen) |
+| `review-learn` | Load hints from kit seed + this project's private ledger; write `.cursor/review-learnings.md` only after `project_secret` |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
 | `implementation-critic` | Audits a plan before code — Pass A/B (+ Pass C bug-fix), read-only |
@@ -247,9 +247,9 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Capture a production escape
 
-`/capture-escape [what slipped]` records a production miss via `review-learn` `mode:capture` `source: production-escape`. It does **not** run a full `engineer-review`. New kit gates still go through HITL **Review-learn promote**.
+`/capture-escape [what slipped]` records a production miss without a full `engineer-review`. It asks **Capture-escape destination**: `miss` writes kit instructions via `teach-review`; `project_secret` writes this project's `.cursor/review-learnings.md` only (client names that must not enter the kit).
 
-`/teach-review [what slipped]` writes generalized **kit** instructions (not `.cursor/review-learnings.md`). After every settled engineer/PR review the orchestrator asks `miss` / `no_miss`. Land config: `~/.cursor/cursor-spells-learn.json` and `<project>/.cursor/cursor-spells-learn.json` (created on `csp install` if missing).
+`/teach-review [what slipped]` writes generalized **kit** instructions (not `.cursor/review-learnings.md`). After every settled engineer/PR review the orchestrator asks `miss` / `project_secret` / `no_miss`. Land config: `~/.cursor/cursor-spells-learn.json` and `<project>/.cursor/cursor-spells-learn.json` (created on `csp install` if missing).
 
 Design: [`docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md`](docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md) · Jira fetch + router + PR finale: [`docs/superpowers/specs/2026-08-16-jira-ac-router-finale-design.md`](docs/superpowers/specs/2026-08-16-jira-ac-router-finale-design.md)
 

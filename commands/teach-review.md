@@ -16,7 +16,7 @@ Turn a human remark into generalized **kit** instructions. Does **not** write `.
 1. Read skill `teach-review` (`skills/teach-review/SKILL.md`).
 2. If the argument is empty, ask for the description. Empty still → stop.
 3. Follow `teach-review` verbatim (generalize → route → kit git → land).
-4. Skip the closed-set `miss` / `no_miss` gate — invoking this command **is** the miss.
+4. Skip the closed-set Teach-review miss gate — invoking this command **is** `miss` (kit). For a miss that must stay in this project, use `/capture-escape` and choose `project_secret` instead.
 
 ## Notes
 

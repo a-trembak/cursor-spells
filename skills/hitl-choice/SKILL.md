@@ -6,7 +6,8 @@ description: >-
   are fallback only after the tool fails or is missing. Use from approve-plan,
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
   start-issue-task blocked critic, blocked implementation-critic gates,
-  pipeline route / Fast vs issue, create-pr Pipeline finale, and Teach-review miss.
+  pipeline route / Fast vs issue, create-pr Pipeline finale, Teach-review miss,
+  and Capture-escape destination.
 ---
 
 # HITL Choice
@@ -15,7 +16,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `no_miss`), **Pipeline route**, **Fast vs issue**, **Pipeline finale**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Pipeline finale**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -159,26 +160,40 @@ Ask only when the human explicitly wants to remove another chat's gate. Option p
 
 ### Review-learn promote
 
-Use after `review-learn` proposes a **new** kit gate (`gate: propose:…`) that is not already an R# / checklist section.
+Do **not** ask this after **Teach-review miss** or **Capture-escape destination** — those gates already chose the store. Kit publishes go through skill `teach-review`. `project_secret` capture never runs this preset.
+
+Keep the tokens only if an older prompt still surfaces them:
 
 | id | label |
 |----|-------|
-| `consumer_only` | Keep learning in this project's `.cursor/review-learnings.md` only (recommended default) |
-| `promote` | Also promote into the cursor-spells kit (only when editing the kit repo, or as a human follow-up PR) |
+| `consumer_only` | Keep learning in this project's `.cursor/review-learnings.md` only |
+| `promote` | Do not edit kit git here — tell the human to run `/teach-review` instead |
 | `skip` | Do not write this learning |
 
-Prompt: one-line miss class + `rule_one_liner`. Default recommendation: `consumer_only`. Never auto-edit kit checklists from a leaf app on `promote` — if not in the kit repo, record the proposal for the human and still write the consumer entry unless `skip`.
+Never auto-edit kit checklists from a leaf app.
 
 ### Teach-review miss
 
-Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (pipeline and manual `/engineer-review` / `/pr-review`). Do not ask on `/teach-review` (the command is already the miss).
+Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (pipeline and manual `/engineer-review` / `/pr-review`). Do not ask on `/teach-review` (the command is already `miss`). Recommended: `miss`.
 
 | id | label |
 |----|-------|
-| `miss` | The review missed something I will describe |
-| `no_miss` | Nothing to teach; stop |
+| `miss` | Teach the shared kit (strip client names) |
+| `project_secret` | Keep in this project only (internal names that must not enter the kit) |
+| `no_miss` | Nothing to record |
 
-`no_miss` → do not invoke `teach-review`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. Failure of `teach-review` must not retract the report.
+`no_miss` → do not invoke `teach-review`; do not run `review-learn` `mode:capture`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. `project_secret` → if this message has no description, wait for free text, then dispatch `review-learn` `mode:capture` (never **Review-learn promote**, never kit git). Failure of `teach-review` must not retract the report. Do not write both stores on the same miss.
+
+### Capture-escape destination
+
+Ask from `/capture-escape` after a non-empty miss description. The command is already a miss, so do not offer `no_miss`. Recommended: `miss`.
+
+| id | label |
+|----|-------|
+| `miss` | Teach the shared kit (strip client names) |
+| `project_secret` | Keep in this project only (internal names that must not enter the kit) |
+
+`miss` → skill `teach-review`. `project_secret` → `review-learn` `mode:capture` `source: production-escape`. Never both. Never **Review-learn promote** on `project_secret`.
 
 ### Pipeline route
 

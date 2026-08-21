@@ -65,8 +65,11 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 7. **Humanize** all prose with skill `english-humanizer`, then expand abbreviations with skill `plain-language-chat`, before showing the report or PR comment draft (paths and code fences unchanged). If humanizer is missing, apply that skill’s engineer-voice rules inline and note `skill_missing: english-humanizer`.
 8. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Point at the canvas (if built). Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 9. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK). On answers, re-dispatch affected phases and re-emit with the same evidence bar.
-10. After the report is settled, run `review-learn` per [`review-learn-protocol.md`](../engineer-review/references/review-learn-protocol.md) (same self-strengthen loop as engineer-review).
-11. **Teach-review miss:** ask `hitl-choice` preset **Teach-review miss**. `no_miss` → stop. `miss` → description then skill `teach-review`. Never edit kit git here. If `teach-review` fails, keep the report.
+10. **Teach-review miss:** after the report is settled, ask `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. Never edit kit git here. Do not auto-capture.
+    - `no_miss` → stop (no `teach-review`, no `review-learn` capture).
+    - `miss` → description then skill `teach-review`. If `teach-review` fails, keep the report.
+    - `project_secret` → description then `review-learn` `mode:capture` with destination `project_secret`. Do not ask **Review-learn promote**. Never edit kit files.
+    Do not write both stores on the same miss.
 
 ## Fix policy
 
