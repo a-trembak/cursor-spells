@@ -102,6 +102,21 @@ else
   echo "OK   opens_pr_auto"
 fi
 
+# Real template is JSONC and resolves to draft_merge
+tmpl="$ROOT/skills/teach-review/references/cursor-spells-learn.json"
+test -f "$tmpl" || { echo "FAIL missing template" >&2; fail=1; }
+assert_eq template_land "draft_merge" "$(tr_land_from_file "$tmpl")"
+grep -q "auto_push" "$tmpl" || { echo "FAIL template missing auto_push comment" >&2; fail=1; }
+grep -q "draft_merge" "$tmpl" || { echo "FAIL template missing draft_merge comment" >&2; fail=1; }
+echo "OK   template_comments"
+
+# install-to-project.sh sources helper and calls tr_install_learn_config
+grep -q 'tr_install_learn_config' "$ROOT/scripts/install-to-project.sh" || {
+  echo "FAIL install missing tr_install_learn_config" >&2
+  fail=1
+}
+echo "OK   install_calls_helper"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
