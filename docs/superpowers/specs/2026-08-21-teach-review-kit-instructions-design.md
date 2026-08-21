@@ -25,6 +25,7 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 | New files | Allowed: new checklist, new skill, new agent; wire **always-on** into the review spine |
 | Land modes | `auto_push` or `draft_merge`. Default `draft_merge` |
 | Config layers | User-global **and** consumer-project. Project wins when it sets `land` |
+| Config files | `csp install` / `csp update` create them with defaults if missing; never overwrite |
 | `auto_push` | Branch `learn/…` + `git push` only (no pull request) |
 | `draft_merge` | Same branch shape + **draft** pull request into kit `main` |
 | Local checkout | **Remote only** — do not merge/switch the kit checkout. Next review stays on old instructions until the human merges `learn/…` into `main` and updates the checkout |
@@ -46,10 +47,9 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 
 | Layer | Path |
 |-------|------|
+| Kit template | `skills/teach-review/references/cursor-spells-learn.json` |
 | User-global | `~/.cursor/cursor-spells-learn.json` |
 | Consumer project | `<project>/.cursor/cursor-spells-learn.json` |
-
-Do not create these files on `csp install`. Missing file means “use default”.
 
 ### Schema
 
@@ -60,6 +60,17 @@ Do not create these files on `csp install`. Missing file means “use default”
 ```
 
 `land` is exactly `auto_push` or `draft_merge`. Unknown keys are ignored. Unknown or empty `land` → treat as `draft_merge` and tell the human once.
+
+### Install
+
+`csp install` and `csp update` copy the kit template **only when the destination is missing** (same create-once idea as `check-project-patterns.sh`, not a refresh like hooks). Existing files are left untouched so a human `auto_push` is never reset.
+
+| Mode | Writes if missing |
+|------|-------------------|
+| Always (including `--user-only`) | `~/.cursor/cursor-spells-learn.json` |
+| Project targeted | also `<project>/.cursor/cursor-spells-learn.json` |
+
+Both copies start as `{ "land": "draft_merge" }`. A project file with `land` set pins that project (project wins). To inherit the user-global file later, delete the project file or remove its `land` key. Missing files at runtime still resolve as `draft_merge` (skill must not crash if someone deleted them).
 
 ### Resolution (project wins)
 
@@ -210,6 +221,7 @@ Always include:
 Shell tests against a temp git repo pretending to be the kit (same pattern as `scripts/tests/pipeline-gates-test.sh`):
 
 - Config: missing / user only / project only / both (project wins) / garbage `land` → `draft_merge`
+- Install: missing destinations get the template; a second run must not overwrite `auto_push`
 - Generalize fixture: “rename `getData` in service X” → rule with no product/service name
 - Refuse fixture: “ticket ACP-1” with no class
 - Route fixture: naming miss prefers patterns/comments, not a new agent
@@ -226,7 +238,9 @@ Shell tests against a temp git repo pretending to be the kit (same pattern as `s
 | `agents/engineer-reviewer.md`, `skills/engineer-review/SKILL.md` | After validated report, always the miss gate; never edit kit git here |
 | `agents/pr-reviewer.md`, `skills/pr-review/SKILL.md` | Same miss gate |
 | `README.md`, `docs/superpowers/pipeline-flow.md` (+ html if the post-review node needs a label) | Document command + gate |
-| `scripts/` helper + `scripts/tests/…` | Config resolve + branch name + land-mode tests |
+| `skills/teach-review/references/cursor-spells-learn.json` | Default template `{ "land": "draft_merge" }` |
+| `scripts/install-to-project.sh`, `README.md` install tables | Create-once user + project config copies |
+| `scripts/` helper + `scripts/tests/…` | Config resolve + branch name + land-mode tests; install create-once |
 | Dogfood checklist (engineer-review) | One row: post-report miss gate; `no_miss` skips git |
 
 Runtime edits when teaching a **new** phase (produced by the skill, not by this spec PR): new `skills/` + `agents/` + spine rows + README tables.
