@@ -6,7 +6,7 @@ description: >-
   are fallback only after the tool fails or is missing. Use from approve-plan,
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
   start-issue-task blocked critic, blocked implementation-critic gates,
-  pipeline route / Fast vs issue, and create-pr Pipeline finale.
+  pipeline route / Fast vs issue, create-pr Pipeline finale, and Teach-review miss.
 ---
 
 # HITL Choice
@@ -15,7 +15,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Pipeline route**, **Fast vs issue**, **Pipeline finale**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `no_miss`), **Pipeline route**, **Fast vs issue**, **Pipeline finale**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -168,6 +168,17 @@ Use after `review-learn` proposes a **new** kit gate (`gate: propose:…`) that 
 | `skip` | Do not write this learning |
 
 Prompt: one-line miss class + `rule_one_liner`. Default recommendation: `consumer_only`. Never auto-edit kit checklists from a leaf app on `promote` — if not in the kit repo, record the proposal for the human and still write the consumer entry unless `skip`.
+
+### Teach-review miss
+
+Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (pipeline and manual `/engineer-review` / `/pr-review`). Do not ask on `/teach-review` (the command is already the miss).
+
+| id | label |
+|----|-------|
+| `miss` | The review missed something I will describe |
+| `no_miss` | Nothing to teach; stop |
+
+`no_miss` → do not invoke `teach-review`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. Failure of `teach-review` must not retract the report.
 
 ### Pipeline route
 

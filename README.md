@@ -64,6 +64,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/agents/<file>.md` | Symlink → `<kit>/agents/…` (all agents, including `review-*`) |
 | `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words chat (pipeline gate rules stay project-only) |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
+| `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
 
 Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
 
@@ -81,6 +82,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/hitl-askquestion.mdc` | Copied / refreshed — closed-set HITL must call AskQuestion first |
 | `<project>/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — chat with the human uses full words, never abbreviations |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
+| `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
 | `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
@@ -142,6 +144,7 @@ docs/        Design specs, plans, dogfood checklists
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `software-developer`, **waits**, then `finish-plan` → `engineer-reviewer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
 | [`pr-review`](skills/pr-review/) | PR-entry wrapper around engineer-review — canvas orientation + snippets + file links + humanizer prose; default report-only |
+| [`teach-review`](skills/teach-review/) | After a review miss: generalize into kit instructions, `learn/…` branch, land via `cursor-spells-learn.json` (`draft_merge` / `auto_push`) |
 | [`software-developer`](skills/software-developer/) | Implements a cleared plan (or `mode:fast` AC brief) — feature branch(es), skill-map routing, code-comments, verify-before-handoff; web UI vs Figma via `ce-test-browser` |
 
 ## Agents
@@ -245,6 +248,8 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 ### Capture a production escape
 
 `/capture-escape [what slipped]` records a production miss via `review-learn` `mode:capture` `source: production-escape`. It does **not** run a full `engineer-review`. New kit gates still go through HITL **Review-learn promote**.
+
+`/teach-review [what slipped]` writes generalized **kit** instructions (not `.cursor/review-learnings.md`). After every settled engineer/PR review the orchestrator asks `miss` / `no_miss`. Land config: `~/.cursor/cursor-spells-learn.json` and `<project>/.cursor/cursor-spells-learn.json` (created on `csp install` if missing).
 
 Design: [`docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md`](docs/superpowers/specs/2026-08-04-bugfix-issue-fast-pipelines-design.md) · Jira fetch + router + PR finale: [`docs/superpowers/specs/2026-08-16-jira-ac-router-finale-design.md`](docs/superpowers/specs/2026-08-16-jira-ac-router-finale-design.md)
 

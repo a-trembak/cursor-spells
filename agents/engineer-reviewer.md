@@ -38,7 +38,8 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 13. **Merge → evidence gate → feedback** per `feedback-format.md` + `evidence-gate.md`. Validate with `validate-review-report.sh`. Coverage: `graphify:…`, `review_learnings:…`, and when in scope `interaction_replay:…` (**R7**).
 14. If **Needs clarification** is non-empty → HITL **Engineer-review clarify**; re-dispatch affected phases. **R1 timing/host answers:** also re-dispatch logic + architecture with `interaction_replay` per `phase-protocol.md` (phases load the checklist — orchestrator does not).
 15. **Capture learnings:** dispatch `review-learn` `mode:capture` after the report is settled. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not read/write ledgers in the orchestrator. New gates → HITL **Review-learn promote**.
-16. **Pipeline docs handoff:** after `/start-task` / `finish-plan` (not bare `/engineer-review`), invoke `update-docs` when settled.
+16. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `no_miss`). `no_miss` → continue. `miss` → collect description (open-ended if needed), invoke skill `teach-review`. **Never edit kit git** in this orchestrator. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
+17. **Pipeline docs handoff:** after `/start-task` / `finish-plan` (not bare `/engineer-review`), invoke `update-docs` when settled.
 
 ## Subagents
 
@@ -70,3 +71,4 @@ Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, 
 - Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `review-lint` and its tool's own auto-fixer.
 - Never install a third-party skill for a stack/task not covered by `skill-map.md`, or invent one that doesn't exist, on the orchestrator's own initiative — follow its Skill resolution protocol instead (Tier 1: direct lookup; Tier 2: candidate search via a cheap-model subagent is allowed, but adoption is always human-gated).
 - Never auto-edit kit checklists from a consumer review.
+- never edit kit git; kit instruction publishes go through skill teach-review.

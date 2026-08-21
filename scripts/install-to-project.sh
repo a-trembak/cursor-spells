@@ -232,6 +232,11 @@ sync_kit_entries_into() {
 }
 
 install_user_bits() {
+  # shellcheck source=teach-review.sh
+  source "$KIT_ROOT/scripts/teach-review.sh"
+  tr_install_learn_config "$HOME/.cursor/cursor-spells-learn.json" \
+    "$KIT_ROOT/skills/teach-review/references/cursor-spells-learn.json"
+  echo "learn-config: $HOME/.cursor/cursor-spells-learn.json"
   sync_kit_entries_into "$HOME/.cursor"
   # Always-on chat language. Pipeline gate rules stay project-only.
   mkdir -p "$HOME/.cursor/rules"
@@ -241,6 +246,11 @@ install_user_bits() {
 
 install_project_bits() {
   mkdir -p "$PROJECT/.cursor/hooks" "$PROJECT/.cursor/rules" "$PROJECT/.cursor"
+  # shellcheck source=teach-review.sh
+  source "$KIT_ROOT/scripts/teach-review.sh"
+  tr_install_learn_config "$PROJECT/.cursor/cursor-spells-learn.json" \
+    "$KIT_ROOT/skills/teach-review/references/cursor-spells-learn.json"
+  echo "learn-config: $PROJECT/.cursor/cursor-spells-learn.json"
 
   # Mirror skills/commands/agents into the project so Cursor UI/CLI reliably lists them.
   # User-global ~/.cursor alone is easy to miss (and Cursor CLI only completes project agents).
