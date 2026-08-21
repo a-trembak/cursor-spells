@@ -54,7 +54,8 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 12. Merge → [evidence-gate.md](references/evidence-gate.md) → [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)). Coverage: `graphify:…`, `review_learnings:…`, and when in scope `interaction_replay:…` (**R7**). Validate with `scripts/validate-review-report.sh`; `english-humanizer` then `plain-language-chat` on prose.
 13. Needs clarification → HITL **Engineer-review clarify**; re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
 14. **Capture:** `review-learn` `mode:capture` after settled report. Coverage: `review_learn: appended|deduped|skipped|n/a`. New gates → HITL **Review-learn promote**. Never auto-edit kit checklists from a consumer repo. Production misses **without** a full review use slash command `/capture-escape` (`mode:capture`, `source: production-escape`).
-15. Pipeline docs handoff via `update-docs` after `/start-task` / `finish-plan` (not bare `/engineer-review`), once learn + report are settled.
+15. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `no_miss`). `no_miss` → continue. `miss` → collect description (open-ended if needed), invoke skill `teach-review`. **Never edit kit git** in this orchestrator. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
+16. Pipeline docs handoff via `update-docs` after `/start-task` / `finish-plan` (not bare `/engineer-review`), once learn + report are settled.
 
 ## Fix policy
 

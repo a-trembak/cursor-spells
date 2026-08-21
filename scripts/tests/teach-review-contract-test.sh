@@ -29,6 +29,15 @@ assert_grep skill_draft "skills/teach-review/SKILL.md" "gh pr create --draft"
 assert_grep skill_auto_push "skills/teach-review/SKILL.md" "auto_push"
 assert_grep skill_refuse "skills/teach-review/SKILL.md" "not generalizable"
 assert_grep cmd_invoke "commands/teach-review.md" "teach-review"
+assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Teach-review miss"
+assert_grep token_miss "skills/hitl-choice/SKILL.md" '`miss`'
+assert_grep token_no_miss "skills/hitl-choice/SKILL.md" '`no_miss`'
+assert_grep er_agent_gate "agents/engineer-reviewer.md" "Teach-review miss"
+assert_grep er_skill_gate "skills/engineer-review/SKILL.md" "Teach-review miss"
+assert_grep pr_agent_gate "agents/pr-reviewer.md" "Teach-review miss"
+assert_grep pr_skill_gate "skills/pr-review/SKILL.md" "Teach-review miss"
+assert_grep er_no_kit_git "agents/engineer-reviewer.md" "never edit kit git"
+assert_grep pr_invoke "agents/pr-reviewer.md" "teach-review"
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
