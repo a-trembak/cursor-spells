@@ -51,26 +51,48 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 | User-global | `~/.cursor/cursor-spells-learn.json` |
 | Consumer project | `<project>/.cursor/cursor-spells-learn.json` |
 
-### Schema
+### Settings (v1 catalog)
 
-```json
+v1 has **one** key. Unknown keys are ignored. Do not invent extra keys at install time.
+
+#### `land`
+
+**What it does.** Chooses how `teach-review` sends a kit-instruction commit to the `cursor-spells` GitHub remote. It does **not** choose which instruction file to edit, does **not** merge to `main`, and does **not** update the local kit checkout.
+
+| Value | Default? | What happens |
+|-------|----------|----------------|
+| `draft_merge` | **yes** | Create `learn/…` from `origin/main`, commit, `git push`, open a **draft** pull request into kit `main`. Never merge. Never mark ready. Local checkout stays on whatever branch it was. |
+| `auto_push` | no | Same branch + commit + `git push`. **No** pull request. Local checkout still unchanged. Reviews keep old instructions until a human merges `learn/…` into `main` and updates the checkout. |
+
+No other values. Empty, missing, or garbage → behave as `draft_merge` and tell the human once.
+
+### Template (comments live in the file)
+
+Install copies this exact body when the destination is missing. Comments stay in the human-edited file so the variants are visible **above** the key. Runtime strips `//` lines before parse (JSONC).
+
+```jsonc
 {
+  // land — how teach-review sends the new kit instructions to GitHub.
+  // Does not merge to main. Does not switch or update this machine's kit checkout.
+  //
+  // Variants (pick exactly one string):
+  //   "draft_merge"  (default) Push branch learn/<class>-<date> and open a draft
+  //                  pull request into main. You merge when you want the rule live.
+  //   "auto_push"    Push the same learn/ branch only. No pull request.
   "land": "draft_merge"
 }
 ```
 
-`land` is exactly `auto_push` or `draft_merge`. Unknown keys are ignored. Unknown or empty `land` → treat as `draft_merge` and tell the human once.
-
 ### Install
 
-`csp install` and `csp update` copy the kit template **only when the destination is missing** (same create-once idea as `check-project-patterns.sh`, not a refresh like hooks). Existing files are left untouched so a human `auto_push` is never reset.
+`csp install` and `csp update` copy the kit template **only when the destination is missing** (same create-once idea as `check-project-patterns.sh`, not a refresh like hooks). Existing files are left untouched so a human `auto_push` (and their comments) are never reset.
 
 | Mode | Writes if missing |
 |------|-------------------|
 | Always (including `--user-only`) | `~/.cursor/cursor-spells-learn.json` |
 | Project targeted | also `<project>/.cursor/cursor-spells-learn.json` |
 
-Both copies start as `{ "land": "draft_merge" }`. A project file with `land` set pins that project (project wins). To inherit the user-global file later, delete the project file or remove its `land` key. Missing files at runtime still resolve as `draft_merge` (skill must not crash if someone deleted them).
+Both copies start with `land: draft_merge` and the comment block above. A project file with `land` set pins that project (project wins). To inherit the user-global file later, delete the project file or remove its `land` key. Missing files at runtime still resolve as `draft_merge` (skill must not crash if someone deleted them).
 
 ### Resolution (project wins)
 
@@ -221,6 +243,7 @@ Always include:
 Shell tests against a temp git repo pretending to be the kit (same pattern as `scripts/tests/pipeline-gates-test.sh`):
 
 - Config: missing / user only / project only / both (project wins) / garbage `land` → `draft_merge`
+- Config comments: `//` lines above `land` do not break resolve
 - Install: missing destinations get the template; a second run must not overwrite `auto_push`
 - Generalize fixture: “rename `getData` in service X” → rule with no product/service name
 - Refuse fixture: “ticket ACP-1” with no class
@@ -238,7 +261,7 @@ Shell tests against a temp git repo pretending to be the kit (same pattern as `s
 | `agents/engineer-reviewer.md`, `skills/engineer-review/SKILL.md` | After validated report, always the miss gate; never edit kit git here |
 | `agents/pr-reviewer.md`, `skills/pr-review/SKILL.md` | Same miss gate |
 | `README.md`, `docs/superpowers/pipeline-flow.md` (+ html if the post-review node needs a label) | Document command + gate |
-| `skills/teach-review/references/cursor-spells-learn.json` | Default template `{ "land": "draft_merge" }` |
+| `skills/teach-review/references/cursor-spells-learn.json` | Default template with `land` comment catalog + `"draft_merge"` |
 | `scripts/install-to-project.sh`, `README.md` install tables | Create-once user + project config copies |
 | `scripts/` helper + `scripts/tests/…` | Config resolve + branch name + land-mode tests; install create-once |
 | Dogfood checklist (engineer-review) | One row: post-report miss gate; `no_miss` skips git |
