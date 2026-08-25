@@ -38,6 +38,13 @@ assert_grep cpr_score_four_only "skills/create-pr/SKILL.md" "[Ss]core.*only.*fou
 assert_grep cpr_skip_two_tokens "skills/create-pr/SKILL.md" "two-token.*jira_key.*not known.*skip score|skip score.*two-token.*jira_key.*not known"
 assert_grep dogfood "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md" "trajectory-wiring-test.sh"
 assert_grep readme "README.md" "fetch-failure-stops"
+assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Trajectory fail"
+assert_grep token_gen "skills/hitl-choice/SKILL.md" '`generalize`'
+assert_grep token_skip "skills/hitl-choice/SKILL.md" '`skip`'
+assert_grep fetch_ask "skills/jira-fetch/SKILL.md" "Trajectory fail"
+assert_grep cpr_ask "skills/create-pr/SKILL.md" "Trajectory fail"
+assert_grep capture_fail "commands/capture-escape.md" "FAIL "
+assert_grep readme_gen "evals/trajectories/README.md" "generalize"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

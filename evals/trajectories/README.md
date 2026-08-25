@@ -47,3 +47,10 @@ Live files under `evals/trajectories/runs/*.json` are gitignored. Prefer `.curso
 Do not put live ticket secrets in `acceptance_criteria`. Prefer the fixtures already documented in dogfood checklists.
 
 A later slice will execute the pipeline and write run records. This directory holds the corpus plus a deterministic scorer for those records.
+
+## From a score fail to a new case
+
+1. Keep the FAIL lines and the ledger JSON.
+2. Ask Trajectory fail (`generalize` / `skip`). Do not skip this ask by inventing an answer.
+3. On `generalize` in the kit repo: copy a neighbor under `evals/trajectories/cases/`, set `id` to the filename stem, point `source` at an existing kit file, run `python3 scripts/trajectory-cases.py validate`.
+4. Do not add a case that only restates one unique incident. Hit-count an existing `id` in the title/source note instead.
