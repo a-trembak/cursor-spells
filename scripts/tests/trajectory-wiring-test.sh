@@ -45,6 +45,7 @@ assert_grep fetch_ask "skills/jira-fetch/SKILL.md" "Trajectory fail"
 assert_grep cpr_ask "skills/create-pr/SKILL.md" "Trajectory fail"
 assert_grep capture_fail "commands/capture-escape.md" "FAIL "
 assert_grep readme_gen "evals/trajectories/README.md" "generalize"
+assert_grep readme_human_confirm "evals/trajectories/README.md" "wait for the human to confirm.*before.*git commit"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
