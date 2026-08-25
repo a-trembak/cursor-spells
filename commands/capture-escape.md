@@ -20,7 +20,8 @@ Thin entry for a **production miss** the pipeline did not catch. Writes a genera
    - `source: production-escape`
    - the human's description (and any linked ticket/PR if they pasted one)
 3. Follow capture rules: generalize; max 2 miss classes; map to existing R# when possible; dedup the consumer ledger `.cursor/review-learnings.md`.
-4. If the capture proposes a **new** kit gate (`gate: propose:…`), ask via skill **`hitl-choice`** preset **Review-learn promote** (`consumer_only` / `promote` / `skip`). Never auto-edit kit checklists from a consumer repo.
+4. If the capture proposes a **new** kit gate (`gate: propose:…`), ask via skill **`hitl-choice`** preset **Review-learn promote** (`consumer_only` / `promote` / `skip`). Never auto-edit kit checklists from a consumer repo. Then score `capture-escape-promote-new-gate` per skill `trajectory-score`.
+5. If capture did **not** propose a new kit gate, score `capture-escape-no-review` per skill `trajectory-score` (do not ask review-learn-promote).
 
 ## Notes
 

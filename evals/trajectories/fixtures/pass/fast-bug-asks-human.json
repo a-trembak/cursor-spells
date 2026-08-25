@@ -1,0 +1,19 @@
+{
+  "case_id": "fast-bug-asks-human",
+  "input": {
+    "invocation": "/start-task --fast PROJ-1",
+    "fetch": "ok",
+    "jira_class": "bug"
+  },
+  "stages_entered": ["jira-fetch", "jira-transition-in-progress", "fast-vs-issue-hitl"],
+  "artifacts_present": [{"kind": "jira", "name": "in-progress"}],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "fast-vs-issue", "tokens_offered": ["issue", "stay_fast"]}
+  ],
+  "end": {
+    "jira_status": "In Progress",
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

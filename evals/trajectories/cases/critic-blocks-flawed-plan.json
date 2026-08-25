@@ -19,7 +19,9 @@
     "start-build-without-critique-clear",
     "skip-critic-on-full-path"
   ],
-  "human_must_appear": [],
+  "human_must_appear": [
+    {"gate": "critic-blocked"}
+  ],
   "agent_must_not_ask": ["review-gate", "pipeline-finale"],
   "expected_end": {
     "jira_status": null,

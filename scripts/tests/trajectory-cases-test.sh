@@ -134,6 +134,18 @@ python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["human_must_
 assert_exit unknown_human_gate 1 "${VALIDATOR[@]}" --dir "$CASES"
 
 minimal_valid "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["human_must_appear"]=[{"gate":"critic-blocked"}]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+assert_exit omitted_gate_tokens 0 "${VALIDATOR[@]}" --dir "$CASES"
+
+minimal_valid "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["human_must_appear"]=[{"gate":"critic-blocked","tokens":["*"]}]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+assert_exit star_gate_tokens 0 "${VALIDATOR[@]}" --dir "$CASES"
+
+minimal_valid "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["human_must_appear"]=[{"gate":"critic-blocked","tokens":[]}]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+assert_exit empty_gate_tokens 1 "${VALIDATOR[@]}" --dir "$CASES"
+
+minimal_valid "$CASES/minimal-slice.json"
 python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["input"]["fetch"]=[]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
 assert_validation_error input_fetch_wrong_type "input.fetch must be one of" \
   "${VALIDATOR[@]}" --dir "$CASES"

@@ -1,0 +1,21 @@
+{
+  "case_id": "capture-escape-promote-new-gate",
+  "input": {
+    "invocation": "/capture-escape",
+    "fetch": "skip",
+    "acceptance_criteria": "Agent skipped review-gate and opened a ready pull request."
+  },
+  "stages_entered": ["capture-escape", "review-learn-capture"],
+  "artifacts_present": [
+    {"kind": "file", "name": "review-learnings", "path": ".cursor/review-learnings.md"}
+  ],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "review-learn-promote", "tokens_offered": ["consumer_only", "promote", "skip"]}
+  ],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

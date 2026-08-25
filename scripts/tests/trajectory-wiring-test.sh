@@ -34,8 +34,8 @@ assert_grep cpr_case "skills/create-pr/SKILL.md" "create-pr-draft-never-merge"
 assert_grep cpr_before_ready "skills/create-pr/SKILL.md" "before.*gh pr ready|before applying"
 assert_grep cpr_after_ask "skills/create-pr/SKILL.md" "after.*Pipeline finale"
 assert_grep cpr_four_tokens "skills/create-pr/SKILL.md" "keep_draft,ready,keep_draft_jira,ready_jira"
-assert_grep cpr_score_four_only "skills/create-pr/SKILL.md" "[Ss]core.*only.*four-token|only.*four-token.*score"
-assert_grep cpr_skip_two_tokens "skills/create-pr/SKILL.md" "two-token.*jira_key.*not known.*skip score|skip score.*two-token.*jira_key.*not known"
+assert_grep cpr_two_token_case "skills/create-pr/SKILL.md" "create-pr-draft-never-merge-no-jira"
+assert_not_grep cpr_no_skip_two_token "skills/create-pr/SKILL.md" "skip score because this case does not apply"
 assert_grep cpr_observe_pr_state "skills/create-pr/SKILL.md" 'gh pr view.*--json isDraft,state'
 assert_grep cpr_record_ready "skills/create-pr/SKILL.md" 'record end.*--pull-request ready'
 assert_grep cpr_skip_empty_urls "skills/create-pr/SKILL.md" 'no pull request URL|empty.*observation|no opened pull request'
@@ -61,6 +61,37 @@ assert_grep fetch_show_json "skills/jira-fetch/SKILL.md" "[Ss]how.*validated cas
 assert_not_grep fetch_no_diff_alt "skills/jira-fetch/SKILL.md" "case JSON or"
 assert_grep cpr_show_json "skills/create-pr/SKILL.md" "[Ss]how.*validated case JSON|[Dd]isplay.*validated case JSON"
 assert_not_grep cpr_no_diff_alt "skills/create-pr/SKILL.md" "case JSON or"
+
+assert_grep score_skill_exists "skills/trajectory-score/SKILL.md" "trajectory-cases.py score"
+assert_grep score_skill_fail "skills/trajectory-score/SKILL.md" "Trajectory fail"
+assert_grep score_session "skills/trajectory-score/SKILL.md" "session-full|session-fast|session-issue"
+assert_grep judge_skill "skills/trajectory-judge/SKILL.md" "invent-business-facts"
+assert_grep judge_archaeology "skills/trajectory-judge/SKILL.md" "archaeology-in-decision-docs"
+assert_grep judge_not_developer "skills/trajectory-judge/SKILL.md" "software-developer"
+assert_grep judge_re_score "skills/trajectory-judge/SKILL.md" "record action"
+assert_grep judge_agent "agents/trajectory-judge.md" "trajectory-judge"
+
+assert_grep route_unknown "commands/start-task.md" "route-unknown-asks-human"
+assert_grep route_feature "commands/start-task.md" "route-feature-to-full"
+assert_grep route_bug "commands/start-task.md" "route-bug-to-issue"
+assert_grep fast_bug "commands/start-task.md" "fast-bug-asks-human"
+assert_grep full_e2e "commands/start-task.md" "full-happy-path"
+assert_grep fast_e2e "commands/start-task.md" "fast-skips-plan-layer"
+assert_grep story_stays "commands/start-issue-task.md" "start-issue-story-stays-issue"
+assert_grep issue_e2e "commands/start-issue-task.md" "issue-happy-path"
+assert_grep review_fixes "skills/finish-plan/SKILL.md" "review-gate-fixes-to-build"
+assert_grep critic_case "skills/implementation-critic/SKILL.md" "critic-blocks-flawed-plan"
+assert_grep critic_cmd "commands/critique-plan.md" "critic-blocks-flawed-plan"
+assert_grep capture_typical "commands/capture-escape.md" "capture-escape-no-review"
+assert_grep capture_promote "commands/capture-escape.md" "capture-escape-promote-new-gate"
+assert_grep tech_spec_case "skills/tech-spec/SKILL.md" "tech-spec-no-invented-facts"
+assert_grep tech_spec_judge "skills/tech-spec/SKILL.md" "trajectory-judge"
+assert_grep write_spec_case "commands/write-tech-spec.md" "tech-spec-no-invented-facts"
+assert_grep clean_case "skills/clean-decision-docs/SKILL.md" "clean-revise-no-archaeology"
+assert_grep clean_judge "skills/clean-decision-docs/SKILL.md" "trajectory-judge"
+assert_grep create_pr_session "skills/create-pr/SKILL.md" "session-"
+assert_grep install_no_evals "scripts/install-to-project.sh" "evals"
+assert_not_grep install_copy_evals "scripts/install-to-project.sh" 'link_or_copy.*evals|cp .*evals/'
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
@@ -113,6 +144,33 @@ create_pr_score="$(
 echo "$create_pr_score"
 if [[ "$create_pr_score" != *"PASS create-pr-draft-never-merge"* ]]; then
   echo "FAIL create-pr executable score did not pass" >&2
+  exit 1
+fi
+
+NO_JIRA_LEDGER="$TMP/create-pr-draft-never-merge-no-jira.json"
+python3 "$ROOT/scripts/trajectory-cases.py" record init \
+  --ledger "$NO_JIRA_LEDGER" --case-id create-pr-draft-never-merge-no-jira \
+  --invocation "skill create-pr" --fetch skip
+python3 "$ROOT/scripts/trajectory-cases.py" record stage \
+  --ledger "$NO_JIRA_LEDGER" create-pr
+python3 "$ROOT/scripts/trajectory-cases.py" record stage \
+  --ledger "$NO_JIRA_LEDGER" pipeline-finale-hitl
+python3 "$ROOT/scripts/trajectory-cases.py" record artifact \
+  --ledger "$NO_JIRA_LEDGER" --kind github --name draft-pull-request
+python3 "$ROOT/scripts/trajectory-cases.py" record gate \
+  --ledger "$NO_JIRA_LEDGER" --gate pipeline-finale \
+  --tokens keep_draft,ready
+python3 "$ROOT/scripts/trajectory-cases.py" record end \
+  --ledger "$NO_JIRA_LEDGER" --pull-request draft \
+  --review-report absent --jira-status null
+python3 "$ROOT/scripts/trajectory-cases.py" record dump --ledger "$NO_JIRA_LEDGER"
+no_jira_score="$(
+  python3 "$ROOT/scripts/trajectory-cases.py" score \
+    --kit-root "$ROOT" --run "$NO_JIRA_LEDGER"
+)"
+echo "$no_jira_score"
+if [[ "$no_jira_score" != *"PASS create-pr-draft-never-merge-no-jira"* ]]; then
+  echo "FAIL create-pr no-jira executable score did not pass" >&2
   exit 1
 fi
 

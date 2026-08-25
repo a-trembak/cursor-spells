@@ -52,7 +52,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
    - Proceed automatically to skill `start-build` for that plan (branches + `software-developer`; `start-build` waits, then `finish-plan` → `engineer-reviewer`)
 7. **On `Verdict: blocked` or `clear pending accept`:**
    - Keep this plan's `critique-gate/<slug>` (do not touch other slugs)
-   - **Stop** and show the critic's report. Ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (`revise` + `accept F<id>` per open finding). Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6.
+   - **Stop** and show the critic's report. Ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (`revise` + `accept F<id>` per open finding). Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6. If the plan is the fixture notification-plugin file, score `critic-blocks-flawed-plan` per skill `trajectory-score` after that ask.
 8. **On `revise`:** `pg_write_gate "$(pwd)" plan-gate "<plan-path>"`; `pg_clear_gate "$(pwd)" plan-critique-clear "<plan-path>"`. When you (or the plan author) update the plan file, follow skill **`clean-decision-docs`**: rewrite the plan as current truth only — no "fixed/changed to", What-changed sections, or strikethrough of the prior draft inside the file; chat may list what changed for the human's verify step. Then re-ask step 3.
 9. **On plan edits after a blocked critique:** same `clean-decision-docs` rewrite rule — the next draft the human (re-)approves must not carry critic archaeology (`after F3`, dual old+new text, etc.).
 
@@ -62,3 +62,4 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 - Manual `/critique-plan` still works ad-hoc; it does not replace this gate for `/start-task`.
 - Re-approving after a plan edit always re-runs the critic (clear marker was deleted in step 2 / revise).
 - Critic *reports* may narrate findings; the plan file itself must stay final-form (`clean-decision-docs`).
+- Append session ledger per skill `trajectory-score` (stages `approve-plan`, `implementation-critic`; gates `approve-plan` / `critic-blocked`; artifact `plan-critique-clear` on Verdict clear).

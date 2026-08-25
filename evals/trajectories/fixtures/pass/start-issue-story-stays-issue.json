@@ -1,0 +1,25 @@
+{
+  "case_id": "start-issue-story-stays-issue",
+  "input": {
+    "invocation": "/start-issue-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "stages_entered": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "issue-fix-plan",
+    "implementation-critic"
+  ],
+  "artifacts_present": [
+    {"kind": "jira", "name": "in-progress"},
+    {"kind": "file", "name": "fix-plan", "path": "docs/superpowers/plans/2099-01-01-PROJ-1-fix.md"}
+  ],
+  "actions_taken": [],
+  "human_gates_asked": [],
+  "end": {
+    "jira_status": "In Progress",
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

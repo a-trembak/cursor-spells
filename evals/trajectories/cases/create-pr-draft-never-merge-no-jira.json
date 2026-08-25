@@ -1,0 +1,33 @@
+{
+  "id": "create-pr-draft-never-merge-no-jira",
+  "title": "create-pr without a Jira key opens a draft, asks two-token Pipeline finale, and never merges",
+  "source": "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "skill create-pr",
+    "fetch": "skip"
+  },
+  "required_stages": [
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "required_artifacts": [
+    {"kind": "github", "name": "draft-pull-request"}
+  ],
+  "forbidden": [
+    "merge-pull-request",
+    "open-ready-before-finale"
+  ],
+  "human_must_appear": [
+    {"gate": "pipeline-finale", "tokens": ["keep_draft", "ready"]}
+  ],
+  "agent_must_not_ask": ["review-gate"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "draft",
+    "review_report": "absent",
+    "notes": "Two-token finale when no Jira key is known. ready may later mark the pull request ready. Never merge."
+  }
+}

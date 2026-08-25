@@ -334,6 +334,15 @@ def validate_forbidden(data: dict[str, Any], path: Path) -> list[str]:
     return errors
 
 
+ANY_TOKEN_SENTINEL = "*"
+
+
+def human_gate_any_tokens(item: dict[str, Any]) -> bool:
+    if "tokens" not in item:
+        return True
+    return item.get("tokens") == [ANY_TOKEN_SENTINEL]
+
+
 def validate_human_gates(value: Any, path: Path) -> list[str]:
     if not isinstance(value, list):
         return [err(path, "human_must_appear must be a list")]
@@ -349,9 +358,17 @@ def validate_human_gates(value: Any, path: Path) -> list[str]:
         gate = item.get("gate")
         if gate not in HUMAN_GATES:
             errors.append(err(path, f"{loc} unknown gate {gate!r}"))
+        if "tokens" not in item:
+            continue
         tokens = item.get("tokens")
+        if tokens == [ANY_TOKEN_SENTINEL]:
+            continue
         if not isinstance(tokens, list) or not tokens or any(not is_nonempty_str(t) for t in tokens):
             errors.append(err(path, f"{loc}.tokens must be a non-empty list of strings"))
+        elif isinstance(tokens, list) and ANY_TOKEN_SENTINEL in tokens:
+            errors.append(
+                err(path, f"{loc}.tokens '*' must be the only token when used as any-token")
+            )
     return errors
 
 
@@ -579,11 +596,17 @@ def score_run(case: dict[str, Any], run: dict[str, Any]) -> list[tuple[str, str]
     human_bits: list[str] = []
     for item in case.get("human_must_appear") or []:
         gate = item["gate"]
-        expected_tokens = set(item["tokens"])
         if gate not in asked:
             human_bits.append(f"{gate} not asked")
-        elif asked[gate] != expected_tokens:
-            human_bits.append(f"{gate} tokens {sorted(asked[gate])} != {sorted(expected_tokens)}")
+        elif human_gate_any_tokens(item):
+            if not asked[gate]:
+                human_bits.append(f"{gate} asked with empty tokens")
+        else:
+            expected_tokens = set(item["tokens"])
+            if asked[gate] != expected_tokens:
+                human_bits.append(
+                    f"{gate} tokens {sorted(asked[gate])} != {sorted(expected_tokens)}"
+                )
     if human_bits:
         findings.append(("human_must_appear", "; ".join(human_bits)))
 

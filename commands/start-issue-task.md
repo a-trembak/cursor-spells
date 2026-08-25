@@ -45,3 +45,5 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
 - This command never invents answers at critic/clarify HITL gates.
 - Full feature work with AC → use `/start-task` (it fetches Jira and routes Bugs here). Small non-bug tasks without Jira → `/start-task --fast`.
 - Explicit `/start-issue-task` always stays on the issue pipeline even if the Jira type is Story/Task.
+- After fix-plan + critic on an explicit `/start-issue-task` whose `jira_class` is `feature` (Story/Task), score `start-issue-story-stays-issue` per skill `trajectory-score`.
+- When `jira_class` is `bug`, init `.cursor/gates/trajectory-run/session-issue.json` for case `issue-happy-path` (exact invocation `/start-issue-task PROJ-1`) and append stages/gates; `create-pr` scores it. Do not init the issue session ledger for a Story/Task slice.

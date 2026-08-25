@@ -49,3 +49,4 @@ Thin handoff into execution **and** the post-code review gate. **Does not** run 
 - Plan edits invalidate this plan's `plan-critique-clear/<slug>` when going back through `/approve-plan`.
 - Manual `/critique-plan` remains for ad-hoc audits; wiring a clear result into build still goes through writing `.cursor/gates/plan-critique-clear/<slug>` (prefer `/approve-plan` so HITL plan approval is not skipped).
 - `software-developer` running as a nested Task must **not** call `AskQuestion` / `finish-plan` itself — that HITL belongs here after it returns.
+- Append session ledger per skill `trajectory-score` (stages `start-build`, `software-developer`; artifact `git` `feature-branch`).

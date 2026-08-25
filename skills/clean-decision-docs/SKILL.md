@@ -62,6 +62,7 @@ Same idea as banning changelog comments in code (`code-comments`): git history, 
 4. If an alternative was seriously considered and lost, add/update a one-line **Rejected alternatives** entry (specs) — never a strikethrough of the old draft paragraph.
 5. In **chat**, optionally list what changed so the human can verify. Keep that list out of the file.
 6. Self-check before presenting: search the file for the forbidden patterns above. If any match, rewrite that sentence as present-tense current truth.
+7. After a **forced revise**, invoke skill **`trajectory-judge`**. Score `clean-revise-no-archaeology` per skill `trajectory-score` (init invocation `skill clean-decision-docs on a forced revise`).
 
 ## Rationalizations (do not use these)
 

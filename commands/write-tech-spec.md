@@ -23,6 +23,7 @@ Run the **tech-spec** agent.
 6. **If `human`:** wait for a plan path or pasted notes; always run the full path per `references/full-path.md` (designer mode `format-human-plan`), then merge into tech-spec.
 7. Stop for `approve-spec` / `revise` / `skip <reason>` via `hitl-choice` before any implementation plan is written.
 8. On `revise`, rewrite the file as current truth per skill `clean-decision-docs` (summarize the turn's edits in chat only); if revision needs design rework, re-enter full-path consensus on the system-design file then re-merge.
+9. After the spec file exists, invoke skill **`trajectory-judge`**. When scoring the order-export dogfood criteria, score `tech-spec-no-invented-facts` per skill `trajectory-score`.
 
 ## Notes
 

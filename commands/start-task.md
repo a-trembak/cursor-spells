@@ -23,11 +23,11 @@ Entry point for feature work. Default mode chains every quality stage and stops 
 
    | Condition | Path |
    |-----------|------|
-   | Fast intent **and** `jira_class` is `bug` | HITL via `hitl-choice` preset **Fast vs issue**: `issue` (run issue pipeline) / `stay_fast` (continue fast) |
+   | Fast intent **and** `jira_class` is `bug` | HITL via `hitl-choice` preset **Fast vs issue**: `issue` (run issue pipeline) / `stay_fast` (continue fast). After this ask, score `fast-bug-asks-human` per skill `trajectory-score` |
    | Fast intent **and** not bug | **Fast mode** with fetched or pasted AC |
-   | No fast intent **and** `jira_class` is `bug` | **Issue pipeline** — run `/start-issue-task` from its step 3 (fix plan) using the already-fetched issue; do not re-fetch |
-   | No fast intent **and** `jira_class` is `unknown` (Jira fetched) | HITL via `hitl-choice` preset **Pipeline route**: `full` / `fast` / `issue` |
-   | Otherwise (feature class, or non-Jira AC) | **Full mode** unless fast intent is set |
+   | No fast intent **and** `jira_class` is `bug` | **Issue pipeline** — run `/start-issue-task` from its step 3 (fix plan) using the already-fetched issue; do not re-fetch. After issue-fix-plan starts, score `route-bug-to-issue` per skill `trajectory-score` |
+   | No fast intent **and** `jira_class` is `unknown` (Jira fetched) | HITL via `hitl-choice` preset **Pipeline route**: `full` / `fast` / `issue`. After this ask, score `route-unknown-asks-human` per skill `trajectory-score` |
+   | Otherwise (feature class, or non-Jira AC) | **Full mode** unless fast intent is set. After tech-spec-entry is asked, score `route-feature-to-full` per skill `trajectory-score` |
 
 6. If AC still do not exist after fetch/paste, stop — writing AC themselves is out of scope.
 
@@ -71,6 +71,9 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 - **Do not treat dispatch as the end** of the pipeline: after `software-developer` returns, `finish-plan` then `engineer-reviewer` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
 - Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may transition to Review; trajectory score needs the observed status).
+- **Session ledger:** after routing to **full** mode, init `.cursor/gates/trajectory-run/session-full.json` for case `full-happy-path` per skill `trajectory-score` (exact invocation `/start-task PROJ-1`). Append stages and gates along the path. `create-pr` scores it when a draft exists and Pipeline finale was asked.
+- After routing to **fast** mode (not while waiting on Fast vs issue), init `session-fast.json` for case `fast-skips-plan-layer` (exact invocation `/start-task --fast PROJ-1`).
+- Append to the session ledger after every named stage and human gate (skill `trajectory-score`).
 
 ---
 
@@ -91,3 +94,4 @@ For small tasks that do not need tech-spec, plan approval, critic, finish-plan, 
 
 - Do not silently upgrade fast mode into full mode. If mid-flight the work is clearly large (multi-service design, migrations, ambiguous product decisions), **stop** and recommend re-running without `--fast` or using `/start-issue-task` for bugs.
 - Fast mode never invents AC. Closed-set HITL (clarify, Fast vs issue, Pipeline finale) still uses `hitl-choice` with AskQuestion required.
+- Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr`. Init and append `session-fast.json` (`fast-skips-plan-layer`) per skill `trajectory-score`.

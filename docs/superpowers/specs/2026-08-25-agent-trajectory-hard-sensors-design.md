@@ -22,9 +22,9 @@ The golden set names the contract. Nothing yet compares an actual path to that c
 | Batch | `--runs-dir DIR` scores every `*.json`; exit 1 if any run is invalid or fails |
 | Artifact match | `(kind, name)` only. File `pattern` is not globbed against a consumer tree in this slice |
 | Stage order | `required_stages` must be an ordered subsequence of `stages_entered` |
-| Human tokens | `tokens_offered` must equal the case token set (order-independent) |
+| Human tokens | `tokens_offered` must equal the case token set (order-independent). If the case omits `tokens` or uses `["*"]`, any non-empty offer for that gate passes |
 | Forbidden | Fail if the id appears in `actions_taken`, **or** an inferred detector listed below fires |
-| Judge | Not in this slice |
+| Judge | Nested Task `trajectory-judge` (not `software-developer`) writes `invent-business-facts` / `archaeology-in-decision-docs` into `actions_taken`, then hard `score` runs again. The judge never replaces sensors |
 
 ## Run record
 
@@ -48,7 +48,7 @@ Unknown enum values make the run **invalid** (exit 1, not a case fail). Input on
 | `required_stages` | A required stage is missing or out of order |
 | `required_artifacts` | A required `(kind, name)` is absent |
 | `expected_end` | `jira_status`, `pull_request`, or `review_report` disagrees (ignore case `notes`) |
-| `human_must_appear` | A required gate was not asked, or `tokens_offered` ≠ the case token set |
+| `human_must_appear` | A required gate was not asked, or `tokens_offered` ≠ the case token set (unless the case uses any-token) |
 | `agent_must_not_ask` | A forbidden gate was asked |
 | `forbidden:<id>` | `id` is in `actions_taken`, or an inferred detector below fires |
 
@@ -63,7 +63,7 @@ Only evaluated when `id` is in the case `forbidden` list:
 | `fixes-returns-to-writing-plans` | `writing-plans` occurs after `review-gate` in `stages_entered` |
 | `url-only-stub-on-fetch-failure` | `input.fetch` is `fail` and any stage other than `jira-fetch` was entered |
 
-All other forbidden ids fail only when listed in `actions_taken` (the recorder must mark them). That is enough for merge, auto-select `--fast`, and invented criteria until a judge exists.
+All other forbidden ids fail only when listed in `actions_taken` (the recorder must mark them). `invent-business-facts` and `archaeology-in-decision-docs` are marked by skill `trajectory-judge` before a re-score.
 
 ## Output
 

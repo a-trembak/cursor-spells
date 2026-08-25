@@ -6,7 +6,7 @@
 
 ## Goal
 
-Replace “remember to dogfood by hand” with a **golden set of agent-trajectory contracts**: what the kit agent must do, must not do, where a human must appear, and which artifacts must exist. A later harness can score a live run against these files. This change only makes the files validatable without executing an agent.
+Replace “remember to dogfood by hand” with a **golden set of agent-trajectory contracts**: what the kit agent must do, must not do, where a human must appear, and which artifacts must exist. A later harness can score a live run against these files. This change only makes the files validatable without executing an agent. Human-gate `tokens` may be omitted or set to `["*"]` when the offered ids are dynamic (for example critic `revise` / `accept F<id>`).
 
 ## Problem
 
@@ -40,7 +40,7 @@ Every case is a JSON object with:
 | `required_stages` | Ordered kit stage ids the agent must enter |
 | `required_artifacts` | Files, gate markers, git/github/jira/report objects that must exist at the expected end |
 | `forbidden` | Closed-set action ids the agent must never take on this path |
-| `human_must_appear` | Gates (from `hitl-choice` presets) with the exact reply tokens |
+| `human_must_appear` | Gates (from `hitl-choice` presets) with the exact reply tokens, or omitted / `["*"]` tokens when any non-empty offer counts |
 | `agent_must_not_ask` | Gates or decisions the agent must not present |
 | `expected_end` | Jira status, pull-request state, review-report shape |
 
