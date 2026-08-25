@@ -5,6 +5,7 @@
 # Default: symlink kit skills/commands/agents into ~/.cursor;
 #          copy always-on plain-language-chat rule into ~/.cursor/rules;
 #          copy hooks + rules (+ optional patterns helper) into the project.
+# Kit-only evals/ (agent-trajectory golden set) is never copied into consumer apps.
 
 set -euo pipefail
 

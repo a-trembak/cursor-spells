@@ -39,6 +39,8 @@ If a lens's skill is not installed, fall back to its built-in checklist (see [re
 5. Classify every finding as `must-fix`, `should-fix`, or `accept-risk` (see [references/output-schema.md](references/output-schema.md)).
 6. Emit the report per `references/output-schema.md`. Do not edit the plan file. If `Verdict` is `blocked` or `clear pending accept`, ask next steps via skill `hitl-choice` when this skill is driving the gate directly (AskQuestion required; text only after failed/missing tool); callers like `approve-plan` / `/start-issue-task` also own that ask.
 
+   After that **critic-blocked** ask: if the plan path is `docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md`, score `critic-blocks-flawed-plan` per skill `trajectory-score` (any non-empty `revise` / `accept F<id>` tokens; plan file must stay byte-identical). Other plans: skip this slice; still append the session ledger if one exists.
+
 ## Fix policy
 
 This skill **never applies fixes**. It is read-only on the plan. All findings go to the human or the plan author to act on; a re-run after edits produces a fresh report.

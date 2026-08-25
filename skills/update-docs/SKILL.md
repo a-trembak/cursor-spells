@@ -80,3 +80,4 @@ Load **`references/writing-guide.md`** before drafting.
 - Manual `/update-docs` may run without a preceding review; still use the same HITL destination gate.
 - This skill never auto-selects Confluence vs repo from heuristics — wrong destination is worse than `skip`.
 - Markers live in the consumer project `.cursor/gates/<kind>/<slug>`, same as other kit gates.
+- Append session ledger per skill `trajectory-score` (stage `update-docs`, gate `docs-update`).

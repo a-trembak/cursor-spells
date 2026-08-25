@@ -41,6 +41,8 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 
    **Already answered (mandatory):** If the user already sent `skip`, `approve`, or `done` in this chat after the gate was asked — including while a stop-hook followup was looping — treat that as the answer. Delete this plan's review-gate marker and continue step 5 immediately. Do **not** re-ask.
 
+   On `fixes` / a typed fix description: implement/fix via `software-developer` (wait for it to return). Then score `review-gate-fixes-to-build` per skill `trajectory-score` (stages `review-gate` then `software-developer`; gate tokens `skip,approve,done,fixes`). Then re-ask this HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
+
 5. On `skip` | `approve` | `done`:
    - `pg_clear_gate "$(pwd)" review-gate "<plan-path>"` **first** (before any review work). If delete fails, stop and report the path — do not re-ask HITL. Never delete another slug's review-gate; HITL **Force-clear foreign gate** first if the human explicitly asks.
    - Before starting review, read and apply `skills/engineer-review/references/multi-repo-protocol.md` routing with its **non-mutating probe** mode. This probe may read graphify, read an existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it **MUST NOT** write or refresh `multi-repo.json`.
@@ -58,3 +60,4 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 
 - Manual `/engineer-review` does not need this skill.
 - If the user describes fixes first, implement/fix, then re-ask the HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
+- Append session ledger per skill `trajectory-score` (stage `review-gate`, artifact gate `review-gate`).

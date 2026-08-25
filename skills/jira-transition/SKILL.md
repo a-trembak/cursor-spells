@@ -58,6 +58,7 @@ Use `jira_pick_transition_id "<target>"` on `id<TAB>to.name` lines.
 - Never `gh pr merge`. Never approve GitHub reviews.
 - Never transition from `/write-tech-spec`.
 - Idempotent: already-matching current status is a skip, not an error.
+- After a successful `in_progress` move, append session ledger per skill `trajectory-score` (stage `jira-transition-in-progress`, artifact `jira` `in-progress`).
 
 ## Output
 

@@ -34,7 +34,7 @@ Source `scripts/jira-issue.sh`, then:
 3. Call `getJiraIssue` with `issueIdOrKey`, `cloudId`, `responseContentFormat: "markdown"`. Prefer fields `summary`, `description`, `issuetype`, `status` (defaults are fine).
 4. **On any MCP/auth/not-found failure: stop.** Ask the human to paste the ticket text (summary + description + AC). Do not continue on a URL-only stub. Do not invent fields.
 
-On that stop, if a kit checkout is known, record and score case `fetch-failure-stops`. Skip score when the kit path, scorer, or ledger is missing (still stop for pasted ticket text).
+On that stop, if a kit checkout is known, record and score case `fetch-failure-stops` per skill `trajectory-score`. Skip score when the kit path, scorer, or ledger is missing (still stop for pasted ticket text).
 
 ```bash
 KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
