@@ -60,7 +60,7 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
    - `record artifact --kind github --name draft-pull-request`.
    - `record gate --gate pipeline-finale --tokens` exactly the tokens that were offered (`keep_draft,ready` or `keep_draft,ready,keep_draft_jira,ready_jira`).
    - `record end --pull-request draft --review-report absent` and `--jira-status "In Progress"` unless Jira is already Review-like.
-   - Run `record dump`, then `python3 "$KIT/scripts/trajectory-cases.py" score --kit-root "$KIT" --run "$LEDGER"`.
+   - Run `record dump`, then `python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"`.
    - Skip score when the kit path or scorer is missing, or when the ledger dump fails. In chat, say in one full sentence that trajectory score was skipped.
    - On `FAIL`: print the `FAIL` lines and stop. Do not run `gh pr ready`. Do not merge.
    - On `PASS` or skipped score: apply the human's already-chosen token in the following steps.

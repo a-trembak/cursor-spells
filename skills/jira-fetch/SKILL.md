@@ -47,7 +47,7 @@ python3 "$KIT/scripts/trajectory-cases.py" record stage --ledger "$LEDGER" jira-
 python3 "$KIT/scripts/trajectory-cases.py" record artifact --ledger "$LEDGER" \
   --kind report --name stop-paste-ticket
 python3 "$KIT/scripts/trajectory-cases.py" record dump --ledger "$LEDGER"
-python3 "$KIT/scripts/trajectory-cases.py" score --kit-root "$KIT" --run "$LEDGER"
+python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"
 ```
 
 If score prints `FAIL`, print its `FAIL` lines and stop. Do not continue bootstrap. Do not ask Pipeline route. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
