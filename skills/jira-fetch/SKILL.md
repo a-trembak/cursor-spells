@@ -38,7 +38,9 @@ On that stop, if a kit checkout is known, record and score case `fetch-failure-s
 
 ```bash
 KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
-# else ~/.cursor/cursor-spells-kit-path
+if [[ -z "$KIT" ]]; then
+  KIT="$(tr -d '\n' < "$HOME/.cursor/cursor-spells-kit-path" 2>/dev/null || true)"
+fi
 LEDGER=".cursor/gates/trajectory-run/fetch-failure-stops.json"
 python3 "$KIT/scripts/trajectory-cases.py" record init \
   --ledger "$LEDGER" --case-id fetch-failure-stops \
@@ -50,7 +52,7 @@ python3 "$KIT/scripts/trajectory-cases.py" record dump --ledger "$LEDGER"
 python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"
 ```
 
-If score prints `FAIL`, print its `FAIL` lines and stop. Do not continue bootstrap. Do not ask Pipeline route. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
+If `record dump` fails, skip score. If score prints `FAIL`, print its `FAIL` lines and stop. Do not continue bootstrap. Do not ask `pipeline-route`, `tech-spec-entry`, or `ready`. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
 
 Use the real invocation string from the chat when it is a `/start-task` key. If the caller was `/start-issue-task` or `/write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
 
