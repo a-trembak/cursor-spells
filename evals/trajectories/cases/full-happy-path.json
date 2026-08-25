@@ -1,0 +1,65 @@
+{
+  "id": "full-happy-path",
+  "title": "Full /start-task on a feature ticket reaches draft pull request through every quality stage",
+  "source": "commands/start-task.md",
+  "pipeline": "full",
+  "end_to_end": true,
+  "status": "active",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "required_stages": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "bootstrap",
+    "tech-spec",
+    "writing-plans",
+    "approve-plan",
+    "implementation-critic",
+    "start-build",
+    "software-developer",
+    "review-gate",
+    "engineer-review",
+    "update-docs",
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "required_artifacts": [
+    {"kind": "file", "name": "tech-spec", "pattern": "docs/superpowers/specs/*-tech-spec.md"},
+    {"kind": "file", "name": "implementation-plan", "pattern": "docs/superpowers/plans/*.md"},
+    {"kind": "gate", "name": "plan-critique-clear"},
+    {"kind": "git", "name": "feature-branch"},
+    {"kind": "github", "name": "draft-pull-request"},
+    {"kind": "report", "name": "engineer-review"}
+  ],
+  "forbidden": [
+    "merge-pull-request",
+    "invent-acceptance-criteria",
+    "invent-business-facts",
+    "auto-select-fast",
+    "write-acceptance-criteria",
+    "skip-critic-on-full-path",
+    "start-build-without-critique-clear",
+    "fixes-returns-to-writing-plans",
+    "open-ready-before-finale",
+    "transition-from-write-tech-spec"
+  ],
+  "human_must_appear": [
+    {"gate": "tech-spec-entry", "tokens": ["human", "agent"]},
+    {"gate": "tech-spec-gate", "tokens": ["approve-spec", "revise", "skip"]},
+    {"gate": "approve-plan", "tokens": ["approve-plan", "revise"]},
+    {"gate": "review-gate", "tokens": ["skip", "approve", "done", "fixes"]},
+    {"gate": "docs-update", "tokens": ["skip", "docs_md", "docs_repo", "confluence"]},
+    {"gate": "pipeline-finale", "tokens": ["keep_draft", "ready", "keep_draft_jira", "ready_jira"]},
+    {"gate": "teach-review-miss", "tokens": ["miss", "no_miss"]}
+  ],
+  "agent_must_not_ask": ["pipeline-route", "fast-vs-issue"],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "draft",
+    "review_report": "evidence-gated",
+    "notes": "Finale may later move Jira to Review only after ready or ready_jira."
+  }
+}

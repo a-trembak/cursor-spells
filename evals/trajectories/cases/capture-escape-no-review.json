@@ -1,0 +1,33 @@
+{
+  "id": "capture-escape-no-review",
+  "title": "capture-escape records a production miss without running engineer-reviewer",
+  "source": "commands/capture-escape.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/capture-escape",
+    "fetch": "skip",
+    "acceptance_criteria": "Agent skipped review-gate and opened a ready pull request."
+  },
+  "required_stages": [
+    "capture-escape",
+    "review-learn-capture"
+  ],
+  "required_artifacts": [
+    {"kind": "file", "name": "review-learnings", "pattern": ".cursor/review-learnings.md"}
+  ],
+  "forbidden": [
+    "invent-acceptance-criteria"
+  ],
+  "human_must_appear": [
+    {"gate": "review-learn-promote", "tokens": ["consumer_only", "promote", "skip"]}
+  ],
+  "agent_must_not_ask": ["review-gate", "pipeline-finale", "tech-spec-entry"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "Promote HITL only when a new kit gate is proposed. No engineer-reviewer dispatch."
+  }
+}

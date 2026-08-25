@@ -17,7 +17,7 @@ Entry point for feature work. Default mode chains every quality stage and stops 
 
 1. If args contain `--fast` → remember **fast intent** (strip the flag; remainder is AC source). Do **not** start implementing yet.
 2. If AC source is omitted, ask for it and stop until provided.
-3. **Jira fetch** — if the source looks like a Jira issue (skill `jira-fetch` / `jira_looks_like_issue`): invoke skill **`jira-fetch`**. On fetch failure, stop (paste text). On success, the assembled `ac_text` **is** the AC; the key/URL is the AC reference. Never treat a Jira URL as a stub.
+3. **Jira fetch** — if the source looks like a Jira issue (skill `jira-fetch` / `jira_looks_like_issue`): invoke skill **`jira-fetch`**. On fetch failure, stop (paste text). Record and score `fetch-failure-stops` per skill `jira-fetch`; skip score if the ledger or kit is missing. On success, the assembled `ac_text` **is** the AC; the key/URL is the AC reference. Never treat a Jira URL as a stub.
 4. **Jira In Progress** — if fetch succeeded with `jira_key` and `jira_cloud_id`: invoke skill **`jira-transition`** with target `in_progress`. Skip when already In Progress. If MCP/transition is missing or no matching destination exists, **report and continue** — do not stop the pipeline. `/write-tech-spec` does not transition.
 5. **Route** (mechanical; never auto-select `--fast`):
 
@@ -70,7 +70,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 - This command never invents an answer at any HITL gate above — it always stops and waits for the human's reply at exactly those points, and only those points.
 - **Do not treat dispatch as the end** of the pipeline: after `software-developer` returns, `finish-plan` then `engineer-reviewer` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
-- Pass `jira_key` / `jira_cloud_id` through to `create-pr` when fetch succeeded (finale may transition to Review).
+- Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may transition to Review; trajectory score needs the observed status).
 
 ---
 

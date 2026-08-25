@@ -1,0 +1,36 @@
+{
+  "id": "route-feature-to-full",
+  "title": "Classified feature on /start-task continues the full pipeline without a route picker",
+  "source": "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "required_stages": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "bootstrap",
+    "tech-spec"
+  ],
+  "required_artifacts": [
+    {"kind": "jira", "name": "in-progress"}
+  ],
+  "forbidden": [
+    "auto-select-fast",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria"
+  ],
+  "human_must_appear": [
+    {"gate": "tech-spec-entry", "tokens": ["human", "agent"]}
+  ],
+  "agent_must_not_ask": ["pipeline-route", "fast-vs-issue"],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

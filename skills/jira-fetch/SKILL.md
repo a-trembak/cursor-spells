@@ -34,6 +34,28 @@ Source `scripts/jira-issue.sh`, then:
 3. Call `getJiraIssue` with `issueIdOrKey`, `cloudId`, `responseContentFormat: "markdown"`. Prefer fields `summary`, `description`, `issuetype`, `status` (defaults are fine).
 4. **On any MCP/auth/not-found failure: stop.** Ask the human to paste the ticket text (summary + description + AC). Do not continue on a URL-only stub. Do not invent fields.
 
+On that stop, if a kit checkout is known, record and score case `fetch-failure-stops`. Skip score when the kit path, scorer, or ledger is missing (still stop for pasted ticket text).
+
+```bash
+KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
+if [[ -z "$KIT" ]]; then
+  KIT="$(tr -d '\n' < "$HOME/.cursor/cursor-spells-kit-path" 2>/dev/null || true)"
+fi
+LEDGER=".cursor/gates/trajectory-run/fetch-failure-stops.json"
+python3 "$KIT/scripts/trajectory-cases.py" record init \
+  --ledger "$LEDGER" --case-id fetch-failure-stops \
+  --invocation "/start-task PROJ-1" --fetch fail
+python3 "$KIT/scripts/trajectory-cases.py" record stage --ledger "$LEDGER" jira-fetch
+python3 "$KIT/scripts/trajectory-cases.py" record artifact --ledger "$LEDGER" \
+  --kind report --name stop-paste-ticket
+python3 "$KIT/scripts/trajectory-cases.py" record dump --ledger "$LEDGER"
+python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"
+```
+
+If `record dump` fails, skip score. If score prints `FAIL`, print its `FAIL` lines and stop. At that stop, ask skill `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/capture-escape` with the `FAIL` lines and do not start `engineer-reviewer`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only when the current git root contains both `skills/engineer-review` and `agents/engineer-reviewer.md`; otherwise print the `FAIL` log and stop. After validate, display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Do not continue bootstrap. Do not ask `pipeline-route`, `tech-spec-entry`, or `ready`. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
+
+For every `/start-task` fetch failure, use the case's fixed `--invocation "/start-task PROJ-1"` input shown above, regardless of the requested ticket key. If the caller was `/start-issue-task` or `/write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
+
 ## Assemble AC text
 
 Do not add requirements that are not in the ticket.

@@ -1,0 +1,33 @@
+{
+  "id": "clean-revise-no-archaeology",
+  "title": "A revise that changes a prior decision rewrites the spec as current truth with no changelog archaeology",
+  "source": "docs/superpowers/dogfood/clean-decision-docs-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "skill clean-decision-docs on a forced revise",
+    "fetch": "skip"
+  },
+  "required_stages": [
+    "clean-decision-docs",
+    "tech-spec"
+  ],
+  "required_artifacts": [
+    {"kind": "file", "name": "tech-spec", "pattern": "docs/superpowers/specs/*-tech-spec.md"}
+  ],
+  "forbidden": [
+    "archaeology-in-decision-docs",
+    "invent-business-facts"
+  ],
+  "human_must_appear": [
+    {"gate": "tech-spec-gate", "tokens": ["approve-spec", "revise", "skip"]}
+  ],
+  "agent_must_not_ask": ["pipeline-route"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "Chat may list what changed this turn. The file body must not."
+  }
+}

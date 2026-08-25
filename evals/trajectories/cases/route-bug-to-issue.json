@@ -1,0 +1,35 @@
+{
+  "id": "route-bug-to-issue",
+  "title": "Classified Bug on /start-task enters the issue pipeline without re-fetching",
+  "source": "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "bug"
+  },
+  "required_stages": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "issue-fix-plan"
+  ],
+  "required_artifacts": [
+    {"kind": "jira", "name": "in-progress"}
+  ],
+  "forbidden": [
+    "auto-select-fast",
+    "re-fetch-after-start-issue-handoff",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria"
+  ],
+  "human_must_appear": [],
+  "agent_must_not_ask": ["pipeline-route", "fast-vs-issue", "tech-spec-entry"],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "Handoff is /start-issue-task from its step 3 using the already-fetched issue."
+  }
+}

@@ -212,6 +212,17 @@ Ask from skill `create-pr` **after** a draft PR exists (never before). Default i
 
 On `ready` / `ready_jira`: `gh pr ready` per opened PR. On `*_jira`: `addCommentToJiraIssue` with PR URL(s). On `ready` / `ready_jira` when `jira_key` is known: skill **`jira-transition`** target `review`. Never merge. Do not transition on `keep_draft` / `keep_draft_jira`.
 
+### Trajectory fail
+
+Ask only after `python3 scripts/trajectory-cases.py score` printed `FAIL` at a wired stop. Do not ask on `PASS` or when score was skipped.
+
+| id | label |
+|----|-------|
+| `generalize` | This fail should become (or bump) a golden-set case |
+| `skip` | Do not add a case; optional `/capture-escape` with the FAIL lines |
+
+Never auto-write `evals/trajectories/cases/`. `generalize` in a consumer app cannot edit the kit — paste the FAIL log for a later kit change. Default if the human abandons the picker: `skip`.
+
 ### Decision-tier / Blocker questions
 
 Use the question tool with 2–3 options. Option `id`s must be stable slugs you can record into the spec (e.g. `opt_a_outbox`, `opt_b_sync`). Prompt includes the recommendation. One question per message (see `tech-spec` question-discipline).

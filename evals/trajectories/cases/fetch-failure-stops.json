@@ -1,0 +1,30 @@
+{
+  "id": "fetch-failure-stops",
+  "title": "Failed Jira fetch stops for pasted ticket text and must not build a URL-only stub",
+  "source": "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "fail"
+  },
+  "required_stages": ["jira-fetch"],
+  "required_artifacts": [
+    {"kind": "report", "name": "stop-paste-ticket"}
+  ],
+  "forbidden": [
+    "url-only-stub-on-fetch-failure",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria",
+    "auto-select-fast"
+  ],
+  "human_must_appear": [],
+  "agent_must_not_ask": ["pipeline-route", "tech-spec-entry", "pipeline-finale"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "Wait for pasted ticket text. Do not continue bootstrap."
+  }
+}

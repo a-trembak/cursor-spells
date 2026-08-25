@@ -1,0 +1,36 @@
+{
+  "id": "route-unknown-asks-human",
+  "title": "Unknown Jira type on /start-task must ask Pipeline route and must never invent --fast",
+  "source": "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "unknown"
+  },
+  "required_stages": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "pipeline-route-hitl"
+  ],
+  "required_artifacts": [
+    {"kind": "jira", "name": "in-progress"}
+  ],
+  "forbidden": [
+    "auto-select-fast",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria"
+  ],
+  "human_must_appear": [
+    {"gate": "pipeline-route", "tokens": ["full", "fast", "issue"]}
+  ],
+  "agent_must_not_ask": ["fast-vs-issue"],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "Stop until the human picks full, fast, or issue."
+  }
+}

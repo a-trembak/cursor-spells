@@ -10,6 +10,7 @@ Thin entry for a **production miss** the pipeline did not catch. Writes a genera
 ## Arguments
 
 - Optional short description of what escaped (symptom + where it should have been caught). If omitted, ask in chat (open-ended — not a closed-set HITL gate).
+- Optional path to a score `FAIL` log or pasted `FAIL <id>:` lines. If provided, use that as the miss description (`source: production-escape` unchanged).
 
 ## Steps
 

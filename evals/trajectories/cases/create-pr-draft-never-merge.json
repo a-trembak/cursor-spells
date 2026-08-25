@@ -1,0 +1,34 @@
+{
+  "id": "create-pr-draft-never-merge",
+  "title": "create-pr always opens a draft, asks Pipeline finale, and never merges",
+  "source": "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "skill create-pr",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "required_stages": [
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "required_artifacts": [
+    {"kind": "github", "name": "draft-pull-request"}
+  ],
+  "forbidden": [
+    "merge-pull-request",
+    "open-ready-before-finale"
+  ],
+  "human_must_appear": [
+    {"gate": "pipeline-finale", "tokens": ["keep_draft", "ready", "keep_draft_jira", "ready_jira"]}
+  ],
+  "agent_must_not_ask": ["review-gate"],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "draft",
+    "review_report": "absent",
+    "notes": "ready / ready_jira may later mark the pull request ready and move Jira to Review. keep_draft leaves both as they are."
+  }
+}
