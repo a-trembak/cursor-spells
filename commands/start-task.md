@@ -70,7 +70,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 - This command never invents an answer at any HITL gate above — it always stops and waits for the human's reply at exactly those points, and only those points.
 - **Do not treat dispatch as the end** of the pipeline: after `software-developer` returns, `finish-plan` then `engineer-reviewer` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
-- Pass `jira_key` / `jira_cloud_id` through to `create-pr` when fetch succeeded (finale may transition to Review).
+- Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may transition to Review; trajectory score needs the observed status).
 
 ---
 
