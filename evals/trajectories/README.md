@@ -9,7 +9,7 @@ python3 scripts/trajectory-cases.py validate
 bash scripts/tests/trajectory-cases-test.sh
 ```
 
-Score a recorded run (hard sensors only — no language-model judge):
+Score a recorded run (hard sensors only — no language-model judge inside `score`; skill `trajectory-judge` writes actions then re-runs `score`):
 
 ```bash
 python3 scripts/trajectory-cases.py score --run evals/trajectories/fixtures/pass/route-unknown-asks-human.json

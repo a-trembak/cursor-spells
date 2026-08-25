@@ -1,0 +1,18 @@
+{
+  "case_id": "create-pr-draft-never-merge-no-jira",
+  "input": {
+    "invocation": "skill create-pr",
+    "fetch": "skip"
+  },
+  "stages_entered": ["create-pr", "pipeline-finale-hitl"],
+  "artifacts_present": [{"kind": "github", "name": "draft-pull-request"}],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "pipeline-finale", "tokens_offered": ["keep_draft", "ready"]}
+  ],
+  "end": {
+    "jira_status": null,
+    "pull_request": "draft",
+    "review_report": "absent"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "case_id": "issue-happy-path",
+  "input": {
+    "invocation": "/start-issue-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "bug"
+  },
+  "stages_entered": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "bootstrap",
+    "issue-fix-plan",
+    "implementation-critic",
+    "bug-fixer",
+    "engineer-review",
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "artifacts_present": [
+    {"kind": "file", "name": "fix-plan", "path": "docs/superpowers/plans/2099-01-01-PROJ-1-fix.md"},
+    {"kind": "gate", "name": "plan-critique-clear"},
+    {"kind": "git", "name": "feature-branch"},
+    {"kind": "github", "name": "draft-pull-request"},
+    {"kind": "report", "name": "engineer-review"}
+  ],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "pipeline-finale", "tokens_offered": ["keep_draft", "ready", "keep_draft_jira", "ready_jira"]}
+  ],
+  "end": {
+    "jira_status": "In Progress",
+    "pull_request": "draft",
+    "review_report": "evidence-gated"
+  }
+}

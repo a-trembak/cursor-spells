@@ -23,7 +23,7 @@
   ],
   "human_must_appear": [
     {"gate": "tech-spec-entry", "tokens": ["human", "agent"]},
-    {"gate": "decision-blocker", "tokens": ["opt_a", "opt_b", "opt_c"]},
+    {"gate": "decision-blocker"},
     {"gate": "tech-spec-gate", "tokens": ["approve-spec", "revise", "skip"]}
   ],
   "agent_must_not_ask": ["pipeline-route", "approve-plan"],

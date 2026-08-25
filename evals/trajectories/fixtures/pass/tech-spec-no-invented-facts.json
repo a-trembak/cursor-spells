@@ -1,0 +1,23 @@
+{
+  "case_id": "tech-spec-no-invented-facts",
+  "input": {
+    "invocation": "/write-tech-spec",
+    "fetch": "skip",
+    "acceptance_criteria": "AC-1: As a customer, I can download a file containing my past orders."
+  },
+  "stages_entered": ["tech-spec"],
+  "artifacts_present": [
+    {"kind": "file", "name": "tech-spec", "path": "docs/superpowers/specs/2099-01-01-order-export-tech-spec.md"}
+  ],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "tech-spec-entry", "tokens_offered": ["human", "agent"]},
+    {"gate": "decision-blocker", "tokens_offered": ["opt_a_csv", "opt_b_json", "opt_c_ask"]},
+    {"gate": "tech-spec-gate", "tokens_offered": ["approve-spec", "revise", "skip"]}
+  ],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

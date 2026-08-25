@@ -1,0 +1,20 @@
+{
+  "case_id": "clean-revise-no-archaeology",
+  "input": {
+    "invocation": "skill clean-decision-docs on a forced revise",
+    "fetch": "skip"
+  },
+  "stages_entered": ["clean-decision-docs", "tech-spec"],
+  "artifacts_present": [
+    {"kind": "file", "name": "tech-spec", "path": "docs/superpowers/specs/2099-01-01-order-export-tech-spec.md"}
+  ],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "tech-spec-gate", "tokens_offered": ["approve-spec", "revise", "skip"]}
+  ],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

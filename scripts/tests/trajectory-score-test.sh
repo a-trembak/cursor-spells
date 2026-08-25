@@ -331,6 +331,68 @@ write_json "$route_pass" <<'JSON'
 JSON
 assert_exit invalid_run 1 "${SCORE[@]}" --run "$route_pass"
 
+# Gate with omitted tokens: any non-empty offer PASSes; missing gate FAILs
+any_token_case="$TMP/any-token-slice.json"
+write_json "$any_token_case" <<'JSON'
+{
+  "id": "any-token-slice",
+  "title": "Temp case for any-token human gates",
+  "source": "docs/superpowers/specs/2026-08-25-agent-trajectory-golden-set-design.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {"invocation": "/critique-plan", "fetch": "skip"},
+  "required_stages": ["implementation-critic"],
+  "required_artifacts": [{"kind": "report", "name": "critic-verdict-blocked"}],
+  "forbidden": ["edit-plan-during-critic"],
+  "human_must_appear": [{"gate": "critic-blocked"}],
+  "agent_must_not_ask": ["review-gate"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}
+JSON
+any_token_run="$TMP/any-token-run.json"
+write_json "$any_token_run" <<'JSON'
+{
+  "case_id": "any-token-slice",
+  "input": {"invocation": "/critique-plan", "fetch": "skip"},
+  "stages_entered": ["implementation-critic"],
+  "artifacts_present": [{"kind": "report", "name": "critic-verdict-blocked"}],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "critic-blocked", "tokens_offered": ["revise", "accept F1"]}
+  ],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}
+JSON
+assert_exit pass_any_tokens 0 "${SCORE[@]}" --case "$any_token_case" --run "$any_token_run"
+assert_grep_out pass_any_tokens_line "PASS any-token-slice" "${SCORE[@]}" --case "$any_token_case" --run "$any_token_run"
+
+write_json "$any_token_run" <<'JSON'
+{
+  "case_id": "any-token-slice",
+  "input": {"invocation": "/critique-plan", "fetch": "skip"},
+  "stages_entered": ["implementation-critic"],
+  "artifacts_present": [{"kind": "report", "name": "critic-verdict-blocked"}],
+  "actions_taken": [],
+  "human_gates_asked": [],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}
+JSON
+assert_exit fail_any_tokens_missing 1 "${SCORE[@]}" --case "$any_token_case" --run "$any_token_run"
+assert_grep_out fail_any_tokens_missing_line "FAIL any-token-slice: human_must_appear" "${SCORE[@]}" --case "$any_token_case" --run "$any_token_run"
+
 # Committed pass fixtures
 PASS_DIR="$ROOT/evals/trajectories/fixtures/pass"
 if [[ ! -d "$PASS_DIR" ]]; then
@@ -345,6 +407,23 @@ else
     fail=1
   else
     echo "OK   pass_fixture_count ($pass_count)"
+  fi
+  missing_fixtures=0
+  for case_path in "$ROOT/evals/trajectories/cases"/*.json; do
+    case_id="$(basename "$case_path" .json)"
+    status="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("status",""))' "$case_path")"
+    if [[ "$status" != "active" ]]; then
+      continue
+    fi
+    fixture="$PASS_DIR/${case_id}.json"
+    if [[ ! -f "$fixture" ]]; then
+      echo "FAIL missing pass fixture for active case $case_id" >&2
+      missing_fixtures=1
+      fail=1
+    fi
+  done
+  if [[ "$missing_fixtures" -eq 0 ]]; then
+    echo "OK   pass_fixture_per_active_case"
   fi
 fi
 

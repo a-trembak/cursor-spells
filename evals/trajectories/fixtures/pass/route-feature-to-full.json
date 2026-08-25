@@ -1,0 +1,19 @@
+{
+  "case_id": "route-feature-to-full",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "stages_entered": ["jira-fetch", "jira-transition-in-progress", "bootstrap", "tech-spec"],
+  "artifacts_present": [{"kind": "jira", "name": "in-progress"}],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "tech-spec-entry", "tokens_offered": ["human", "agent"]}
+  ],
+  "end": {
+    "jira_status": "In Progress",
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}
