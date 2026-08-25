@@ -34,6 +34,26 @@ Source `scripts/jira-issue.sh`, then:
 3. Call `getJiraIssue` with `issueIdOrKey`, `cloudId`, `responseContentFormat: "markdown"`. Prefer fields `summary`, `description`, `issuetype`, `status` (defaults are fine).
 4. **On any MCP/auth/not-found failure: stop.** Ask the human to paste the ticket text (summary + description + AC). Do not continue on a URL-only stub. Do not invent fields.
 
+On that stop, if a kit checkout is known, record and score case `fetch-failure-stops`. Skip score when the kit path, scorer, or ledger is missing (still stop for pasted ticket text).
+
+```bash
+KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
+# else ~/.cursor/cursor-spells-kit-path
+LEDGER=".cursor/gates/trajectory-run/fetch-failure-stops.json"
+python3 "$KIT/scripts/trajectory-cases.py" record init \
+  --ledger "$LEDGER" --case-id fetch-failure-stops \
+  --invocation "/start-task PROJ-1" --fetch fail
+python3 "$KIT/scripts/trajectory-cases.py" record stage --ledger "$LEDGER" jira-fetch
+python3 "$KIT/scripts/trajectory-cases.py" record artifact --ledger "$LEDGER" \
+  --kind report --name stop-paste-ticket
+python3 "$KIT/scripts/trajectory-cases.py" record dump --ledger "$LEDGER"
+python3 "$KIT/scripts/trajectory-cases.py" score --kit-root "$KIT" --run "$LEDGER"
+```
+
+If score prints `FAIL`, print its `FAIL` lines and stop. Do not continue bootstrap. Do not ask Pipeline route. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
+
+Use the real invocation string from the chat when it is a `/start-task` key. If the caller was `/start-issue-task` or `/write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
+
 ## Assemble AC text
 
 Do not add requirements that are not in the ticket.

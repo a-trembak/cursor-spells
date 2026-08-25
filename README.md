@@ -302,7 +302,7 @@ Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/
 
 **Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md) · Jira fetch / router / PR finale: [`docs/superpowers/dogfood/jira-ac-router-finale-checklist.md`](docs/superpowers/dogfood/jira-ac-router-finale-checklist.md)
 
-**Agent trajectory golden set:** kit-only contracts under [`evals/trajectories/`](evals/trajectories/) — what the agent must do, must not do, and where a human must appear. Validate with `python3 scripts/trajectory-cases.py validate`. Score a recorded run with `python3 scripts/trajectory-cases.py score --run <file>` (hard sensors only). Tests: `bash scripts/tests/trajectory-cases-test.sh` and `bash scripts/tests/trajectory-score-test.sh`. Not copied into consumer apps. Not a live agent runner.
+**Agent trajectory golden set:** kit-only contracts under [`evals/trajectories/`](evals/trajectories/) — what the agent must do, must not do, and where a human must appear. Validate with `python3 scripts/trajectory-cases.py validate`. Score a recorded run with `python3 scripts/trajectory-cases.py score --run <file>` (hard sensors only). `/start-task` fetch-fail scores `fetch-failure-stops`; `create-pr` scores `create-pr-draft-never-merge` after Pipeline finale is asked and before `gh pr ready`. Tests: `bash scripts/tests/trajectory-cases-test.sh` and `bash scripts/tests/trajectory-score-test.sh`. Not copied into consumer apps. Not a live agent runner.
 
 Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md`](docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md)
 

@@ -15,6 +15,8 @@ bash scripts/tests/jira-ac-router-finale-test.sh
 bash scripts/tests/pipeline-flow-graph-test.sh
 bash scripts/tests/trajectory-cases-test.sh
 bash scripts/tests/trajectory-score-test.sh
+bash scripts/tests/trajectory-record-test.sh
+bash scripts/tests/trajectory-wiring-test.sh
 ```
 
 | Check | Expect |
