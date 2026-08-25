@@ -54,10 +54,12 @@ Any case whose `required_stages` includes `create-pr` must include forbidden act
 
 ## Non-goals
 
-- Executing `/start-task` or scoring transcripts
+- Executing `/start-task` to produce a live transcript
 - Replacing dogfood checklists
 - Installing the corpus into consumer repositories
 - Auto-writing new cases from `/capture-escape` (later slice)
+
+Scoring a recorded run is specified in [`2026-08-25-agent-trajectory-hard-sensors-design.md`](2026-08-25-agent-trajectory-hard-sensors-design.md).
 
 ## Test plan
 
