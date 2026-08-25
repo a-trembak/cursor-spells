@@ -1,0 +1,36 @@
+{
+  "id": "tech-spec-no-invented-facts",
+  "title": "Underspecified order-export criteria must be asked as Decision or Blocker questions, never silently filled",
+  "source": "docs/superpowers/dogfood/tech-spec-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/write-tech-spec",
+    "fetch": "skip",
+    "acceptance_criteria": "AC-1: As a customer, I can download a file containing my past orders."
+  },
+  "required_stages": ["tech-spec"],
+  "required_artifacts": [
+    {"kind": "file", "name": "tech-spec", "pattern": "docs/superpowers/specs/*-order-export-tech-spec.md"}
+  ],
+  "forbidden": [
+    "invent-business-facts",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria",
+    "transition-from-write-tech-spec",
+    "archaeology-in-decision-docs"
+  ],
+  "human_must_appear": [
+    {"gate": "tech-spec-entry", "tokens": ["human", "agent"]},
+    {"gate": "decision-blocker", "tokens": ["opt_a", "opt_b", "opt_c"]},
+    {"gate": "tech-spec-gate", "tokens": ["approve-spec", "revise", "skip"]}
+  ],
+  "agent_must_not_ask": ["pipeline-route", "approve-plan"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "File format, large-history handling, and export fields stay questions until the human answers. One question per message."
+  }
+}

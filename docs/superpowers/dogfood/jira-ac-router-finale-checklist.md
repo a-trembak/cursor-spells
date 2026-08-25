@@ -13,6 +13,7 @@ bash scripts/tests/jira-issue-test.sh
 bash scripts/tests/pipeline-gates-test.sh
 bash scripts/tests/jira-ac-router-finale-test.sh
 bash scripts/tests/pipeline-flow-graph-test.sh
+bash scripts/tests/trajectory-cases-test.sh
 ```
 
 | Check | Expect |

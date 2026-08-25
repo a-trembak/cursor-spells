@@ -1,0 +1,54 @@
+{
+  "id": "issue-happy-path",
+  "title": "Issue pipeline writes a fix plan, runs critic Pass C, bug-fixer, review, and a draft pull request",
+  "source": "commands/start-issue-task.md",
+  "pipeline": "issue",
+  "end_to_end": true,
+  "status": "active",
+  "input": {
+    "invocation": "/start-issue-task PROJ-1",
+    "fetch": "ok",
+    "jira_class": "bug"
+  },
+  "required_stages": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "bootstrap",
+    "issue-fix-plan",
+    "implementation-critic",
+    "bug-fixer",
+    "engineer-review",
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "required_artifacts": [
+    {"kind": "file", "name": "fix-plan", "pattern": "docs/superpowers/plans/*.md"},
+    {"kind": "gate", "name": "plan-critique-clear"},
+    {"kind": "git", "name": "feature-branch"},
+    {"kind": "github", "name": "draft-pull-request"},
+    {"kind": "report", "name": "engineer-review"}
+  ],
+  "forbidden": [
+    "merge-pull-request",
+    "re-fetch-after-start-issue-handoff",
+    "open-ready-before-finale",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria",
+    "edit-plan-during-critic"
+  ],
+  "human_must_appear": [
+    {"gate": "pipeline-finale", "tokens": ["keep_draft", "ready", "keep_draft_jira", "ready_jira"]}
+  ],
+  "agent_must_not_ask": [
+    "tech-spec-entry",
+    "pipeline-route",
+    "review-gate",
+    "docs-update"
+  ],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "draft",
+    "review_report": "evidence-gated",
+    "notes": "Critic HITL appears only when Verdict is blocked or clear pending accept."
+  }
+}

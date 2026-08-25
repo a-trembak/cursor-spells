@@ -1,0 +1,30 @@
+{
+  "id": "critic-blocks-flawed-plan",
+  "title": "Notification-plugin fixture plan must stay byte-identical and return Verdict blocked",
+  "source": "docs/superpowers/dogfood/implementation-critic-checklist.md",
+  "pipeline": "slice",
+  "end_to_end": false,
+  "status": "active",
+  "input": {
+    "invocation": "/critique-plan docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md",
+    "fetch": "skip"
+  },
+  "required_stages": ["implementation-critic"],
+  "required_artifacts": [
+    {"kind": "report", "name": "critic-verdict-blocked"},
+    {"kind": "file", "name": "unchanged-plan", "pattern": "docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md"}
+  ],
+  "forbidden": [
+    "edit-plan-during-critic",
+    "start-build-without-critique-clear",
+    "skip-critic-on-full-path"
+  ],
+  "human_must_appear": [],
+  "agent_must_not_ask": ["review-gate", "pipeline-finale"],
+  "expected_end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent",
+    "notes": "Must-fix on YAGNI registry plus migration risk. No Task 1 dispatch."
+  }
+}

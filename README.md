@@ -119,6 +119,7 @@ hooks/       Cursor hooks (templates for consumer projects)
 agents/      Custom agent configs
 scripts/     Install internals + CI helpers
 docs/        Design specs, plans, dogfood checklists
+evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 ```
 
 ## Skills
@@ -300,6 +301,8 @@ Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](do
 Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/project-patterns.yml)
 
 **Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md) · Jira fetch / router / PR finale: [`docs/superpowers/dogfood/jira-ac-router-finale-checklist.md`](docs/superpowers/dogfood/jira-ac-router-finale-checklist.md)
+
+**Agent trajectory golden set:** kit-only contracts under [`evals/trajectories/`](evals/trajectories/) — what the agent must do, must not do, and where a human must appear. Validate with `python3 scripts/trajectory-cases.py validate` and `bash scripts/tests/trajectory-cases-test.sh`. Not copied into consumer apps. Not an agent runner.
 
 Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md`](docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md)
 

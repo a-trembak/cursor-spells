@@ -1,0 +1,52 @@
+{
+  "id": "fast-skips-plan-layer",
+  "title": "Explicit --fast implements, reviews, and opens a draft without spec, plan, critic, review-gate, or docs",
+  "source": "commands/start-task.md",
+  "pipeline": "fast",
+  "end_to_end": true,
+  "status": "active",
+  "input": {
+    "invocation": "/start-task --fast PROJ-1",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "required_stages": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "bootstrap",
+    "software-developer",
+    "engineer-review",
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "required_artifacts": [
+    {"kind": "git", "name": "feature-branch"},
+    {"kind": "github", "name": "draft-pull-request"},
+    {"kind": "report", "name": "engineer-review"}
+  ],
+  "forbidden": [
+    "merge-pull-request",
+    "auto-select-fast",
+    "open-ready-before-finale",
+    "invent-acceptance-criteria",
+    "write-acceptance-criteria"
+  ],
+  "human_must_appear": [
+    {"gate": "pipeline-finale", "tokens": ["keep_draft", "ready", "keep_draft_jira", "ready_jira"]}
+  ],
+  "agent_must_not_ask": [
+    "tech-spec-entry",
+    "tech-spec-depth",
+    "tech-spec-gate",
+    "approve-plan",
+    "review-gate",
+    "docs-update",
+    "pipeline-route",
+    "fast-vs-issue"
+  ],
+  "expected_end": {
+    "jira_status": "In Progress",
+    "pull_request": "draft",
+    "review_report": "evidence-gated"
+  }
+}
