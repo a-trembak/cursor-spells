@@ -54,7 +54,7 @@ python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGE
 
 If `record dump` fails, skip score. If score prints `FAIL`, print its `FAIL` lines and stop. Do not continue bootstrap. Do not ask `pipeline-route`, `tech-spec-entry`, or `ready`. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
 
-Use the real invocation string from the chat when it is a `/start-task` key. If the caller was `/start-issue-task` or `/write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
+For every `/start-task` fetch failure, use the case's fixed `--invocation "/start-task PROJ-1"` input shown above, regardless of the requested ticket key. If the caller was `/start-issue-task` or `/write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
 
 ## Assemble AC text
 

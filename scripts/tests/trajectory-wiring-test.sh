@@ -5,7 +5,7 @@ fail=0
 
 assert_grep() {
   local name="$1" path="$2" pattern="$3"
-  if grep -E -q "$pattern" "$ROOT/$path"; then
+  if grep -E -q -- "$pattern" "$ROOT/$path"; then
     echo "OK   $name"
   else
     echo "FAIL $name: /$pattern/ not in $path" >&2
@@ -13,14 +13,29 @@ assert_grep() {
   fi
 }
 
+assert_not_grep() {
+  local name="$1" path="$2" pattern="$3"
+  if grep -E -q -- "$pattern" "$ROOT/$path"; then
+    echo "FAIL $name: /$pattern/ unexpectedly in $path" >&2
+    fail=1
+  else
+    echo "OK   $name"
+  fi
+}
+
 assert_grep fetch_score "skills/jira-fetch/SKILL.md" "trajectory-cases.py score"
 assert_grep fetch_case "skills/jira-fetch/SKILL.md" "fetch-failure-stops"
 assert_grep fetch_skip "skills/jira-fetch/SKILL.md" "skip score"
+assert_grep fetch_exact_input "skills/jira-fetch/SKILL.md" '--invocation "/start-task PROJ-1"'
+assert_not_grep fetch_no_live_input "skills/jira-fetch/SKILL.md" "(live|real) invocation string"
 assert_grep start_score "commands/start-task.md" "fetch-failure-stops"
 assert_grep cpr_score "skills/create-pr/SKILL.md" "trajectory-cases.py score"
 assert_grep cpr_case "skills/create-pr/SKILL.md" "create-pr-draft-never-merge"
 assert_grep cpr_before_ready "skills/create-pr/SKILL.md" "before.*gh pr ready|before applying"
 assert_grep cpr_after_ask "skills/create-pr/SKILL.md" "after.*Pipeline finale"
+assert_grep cpr_four_tokens "skills/create-pr/SKILL.md" "keep_draft,ready,keep_draft_jira,ready_jira"
+assert_grep cpr_score_four_only "skills/create-pr/SKILL.md" "[Ss]core.*only.*four-token|only.*four-token.*score"
+assert_grep cpr_skip_two_tokens "skills/create-pr/SKILL.md" "two-token.*jira_key.*not known.*skip score|skip score.*two-token.*jira_key.*not known"
 assert_grep dogfood "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md" "trajectory-wiring-test.sh"
 assert_grep readme "README.md" "fetch-failure-stops"
 
@@ -28,4 +43,54 @@ if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
 fi
+
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+FETCH_LEDGER="$TMP/fetch-failure-stops.json"
+CREATE_PR_LEDGER="$TMP/create-pr-draft-never-merge.json"
+
+python3 "$ROOT/scripts/trajectory-cases.py" record init \
+  --ledger "$FETCH_LEDGER" --case-id fetch-failure-stops \
+  --invocation "/start-task PROJ-1" --fetch fail
+python3 "$ROOT/scripts/trajectory-cases.py" record stage \
+  --ledger "$FETCH_LEDGER" jira-fetch
+python3 "$ROOT/scripts/trajectory-cases.py" record artifact \
+  --ledger "$FETCH_LEDGER" --kind report --name stop-paste-ticket
+python3 "$ROOT/scripts/trajectory-cases.py" record dump --ledger "$FETCH_LEDGER"
+fetch_score="$(
+  python3 "$ROOT/scripts/trajectory-cases.py" score \
+    --kit-root "$ROOT" --run "$FETCH_LEDGER"
+)"
+echo "$fetch_score"
+if [[ "$fetch_score" != *"PASS fetch-failure-stops"* ]]; then
+  echo "FAIL fetch executable score did not pass" >&2
+  exit 1
+fi
+
+python3 "$ROOT/scripts/trajectory-cases.py" record init \
+  --ledger "$CREATE_PR_LEDGER" --case-id create-pr-draft-never-merge \
+  --invocation "skill create-pr" --fetch ok --jira-class feature
+python3 "$ROOT/scripts/trajectory-cases.py" record stage \
+  --ledger "$CREATE_PR_LEDGER" create-pr
+python3 "$ROOT/scripts/trajectory-cases.py" record stage \
+  --ledger "$CREATE_PR_LEDGER" pipeline-finale-hitl
+python3 "$ROOT/scripts/trajectory-cases.py" record artifact \
+  --ledger "$CREATE_PR_LEDGER" --kind github --name draft-pull-request
+python3 "$ROOT/scripts/trajectory-cases.py" record gate \
+  --ledger "$CREATE_PR_LEDGER" --gate pipeline-finale \
+  --tokens keep_draft,ready,keep_draft_jira,ready_jira
+python3 "$ROOT/scripts/trajectory-cases.py" record end \
+  --ledger "$CREATE_PR_LEDGER" --pull-request draft \
+  --review-report absent --jira-status "In Progress"
+python3 "$ROOT/scripts/trajectory-cases.py" record dump --ledger "$CREATE_PR_LEDGER"
+create_pr_score="$(
+  python3 "$ROOT/scripts/trajectory-cases.py" score \
+    --kit-root "$ROOT" --run "$CREATE_PR_LEDGER"
+)"
+echo "$create_pr_score"
+if [[ "$create_pr_score" != *"PASS create-pr-draft-never-merge"* ]]; then
+  echo "FAIL create-pr executable score did not pass" >&2
+  exit 1
+fi
+
 echo "ALL PASS"

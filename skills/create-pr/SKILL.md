@@ -54,11 +54,13 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
    - `keep_draft_jira` — leave draft; comment Jira (below).
    - `ready_jira` — `gh pr ready` then comment Jira.
 9. **Trajectory score** (after Pipeline finale was asked, before applying `ready` / `ready_jira`):
+   - Score this case only for the four-token Jira finale, when `jira_key` is known and the offered tokens were `keep_draft,ready,keep_draft_jira,ready_jira`.
+   - If the two-token `keep_draft,ready` finale was offered because `jira_key` is not known, skip score because this case does not apply, then apply the human's already-chosen token.
    - Resolve `KIT` from `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path`, trimming the newline. Use `LEDGER=".cursor/gates/trajectory-run/create-pr-draft-never-merge.json"`.
    - Init that fresh ledger for case `create-pr-draft-never-merge` with `invocation: "skill create-pr"`, `fetch: ok`, `jira_class: feature` (this slice's contract; do not copy the parent `/start-task` invocation).
    - `record stage create-pr`, then `record stage pipeline-finale-hitl`.
    - `record artifact --kind github --name draft-pull-request`.
-   - `record gate --gate pipeline-finale --tokens` exactly the tokens that were offered (`keep_draft,ready` or `keep_draft,ready,keep_draft_jira,ready_jira`).
+   - `record gate --gate pipeline-finale --tokens keep_draft,ready,keep_draft_jira,ready_jira`.
    - `record end --pull-request draft --review-report absent` and `--jira-status "In Progress"` unless Jira is already Review-like.
    - Run `record dump`, then `python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"`.
    - Skip score when the kit path or scorer is missing, or when the ledger dump fails. In chat, say in one full sentence that trajectory score was skipped.
