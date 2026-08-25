@@ -56,12 +56,15 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
 9. **Trajectory score** (after Pipeline finale was asked, before applying `ready` / `ready_jira`):
    - Score this case only for the four-token Jira finale, when `jira_key` is known and the offered tokens were `keep_draft,ready,keep_draft_jira,ready_jira`.
    - If the two-token `keep_draft,ready` finale was offered because `jira_key` is not known, skip score because this case does not apply, then apply the human's already-chosen token.
+   - If Jira is already Review-like, skip score because this case requires an observed Jira end state of `In Progress`, then apply the human's already-chosen token.
    - Resolve `KIT` from `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path`, trimming the newline. Use `LEDGER=".cursor/gates/trajectory-run/create-pr-draft-never-merge.json"`.
    - Init that fresh ledger for case `create-pr-draft-never-merge` with `invocation: "skill create-pr"`, `fetch: ok`, `jira_class: feature` (this slice's contract; do not copy the parent `/start-task` invocation).
    - `record stage create-pr`, then `record stage pipeline-finale-hitl`.
    - `record artifact --kind github --name draft-pull-request`.
    - `record gate --gate pipeline-finale --tokens keep_draft,ready,keep_draft_jira,ready_jira`.
-   - `record end --pull-request draft --review-report absent` and `--jira-status "In Progress"` unless Jira is already Review-like.
+   - Immediately before `record end`, query every opened pull request URL with `gh pr view "$pr_url" --json isDraft --jq '.isDraft'`. Stop and report the command error if any state cannot be observed.
+   - If every observed `isDraft` value is `true`, run `record end --pull-request draft`; if any value is `false`, run `record end --pull-request ready`. Include `--review-report absent --jira-status "In Progress"` only when scoring.
+   - Always score the resulting ledger in this applicable four-token case. An observed `ready` state must produce an `expected_end` failure; do not silently pass or skip it.
    - Run `record dump`, then `python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"`.
    - Skip score when the kit path or scorer is missing, or when the ledger dump fails. In chat, say in one full sentence that trajectory score was skipped.
    - On `FAIL`: print the `FAIL` lines and stop. At that stop, ask skill `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/capture-escape` with the `FAIL` lines and do not start `engineer-reviewer`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only when the current git root contains both `skills/engineer-review` and `agents/engineer-reviewer.md`; otherwise print the `FAIL` log and stop. After validate, display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Do not run `gh pr ready`. Do not merge.

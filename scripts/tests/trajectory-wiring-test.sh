@@ -36,6 +36,10 @@ assert_grep cpr_after_ask "skills/create-pr/SKILL.md" "after.*Pipeline finale"
 assert_grep cpr_four_tokens "skills/create-pr/SKILL.md" "keep_draft,ready,keep_draft_jira,ready_jira"
 assert_grep cpr_score_four_only "skills/create-pr/SKILL.md" "[Ss]core.*only.*four-token|only.*four-token.*score"
 assert_grep cpr_skip_two_tokens "skills/create-pr/SKILL.md" "two-token.*jira_key.*not known.*skip score|skip score.*two-token.*jira_key.*not known"
+assert_grep cpr_observe_pr_state "skills/create-pr/SKILL.md" 'gh pr view.*--json isDraft'
+assert_grep cpr_record_ready "skills/create-pr/SKILL.md" 'record end.*--pull-request ready'
+assert_grep cpr_skip_review_like "skills/create-pr/SKILL.md" 'already Review-like.*skip score|skip score.*already Review-like'
+assert_grep cpr_progress_only_when_scoring "skills/create-pr/SKILL.md" '--jira-status "In Progress".*only when scoring'
 assert_grep dogfood "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md" "trajectory-wiring-test.sh"
 assert_grep readme "README.md" "fetch-failure-stops"
 assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Trajectory fail"

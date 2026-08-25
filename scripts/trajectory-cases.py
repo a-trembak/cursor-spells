@@ -241,15 +241,14 @@ def validate_input(value: Any, path: Path) -> list[str]:
     if not is_nonempty_str(value.get("invocation")):
         errors.append(err(path, "input.invocation must be a non-empty string"))
     fetch = value.get("fetch")
-    if fetch not in FETCH_VALUES:
+    if not isinstance(fetch, str) or fetch not in FETCH_VALUES:
         errors.append(err(path, f"input.fetch must be one of {sorted(FETCH_VALUES)}"))
     jira_class = value.get("jira_class")
     if fetch == "ok":
-        if jira_class not in JIRA_CLASSES:
+        if not isinstance(jira_class, str) or jira_class not in JIRA_CLASSES:
             errors.append(err(path, "input.jira_class required when fetch is ok"))
-    elif jira_class not in (None,):
-        if "jira_class" in value and jira_class is not None:
-            errors.append(err(path, "input.jira_class must be omitted or null unless fetch is ok"))
+    elif "jira_class" in value and jira_class is not None:
+        errors.append(err(path, "input.jira_class must be omitted or null unless fetch is ok"))
     if "acceptance_criteria" in value and value["acceptance_criteria"] is not None:
         if not is_nonempty_str(value["acceptance_criteria"]):
             errors.append(err(path, "input.acceptance_criteria must be a non-empty string or null"))
@@ -440,11 +439,12 @@ def validate_run(data: Any, path: Path) -> list[str]:
     if not isinstance(stages, list):
         errors.append(err(path, "stages_entered must be a list"))
     else:
-        unknown = [item for item in stages if item not in STAGES]
-        if unknown:
-            errors.append(err(path, f"unknown stages: {unknown}"))
         if any(not isinstance(item, str) for item in stages):
             errors.append(err(path, "stages_entered must be strings"))
+        else:
+            unknown = [item for item in stages if item not in STAGES]
+            if unknown:
+                errors.append(err(path, f"unknown stages: {unknown}"))
     artifacts = data["artifacts_present"]
     if not isinstance(artifacts, list):
         errors.append(err(path, "artifacts_present must be a list"))
@@ -681,6 +681,8 @@ def write_json(path: Path, data: dict[str, Any]) -> None:
 
 
 def load_ledger(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        raise SystemExit(err(path, "ledger file does not exist"))
     data, load_error = load_json(path)
     if load_error:
         raise SystemExit(load_error)
@@ -693,6 +695,9 @@ def load_ledger(path: Path) -> dict[str, Any]:
 
 
 def record_init(args: argparse.Namespace) -> int:
+    if args.fetch == "ok" and args.jira_class is None:
+        print("jira_class is required when fetch is ok", file=sys.stderr)
+        return 1
     if args.fetch != "ok" and args.jira_class is not None:
         print("jira_class is only allowed when fetch is ok", file=sys.stderr)
         return 1

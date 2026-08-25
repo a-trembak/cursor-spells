@@ -36,6 +36,28 @@ assert_grep_out() {
   fi
 }
 
+assert_command_error() {
+  local name="$1" pattern="$2"
+  shift 2
+  local actual=0 out
+  out="$("$@" 2>&1)" || actual=$?
+  assert_eq "${name}_exit" 1 "$actual"
+  if grep -F -q -- "$pattern" <<<"$out"; then
+    echo "OK   ${name}_message"
+  else
+    echo "FAIL ${name}_message: [$pattern] not in output:" >&2
+    echo "$out" >&2
+    fail=1
+  fi
+  if grep -F -q -- "Traceback" <<<"$out"; then
+    echo "FAIL ${name}_no_traceback: traceback in output:" >&2
+    echo "$out" >&2
+    fail=1
+  else
+    echo "OK   ${name}_no_traceback"
+  fi
+}
+
 REC=(python3 "$ROOT/scripts/trajectory-cases.py" record)
 SCORE=(python3 "$ROOT/scripts/trajectory-cases.py" score --kit-root "$ROOT")
 
@@ -48,6 +70,25 @@ echo "OK   record_help"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 LEDGER="$TMP/fetch.json"
+
+MISSING="$TMP/missing.json"
+assert_command_error missing_stage "ledger file does not exist" \
+  "${REC[@]}" stage --ledger "$MISSING" jira-fetch
+assert_command_error missing_dump "ledger file does not exist" \
+  "${REC[@]}" dump --ledger "$MISSING"
+
+MISSING_CLASS="$TMP/missing-class.json"
+assert_exit init_ok_requires_jira_class 1 "${REC[@]}" init \
+  --ledger "$MISSING_CLASS" \
+  --case-id create-pr-draft-never-merge \
+  --invocation "skill create-pr" \
+  --fetch ok
+if [[ -e "$MISSING_CLASS" ]]; then
+  echo "FAIL init_ok_requires_jira_class_no_ledger: ledger was created" >&2
+  fail=1
+else
+  echo "OK   init_ok_requires_jira_class_no_ledger"
+fi
 
 assert_exit init_fetch 0 "${REC[@]}" init \
   --ledger "$LEDGER" \
@@ -82,6 +123,23 @@ assert_grep_out score_full_line "PASS fetch-failure-stops" "${SCORE[@]}" --run "
 
 assert_exit bad_stage 1 "${REC[@]}" stage --ledger "$LEDGER" not-a-stage
 
+ACTION="$TMP/action.json"
+assert_exit action_init 0 "${REC[@]}" init \
+  --ledger "$ACTION" \
+  --case-id fetch-failure-stops \
+  --invocation "/start-task PROJ-1" \
+  --fetch fail
+assert_exit action_append 0 "${REC[@]}" action --ledger "$ACTION" merge-pull-request
+assert_exit action_duplicate 0 "${REC[@]}" action --ledger "$ACTION" merge-pull-request
+python3 - "$ACTION" <<'PY'
+import json, sys
+from pathlib import Path
+data = json.loads(Path(sys.argv[1]).read_text())
+assert data["actions_taken"] == ["merge-pull-request"]
+print("OK   action_duplicate_no_dup")
+PY
+assert_exit action_unknown 1 "${REC[@]}" action --ledger "$ACTION" not-an-action
+
 # create-pr slice: fetch ok requires jira_class; score after gate tokens, still draft.
 CPR="$TMP/cpr.json"
 assert_exit init_cpr 0 "${REC[@]}" init \
@@ -99,6 +157,16 @@ assert_exit cpr_end 0 "${REC[@]}" end --ledger "$CPR" \
   --pull-request draft --review-report absent --jira-status "In Progress"
 assert_exit cpr_dump 0 "${REC[@]}" dump --ledger "$CPR"
 assert_exit cpr_score 0 "${SCORE[@]}" --run "$CPR"
+
+READY_OBSERVED="$TMP/cpr-ready-observed.json"
+cp "$CPR" "$READY_OBSERVED"
+assert_exit ready_observed_end 0 "${REC[@]}" end --ledger "$READY_OBSERVED" \
+  --pull-request ready --review-report absent --jira-status "In Progress"
+assert_exit ready_observed_dump 0 "${REC[@]}" dump --ledger "$READY_OBSERVED"
+assert_exit ready_observed_score 1 "${SCORE[@]}" --run "$READY_OBSERVED"
+assert_grep_out ready_observed_line \
+  "FAIL create-pr-draft-never-merge: expected_end .*pull_request case='draft' run='ready'" \
+  "${SCORE[@]}" --run "$READY_OBSERVED"
 
 # Marking ready without recording the gate must fail open-ready-before-finale.
 BAD="$TMP/ready-early.json"

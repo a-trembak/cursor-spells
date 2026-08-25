@@ -22,6 +22,28 @@ assert_exit() {
   assert_eq "$name" "$expected" "$actual"
 }
 
+assert_validation_error() {
+  local name="$1" pattern="$2"
+  shift 2
+  local actual=0 out
+  out="$("$@" 2>&1)" || actual=$?
+  assert_eq "${name}_exit" 1 "$actual"
+  if grep -F -q -- "$pattern" <<<"$out"; then
+    echo "OK   ${name}_message"
+  else
+    echo "FAIL ${name}_message: [$pattern] not in output:" >&2
+    echo "$out" >&2
+    fail=1
+  fi
+  if grep -F -q -- "Traceback" <<<"$out"; then
+    echo "FAIL ${name}_no_traceback: traceback in output:" >&2
+    echo "$out" >&2
+    fail=1
+  else
+    echo "OK   ${name}_no_traceback"
+  fi
+}
+
 VALIDATOR=(python3 "$ROOT/scripts/trajectory-cases.py" validate)
 
 if [[ ! -f "$ROOT/scripts/trajectory-cases.py" ]]; then
@@ -110,6 +132,36 @@ assert_exit create_pr_requires_never_merge 1 "${VALIDATOR[@]}" --dir "$CASES"
 minimal_valid "$CASES/minimal-slice.json"
 python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["human_must_appear"]=[{"gate":"nope","tokens":["x"]}]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
 assert_exit unknown_human_gate 1 "${VALIDATOR[@]}" --dir "$CASES"
+
+minimal_valid "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["input"]["fetch"]=[]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+assert_validation_error input_fetch_wrong_type "input.fetch must be one of" \
+  "${VALIDATOR[@]}" --dir "$CASES"
+
+minimal_valid "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["input"]["fetch"]="ok"; d["input"]["jira_class"]={}; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+assert_validation_error input_jira_class_wrong_type "input.jira_class required when fetch is ok" \
+  "${VALIDATOR[@]}" --dir "$CASES"
+
+minimal_valid "$CASES/minimal-slice.json"
+cat >"$TMP/wrong-stage-run.json" <<'JSON'
+{
+  "case_id": "minimal-slice",
+  "input": {"invocation": "/write-tech-spec", "fetch": "skip"},
+  "stages_entered": [[]],
+  "artifacts_present": [],
+  "actions_taken": [],
+  "human_gates_asked": [],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}
+JSON
+assert_validation_error run_stage_wrong_type "stages_entered must be strings" \
+  python3 "$ROOT/scripts/trajectory-cases.py" score \
+  --kit-root "$ROOT" --case "$CASES/minimal-slice.json" --run "$TMP/wrong-stage-run.json"
 
 # Committed catalog
 CATALOG="$ROOT/evals/trajectories/cases"
