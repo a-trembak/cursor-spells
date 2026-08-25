@@ -654,6 +654,140 @@ def score_paths(run_paths: list[Path], kit_root: Path, case_path: Path | None) -
     return exit_code, lines
 
 
+def empty_run(
+    case_id: str, invocation: str, fetch: str, jira_class: str | None
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {"invocation": invocation, "fetch": fetch}
+    if jira_class is not None:
+        payload["jira_class"] = jira_class
+    return {
+        "case_id": case_id,
+        "input": payload,
+        "stages_entered": [],
+        "artifacts_present": [],
+        "actions_taken": [],
+        "human_gates_asked": [],
+        "end": {
+            "jira_status": None,
+            "pull_request": "absent",
+            "review_report": "absent",
+        },
+    }
+
+
+def write_json(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def load_ledger(path: Path) -> dict[str, Any]:
+    data, load_error = load_json(path)
+    if load_error:
+        raise SystemExit(load_error)
+    if not isinstance(data, dict):
+        raise SystemExit(err(path, "run must be a JSON object"))
+    errors = validate_run(data, path)
+    if errors:
+        raise SystemExit("\n".join(errors))
+    return data
+
+
+def record_init(args: argparse.Namespace) -> int:
+    if args.fetch != "ok" and args.jira_class is not None:
+        print("jira_class is only allowed when fetch is ok", file=sys.stderr)
+        return 1
+    write_json(
+        args.ledger,
+        empty_run(args.case_id, args.invocation, args.fetch, args.jira_class),
+    )
+    print(f"OK   {args.ledger.resolve()}")
+    return 0
+
+
+def record_stage(args: argparse.Namespace) -> int:
+    if args.stage not in STAGES:
+        print(f"unknown stage {args.stage!r}", file=sys.stderr)
+        return 1
+    data = load_ledger(args.ledger)
+    data["stages_entered"].append(args.stage)
+    write_json(args.ledger, data)
+    print(f"OK   {args.ledger.resolve()}")
+    return 0
+
+
+def record_artifact(args: argparse.Namespace) -> int:
+    if args.kind not in ARTIFACT_KINDS:
+        print(f"unknown kind {args.kind!r}", file=sys.stderr)
+        return 1
+    if not is_nonempty_str(args.name):
+        print("name must be a non-empty string", file=sys.stderr)
+        return 1
+    data = load_ledger(args.ledger)
+    keys = artifact_keys(data["artifacts_present"])
+    if (args.kind, args.name) not in keys:
+        item: dict[str, Any] = {"kind": args.kind, "name": args.name}
+        if args.path:
+            item["path"] = str(args.path)
+        data["artifacts_present"].append(item)
+    write_json(args.ledger, data)
+    print(f"OK   {args.ledger.resolve()}")
+    return 0
+
+
+def record_gate(args: argparse.Namespace) -> int:
+    if args.gate not in HUMAN_GATES:
+        print(f"unknown gate {args.gate!r}", file=sys.stderr)
+        return 1
+    tokens = [part.strip() for part in args.tokens.split(",") if part.strip()]
+    if not tokens:
+        print("tokens must be a non-empty comma-separated list", file=sys.stderr)
+        return 1
+    data = load_ledger(args.ledger)
+    asked = [item for item in data["human_gates_asked"] if item.get("gate") != args.gate]
+    asked.append({"gate": args.gate, "tokens_offered": tokens})
+    data["human_gates_asked"] = asked
+    write_json(args.ledger, data)
+    print(f"OK   {args.ledger.resolve()}")
+    return 0
+
+
+def record_action(args: argparse.Namespace) -> int:
+    if args.action not in FORBIDDEN:
+        print(f"unknown action {args.action!r}", file=sys.stderr)
+        return 1
+    data = load_ledger(args.ledger)
+    if args.action not in data["actions_taken"]:
+        data["actions_taken"].append(args.action)
+    write_json(args.ledger, data)
+    print(f"OK   {args.ledger.resolve()}")
+    return 0
+
+
+def record_end(args: argparse.Namespace) -> int:
+    data = load_ledger(args.ledger)
+    if args.pull_request is not None:
+        data["end"]["pull_request"] = args.pull_request
+    if args.review_report is not None:
+        data["end"]["review_report"] = args.review_report
+    if args.jira_status is not None:
+        data["end"]["jira_status"] = None if args.jira_status == "null" else args.jira_status
+    errors = validate_run(data, args.ledger)
+    if errors:
+        print("\n".join(errors), file=sys.stderr)
+        return 1
+    write_json(args.ledger, data)
+    print(f"OK   {args.ledger.resolve()}")
+    return 0
+
+
+def record_dump(args: argparse.Namespace) -> int:
+    data = load_ledger(args.ledger)
+    dest = args.out or args.ledger
+    write_json(dest, data)
+    print(f"OK   {dest.resolve()}")
+    return 0
+
+
 def validate_dir(cases_dir: Path, kit_root: Path) -> list[str]:
     errors: list[str] = []
     if not cases_dir.is_dir():
@@ -693,7 +827,68 @@ def main(argv: list[str] | None = None) -> int:
     p_score.add_argument("--case", type=Path, help="Override case file (default: cases/<case_id>.json)")
     p_score.add_argument("--kit-root", type=Path, help="Kit root for resolving cases")
 
+    p_rec = sub.add_parser("record", help="Assemble a run ledger for score")
+    rec_sub = p_rec.add_subparsers(dest="record_command", required=True)
+
+    def add_ledger_arg(parser: argparse.ArgumentParser) -> None:
+        parser.add_argument("--ledger", type=Path, required=True)
+
+    p_init = rec_sub.add_parser("init", help="Create an empty run ledger")
+    add_ledger_arg(p_init)
+    p_init.add_argument("--case-id", required=True)
+    p_init.add_argument("--invocation", required=True)
+    p_init.add_argument("--fetch", required=True, choices=sorted(FETCH_VALUES))
+    p_init.add_argument("--jira-class", choices=sorted(JIRA_CLASSES))
+
+    p_stage = rec_sub.add_parser("stage", help="Append a stage id")
+    add_ledger_arg(p_stage)
+    p_stage.add_argument("stage")
+
+    p_art = rec_sub.add_parser("artifact", help="Append a present artifact")
+    add_ledger_arg(p_art)
+    p_art.add_argument("--kind", required=True)
+    p_art.add_argument("--name", required=True)
+    p_art.add_argument("--path", type=Path)
+
+    p_gate = rec_sub.add_parser("gate", help="Record a human gate that was asked")
+    add_ledger_arg(p_gate)
+    p_gate.add_argument("--gate", required=True)
+    p_gate.add_argument("--tokens", required=True)
+
+    p_act = rec_sub.add_parser("action", help="Record an observed forbidden id")
+    add_ledger_arg(p_act)
+    p_act.add_argument("action")
+
+    p_end = rec_sub.add_parser("end", help="Patch end-state fields")
+    add_ledger_arg(p_end)
+    p_end.add_argument("--pull-request", choices=sorted(PULL_REQUEST_STATES))
+    p_end.add_argument("--review-report", choices=sorted(REVIEW_REPORT_STATES))
+    p_end.add_argument(
+        "--jira-status",
+        choices=["null", *sorted(s for s in JIRA_STATUSES if s != "unchanged")],
+    )
+
+    p_dump = rec_sub.add_parser("dump", help="Validate and write the run JSON")
+    add_ledger_arg(p_dump)
+    p_dump.add_argument("--out", type=Path)
+
     args = parser.parse_args(argv)
+
+    if args.command == "record":
+        handlers = {
+            "init": record_init,
+            "stage": record_stage,
+            "artifact": record_artifact,
+            "gate": record_gate,
+            "action": record_action,
+            "end": record_end,
+            "dump": record_dump,
+        }
+        handler = handlers.get(args.record_command)
+        if handler is None:
+            parser.error("record requires a subcommand")
+        return handler(args)
+
     kit_root = (args.kit_root or kit_root_from_script()).resolve()
 
     if args.command == "validate":

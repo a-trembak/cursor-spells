@@ -17,6 +17,23 @@ python3 scripts/trajectory-cases.py score --runs-dir evals/trajectories/fixtures
 bash scripts/tests/trajectory-score-test.sh
 ```
 
+Record a live ledger (stdlib; same run shape as the fixtures):
+
+```bash
+python3 scripts/trajectory-cases.py record init \
+  --ledger evals/trajectories/runs/fetch-failure-stops.json \
+  --case-id fetch-failure-stops \
+  --invocation "/start-task PROJ-1" \
+  --fetch fail
+python3 scripts/trajectory-cases.py record stage --ledger evals/trajectories/runs/fetch-failure-stops.json jira-fetch
+python3 scripts/trajectory-cases.py record artifact --ledger evals/trajectories/runs/fetch-failure-stops.json \
+  --kind report --name stop-paste-ticket
+python3 scripts/trajectory-cases.py record dump --ledger evals/trajectories/runs/fetch-failure-stops.json
+python3 scripts/trajectory-cases.py score --run evals/trajectories/runs/fetch-failure-stops.json
+```
+
+Live files under `evals/trajectories/runs/*.json` are gitignored. Prefer `.cursor/gates/trajectory-run/<case_id>.json` in a consumer project.
+
 ## Add a case
 
 1. Copy a close neighbor under `evals/trajectories/cases/`.
