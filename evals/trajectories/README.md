@@ -53,5 +53,5 @@ A later slice will execute the pipeline and write run records. This directory ho
 1. Keep the FAIL lines and the ledger JSON.
 2. Ask Trajectory fail (`generalize` / `skip`). Do not skip this ask by inventing an answer.
 3. On `generalize` in the kit repo: copy a neighbor under `evals/trajectories/cases/`, set `id` to the filename stem, point `source` at an existing kit file, run `python3 scripts/trajectory-cases.py validate`.
-4. Show the case JSON or `git diff` in chat and wait for the human to confirm it is correct before `git commit`. Never auto-commit a case from a single score FAIL.
+4. Display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Never auto-commit a case from a single score FAIL.
 5. Do not add a case that only restates one unique incident. Hit-count an existing `id` in the title/source note instead.

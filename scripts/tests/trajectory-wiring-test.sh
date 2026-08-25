@@ -46,6 +46,12 @@ assert_grep cpr_ask "skills/create-pr/SKILL.md" "Trajectory fail"
 assert_grep capture_fail "commands/capture-escape.md" "FAIL "
 assert_grep readme_gen "evals/trajectories/README.md" "generalize"
 assert_grep readme_human_confirm "evals/trajectories/README.md" "wait for the human to confirm.*before.*git commit"
+assert_grep readme_show_json "evals/trajectories/README.md" "[Ss]how.*validated case JSON|[Dd]isplay.*validated case JSON"
+assert_not_grep readme_no_diff_alt "evals/trajectories/README.md" "case JSON or"
+assert_grep fetch_show_json "skills/jira-fetch/SKILL.md" "[Ss]how.*validated case JSON|[Dd]isplay.*validated case JSON"
+assert_not_grep fetch_no_diff_alt "skills/jira-fetch/SKILL.md" "case JSON or"
+assert_grep cpr_show_json "skills/create-pr/SKILL.md" "[Ss]how.*validated case JSON|[Dd]isplay.*validated case JSON"
+assert_not_grep cpr_no_diff_alt "skills/create-pr/SKILL.md" "case JSON or"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
