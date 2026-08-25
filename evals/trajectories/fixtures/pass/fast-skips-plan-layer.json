@@ -1,0 +1,31 @@
+{
+  "case_id": "fast-skips-plan-layer",
+  "input": {
+    "invocation": "/start-task --fast PROJ-1",
+    "fetch": "ok",
+    "jira_class": "feature"
+  },
+  "stages_entered": [
+    "jira-fetch",
+    "jira-transition-in-progress",
+    "bootstrap",
+    "software-developer",
+    "engineer-review",
+    "create-pr",
+    "pipeline-finale-hitl"
+  ],
+  "artifacts_present": [
+    {"kind": "git", "name": "feature-branch"},
+    {"kind": "github", "name": "draft-pull-request"},
+    {"kind": "report", "name": "engineer-review"}
+  ],
+  "actions_taken": [],
+  "human_gates_asked": [
+    {"gate": "pipeline-finale", "tokens_offered": ["keep_draft", "ready", "keep_draft_jira", "ready_jira"]}
+  ],
+  "end": {
+    "jira_status": "In Progress",
+    "pull_request": "draft",
+    "review_report": "evidence-gated"
+  }
+}

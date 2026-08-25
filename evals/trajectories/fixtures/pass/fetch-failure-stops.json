@@ -1,0 +1,16 @@
+{
+  "case_id": "fetch-failure-stops",
+  "input": {
+    "invocation": "/start-task PROJ-1",
+    "fetch": "fail"
+  },
+  "stages_entered": ["jira-fetch"],
+  "artifacts_present": [{"kind": "report", "name": "stop-paste-ticket"}],
+  "actions_taken": [],
+  "human_gates_asked": [],
+  "end": {
+    "jira_status": null,
+    "pull_request": "absent",
+    "review_report": "absent"
+  }
+}

@@ -2,11 +2,19 @@
 
 Contracts for how the kit agent must behave on a given invocation. These files are **not** product tests and are **not** installed into consumer apps.
 
-Validate:
+Validate cases:
 
 ```bash
 python3 scripts/trajectory-cases.py validate
 bash scripts/tests/trajectory-cases-test.sh
+```
+
+Score a recorded run (hard sensors only — no language-model judge):
+
+```bash
+python3 scripts/trajectory-cases.py score --run evals/trajectories/fixtures/pass/route-unknown-asks-human.json
+python3 scripts/trajectory-cases.py score --runs-dir evals/trajectories/fixtures/pass
+bash scripts/tests/trajectory-score-test.sh
 ```
 
 ## Add a case
@@ -21,4 +29,4 @@ bash scripts/tests/trajectory-cases-test.sh
 
 Do not put live ticket secrets in `acceptance_criteria`. Prefer the fixtures already documented in dogfood checklists.
 
-A later slice will score a live agent run against these contracts. This directory is the corpus only.
+A later slice will execute the pipeline and write run records. This directory holds the corpus plus a deterministic scorer for those records.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate agent-trajectory golden-set cases (stdlib only)."""
+"""Validate and score agent-trajectory golden-set cases (stdlib only)."""
 
 from __future__ import annotations
 
@@ -399,6 +399,261 @@ def load_json(path: Path) -> tuple[Any | None, str | None]:
         return None, err(path, f"invalid JSON: {exc}")
 
 
+RUN_TOP_KEYS = frozenset(
+    {
+        "case_id",
+        "input",
+        "stages_entered",
+        "artifacts_present",
+        "actions_taken",
+        "human_gates_asked",
+        "end",
+    }
+)
+RUN_ARTIFACT_KEYS = frozenset({"kind", "name", "path"})
+RUN_GATE_KEYS = frozenset({"gate", "tokens_offered"})
+
+
+def ordered_subsequence(required: list[str], actual: list[str]) -> bool:
+    index = 0
+    for stage in actual:
+        if index < len(required) and stage == required[index]:
+            index += 1
+    return index == len(required)
+
+
+def validate_run(data: Any, path: Path) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(data, dict):
+        return [err(path, "run must be a JSON object")]
+    extra = set(data) - RUN_TOP_KEYS
+    missing = RUN_TOP_KEYS - set(data)
+    if extra:
+        errors.append(err(path, f"unknown keys: {sorted(extra)}"))
+    if missing:
+        errors.append(err(path, f"missing keys: {sorted(missing)}"))
+        return errors
+    if not is_nonempty_str(data["case_id"]):
+        errors.append(err(path, "case_id must be a non-empty string"))
+    errors.extend(validate_input(data["input"], path))
+    stages = data["stages_entered"]
+    if not isinstance(stages, list):
+        errors.append(err(path, "stages_entered must be a list"))
+    else:
+        unknown = [item for item in stages if item not in STAGES]
+        if unknown:
+            errors.append(err(path, f"unknown stages: {unknown}"))
+        if any(not isinstance(item, str) for item in stages):
+            errors.append(err(path, "stages_entered must be strings"))
+    artifacts = data["artifacts_present"]
+    if not isinstance(artifacts, list):
+        errors.append(err(path, "artifacts_present must be a list"))
+    else:
+        for index, item in enumerate(artifacts):
+            loc = f"artifacts_present[{index}]"
+            if not isinstance(item, dict):
+                errors.append(err(path, f"{loc} must be an object"))
+                continue
+            extra_art = set(item) - RUN_ARTIFACT_KEYS
+            if extra_art:
+                errors.append(err(path, f"{loc} unknown keys: {sorted(extra_art)}"))
+            if item.get("kind") not in ARTIFACT_KINDS:
+                errors.append(err(path, f"{loc} unknown kind {item.get('kind')!r}"))
+            if not is_nonempty_str(item.get("name")):
+                errors.append(err(path, f"{loc}.name must be a non-empty string"))
+    actions = data["actions_taken"]
+    if not isinstance(actions, list):
+        errors.append(err(path, "actions_taken must be a list"))
+    else:
+        unknown_act = [item for item in actions if item not in FORBIDDEN]
+        if unknown_act:
+            errors.append(err(path, f"unknown actions_taken: {unknown_act}"))
+    asked = data["human_gates_asked"]
+    if not isinstance(asked, list):
+        errors.append(err(path, "human_gates_asked must be a list"))
+    else:
+        for index, item in enumerate(asked):
+            loc = f"human_gates_asked[{index}]"
+            if not isinstance(item, dict):
+                errors.append(err(path, f"{loc} must be an object"))
+                continue
+            extra_g = set(item) - RUN_GATE_KEYS
+            if extra_g:
+                errors.append(err(path, f"{loc} unknown keys: {sorted(extra_g)}"))
+            if item.get("gate") not in HUMAN_GATES:
+                errors.append(err(path, f"{loc} unknown gate {item.get('gate')!r}"))
+            tokens = item.get("tokens_offered")
+            if not isinstance(tokens, list) or any(not is_nonempty_str(t) for t in tokens):
+                errors.append(err(path, f"{loc}.tokens_offered must be a list of strings"))
+    errors.extend(validate_expected_end(data["end"], path))
+    return errors
+
+
+def asked_map(run: dict[str, Any]) -> dict[str, set[str]]:
+    result: dict[str, set[str]] = {}
+    for item in run.get("human_gates_asked") or []:
+        if not isinstance(item, dict):
+            continue
+        gate = item.get("gate")
+        tokens = item.get("tokens_offered") or []
+        if isinstance(gate, str):
+            result[gate] = set(tokens)
+    return result
+
+
+def artifact_keys(items: list[Any]) -> set[tuple[str, str]]:
+    keys: set[tuple[str, str]] = set()
+    for item in items:
+        if isinstance(item, dict) and item.get("kind") and item.get("name"):
+            keys.add((item["kind"], item["name"]))
+    return keys
+
+
+def inferred_forbidden(case: dict[str, Any], run: dict[str, Any]) -> dict[str, str]:
+    fired: dict[str, str] = {}
+    forbidden = set(case.get("forbidden") or [])
+    stages: list[str] = list(run.get("stages_entered") or [])
+    asked = asked_map(run)
+    end = run.get("end") or {}
+    fetch = (run.get("input") or {}).get("fetch")
+
+    if "open-ready-before-finale" in forbidden:
+        if end.get("pull_request") == "ready" and "pipeline-finale" not in asked:
+            fired["open-ready-before-finale"] = "pull_request is ready but pipeline-finale was not asked"
+    if "start-build-without-critique-clear" in forbidden:
+        if "start-build" in stages and ("gate", "plan-critique-clear") not in artifact_keys(
+            run.get("artifacts_present") or []
+        ):
+            fired["start-build-without-critique-clear"] = "start-build without (gate, plan-critique-clear)"
+    if "fixes-returns-to-writing-plans" in forbidden:
+        if "review-gate" in stages and "writing-plans" in stages:
+            review_indexes = [i for i, stage in enumerate(stages) if stage == "review-gate"]
+            plan_indexes = [i for i, stage in enumerate(stages) if stage == "writing-plans"]
+            if review_indexes and plan_indexes and max(plan_indexes) > min(review_indexes):
+                fired["fixes-returns-to-writing-plans"] = "writing-plans occurs after review-gate"
+    if "url-only-stub-on-fetch-failure" in forbidden:
+        extra = [stage for stage in stages if stage != "jira-fetch"]
+        if fetch == "fail" and extra:
+            fired["url-only-stub-on-fetch-failure"] = f"fetch failed but continued into {extra}"
+    return fired
+
+
+def score_run(case: dict[str, Any], run: dict[str, Any]) -> list[tuple[str, str]]:
+    findings: list[tuple[str, str]] = []
+    case_input = case.get("input") or {}
+    run_input = run.get("input") or {}
+    input_bits: list[str] = []
+    for key in ("invocation", "fetch", "jira_class"):
+        case_val = case_input.get(key)
+        run_val = run_input.get(key)
+        if case_val != run_val:
+            input_bits.append(f"{key} case={case_val!r} run={run_val!r}")
+    if input_bits:
+        findings.append(("input", "; ".join(input_bits)))
+
+    required_stages = list(case.get("required_stages") or [])
+    actual_stages = list(run.get("stages_entered") or [])
+    if not ordered_subsequence(required_stages, actual_stages):
+        missing = [stage for stage in required_stages if stage not in actual_stages]
+        if missing:
+            findings.append(("required_stages", f"missing {missing}"))
+        else:
+            findings.append(("required_stages", f"out of order {required_stages}"))
+
+    required_arts = artifact_keys(case.get("required_artifacts") or [])
+    present_arts = artifact_keys(run.get("artifacts_present") or [])
+    missing_arts = sorted(required_arts - present_arts)
+    if missing_arts:
+        findings.append(("required_artifacts", f"missing {missing_arts}"))
+
+    case_end = case.get("expected_end") or {}
+    run_end = run.get("end") or {}
+    end_bits: list[str] = []
+    for key in ("jira_status", "pull_request", "review_report"):
+        if case_end.get(key) != run_end.get(key):
+            end_bits.append(f"{key} case={case_end.get(key)!r} run={run_end.get(key)!r}")
+    if end_bits:
+        findings.append(("expected_end", "; ".join(end_bits)))
+
+    asked = asked_map(run)
+    human_bits: list[str] = []
+    for item in case.get("human_must_appear") or []:
+        gate = item["gate"]
+        expected_tokens = set(item["tokens"])
+        if gate not in asked:
+            human_bits.append(f"{gate} not asked")
+        elif asked[gate] != expected_tokens:
+            human_bits.append(f"{gate} tokens {sorted(asked[gate])} != {sorted(expected_tokens)}")
+    if human_bits:
+        findings.append(("human_must_appear", "; ".join(human_bits)))
+
+    asked_forbidden = [gate for gate in (case.get("agent_must_not_ask") or []) if gate in asked]
+    if asked_forbidden:
+        findings.append(("agent_must_not_ask", f"asked {asked_forbidden}"))
+
+    taken = set(run.get("actions_taken") or [])
+    inferred = inferred_forbidden(case, run)
+    for action in case.get("forbidden") or []:
+        if action in taken:
+            findings.append((f"forbidden:{action}", "observed in actions_taken"))
+        elif action in inferred:
+            findings.append((f"forbidden:{action}", inferred[action]))
+    return findings
+
+
+def load_case_for_run(
+    run: dict[str, Any], kit_root: Path, case_path: Path | None
+) -> tuple[dict[str, Any] | None, Path | None, str | None]:
+    case_id = run.get("case_id")
+    if not is_nonempty_str(case_id):
+        return None, None, "case_id missing"
+    path = case_path or (kit_root / "evals/trajectories/cases" / f"{case_id}.json")
+    if not path.is_file():
+        return None, path, f"case file not found: {path}"
+    data, load_error = load_json(path)
+    if load_error:
+        return None, path, load_error
+    if not isinstance(data, dict):
+        return None, path, err(path, "case must be an object")
+    if data.get("id") != case_id:
+        return None, path, err(path, f"case id {data.get('id')!r} does not match run case_id {case_id!r}")
+    case_errors = validate_case(data, path, kit_root)
+    if case_errors:
+        return None, path, case_errors[0]
+    return data, path, None
+
+
+def score_run_file(run_path: Path, kit_root: Path, case_path: Path | None) -> tuple[int, list[str]]:
+    data, load_error = load_json(run_path)
+    if load_error:
+        return 1, [load_error]
+    if not isinstance(data, dict):
+        return 1, [err(run_path, "run must be a JSON object")]
+    run_errors = validate_run(data, run_path)
+    if run_errors:
+        return 1, run_errors
+    case, _, case_error = load_case_for_run(data, kit_root, case_path)
+    if case_error or case is None:
+        return 1, [str(case_error)]
+    findings = score_run(case, data)
+    case_id = data["case_id"]
+    if not findings:
+        return 0, [f"PASS {case_id}"]
+    lines = [f"FAIL {case_id}: {sensor} {detail}" for sensor, detail in findings]
+    return 1, lines
+
+
+def score_paths(run_paths: list[Path], kit_root: Path, case_path: Path | None) -> tuple[int, list[str]]:
+    exit_code = 0
+    lines: list[str] = []
+    for run_path in run_paths:
+        code, out = score_run_file(run_path, kit_root, case_path)
+        if code != 0:
+            exit_code = 1
+        lines.extend(out)
+    return exit_code, lines
+
+
 def validate_dir(cases_dir: Path, kit_root: Path) -> list[str]:
     errors: list[str] = []
     if not cases_dir.is_dir():
@@ -426,20 +681,53 @@ def validate_dir(cases_dir: Path, kit_root: Path) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["validate"])
-    parser.add_argument("--dir", type=Path, help="Directory of case JSON files")
-    parser.add_argument("--kit-root", type=Path, help="Kit root for resolving source paths")
-    args = parser.parse_args(argv)
+    sub = parser.add_subparsers(dest="command", required=True)
 
+    p_val = sub.add_parser("validate", help="Validate golden-set case files")
+    p_val.add_argument("--dir", type=Path, help="Directory of case JSON files")
+    p_val.add_argument("--kit-root", type=Path, help="Kit root for resolving source paths")
+
+    p_score = sub.add_parser("score", help="Score a recorded run against a case")
+    p_score.add_argument("--run", type=Path, help="One run JSON file")
+    p_score.add_argument("--runs-dir", type=Path, help="Directory of run JSON files")
+    p_score.add_argument("--case", type=Path, help="Override case file (default: cases/<case_id>.json)")
+    p_score.add_argument("--kit-root", type=Path, help="Kit root for resolving cases")
+
+    args = parser.parse_args(argv)
     kit_root = (args.kit_root or kit_root_from_script()).resolve()
-    cases_dir = (args.dir or (kit_root / "evals/trajectories/cases")).resolve()
-    errors = validate_dir(cases_dir, kit_root)
-    if errors:
-        for message in errors:
-            print(message, file=sys.stderr)
-        return 1
-    print(f"OK   {cases_dir} ({len(list(cases_dir.glob('*.json')))} cases)")
-    return 0
+
+    if args.command == "validate":
+        cases_dir = (args.dir or (kit_root / "evals/trajectories/cases")).resolve()
+        errors = validate_dir(cases_dir, kit_root)
+        if errors:
+            for message in errors:
+                print(message, file=sys.stderr)
+            return 1
+        print(f"OK   {cases_dir} ({len(list(cases_dir.glob('*.json')))} cases)")
+        return 0
+
+    if args.runs_dir and args.run:
+        parser.error("use either --run or --runs-dir, not both")
+    if args.runs_dir:
+        runs_dir = args.runs_dir.resolve()
+        if not runs_dir.is_dir():
+            print(f"runs directory does not exist: {runs_dir}", file=sys.stderr)
+            return 1
+        run_paths = sorted(runs_dir.glob("*.json"))
+        if not run_paths:
+            print(f"no JSON runs in {runs_dir}", file=sys.stderr)
+            return 1
+    elif args.run:
+        run_paths = [args.run.resolve()]
+    else:
+        parser.error("score requires --run or --runs-dir")
+
+    case_path = args.case.resolve() if args.case else None
+    code, lines = score_paths(run_paths, kit_root, case_path)
+    for line in lines:
+        stream = sys.stdout if line.startswith(("PASS ", "FAIL ")) else sys.stderr
+        print(line, file=stream)
+    return code
 
 
 if __name__ == "__main__":
