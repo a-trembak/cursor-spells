@@ -32,6 +32,7 @@ User-facing output for `engineer-review` / `engineer-reviewer` (and the shared b
 - auth_flow_walk: …   <!-- optional detail when auth walked -->
 - figma_markup: compared | source-only | skipped | n/a   <!-- F7: required when figma phase is in scope -->
 - figma_nodes: …   <!-- optional node ids actually opened -->
+- narrow_viewport: tablet+phone | source-only | skipped | n/a   <!-- V4: required when tables / expandable cards / dialogs / overlays in scope -->
 - review_learnings: loaded N | absent
 - review_learn: appended | deduped | skipped | n/a
 

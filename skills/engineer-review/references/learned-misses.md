@@ -65,6 +65,37 @@ Required check: [fixture-identifier-conventions.md](fixture-identifier-conventio
 
 ---
 
+### `miss_narrow-viewport-layout`
+
+```yaml
+id: miss_narrow-viewport-layout
+miss_class: narrow-viewport-layout
+triggers:
+  - table | DataGrid | columns | breakpoint | hide column
+  - accordion | expandable | Collapse | nested table
+  - Dialog | Modal | Drawer | Popover | overlay
+phases: [figma, patterns]
+gate: V2
+also: [V1, V3, V4]
+rule_one_liner: >-
+  When the diff touches tables, expandable cards, dialogs, or overlays,
+  verify tablet and phone layouts (or existing compact-table patterns)
+  before closing; a desktop Figma frame is not enough.
+anti_pattern: >-
+  Review only the desktop design frame or desktop browser width while
+  dense nested tables, expanders, or overlay chrome collide, clip, or
+  overflow from tablet down to phone.
+hits: 1
+last_seen: 2026-08-27
+source: engineer-review
+```
+
+Mechanism: markup review matches the desktop Figma frame; tablet and phone widths (and existing hide-column / stack / row-expander patterns) are never opened, so overlay chrome and nested tables break only on narrower viewports.
+
+Required check: [responsive-layout-checklist.md](responsive-layout-checklist.md) V1–V4. Figma skip does not waive the gate — `review-patterns` still runs it.
+
+---
+
 ### `miss_figma-eyeball-skip`
 
 ```yaml

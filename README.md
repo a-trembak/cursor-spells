@@ -160,13 +160,13 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | `pr-reviewer` | Same phases as engineer-reviewer; PR Review Canvas + Findings with snippets, clickable links, humanized prose |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
-| `review-patterns` | Project patterns MD (create/enforce) |
+| `review-patterns` | Project patterns MD (create/enforce); frontend also compact-table / narrow-viewport gates (**V1–V4**) |
 | `review-deadcode` | Dead code, unused symbols, comment cleanup |
 | `review-simplify` | Cleanliness / reuse / local efficiency — primary `ce-simplify-code` + kit extensions |
 | `review-architecture` | Architecture gaps |
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
-| `review-figma-markup` | Markup vs Figma (needs node URLs); always [figma-markup-checklist.md](skills/engineer-review/references/figma-markup-checklist.md) F1–F7; on web also `ce-test-browser` |
+| `review-figma-markup` | Markup vs Figma (needs node URLs); always [figma-markup-checklist.md](skills/engineer-review/references/figma-markup-checklist.md) F1–F7; on web also `ce-test-browser` at tablet and phone, not only the desktop frame; [responsive-layout-checklist.md](skills/engineer-review/references/responsive-layout-checklist.md) V1–V4 |
 | `review-learn` | Load hints from kit seed + this project's private ledger; write `.cursor/review-learnings.md` only after `project_secret` |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |

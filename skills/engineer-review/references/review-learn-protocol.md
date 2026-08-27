@@ -6,9 +6,9 @@ After a human marks a miss as **project-private**, capture it in this project's 
 
 | Layer | Responsibility | Token rule |
 |-------|----------------|------------|
-| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 / F1–F7 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
+| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 / F1–F7 / V1–V4 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
 | **`review-learn` (`mode:load`)** | Filter ledgers against the diff; return compact `learned_hints` JSON | Reads ledgers; returns ≤**5** matching hints, ≤**80 tokens** each |
-| **Phase agents** (logic / architecture / security / figma…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
+| **Phase agents** (logic / architecture / security / figma / patterns…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
 
 Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched hint is a **quality regression**; bloating the orchestrator with full ledgers is a **budget regression**. Fix by keeping work in `review-learn` + phases.
 
@@ -16,7 +16,7 @@ Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched 
 
 1. **Never** silently edit kit checklists from a consumer-app review. Kit publishes use skill `teach-review`.
 2. **`project_secret` may keep client / internal product names** — that is why the row stays in this project. Still strip passwords, tokens, and personal data.
-3. **Prefer link-over-invent:** if covered by R1–R7, F1–F7, or another kit gate, record `gate: R#` / `F#` / `I1` — do not duplicate the rule body in the ledger.
+3. **Prefer link-over-invent:** if covered by R1–R7, F1–F7, V1–V4, or another kit gate, record `gate: R#` / `F#` / `V#` / `I1` — do not duplicate the rule body in the ledger.
 4. **Dedup** by `id`. Same class → bump `hits` / `last_seen`.
 5. **Cap** consumer Active at **20**; archive oldest (keep last 20 archived).
 6. **Never** ask HITL **Review-learn promote** on `project_secret` capture.
@@ -115,7 +115,7 @@ review_learn: appended | deduped | skipped | n/a
 
 ## Anti-patterns
 
-- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 / F1–F7 into its own prompt
+- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 / F1–F7 / V1–V4 into its own prompt
 - Phase treating `rule_one_liner` as sufficient and skipping the linked checklist (**quality miss**)
 - Auto-rewriting kit checklists from an app review
 - Auto-capturing into the consumer ledger after a settled report without `project_secret`
@@ -124,3 +124,4 @@ review_learn: appended | deduped | skipped | n/a
 - Asking **Review-learn promote** after `project_secret`
 - Inventing a new R-number or F-number when R1–R7 or F1–F7 already cover the miss
 - Pasting full findings into the ledger
+- Closing a table / expandable-card / overlay UI pass on the desktop Figma frame without **V1–V4** (`responsive-layout-checklist.md`)

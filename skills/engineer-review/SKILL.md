@@ -51,7 +51,7 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 9. Early Figma ask when frontend (above).
 10. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint` + per-phase `learned_hints`). Run `review-lint` first; then parallel **find** for remaining heuristic phases (**including** `review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only. Evidence fields mandatory; clarify needs structured `options` + prefer `recommended` (never invent when null).
 11. After apply: verify `review-lint` + `review-simplify` once each in `find`; do not loop.
-12. Merge → [evidence-gate.md](references/evidence-gate.md) → [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)). Coverage: `graphify:…`, `review_learnings:…`, when in scope `interaction_replay:…` (**R7**), and when in scope `figma_markup:…` (**F7**). Validate with `scripts/validate-review-report.sh`; `english-humanizer` then `plain-language-chat` on prose.
+12. Merge → [evidence-gate.md](references/evidence-gate.md) → [feedback-format.md](references/feedback-format.md) (never [forbidden-formats.md](references/forbidden-formats.md)). Coverage: `graphify:…`, `review_learnings:…`, when in scope `interaction_replay:…` (**R7**), `figma_markup:…` (**F7**), and `narrow_viewport:…` (**V4**). Validate with `scripts/validate-review-report.sh`; `english-humanizer` then `plain-language-chat` on prose.
 13. Needs clarification → HITL **Engineer-review clarify**; each sequential question repeats File, Lines, Jump, and numbered fence; re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
 14. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. **Never edit kit git** in this orchestrator. Do not auto-capture.
     - `no_miss` → do not invoke `teach-review`; do not dispatch `review-learn` `mode:capture`.
@@ -95,7 +95,7 @@ If the caller is `multi-repo-supervisor`, or discovery finds **2+ changed repos*
 
 ## Context budget
 
-Orchestrator loads this SKILL + reference **indexes** + `english-humanizer` + `plain-language-chat` for the final feedback pass. Do **not** paste full third-party skill bodies, ledger files, or interaction-replay / auth / figma-markup checklist bodies into the orchestrator — that is how quality stays high without bloating the reviewer. Subagents and `review-learn` load those themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
+Orchestrator loads this SKILL + reference **indexes** + `english-humanizer` + `plain-language-chat` for the final feedback pass. Do **not** paste full third-party skill bodies, ledger files, or interaction-replay / auth / figma-markup / responsive-layout checklist bodies into the orchestrator — that is how quality stays high without bloating the reviewer. Subagents and `review-learn` load those themselves. Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
 
 `learned_hints` in orchestrator context: ≤**~200 tokens** total (≤5 rows). Quality lives in the phase that opens `checklist` on a match.
 
