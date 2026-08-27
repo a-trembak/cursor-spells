@@ -56,3 +56,13 @@ Never ship a short digest first and promise the real report. The **first** (and 
 ```
 
 Repeat that block for every finding. Length is expected. Compressing into a digest is not allowed.
+
+## Banned: clarify question without file + snippet
+
+A sequential `C#` AskQuestion (or its text fallback) that is only a title and option buttons is a hard failure — even when the report above already had evidence:
+
+```markdown
+C1 — Use existing helper?
+```
+
+Why it fails: the person answering cannot see the code or the file. Repeat File, Lines, Jump, and the numbered fence in the question itself. Title + Jump path is not enough.

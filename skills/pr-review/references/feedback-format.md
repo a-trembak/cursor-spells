@@ -69,7 +69,7 @@ If a phase left `recommended` null, still list Options, omit `(recommended)` on 
 
 > **Recommendation:** none — pick based on product intent.
 
-If **Needs clarification** is non-empty, after the validated report ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled). Text fallback:
+If **Needs clarification** is non-empty, after the validated report ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled). Each sequential `C#` question repeats that item’s **Where** block and numbered code fence. Text fallback:
 
 > Prefer the buttons for each `C#` (one question at a time). Or reply in one message like `C1: A; C2: B` (or free text). I will re-run the affected phases and apply agreed fixes.
 

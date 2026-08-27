@@ -21,7 +21,7 @@ Run the **pr-review** flow (orchestrator `pr-reviewer`) — PR Review Canvas for
 3. Unless `no-canvas`: follow `references/canvas.md` — skill `pr-review-canvas` with the resolved PR URL/number (Cursor plugin; do not vendor). Missing plugin → continue with `skill_missing` in Coverage.
 4. Invoke agent `pr-reviewer` with that range, PR metadata, and mode (`find` or `find`+`apply`).
 5. Run shared `evidence-gate.md` (backfill or drop). Draft full **Findings** (**Context** + File/Lines/Jump/GitHub + numbered fence; Clarify items also **Options** + **Recommendation**) — **never** Verdict/Блокери digest. Validate with `scripts/validate-review-report.sh`; rebuild until exit 0. Then emit; `english-humanizer` then `plain-language-chat` on prose. Point at the canvas if built. Optional PR comment draft only as appendix.
-6. If clarifications remain, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A` / `F2:B`; batch text OK), then re-dispatch affected phases and re-emit with the same evidence bar.
+6. If clarifications remain, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A` / `F2:B`; batch text OK). Each question repeats that item’s File, Lines, Jump, and numbered fence. Then re-dispatch affected phases and re-emit with the same evidence bar.
 
 ## Notes
 
