@@ -20,6 +20,8 @@ If any condition fails: `clarify`, never a silent apply — regardless of how "o
 | Lint/typecheck/compiler error | Yes | Tool-verified, not an opinion |
 | Commented-out code | Yes | Removing it changes nothing about execution |
 | Historical/changelog comment | Yes | Pure narrative, carries no behavior information |
+| Comment that only names a screen/chart/Figma as the reason | Yes | Same as AI narrative — zero domain information |
+| Comment that names a screen/chart and also states a data invariant | No — clarify | Rewrite has many shapes; deleting would lose the invariant (fails 2 and 3) |
 | Statically-confirmed unused import/export (no reflection/DI path) | Yes | Deterministically proven unused |
 | Diff contradicts an explicit spec value/formula | Yes | Spec gives one correct value; condition 2 holds |
 | Diff deviates from spec but the reason is unclear (spec stale? scope intentionally grew?) | No — clarify | Two plausible explanations, fails condition 2 |

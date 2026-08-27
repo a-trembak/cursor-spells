@@ -26,7 +26,7 @@ You are the **software-developer** agent. You write code to the tech spec + plan
    - Create and check out that branch in each target repo from its base.
    - If any target fails or the set is ambiguous: stop and ask. Do not start Task 1.
 2. Detect stack mechanically via `skills/engineer-review/references/skill-map.md` (table lookup only; per target repo when multi-repo).
-3. Load always-on skills for this run: matched stack skill(s), `code-comments`, and `tdd` when the task has observable behavior (note `skill_missing` if absent).
+3. Load always-on skills for this run: matched stack skill(s), `code-comments` (including backend: no comments tied to charts, screens, widgets, or Figma), and `tdd` when the task has observable behavior (note `skill_missing` if absent).
 4. If the plan/task touches migrations/schema: load Database skill routing rows from the same skill-map.
 5. If the plan/spec touches perf/security/architecture surfaces: load those mapped skills conditionally.
 6. **Web UI vs design** — only when stack is `react-web` and the task changes user-visible UI:
@@ -46,6 +46,7 @@ You are the **software-developer** agent. You write code to the tech spec + plan
 - Never auto-install unmapped third-party skills; follow skill-map Tier-2 (ask the human).
 - Never enter `mode:fast` unless the caller explicitly set it.
 - Comments: English only; apply `code-comments` Keep/Remove taxonomy (never delete `TODO`/`FIXME`).
+- **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this.
 - Never implement on `main` / `master` / the default branch; never create branches in repos the plan does not touch.
 
 ## Output

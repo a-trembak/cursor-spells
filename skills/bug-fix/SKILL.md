@@ -56,7 +56,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 - Never ship a symptom-only patch when the root cause is known and in-repo.
 - If Jira/MCP facts conflict with repo evidence: **stop and ask** (HITL via `hitl-choice` when a closed choice exists).
 - Never implement on `main` / `master` / the default branch.
-- Source-code comments: English only; apply `code-comments`.
+- Source-code comments: English only; apply `code-comments`. Never justify a query or transform by naming a chart, screen, or widget.
 
 ## Output
 

@@ -11,6 +11,7 @@ chmod +x scripts/*.sh
 ./scripts/install-to-project.sh /tmp/er-dogfood --hooks --rule
 # or create a tiny git repo and point the script at it
 bash scripts/tests/developer-reviewer-handoff-test.sh   # parent wait + next_skill contract
+bash scripts/tests/code-comments-test.sh                # no design-tied comments, including backend
 bash scripts/tests/pipeline-flow-graph-test.sh          # canvas layers + review-gate naming
 ```
 
