@@ -135,18 +135,50 @@ Build options dynamically from that item's structured choices:
 | `Ci:X` | Option label (e.g. `C1:A` → “Use existing helper Y”). If this `X` is `recommended`, prefix the label with `Recommended: ` |
 | `Ci:other` | Something else (I will type it) |
 
+Each question is **self-contained**. A fixer answering `C2` must not need the report still on screen.
+
 Rules:
 
-1. Prompt: short title + one-line Context + Jump path from the report (do not paste the full code fence into the question).
+1. **Prompt recipe (required shape — paste into the question tool):**
+   - `C#` id and short title
+   - **Context:** 1–2 sentences from the report
+   - **Where:** File path (linked), Lines **start–end**, Jump (`path#Lstart`), GitHub blob when known
+   - The **numbered code fence** from that finding (same `snippet`, already ≤15 lines)
+   - **Ask:** the decision in one or two sentences
+   Option buttons stay in the tool. Do not drop File / Lines / Jump / fence to keep the prompt “short”. If the question tool truncates, repeat File + numbered fence in the same assistant message — still call the tool.
 2. Canonical reply tokens are **`Ci:X`** (no space), e.g. `C1:A`, `C2:B`. Multi-repo uses the same shape with repo prefix already in the id if present (`api:C1:A`).
 3. Mark the recommended option in the **label** only when `recommended` is set; never invent a recommendation.
 4. After `Ci:other`, wait for free text for that item, then continue with the next unanswered `Cj`.
 5. If the user answers in batch chat (`C1: A; C2: B` or `C1:A; C2:B`) at any time, accept those tokens, skip AskQuestion for answered items, and continue only for remaining ones.
-6. Text fallback **only after** failed/missing question tool (see protocol):
+6. Text fallback **only after** failed/missing question tool (see protocol). The fallback message must still include that item’s File, Lines, Jump, and numbered fence — not “see the report above”:
 
-   > Clarifications needed. Prefer answering one `C#` at a time, or reply in one message like `C1: A; C2: B` (or free text). Options and recommendations are in the report above.
+   > Clarifications needed. Prefer answering one `C#` at a time, or reply in one message like `C1: A; C2: B` (or free text). File, line range, and the code snippet for this `C#` are in this message.
 
 7. When every `Ci` is answered, return control to the calling skill to re-dispatch affected phases.
+
+**Example prompt (minimum):**
+
+````
+C1 — New helper duplicates loadUser
+- **Context:** Profile screen loads the signed-in user on mount.
+- **Where:**
+  - File: [`src/bar.ts`](src/bar.ts)
+  - Lines: **40–45**
+  - Jump: [`src/bar.ts:40`](src/bar.ts#L40)
+- **Ask:** Keep the new helper, or call existing `loadUser`?
+
+```ts
+40|  async function loadProfile() {
+41|    return fetchUser();
+42|  }
+```
+````
+
+| Excuse | Reality |
+|--------|---------|
+| "The report already has the snippet" | Sequential questions hide the report. Repeat File + fence. |
+| "AskQuestion is too short for a fence" | Evidence-gate already caps snippets at 15 lines. Paste them. |
+| "Jump path is enough" | A fixer cannot judge options from a path alone. |
 
 ### Force-clear foreign gate
 

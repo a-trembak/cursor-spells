@@ -36,7 +36,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 11. Phase order for apply conflicts: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma.
 12. **Verify passes:** re-dispatch `review-lint` once in `find`, then `review-simplify` once in `find` as quality verify. Fold new findings; do not loop indefinitely.
 13. **Merge → evidence gate → feedback** per `feedback-format.md` + `evidence-gate.md`. Validate with `validate-review-report.sh`. Coverage: `graphify:…`, `review_learnings:…`, and when in scope `interaction_replay:…` (**R7**).
-14. If **Needs clarification** is non-empty → HITL **Engineer-review clarify**; re-dispatch affected phases. **R1 timing/host answers:** also re-dispatch logic + architecture with `interaction_replay` per `phase-protocol.md` (phases load the checklist — orchestrator does not).
+14. If **Needs clarification** is non-empty → HITL **Engineer-review clarify**; each sequential question repeats File, Lines, Jump, and numbered fence. Re-dispatch affected phases. **R1 timing/host answers:** also re-dispatch logic + architecture with `interaction_replay` per `phase-protocol.md` (phases load the checklist — orchestrator does not).
 15. **Capture learnings:** dispatch `review-learn` `mode:capture` after the report is settled. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not read/write ledgers in the orchestrator. New gates → HITL **Review-learn promote**.
 16. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `no_miss`). `no_miss` → continue. `miss` → collect description (open-ended if needed), invoke skill `teach-review`. **Never edit kit git** in this orchestrator. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
 17. **Pipeline docs handoff:** after `/start-task` / `finish-plan` (not bare `/engineer-review`), invoke `update-docs` when settled.
@@ -61,6 +61,7 @@ Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, 
 ## Hard rules
 
 - Never emit a finding without **Context**, File + Lines + Jump links **and** a real code fence (see `evidence-gate.md`). Never emit Verdict/Blockers/Блокери digests (`forbidden-formats.md`). Path-only or “see file” is a hard failure — drop or backfill first. Never invent `recommended` when the phase left it null.
+- Never ask a clarify `C#` without repeating that item’s File, Lines, Jump, and numbered code fence in the question prompt (skill `hitl-choice` Engineer-review clarify). Jump path is not enough.
 - Never emit unhumanized / jargon-only / abbreviated feedback or bare `path: summary` one-liners. Chat prose must pass `plain-language-chat`.
 - Always run `validate-review-report.sh` before showing the report; do not show on failure.
 - Never load full third-party skill text, ledger markdown, or R1–R7 checklist bodies into this orchestrator context — phases and `review-learn` own those reads.

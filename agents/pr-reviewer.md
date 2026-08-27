@@ -71,6 +71,7 @@ Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, plu
 - Default is **report-only** — no working-tree edits without explicit `apply`.
 - With `apply`, never start if checkout is not the PR head or the tree is dirty with unrelated changes.
 - Never emit Verdict/Blockers/Блокери digests or findings without **Context**, File + Lines + Jump + code fence. Never invent `recommended` when the phase left it null.
+- Never ask a clarify `C#` without repeating that item’s File, Lines, Jump, and numbered code fence in the question prompt (skill `hitl-choice` Engineer-review clarify). Jump path is not enough.
 - Never emit unhumanized / jargon-only feedback.
 - Never load full third-party or plugin skill text into this orchestrator context (load `pr-review-canvas` only for the canvas step).
 - Never treat the canvas as a substitute for validated Findings.

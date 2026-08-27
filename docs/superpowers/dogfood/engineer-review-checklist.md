@@ -12,6 +12,7 @@ chmod +x scripts/*.sh
 # or create a tiny git repo and point the script at it
 bash scripts/tests/developer-reviewer-handoff-test.sh   # parent wait + next_skill contract
 bash scripts/tests/code-comments-test.sh                # no design-tied comments, including backend
+bash scripts/tests/clarify-question-evidence-test.sh    # clarify questions include file + snippet
 bash scripts/tests/pipeline-flow-graph-test.sh          # canvas layers + review-gate naming
 ```
 
@@ -66,6 +67,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | P0 correctness finding settled | `review-learn` `mode:capture` appends or dedupes; Coverage `review_learn: appended\|deduped` |
 | Next review with matching triggers | `review-learn` `mode:load` returns hints; orchestrator stays thin; matching phases **open** linked checklist (not one-liner-only) |
 | New gate proposed (`propose:…`) | HITL **Review-learn promote**; default `consumer_only`; kit checklists never auto-edited from a leaf app |
+| Clarify HITL (`C#`) | Each AskQuestion repeats File, Lines, Jump, and the numbered fence from that item — not title-only |
 | Validated report shown | HITL **Teach-review miss**; `no_miss` does not touch kit git; `miss` + description runs `teach-review` |
 
 ## Patterns CI helper
