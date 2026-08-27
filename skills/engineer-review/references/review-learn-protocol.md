@@ -6,9 +6,9 @@ After engineer-review (or a post-escape bug-fix) surfaces a **real miss**, captu
 
 | Layer | Responsibility | Token rule |
 |-------|----------------|------------|
-| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
+| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 / F1–F7 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
 | **`review-learn` (`mode:load`)** | Filter ledgers against the diff; return compact `learned_hints` JSON | Reads ledgers; returns ≤**5** matching hints, ≤**80 tokens** each |
-| **Phase agents** (logic / architecture / security…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
+| **Phase agents** (logic / architecture / security / figma…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
 
 Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched hint is a **quality regression**; bloating the orchestrator with full ledgers is a **budget regression**. Fix by keeping work in `review-learn` + phases.
 
@@ -16,7 +16,7 @@ Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched 
 
 1. **Never** silently edit kit checklists from a consumer-app review.
 2. **Always** generalize: strip product names, ticket ids, and one-off widgets before writing.
-3. **Prefer link-over-invent:** if covered by R1–R7 (or another kit gate), record `gate: R#` — do not duplicate the rule body in the ledger.
+3. **Prefer link-over-invent:** if covered by R1–R7, F1–F7, or another kit gate, record `gate: R#` / `F#` — do not duplicate the rule body in the ledger.
 4. **Dedup** by `id`. Same class → bump `hits` / `last_seen`.
 5. **Cap** consumer Active at **20**; archive oldest (keep last 20 archived).
 6. Kit promotion is **HITL-gated** (or only when cwd is `cursor-spells`).
@@ -94,7 +94,7 @@ Caps: **≤5** hints; prefer highest `hits` then newest `last_seen`. Unmatched /
 
 ### `mode:capture` (after report settled)
 
-1. Max **2** miss classes per round. Generalize; map to existing **R#** when possible.
+1. Max **2** miss classes per round. Generalize; map to existing **R#** or **F#** (or another kit gate such as **I1**) when possible.
 2. Dedup → bump hits (`review_learn: deduped`) or append (`appended`).
 3. New gate (`propose:…`) → HITL **Review-learn promote**. Never auto-patch kit from a leaf app.
 4. Orchestrator records Coverage line only — does not re-read the ledger.
@@ -112,9 +112,9 @@ review_learn: appended | deduped | skipped | n/a
 
 ## Anti-patterns
 
-- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 into its own prompt
+- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 / F1–F7 into its own prompt
 - Phase treating `rule_one_liner` as sufficient and skipping the linked checklist (**quality miss**)
 - Auto-rewriting kit checklists from an app review
 - Ticket-only or widget-only ledger entries
 - Pasting full findings into the ledger
-- Inventing a new R-number when R1–R7 already cover the miss
+- Inventing a new R-number or F-number when R1–R7 or F1–F7 already cover the miss

@@ -38,7 +38,7 @@ Follow `skills/engineer-review/references/review-learn-protocol.md` verbatim.
 ## `mode: capture`
 
 1. Eligibility = protocol triggers A–D. Else `review_learn: n/a`.
-2. ≤**2** miss classes. Generalize. Prefer existing `gate: R#`.
+2. ≤**2** miss classes. Generalize. Prefer existing `gate: R#` / `F#` / another kit gate.
 3. Dedup by `id` → bump hits, or append (create ledger from template if needed). Cap Active at 20.
 4. `propose:…` → tell orchestrator to run HITL **Review-learn promote**. Never edit kit files unless cwd is cursor-spells **and** user chose `promote`.
 

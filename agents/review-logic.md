@@ -37,13 +37,13 @@ Must apply the matching rules (do not hardcode product probes or filter widgets)
 - **R6** — Listener / matcher / `resetApiState` / filter-in-menu changes need a competing-actor regression, not only isolated unwrap tests.
 - **R7** — Coverage must note `interaction_replay: auth|overlay-focus|both|skipped|n/a` when those surfaces are in scope.
 
-### Device-family codes in fixtures (F1, when triggered)
+### Device-family codes in fixtures (I1, when triggered)
 
 Canonical rules: `skills/engineer-review/references/fixture-identifier-conventions.md`.
 
 **Trigger:** tests, fixtures, or test factories pair an identifier code (alert, error, protocol, SKU, or similar) with a device family, platform, product line, or other discriminator.
 
-Must apply **F1**: check each pairing against that family's identifier conventions (production validators, parsers, sibling fixtures, or documented patterns). Do not close on merge, count, or aggregation assertions alone. Do not treat production filters that drop invalid family×code pairs as this miss class.
+Must apply **I1**: check each pairing against that family's identifier conventions (production validators, parsers, sibling fixtures, or documented patterns). Do not close on merge, count, or aggregation assertions alone. Do not treat production filters that drop invalid family×code pairs as this miss class.
 
 ## Output
 

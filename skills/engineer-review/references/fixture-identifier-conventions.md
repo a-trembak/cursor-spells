@@ -6,7 +6,7 @@ Do **not** hardcode product names or ticket ids. Apply the rule; examples are il
 
 ---
 
-## F1 — Codes in fixtures must match the bound family
+## I1 — Codes in fixtures must match the bound family
 
 **Trigger:** the diff adds or changes tests, fixtures, or test factories that pair an identifier code (alert, error, protocol, SKU, or similar) with a device family, platform, product line, or other discriminator (constructor arguments, helper calls, table-driven rows).
 

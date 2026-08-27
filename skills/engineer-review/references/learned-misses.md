@@ -46,7 +46,7 @@ triggers:
   - identifier code paired with device family or platform
   - alert/error/protocol/SKU codes in tests
 phases: [logic]
-gate: F1
+gate: I1
 rule_one_liner: >-
   When tests bind identifier codes to a device family or platform, check
   those codes against that family's identifier conventions — not only that
@@ -61,4 +61,35 @@ source: engineer-review
 
 Mechanism: tests can assert merge or aggregation correctly while the fixture binds a family-restricted identifier to the wrong family. Review that stops at assertion shape misses the invalid pairing.
 
-Required check: [fixture-identifier-conventions.md](fixture-identifier-conventions.md) **F1**. Do not treat production filters that drop invalid family×code pairs as this miss class.
+Required check: [fixture-identifier-conventions.md](fixture-identifier-conventions.md) **I1**. Do not treat production filters that drop invalid family×code pairs as this miss class.
+
+---
+
+### `miss_figma-eyeball-skip`
+
+```yaml
+id: miss_figma-eyeball-skip
+miss_class: figma eyeball skip
+triggers:
+  - figma.com/design | node-id | Figma URL
+  - className | sx | theme token | CSS variable
+  - accordion | tabs | table | dialog | modal
+  - placeholder | empty cell | "--" | muted dashes
+  - gap | padding | Stack | Grid | auto-layout
+phases: [figma]
+gate: F1
+also: [F2, F3, F4, F5, F6, F7]
+rule_one_liner: >-
+  When Figma node URLs exist, walk F1–F7 against rendered UI and source;
+  token and structure mismatches are P1, not nits.
+anti_pattern: >-
+  Treat "looks close enough" or pixel-perfect bikeshed as a pass while
+  skipping auto-layout numbers, tokens, empty states, and DOM vs frames.
+hits: 1
+last_seen: 2026-08-27
+source: production-escape
+```
+
+Mechanism: the phase compares a screenshot or JSX to Figma by vibe and skips readable token, spacing, hierarchy, and empty-placeholder misses.
+
+Required check: [figma-markup-checklist.md](figma-markup-checklist.md) F1–F7.

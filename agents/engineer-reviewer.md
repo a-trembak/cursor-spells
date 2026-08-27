@@ -35,7 +35,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 10. Dispatch phase subagents with the phase-protocol inputs (include `graphify_available`, optional `impact_hint`, optional filtered `learned_hints`). Run `review-lint` first, then heuristic phases (**including** `review-simplify`): parallel `find`, then one coordinated `apply` for `unambiguous && (P0|P1)`. Phase JSON **must** include `path`, `start_line`, `end_line`, `snippet`, and `context`; clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why` (never invent when null).
 11. Phase order for apply conflicts: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma.
 12. **Verify passes:** re-dispatch `review-lint` once in `find`, then `review-simplify` once in `find` as quality verify. Fold new findings; do not loop indefinitely.
-13. **Merge → evidence gate → feedback** per `feedback-format.md` + `evidence-gate.md`. Validate with `validate-review-report.sh`. Coverage: `graphify:…`, `review_learnings:…`, and when in scope `interaction_replay:…` (**R7**).
+13. **Merge → evidence gate → feedback** per `feedback-format.md` + `evidence-gate.md`. Validate with `validate-review-report.sh`. Coverage: `graphify:…`, `review_learnings:…`, when in scope `interaction_replay:…` (**R7**), and when in scope `figma_markup:…` (**F7**).
 14. If **Needs clarification** is non-empty → HITL **Engineer-review clarify**; each sequential question repeats File, Lines, Jump, and numbered fence. Re-dispatch affected phases. **R1 timing/host answers:** also re-dispatch logic + architecture with `interaction_replay` per `phase-protocol.md` (phases load the checklist — orchestrator does not).
 15. **Capture learnings:** dispatch `review-learn` `mode:capture` after the report is settled. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not read/write ledgers in the orchestrator. New gates → HITL **Review-learn promote**.
 16. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `no_miss`). `no_miss` → continue. `miss` → collect description (open-ended if needed), invoke skill `teach-review`. **Never edit kit git** in this orchestrator. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
@@ -64,7 +64,7 @@ Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, 
 - Never ask a clarify `C#` without repeating that item’s File, Lines, Jump, and numbered code fence in the question prompt (skill `hitl-choice` Engineer-review clarify). Jump path is not enough.
 - Never emit unhumanized / jargon-only / abbreviated feedback or bare `path: summary` one-liners. Chat prose must pass `plain-language-chat`.
 - Always run `validate-review-report.sh` before showing the report; do not show on failure.
-- Never load full third-party skill text, ledger markdown, or R1–R7 checklist bodies into this orchestrator context — phases and `review-learn` own those reads.
+- Never load full third-party skill text, ledger markdown, or R1–R7 / F1–F7 checklist bodies into this orchestrator context — phases and `review-learn` own those reads.
 - Never skip HITL on post-plan auto path.
 - Never apply clarify-class or `P2` changes without user answers / explicit request.
 - Clear this plan's `.cursor/gates/review-gate/<slug>` when review starts after a gate. Never delete a foreign slug without HITL `force-clear`.

@@ -50,6 +50,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | After `software-developer` Task returns | Parent (`start-build` / `/start-task`) invokes `finish-plan` (full) or `engineer-reviewer` (`--fast`); nested Task does not `AskQuestion` |
 | User `skip` | Starts engineer-reviewer; deletes marker |
 | Frontend stack | Asks for Figma URLs or `no figma` early |
+| Figma URLs pasted | `review-figma-markup` loads [figma-markup-checklist.md](../../../skills/engineer-review/references/figma-markup-checklist.md) **F1–F7**; Coverage `figma_markup: compared` (or `source-only` if no browser); token/structure/empty-placeholder misses are `P1` clarify, not Residual nits |
 | First run | Creates `.cursor/project-patterns.md` |
 | `lint` phase (runs first) | Runs the project's real `eslint`/`tsc`; flags `import/first` as `P1` unambiguous and auto-fixes it with `eslint --fix` — this must not depend on any heuristic phase noticing it |
 | deadcode phase | Flags unused import + historical comment as `P1` unambiguous; unused export may clarify if unsure of public API |
