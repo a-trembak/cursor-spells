@@ -72,7 +72,7 @@ assert_grep agent_coverage "$AGENT" "figma_markup:"
 assert_grep agent_awaiting_skipped "$AGENT" "awaiting_figma_urls"
 assert_grep agent_awaiting_not_na "$AGENT" "awaiting_figma_urls.*skipped"
 assert_grep f7_awaiting_skipped "$CHECKLIST" "awaiting_figma_urls"
-assert_grep learn_capture_f_gates "$LEARN_PROTO" "map to existing \\*\\*R#\\*\\* or \\*\\*F#\\*\\*"
+assert_grep learn_capture_f_gates "$LEARN_PROTO" "[Mm]ap to existing \\*\\*R#\\*\\* or \\*\\*F#\\*\\*"
 
 # The old cop-out that let reviewers skip token/structure misses
 assert_absent agent_bikeshed_copout "$AGENT" "Do not bikeshed pixel-perfect without tokens/evidence"
