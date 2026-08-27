@@ -33,3 +33,32 @@ Mechanism: a timing or list-re-render side-effect interacts with actors that sta
 Required check: [interaction-replay-checklist.md](interaction-replay-checklist.md) R1–R7. Auth shape: [auth-rtk-checklist.md](auth-rtk-checklist.md).
 
 Test shape: competing actor (active subscription **or** open menu with focused search) across the side-effect — not isolated unwrap/matcher-only tests.
+
+---
+
+### `miss_device-family-specific-codes-in-fixtures`
+
+```yaml
+id: miss_device-family-specific-codes-in-fixtures
+miss_class: device-family-specific codes in fixtures
+triggers:
+  - test fixture | test factory | table-driven test
+  - identifier code paired with device family or platform
+  - alert/error/protocol/SKU codes in tests
+phases: [logic]
+gate: F1
+rule_one_liner: >-
+  When tests bind identifier codes to a device family or platform, check
+  those codes against that family's identifier conventions — not only that
+  merge or aggregation logic is asserted.
+anti_pattern: >-
+  Pairing a family-restricted code with a fixture for a family that does
+  not use that shape, while only reviewing merge or count assertions.
+hits: 1
+last_seen: 2026-08-27
+source: engineer-review
+```
+
+Mechanism: tests can assert merge or aggregation correctly while the fixture binds a family-restricted identifier to the wrong family. Review that stops at assertion shape misses the invalid pairing.
+
+Required check: [fixture-identifier-conventions.md](fixture-identifier-conventions.md) **F1**. Do not treat production filters that drop invalid family×code pairs as this miss class.
