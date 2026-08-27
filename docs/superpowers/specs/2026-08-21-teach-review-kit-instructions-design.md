@@ -30,11 +30,11 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 | `auto_push` | Branch `learn/…` + `git push` only (no pull request) |
 | `draft_merge` | Same branch shape + **draft** pull request into kit `main` |
 | Local checkout | **Remote only** — do not merge/switch the kit checkout. Next review stays on old instructions until the human merges `learn/…` into `main` and updates the checkout |
-| Consumer ledger | Out of scope for this loop. `review-learn` + `.cursor/review-learnings.md` stay as they are |
+| Consumer ledger | Out of scope for this loop’s kit git. Routing of local vs kit stores: [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md) |
 
 ## Non-goals
 
-- Replacing `review-learn` `mode:load` / `mode:capture` or deleting consumer ledgers.
+- Deleting consumer ledgers or `review-learn` `mode:load`. Capture eligibility is narrowed in [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md).
 - Auto-merging to `main` (neither land mode merges).
 - Updating the local kit `main` checkout after push.
 - Writing instructions into the consumer application repository.
@@ -271,9 +271,7 @@ Runtime edits when teaching a **new** phase (produced by the skill, not by this 
 
 ## Relationship to `review-learn`
 
-Orthogonal. Production escapes and consumer-ledger capture stay on `/capture-escape` and `review-learn`. Skill `teach-review` (this spec) is the path that edits kit instructions and lands on the kit remote. Do not auto-run both on the same miss unless the human invoked both.
-
-The old HITL **Review-learn promote** (`consumer_only` / `promote` / `skip`) is unchanged for the ledger path.
+Superseded for store routing by [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md): shareable misses use this skill; `.cursor/review-learnings.md` only on `project_secret`. Do not run both stores on the same miss. Kit git / land rules in this spec still apply.
 
 ## Success
 

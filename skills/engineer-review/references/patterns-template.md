@@ -77,9 +77,9 @@ Fill when the UI has stateful inputs inside hosts that re-render children on eac
 - Changing filter-in-menu requires a competing-actor test: typing N characters keeps focus and value
 - Kit: `skills/engineer-review/references/interaction-replay-checklist.md` (**R4**, **R6**)
 
-## Review learnings (self-strengthen)
+## Review learnings (project-private)
 
-- Ledger path: `.cursor/review-learnings.md` (create on first eligible miss; template in kit)
+- Ledger path: `.cursor/review-learnings.md` (create only after `project_secret`; template in kit)
 - Protocol: kit `skills/engineer-review/references/review-learn-protocol.md`
 - Kit seed always loaded: `skills/engineer-review/references/learned-misses.md`
-- After P0 / production-escape: append generalized miss class (dedup by id); never auto-edit kit checklists from this repo
+- Shareable misses: skill `teach-review`. Local ledger only when the human chooses `project_secret` (client names that must not enter the kit)

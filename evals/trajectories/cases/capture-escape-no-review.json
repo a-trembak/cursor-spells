@@ -26,6 +26,6 @@
     "jira_status": null,
     "pull_request": "absent",
     "review_report": "absent",
-    "notes": "Promote HITL only when a new kit gate is proposed. No engineer-reviewer dispatch."
+    "notes": "Capture-escape destination chooses the store. No engineer-reviewer dispatch. Never Review-learn promote."
   }
 }

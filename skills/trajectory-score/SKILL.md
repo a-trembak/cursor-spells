@@ -77,8 +77,8 @@ A dishonest agent can still write a canned PASS ledger. First slice is orchestra
 | `start-issue-story-stays-issue` | Explicit `/start-issue-task` after fix-plan + critic, even when type is Story | `--invocation "/start-issue-task PROJ-1" --jira-class feature` |
 | `review-gate-fixes-to-build` | `/finish-plan` after the human picked `fixes` **and** `software-developer` returned | `--invocation "/finish-plan" --fetch skip`. Then re-ask review-gate |
 | `critic-blocks-flawed-plan` | Verdict blocked on the fixture notification-plugin plan; after critic-blocked was asked | Exact fixture invocation. Tokens may be any non-empty `revise` / `accept F<id>` set. Plan file must stay byte-identical |
-| `capture-escape-no-review` | `/capture-escape` typical path (no `gate: propose`) | Do **not** ask review-learn-promote |
-| `capture-escape-promote-new-gate` | `/capture-escape` when capture proposes `gate: propose:` | After Review-learn promote was asked (`consumer_only,promote,skip`) |
+| `capture-escape-no-review` | `/capture-escape` after **Capture-escape destination** (typical path; no engineer-reviewer) | Do **not** ask review-learn-promote. Score this for both `miss` and `project_secret` |
+| `capture-escape-promote-new-gate` | Retired. `/capture-escape` never asks Review-learn promote; kit publishes go through `teach-review` on `miss` | Do not score this case |
 | `tech-spec-no-invented-facts` | `/write-tech-spec` with the order-export acceptance criteria, after entry + decision-blocker + tech-spec-gate | Run skill `trajectory-judge` first, then score |
 | `clean-revise-no-archaeology` | `clean-decision-docs` on a forced revise, after tech-spec-gate | Run skill `trajectory-judge` first, then score |
 | `create-pr-draft-never-merge` | Four-token Pipeline finale (`jira_key` known) after the ask, before `gh pr ready` | See skill `create-pr`. Observe OPEN drafts via `gh pr view` |

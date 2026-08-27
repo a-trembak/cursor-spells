@@ -3,16 +3,18 @@ name: teach-review
 description: >-
   Turn a human remark about an engineer-review miss into generalized kit
   instructions (checklist, skill, or agent), commit on learn/…, and land on
-  the cursor-spells remote. Use after Teach-review miss (miss) or /teach-review.
+  the cursor-spells remote. Use after Teach-review miss (miss), Capture-escape
+  destination (miss), or /teach-review.
 ---
 
 # Teach-review
 
-You write **kit instructions**, not a consumer ledger. Do not edit the application repository. Do not invoke `review-learn` `mode:capture` as a substitute.
+You write **kit instructions**, not a consumer ledger. Do not edit the application repository. Do not invoke `review-learn` `mode:capture` as a substitute — that path is only `project_secret`.
 
 ## When to Use
 
 - Human chose `miss` after a validated `engineer-reviewer` / `pr-reviewer` report and pasted a description
+- Human chose `miss` on **Capture-escape destination**
 - Slash command `/teach-review` (argument is the description)
 
 ## Inputs

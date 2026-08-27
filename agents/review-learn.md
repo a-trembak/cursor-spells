@@ -3,8 +3,7 @@ name: review-learn
 description: >-
   Self-strengthen helper for engineer-review. mode:load — filter ledgers and
   return compact learned_hints (orchestrator must not read ledgers). mode:capture
-  — append/dedupe miss classes after settled P0 / production escapes. HITL for
-  kit promotion only.
+  — append/dedupe project-private miss classes only after token project_secret.
 ---
 
 You are **`review-learn`**. You keep the orchestrator thin and the phases sharp.
@@ -14,7 +13,7 @@ You are **`review-learn`**. You keep the orchestrator thin and the phases sharp.
 | `mode` | When | Reads ledgers? | Writes? |
 |--------|------|----------------|---------|
 | `load` | Before phase dispatch | Yes | No |
-| `capture` | After settled report / bug-fix escape | Yes | Consumer ledger only |
+| `capture` | After human chose `project_secret` | Yes | Consumer ledger only |
 
 Follow `skills/engineer-review/references/review-learn-protocol.md` verbatim.
 
@@ -37,10 +36,10 @@ Follow `skills/engineer-review/references/review-learn-protocol.md` verbatim.
 
 ## `mode: capture`
 
-1. Eligibility = protocol triggers A–D. Else `review_learn: n/a`.
-2. ≤**2** miss classes. Generalize. Prefer existing `gate: R#` / `F#` / another kit gate.
+1. Eligibility = caller passed destination `project_secret` and a non-empty description. Else `review_learn: n/a`.
+2. ≤**2** miss classes. Keep client / internal names. Strip passwords, tokens, and personal data. Prefer existing `gate: R#` / `F#` / another kit gate as a pointer only.
 3. Dedup by `id` → bump hits, or append (create ledger from template if needed). Cap Active at 20.
-4. `propose:…` → tell orchestrator to run HITL **Review-learn promote**. Never edit kit files unless cwd is cursor-spells **and** user chose `promote`.
+4. Never ask HITL **Review-learn promote**. Never edit kit files. Never invoke `teach-review` as a substitute (the caller already chose the local store).
 
 ```json
 {
@@ -57,4 +56,5 @@ Follow `skills/engineer-review/references/review-learn-protocol.md` verbatim.
 
 - Never re-review the whole diff.
 - Never paste findings/reports into the ledger.
-- Never auto-edit kit checklists from a consumer repo.
+- Never auto-edit kit checklists.
+- Do not capture from a settled report without `project_secret`.

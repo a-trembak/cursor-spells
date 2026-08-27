@@ -399,7 +399,7 @@ flowchart TD
 
 Auto-fix requires all four: deterministic check, single correct answer, no information loss, zero blast radius on data/UX. Traceability drift and migrations are always `clarify`.
 
-After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch; does not merge to `main`).
+After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
 
 ---
 
@@ -456,7 +456,9 @@ flowchart LR
   multi["/multi-review"] --> multiDirect[["multi-repo-supervisor"]]
   issue["/start-issue-task"] --> issuePipe[["Jira MCP + bug-fixer + create-pr finale"]]
   fast["/start-task --fast"] --> fastPipe[["fetch + brief + mode:fast + review + create-pr finale"]]
-  escape["/capture-escape"] --> learnPipe[["review-learn capture production-escape"]]
+  escape["/capture-escape"] --> dest[/"miss vs project_secret"/]
+  dest -->|miss| teachEsc[["teach-review"]]
+  dest -->|project_secret| learnPipe[["review-learn capture production-escape"]]
 ```
 
 `/critique-plan` alone does **not** write `plan-critique-clear/<slug>` for build — prefer `/approve-plan` so plan HITL is not skipped.

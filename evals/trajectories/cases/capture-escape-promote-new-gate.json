@@ -4,7 +4,7 @@
   "source": "commands/capture-escape.md",
   "pipeline": "slice",
   "end_to_end": false,
-  "status": "active",
+  "status": "draft",
   "input": {
     "invocation": "/capture-escape",
     "fetch": "skip",
@@ -28,6 +28,6 @@
     "jira_status": null,
     "pull_request": "absent",
     "review_report": "absent",
-    "notes": "Promote HITL only when capture proposes gate: propose. No engineer-reviewer dispatch."
+    "notes": "Retired: Capture-escape destination replaced Review-learn promote. Kit publishes use teach-review on miss."
   }
 }
