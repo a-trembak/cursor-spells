@@ -58,7 +58,7 @@ Never implement on the default branch. Never invent repos the plan does not touc
 1. **Stack detection** — mechanical table lookup in `skills/engineer-review/references/skill-map.md` (same signals as engineer-review). Zero inventing of stack labels. Detect **per target repo** when the run spans multiple.
 2. **Always-on for this run:**
    - matched stack skill(s) from the map
-   - `code-comments` (this kit) while writing
+   - `code-comments` (this kit) while writing — including backend services: no comments tied to charts, screens, widgets, or Figma
    - `mattpocock/skills@tdd` when the task has observable behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions)
 3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from skill-map § Database skill routing
 4. **Conditional** — only if the plan/spec touches that surface: performance / security / architecture skills from the map
@@ -77,6 +77,7 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - Do not silently change the data model described in the tech spec (full path)
 - If plan/spec/brief conflicts with the repo: **stop and ask** — do not silently deviate
 - Source-code comments: English only; apply `code-comments` Keep/Remove taxonomy
+- **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this
 - Do not write implementation commits on `main` / `master` / the default branch
 
 ## Execution engine
