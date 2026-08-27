@@ -6,9 +6,9 @@ After engineer-review (or a post-escape bug-fix) surfaces a **real miss**, captu
 
 | Layer | Responsibility | Token rule |
 |-------|----------------|------------|
-| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
+| **Orchestrator** (`engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 / V1–V4 bodies | Pass paths + compact JSON from `review-learn`; max **~200 tokens** of hints in its own context |
 | **`review-learn` (`mode:load`)** | Filter ledgers against the diff; return compact `learned_hints` JSON | Reads ledgers; returns ≤**5** matching hints, ≤**80 tokens** each |
-| **Phase agents** (logic / architecture / security…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
+| **Phase agents** (logic / architecture / security / figma / patterns…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `responsive-layout-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
 
 Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched hint is a **quality regression**; bloating the orchestrator with full ledgers is a **budget regression**. Fix by keeping work in `review-learn` + phases.
 
@@ -112,9 +112,10 @@ review_learn: appended | deduped | skipped | n/a
 
 ## Anti-patterns
 
-- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 into its own prompt
+- Orchestrator loading full `learned-misses.md` / consumer ledger / R1–R7 / V1–V4 into its own prompt
 - Phase treating `rule_one_liner` as sufficient and skipping the linked checklist (**quality miss**)
 - Auto-rewriting kit checklists from an app review
 - Ticket-only or widget-only ledger entries
 - Pasting full findings into the ledger
 - Inventing a new R-number when R1–R7 already cover the miss
+- Closing a table / expandable-card / overlay UI pass on the desktop Figma frame without **V1–V4** (`responsive-layout-checklist.md`)

@@ -30,6 +30,7 @@ User-facing output for `engineer-review` / `engineer-reviewer` (and the shared b
 - graphify: used | absent | unqueryable
 - interaction_replay: auth | overlay-focus | both | skipped | n/a   <!-- R7: required when auth/session or overlay/filter in scope -->
 - auth_flow_walk: …   <!-- optional detail when auth walked -->
+- narrow_viewport: tablet+phone | source-only | skipped | n/a   <!-- V4: required when tables / expandable cards / dialogs / overlays in scope -->
 - review_learnings: loaded N | absent
 - review_learn: appended | deduped | skipped | n/a
 

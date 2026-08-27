@@ -77,6 +77,15 @@ Fill when the UI has stateful inputs inside hosts that re-render children on eac
 - Changing filter-in-menu requires a competing-actor test: typing N characters keeps focus and value
 - Kit: `skills/engineer-review/references/interaction-replay-checklist.md` (**R4**, **R6**)
 
+## Compact tables / narrow viewports
+
+Fill when the UI has data tables, expandable cards, or overlays. Leave N/A otherwise.
+
+- Breakpoints (tablet / phone, or theme tokens):
+- Compact-table pattern: hide columns | stack cells | row expanders | other:
+- Overlay / dialog overflow: nested tables and expander chrome must not clip at tablet or phone
+- Kit: `skills/engineer-review/references/responsive-layout-checklist.md` (**V1–V4**). Figma desktop frame is not a skip.
+
 ## Review learnings (self-strengthen)
 
 - Ledger path: `.cursor/review-learnings.md` (create on first eligible miss; template in kit)

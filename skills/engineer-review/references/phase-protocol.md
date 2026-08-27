@@ -138,7 +138,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 
 - `lint`: no resolvable lint/typecheck config for the detected stack → `skipped: true` with reason `no_lint_config`; tool not runnable in this environment → `skipped: true` with reason `tooling_unavailable` (note in Coverage — humans should know automated lint did not run)
 - `security`: no sensitive surface in diff → `skipped: true`
-- `figma`: not frontend, or no Figma URLs yet → `skipped: true` with reason `awaiting_figma_urls` or `not_frontend` or `user_said_no_figma`
+- `figma`: not frontend, or no Figma URLs yet → `skipped: true` with reason `awaiting_figma_urls` or `not_frontend` or `user_said_no_figma`. Skip does **not** waive **V1–V4**; `patterns` still runs them on frontend.
 - `patterns` first run: may create patterns file; that is not a skip
 
 ## Orchestrator merge
@@ -148,6 +148,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
 - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
+- When tables, expandable cards, dialogs, or overlays are in scope: Coverage **must** note `narrow_viewport: tablet+phone|source-only|skipped|n/a` (**V4**). Figma skip does not waive this — `review-patterns` still records it. Detail: [`responsive-layout-checklist.md`](responsive-layout-checklist.md).
 - Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
 
 ## Post-clarify re-sim (R1 — timing / listeners / host remount)

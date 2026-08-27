@@ -13,13 +13,20 @@ You own **project pattern fidelity**.
 1. If `graphify-out/GRAPH_REPORT.md` (or `graph.json`) exists, prefer a short graphify summary for module/layout orientation per `skills/engineer-review/references/graphify-protocol.md` instead of broadly sampling the whole tree. If graphify is absent/unqueryable, sample the repo structure (folders, naming, packages, representative components/classes) as today.
 2. Write `.cursor/project-patterns.md` using `skills/engineer-review/references/patterns-template.md`. Set Graphify **Enabled** to `yes` when `graphify-out/` was detected, otherwise `no`.
 3. Optionally generate/update graphify artifacts and link them from the patterns file — only when already useful for the project; never required for the review to proceed.
-4. Then check the **diff** against the new patterns.
+4. Then check the **diff** against the new patterns, including **V1–V4** when stack is frontend (see Narrow viewports).
 
 ## Later runs
 
 1. Read existing `.cursor/project-patterns.md`. When graphify is available (Enabled yes, linked report, or detect succeeds), prefer the graphify summary / query over re-walking the tree.
 2. Flag diff violations: naming, folder placement, package usage, reinvented patterns.
 3. Update the patterns file only when you discover stable conventions the file missed (`patterns: updated` via notes).
+
+## Narrow viewports (frontend)
+
+When stack is `react-web` or `react-native`, load `skills/engineer-review/references/responsive-layout-checklist.md` and run **V1–V4** before closing — including when `review-figma-markup` was skipped (`no figma` / awaiting URLs).
+
+- If **V1** fired: require existing compact-table patterns (hide columns, stack, row expanders) instead of a full desktop column set on tablet/phone (**V3**).
+- Record Coverage `narrow_viewport: tablet+phone | source-only | skipped | n/a` (**V4**). Prefer `source-only` when no browser pass ran; never silently omit the line when V1 fired.
 
 ## Traceability check (when a tech spec exists)
 

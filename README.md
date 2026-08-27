@@ -160,13 +160,13 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | `pr-reviewer` | Same phases as engineer-reviewer; PR Review Canvas + Findings with snippets, clickable links, humanized prose |
 | `review-lint` | Runs real project tooling (eslint/tsc/checkstyle/…) — catches mechanical rule violations heuristic phases miss |
 | `review-logic` | Correctness + stack best practices |
-| `review-patterns` | Project patterns MD (create/enforce) |
+| `review-patterns` | Project patterns MD (create/enforce); frontend also compact-table / narrow-viewport gates (**V1–V4**) |
 | `review-deadcode` | Dead code, unused symbols, comment cleanup |
 | `review-simplify` | Cleanliness / reuse / local efficiency — primary `ce-simplify-code` + kit extensions |
 | `review-architecture` | Architecture gaps |
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
-| `review-figma-markup` | Markup vs Figma (needs node URLs); on web also `ce-test-browser` |
+| `review-figma-markup` | Markup vs Figma (needs node URLs); on web also `ce-test-browser` at tablet and phone, not only the desktop frame |
 | `review-learn` | After settled review — append generalized miss classes to `.cursor/review-learnings.md` (self-strengthen) |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |

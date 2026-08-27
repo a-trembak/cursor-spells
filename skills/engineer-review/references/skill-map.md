@@ -71,13 +71,13 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 |-------|----------|
 | lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
 | logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
-| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)) |
+| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); frontend always-on [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped |
 | deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent"; prefer graphify callers when available |
 | simplify | **Primary:** compound-engineering `ce-simplify-code` (read SKILL + `references/personas/{code-reuse,code-quality,efficiency}-reviewer.md` verbatim), then **always** [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **Fallback** if skill missing: Lens A–C + Kit extensions + note `skill_missing: ce-simplify-code`. Prefer graphify callers when available |
 | architecture | `architecture-review` (Sentry Warden) + patterns; prefer graphify call/impact queries when available; add the matching row from Database skill routing above whenever the diff includes a migration |
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native`; prefer graphify impact neighborhood when available |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
-| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; on `react-web` also `ce-test-browser` (rendered UI vs Figma) |
+| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; on `react-web` also `ce-test-browser` (rendered UI vs Figma) at **tablet and phone** when the diff touches tables, expandable cards, dialogs, or overlays — not only the desktop frame; always-on kit [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), also loaded by `review-patterns` when figma is skipped |
 | learn | [review-learn-protocol.md](review-learn-protocol.md) + kit [learned-misses.md](learned-misses.md) + consumer `.cursor/review-learnings.md` — no third-party skill |
 | cross-repo | workspace `graphify-out/`; prefer `graphify-labs/graphify@graphify` when available (optional install) |
 
