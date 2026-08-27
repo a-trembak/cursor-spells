@@ -148,6 +148,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
 - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
+- When the figma phase is in scope (frontend + node URLs, not `user_said_no_figma`): Coverage **must** note `figma_markup: compared|source-only|skipped|n/a` (**F7**). Optional: `figma_nodes: …`. Detail: [`figma-markup-checklist.md`](figma-markup-checklist.md).
 - Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
 
 ## Post-clarify re-sim (R1 — timing / listeners / host remount)

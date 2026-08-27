@@ -166,7 +166,7 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | `review-architecture` | Architecture gaps |
 | `review-performance` | Performance |
 | `review-security` | Security (conditional) |
-| `review-figma-markup` | Markup vs Figma (needs node URLs); on web also `ce-test-browser` |
+| `review-figma-markup` | Markup vs Figma (needs node URLs); always [figma-markup-checklist.md](skills/engineer-review/references/figma-markup-checklist.md) F1–F7; on web also `ce-test-browser` |
 | `review-learn` | After settled review — append generalized miss classes to `.cursor/review-learnings.md` (self-strengthen) |
 | `multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |
 | `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |

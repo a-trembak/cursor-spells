@@ -54,7 +54,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
    - Build **Findings** only in the full Context + Where + numbered fence shape — never a Blockers digest. Clarify items include **Options** + **Recommendation** (or “none”).
    - What / Where / Why / Ask-or-fix; run `english-humanizer` then `plain-language-chat` on prose.
    - Validate: `validate-review-report.sh` on the draft markdown; rebuild until exit 0.
-   - Coverage notes `graphify: used|absent|unqueryable` and canvas `built|skipped|skill_missing`.
+   - Coverage notes `graphify: used|absent|unqueryable`, canvas `built|skipped|skill_missing`, and when in scope `figma_markup: compared|source-only|skipped|n/a` (**F7**).
 12. Emit the validated **PR Review** report; point at the canvas if built; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.
 13. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text OK). On answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator. Do **not** rebuild the canvas unless the PR head moved or the user asks.
 14. After the report is settled, run `review-learn` per `review-learn-protocol.md` (same self-strengthen loop as engineer-review). New gates → HITL **Review-learn promote**.
