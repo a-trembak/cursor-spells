@@ -38,7 +38,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
    - Else read and follow skill `pr-review-canvas` (Cursor plugin; do not vendor the body) with the resolved PR URL/number; write the `.canvas.tsx` per the Canvas skill.
    - Canvas = diff orientation only. It does **not** replace Findings or the evidence gate.
    - If missing: continue; Coverage `skill_missing: pr-review-canvas`.
-4. Detect stack via `skills/engineer-review/references/skill-map.md`.
+4. Detect stack via [`skill-map.md`](../skills/engineer-review/references/skill-map.md).
 5. Budget (`git diff --name-only` + `--numstat`) — same caps as engineer-review (>40 files or >2500 LOC).
 6. **Graphify scoping (preferred when present):** apply `skills/engineer-review/references/graphify-protocol.md` — detect, impact query, compact `impact_hint`; absent/unqueryable → no-op. Never rebuild; never paste `graph.json`. Prefer graph modules for chunk boundaries when chunking.
 7. Ensure `.cursor/project-patterns.md` in the **current project** (create via `review-patterns` if missing).
