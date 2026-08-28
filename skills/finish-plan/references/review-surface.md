@@ -1,12 +1,12 @@
 # Review surface (before review-gate HITL)
 
-Intermediate convenience step: show the finished work in the human's Cursor client **before** asking `skip` / `approve` / `done` / `fixes`. This **does not end the pipeline**.
+Intermediate convenience step: give the human a **draft** GitHub pull request URL they can open in Cursor, with local folders on the feature branch, **before** asking `skip` / `approve` / `done` / `fixes`. This **does not end the pipeline**.
 
-The human looks at the merge-base diff (the pull request tab in Cursor), leaves the changes as they are or describes fixes, then answers the gate. After `skip` / `approve` / `done`, **engineer-review** runs, then `update-docs`, then `create-pr` (the real shipping draft). Do not open a GitHub pull request here.
+The human opens that draft in Cursor, looks at the changes, leaves them as they are or describes fixes, then answers the gate. After `skip` / `approve` / `done`, **engineer-review** runs, then `update-docs`. Later `create-pr` `mode:pipeline` **reuses** the same draft and only then asks Pipeline finale. Do not mark the draft ready here. Do not ask Pipeline finale here.
 
 ## When
 
-Skill `finish-plan`, after the review-gate marker is written, **before** skill `hitl-choice` (Finish-plan HITL). **Re-run review-surface** after `fixes` land, before asking the same gate again.
+Skill `finish-plan`, after the review-gate marker is written, **before** skill `hitl-choice` (Finish-plan HITL). **Re-run review-surface** after `fixes` land, before asking the same gate again (push new commits onto the same draft).
 
 Not for manual `/engineer-review` (no review-gate). Not for `/start-task --fast` or `/start-issue-task` (those skip this HITL).
 
@@ -33,7 +33,7 @@ For **each** `repo → branch` in the map:
 
 6. Repeat for **every** repo in the map (same branch name in each).
 
-## 2. Activate the pull request tab
+## 2. Activate the Cursor pull request tab
 
 For **each** open folder from step 1, call the session tool **`SetActiveBranch`**:
 
@@ -42,17 +42,31 @@ For **each** open folder from step 1, call the session tool **`SetActiveBranch`*
 | `path` | Absolute git root of the folder the human has open |
 | `branchName` | The shared feature branch |
 
-This is what shows the merge-base diff in the client's pull request tab. It is **not** a GitHub pull request. Calling it for only one repo in a multi-repo workspace leaves the other folders on the old branch.
+This is what shows the related draft in the client's pull request tab. Calling it for only one repo in a multi-repo workspace leaves the other folders on the old branch.
 
-Attempt the call. Do not skip because you are “unsure the tool exists”. If the tool is missing after a hard not-found, keep the `git checkout` and say in chat that the pull request tab could not be activated.
+Attempt the call. Do not skip because you are “unsure the tool exists”. If the tool is missing after a hard not-found, keep the `git checkout` and still paste the draft URL in chat.
 
-Do **not** `git push`. Do **not** invoke skill `create-pr`. Do **not** run `gh pr create`. The shipping draft comes later, after engineer-review and `update-docs`.
+## 3. Open a draft pull request and paste the URL
 
-## 3. Then ask HITL — pipeline continues
+After checkouts and `SetActiveBranch`:
 
-Only after steps 1–2 were attempted, ask skill `hitl-choice` preset **Finish-plan / engineer-review / multi-repo HITL**.
+1. Invoke skill `create-pr` with **`mode:surface`** (commit remaining intentional files if needed, push, create or reuse a **draft** GitHub pull request per changed repo).
+2. **Stop after step 7** of `create-pr`. Do not ask Pipeline finale. Do not run trajectory score. Do not `gh pr ready`. Do not merge. Do not invoke `jira-transition`.
+3. Paste each draft URL in chat (and in the HITL prompt). The human opens that link in Cursor.
+4. If `gh` / auth fails: report the error, keep the local checkouts and `SetActiveBranch`, and continue to the HITL question. A missing remote draft must not block the human's local look.
+5. If the harness has `ManagePullRequest` `create_pr` and no working `gh`: open a **draft** that way. Still never mark ready.
 
-In the question prompt, include each `repo → branch` so the human can open the tab. State clearly that this is their own look at the diff, not the end of the pipeline: after `approve` / `done` / `skip`, engineer-review starts.
+```bash
+gh pr create --draft --title "<title>" --body "<body>"
+```
+
+Later `create-pr` `mode:pipeline` (after engineer-review and `update-docs`) reuses these drafts and then asks Pipeline finale.
+
+## 4. Then ask HITL — pipeline continues
+
+Only after steps 1–3 were attempted, ask skill `hitl-choice` preset **Finish-plan / engineer-review / multi-repo HITL**.
+
+In the question prompt, include each `repo → branch` **and each draft pull request URL**. State clearly that this is their own look at the draft, not the end of the pipeline: after `approve` / `done` / `skip`, engineer-review starts.
 
 Do not ask Pipeline finale.
 
@@ -61,5 +75,5 @@ Do not ask Pipeline finale.
 - Never ask the review-gate HITL before attempting this protocol.
 - Never treat a linked worktree as the human's open folder.
 - Never skip `SetActiveBranch` for a repo that was checked out.
-- Never invoke `create-pr` here. Never `gh pr create`. Never `gh pr ready`. Never merge. Never ask Pipeline finale.
+- Never mark the draft ready. Never merge. Never ask Pipeline finale.
 - After `skip` / `approve` / `done`, continue `finish-plan` into engineer-review. Do not stop as if the pipeline were finished.

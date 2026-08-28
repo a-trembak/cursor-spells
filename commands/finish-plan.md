@@ -7,7 +7,7 @@ description: Mark plan complete and enter engineer-review HITL gate
 Run skill `finish-plan`:
 
 1. Resolve the plan path, then write `.cursor/gates/review-gate/<slug>` (line 1 = plan path) via `pg_write_gate review-gate`.
-2. Apply `skills/finish-plan/references/review-surface.md` **before** asking HITL: check out the feature branch in each folder the human has open and call `SetActiveBranch` for each. Do **not** invoke `create-pr` (pipeline is not finished; engineer-review still runs after `skip` / `approve` / `done`).
+2. Apply `skills/finish-plan/references/review-surface.md` **before** asking HITL: check out the feature branch in each folder the human has open, call `SetActiveBranch` for each, then `create-pr` `mode:surface` (draft URL to open in Cursor). Do **not** ask Pipeline finale — engineer-review still runs after `skip` / `approve` / `done`.
 3. Stop and ask HITL via skill `hitl-choice` (AskQuestion required; typed tokens only after failed/missing tool). `skip` / `approve` / `done` all start engineer-review (after deleting **this** plan's marker); `fixes` / typed fix description means fix first, re-run review-surface, then re-ask. If the user already sent one of those tokens after the gate was asked, do not re-ask — clear this plan's marker and continue.
 4. After approval, run `multi-repo-protocol.md` routing before review using the **non-mutating probe** only (read graphify / existing parent `.cursor/multi-repo.json` / sibling scan in memory; do not write `multi-repo.json`):
    - **0 changed repos**: stop and say no changed repos were found.

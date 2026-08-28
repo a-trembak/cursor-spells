@@ -34,7 +34,7 @@ assert_contains md_review_gate_node "$MD" 'reviewGate[/"review-gate"/]'
 assert_contains md_fixes_to_build "$MD" 'reviewGate -.->|"fixes"| softwareDev'
 assert_contains md_fixes_not_plan "$MD" "back to Build, not Plan"
 assert_contains md_command_alias "$MD" "/finish-plan"
-assert_contains md_review_surface "$MD" "review-surface: checkout + SetActiveBranch"
+assert_contains md_review_surface "$MD" "review-surface: checkout + SetActiveBranch + draft URL"
 assert_contains html_review_surface "$HTML" "SetActiveBranch"
 
 assert_contains html_layer_plan "$HTML" 'class="layer plan"'

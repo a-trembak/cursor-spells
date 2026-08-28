@@ -92,7 +92,7 @@ Ask only after the human chose `agent` on Tech-spec entry. Do not ask in `human`
 | `done` | Done reviewing — start review |
 | `fixes` | Describe fixes first |
 
-`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not invoke `create-pr` here.
+`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not ask Pipeline finale here (a draft URL may already exist from `review-surface`).
 
 ### Figma ask (frontend)
 

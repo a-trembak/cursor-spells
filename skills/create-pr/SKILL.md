@@ -20,7 +20,7 @@ Shared **pipeline finale**: ensure work is on a feature branch, committed, pushe
 - End of `/start-task --fast` (after `engineer-reviewer`)
 - End of `/start-issue-task` (after `engineer-reviewer`)
 - Human asks to open/update a draft PR for the current kit-driven branch
-- Not from `finish-plan` review-surface — that step only checks out branches and calls `SetActiveBranch`; it must not open a GitHub pull request
+- `finish-plan` review-surface **before** the review-gate HITL — **`mode:surface`** (draft URL for the human to open in Cursor; Stop after step 7; Do not ask Pipeline finale)
 
 ## Defaults (non-interactive until the draft exists)
 
@@ -32,6 +32,16 @@ Shared **pipeline finale**: ensure work is on a feature branch, committed, pushe
 | After draft | HITL **Pipeline finale** via `hitl-choice` (AskQuestion required) |
 
 Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Jira comment options can appear.
+
+## mode:surface (finish-plan review-surface)
+
+Used by skill `finish-plan` **before** the review-gate HITL so the human gets a draft URL they can open in Cursor.
+
+1. Run spine steps 1–7 only (built-in path; do not invoke `ce-commit-push-pr`, so Pipeline finale cannot fire).
+2. Stop after step 7. Return each `repo → pull request URL` to the caller.
+3. Do not ask Pipeline finale. Do not score trajectory. Do not `gh pr ready`. Do not merge. Do not invoke `jira-transition`. Do not follow **Resume after merge or builds**.
+
+`mode:pipeline` (default) is unchanged, including Resume after merge or builds. If `mode:surface` already opened drafts, later `mode:pipeline` reuses them at steps 5–6 and then asks Pipeline finale.
 
 ## Resume after merge or builds
 
@@ -52,7 +62,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
    gh pr create --draft --title "<title>" --body "<body>"
    ```
    Title/body sources (first non-empty wins for title): Jira key + short summary, AC one-liner, plan/tech-spec title, latest commit subject. Body should include: summary, test/verification notes, link to Jira/AC/plan path when known.
-7. Collect each `repo → PR URL` (and draft status). **Do not stop yet.**
+7. Collect each `repo → PR URL` (and draft status). In **`mode:surface`**, **stop here** and return the map. In **`mode:pipeline`**, **do not stop yet**.
 8. **HITL Pipeline finale** via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Pipeline finale**.
    - Always offer `keep_draft` and `ready`.
    - Offer `keep_draft_jira` and `ready_jira` **only** when `jira_key` is known.

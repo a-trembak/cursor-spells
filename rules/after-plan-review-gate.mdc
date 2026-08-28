@@ -15,13 +15,13 @@ globs:
 
 When you **finish executing an implementation plan** (all plan tasks done, or you are about to declare the plan complete):
 
-1. Prefer invoking skill **`finish-plan`** (writes this plan's `review-gate/<slug>`, applies `review-surface` / `SetActiveBranch` so the human can see the diff, then asks HITL via `hitl-choice` (AskQuestion required; text only after failed/missing tool)). Do **not** invoke `create-pr` at this gate — the pipeline is not finished.
+1. Prefer invoking skill **`finish-plan`** (writes this plan's `review-gate/<slug>`, applies `review-surface` / `SetActiveBranch` + a **draft** pull request URL to open in Cursor, then asks HITL via `hitl-choice` (AskQuestion required; text only after failed/missing tool)). Do **not** ask Pipeline finale at this gate — the pipeline is not finished.
 2. If you cannot load that skill, still:
    - Create `.cursor/gates/review-gate/<slug>` (line 1 = plan path) via `pg_write_gate` when `scripts/pipeline-gates.sh` is present
-   - Check out the feature branch in each folder the human has open and call `SetActiveBranch` for each (see `skills/finish-plan/references/review-surface.md`)
+   - Check out the feature branch in each folder the human has open, call `SetActiveBranch`, and open or reuse a **draft** GitHub pull request (see `skills/finish-plan/references/review-surface.md`)
    - **Stop** and ask via skill **`hitl-choice`** (AskQuestion required; preset Finish-plan HITL); text only after failed/missing tool:
 
-   > Plan done. The pull request tab should show the diff. This is your look — engineer-review starts after you answer.
+   > Plan done. Draft: <URL>. Open it in Cursor. This is your look — engineer-review starts after you answer.
    > - `skip` — start engineer-reviewer now
    > - `approve` / `done` — I finished my look; start engineer-review
    > - or describe fixes first

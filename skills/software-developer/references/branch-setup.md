@@ -55,7 +55,7 @@ After checkout in **each** target repo, call session tool **`SetActiveBranch`** 
 | `path` | Absolute git root of the folder the human has open (not a linked worktree unless that folder is the open workspace folder) |
 | `branchName` | The shared feature branch |
 
-Attempt the call. This shows the merge-base diff tab while coding. A worktree does not replace activating — and later checking out — the folder the human has open. Skill `finish-plan` re-runs checkout + `SetActiveBranch` before the review-gate HITL (`skills/finish-plan/references/review-surface.md`) so the human can look at the diff; that step does not open a GitHub pull request.
+Attempt the call. This shows the merge-base diff tab while coding. A worktree does not replace activating — and later checking out — the folder the human has open. Skill `finish-plan` re-runs checkout + `SetActiveBranch` and opens a **draft** pull request URL before the review-gate HITL (`skills/finish-plan/references/review-surface.md`) so the human can open the draft in Cursor; that step does not ask Pipeline finale.
 
 ## 5. Multi-repo rules
 

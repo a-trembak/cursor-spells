@@ -28,11 +28,11 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
    # Line 1 = plan path (not the word pending)
    ```
 
-3. **Apply review-surface** ([references/review-surface.md](references/review-surface.md)) **before** asking HITL: check out the feature branch in each folder the human has open and call `SetActiveBranch` for each so the merge-base diff tab is visible. Do **not** invoke `create-pr`. Do **not** open a GitHub pull request. This does not end the pipeline. Do not ask the gate while open folders are still on the default branch.
+3. **Apply review-surface** ([references/review-surface.md](references/review-surface.md)) **before** asking HITL: check out the feature branch in each folder the human has open, call `SetActiveBranch` for each, then `create-pr` `mode:surface` so a **draft** GitHub pull request exists and its URL can be opened in Cursor. Do **not** ask Pipeline finale. This does not end the pipeline. Do not ask the gate while open folders are still on the default branch.
 
-4. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Finish-plan / engineer-review / multi-repo HITL**. Prompt/text fallback (include each `repo → branch` from review-surface):
+4. **Stop.** Ask the HITL gate via skill **`hitl-choice`** (AskQuestion required; text only after failed/missing tool). Preset: **Finish-plan / engineer-review / multi-repo HITL**. Prompt/text fallback (include each `repo → branch` and draft pull request URL from review-surface):
 
-   > Plan done. Feature branches are checked out locally and the pull request tab should show the diff. This is your look at the changes — the pipeline is not finished. After you answer, engineer-review starts.
+   > Plan done. Draft pull request: <URL>. Feature branches are checked out locally; open that draft in Cursor. This is your look at the changes — the pipeline is not finished. After you answer, engineer-review starts.
    > - `skip` — start engineer-review now (engineer-reviewer or multi-repo-supervisor)
    > - `approve` / `done` — I finished my look; start engineer-review
    > - or describe fixes first

@@ -56,7 +56,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - **Automatic on `Verdict: clear`:** hand off to `start-build`.
 5. **Execution** (automatic once critique is clear): skill `start-build` dispatches `software-developer` as a nested Task — feature branch(es) in every repo the plan will touch, skill-map routing, then `subagent-driven-development` by default. **Wait for** the Task to return. **Do not treat dispatch as the end** of the pipeline. `start-build` then immediately invokes `finish-plan` in this parent chat. Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
 6. **Finish plan** (automatic, from `start-build` after the developer returns — do not wait for the human to type `/finish-plan`):
-   - Apply `review-surface` (`SetActiveBranch` + checkout in each open folder) so the human can see the diff. Do **not** invoke `create-pr` here — this is not the pipeline end.
+   - Apply `review-surface` (`SetActiveBranch` + checkout + a **draft** pull request URL to open in Cursor). Do **not** ask Pipeline finale here — this is not the pipeline end.
    - **HITL:** `skip` / `approve` / `done` via `hitl-choice` before `engineer-review` starts.
    - If `finish-plan` already started in this chat after the developer returned, do not re-ask — continue from its remaining steps.
 7. **Engineer review** (automatic once the HITL gate clears): run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ changed repos).
