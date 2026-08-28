@@ -67,6 +67,7 @@ assert_grep surface_reuse_later "skills/finish-plan/references/review-surface.md
 assert_grep create_pr_surface "skills/create-pr/SKILL.md" "mode:surface"
 assert_grep create_pr_surface_stop "skills/create-pr/SKILL.md" "Stop after step 7|steps 1.7 only"
 assert_grep create_pr_surface_no_finale "skills/create-pr/SKILL.md" "Do not ask Pipeline finale|do not ask Pipeline finale"
+assert_grep create_pr_surface_gh_fail "skills/create-pr/SKILL.md" "mode:surface.*return no URLs|return no URLs.*finish-plan|let \`finish-plan\` continue"
 
 assert_grep branch_set_active "skills/software-developer/references/branch-setup.md" "SetActiveBranch"
 assert_grep branch_open_folder "skills/software-developer/references/branch-setup.md" "human has open|open workspace folder"

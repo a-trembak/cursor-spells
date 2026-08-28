@@ -29,7 +29,7 @@ Shared **pipeline finale**: ensure work is on a feature branch, committed, pushe
 | PR state | **Draft first** (`gh pr create --draft`) |
 | Existing open PR for this head | Update title/body only if body is empty or a clear placeholder; otherwise leave body, report URL |
 | Base branch | Repo default (`main` / `master` / `origin/HEAD`) |
-| After draft | HITL **Pipeline finale** via `hitl-choice` (AskQuestion required) |
+| After draft | HITL **Pipeline finale** via `hitl-choice` (AskQuestion required). **`mode:surface` exception:** stop after step 7; do not ask Pipeline finale |
 
 Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Jira comment options can appear.
 
@@ -37,9 +37,10 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
 
 Used by skill `finish-plan` **before** the review-gate HITL so the human gets a draft URL they can open in Cursor.
 
-1. Run spine steps 1–7 only (built-in path; do not invoke `ce-commit-push-pr`, so Pipeline finale cannot fire).
+1. Run spine steps 1–7 only (built-in path; skip step 3 — do not invoke `ce-commit-push-pr`, so Pipeline finale cannot fire).
 2. Stop after step 7. Return each `repo → pull request URL` to the caller.
 3. Do not ask Pipeline finale. Do not score trajectory. Do not `gh pr ready`. Do not merge. Do not invoke `jira-transition`. Do not follow **Resume after merge or builds**.
+4. Spine step 5 override: if `gh` is non-zero, report the error and **return** to `finish-plan` with no URLs. Do not abort the review-gate. `finish-plan` still asks HITL after checkout + `SetActiveBranch`.
 
 `mode:pipeline` (default) is unchanged, including Resume after merge or builds. If `mode:surface` already opened drafts, later `mode:pipeline` reuses them at steps 5–6 and then asks Pipeline finale.
 
@@ -51,12 +52,12 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
 
 1. Resolve target repo(s) from the handoff `repo → branch` map, or the current git root. Multi-repo: repeat steps 2–6 **per changed repo**.
 2. Confirm you are **not** on the default branch. If still on default with changes: create/check out the shared feature branch from the handoff (or derive via `software-developer/references/branch-setup.md`) before continuing.
-3. If `ce-commit-push-pr` is installed: run it with `mode:pipeline` (and any PR ref already known). Prefer its commit grouping and PR body conventions. Skip to step 7 when it succeeds (it must still create/reuse a **draft**).
+3. If `ce-commit-push-pr` is installed **and mode is not `surface`**: run it with `mode:pipeline` (and any PR ref already known). Prefer its commit grouping and PR body conventions. Skip to step 7 when it succeeds (it must still create/reuse a **draft**). In **`mode:surface`**, skip this step (built-in path only).
 4. Else **built-in path**:
    - `git status` / `git diff` — stage intentional files only (never `git add -A` / `git add .`).
    - Commit if there are staged/uncommitted changes; match recent commit style (default `fix:` when ambiguous for bug work, `feat:` only for new capability).
    - `git push -u origin <branch>` (retry with backoff on network errors).
-5. Check for an existing open PR: `gh pr list --head <branch> --state open …`. Exit 0 + `[]` → create. Non-zero `gh` → stop and report auth/connectivity (do not assume “no PR”).
+5. Check for an existing open PR: `gh pr list --head <branch> --state open …`. Exit 0 + `[]` → create. Non-zero `gh` → in **`mode:pipeline`**, stop and report auth/connectivity (do not assume “no PR”). In **`mode:surface`**, report the error, return no URLs, and let `finish-plan` continue the review-gate (do not assume “no PR”).
 6. Create draft PR if none:
    ```bash
    gh pr create --draft --title "<title>" --body "<body>"
