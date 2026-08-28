@@ -14,6 +14,7 @@ bash scripts/tests/developer-reviewer-handoff-test.sh   # parent wait + next_ski
 bash scripts/tests/code-comments-test.sh                # no design-tied comments, including backend
 bash scripts/tests/clarify-question-evidence-test.sh    # clarify questions include file + snippet
 bash scripts/tests/pipeline-flow-graph-test.sh          # canvas layers + review-gate naming
+bash scripts/tests/review-surface-test.sh               # finish-plan surfaces diff before HITL; not create-pr
 ```
 
 2. In the consumer repo, add a deliberate smell file, e.g. `src/smells.ts`:

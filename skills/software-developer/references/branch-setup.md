@@ -42,18 +42,31 @@ For **each** repo in the set, from that repo's root:
 
    If `-b` fails because the branch exists: `git checkout <branch-name>` only when that is intentional reuse (step 2); otherwise stop and ask.
 5. Record in the run handoff: `repo_path → branch-name` (and base used).
+6. Call **`SetActiveBranch`** for that repo (see §4). Do this in the folder the human has open, not only a linked worktree.
 
 Do **not** `git push` unless the human or a later shipping skill asks for it. Local branch creation is enough to start implementation.
 
-## 4. Multi-repo rules
+## 4. Activate the branch in the Cursor client
+
+After checkout in **each** target repo, call session tool **`SetActiveBranch`** with:
+
+| Argument | Value |
+|----------|--------|
+| `path` | Absolute git root of the folder the human has open (not a linked worktree unless that folder is the open workspace folder) |
+| `branchName` | The shared feature branch |
+
+Attempt the call. This shows the merge-base diff tab while coding. A worktree does not replace activating — and later checking out — the folder the human has open. Skill `finish-plan` re-runs checkout + `SetActiveBranch` before the review-gate HITL (`skills/finish-plan/references/review-surface.md`) so the human can look at the diff; that step does not open a GitHub pull request.
+
+## 5. Multi-repo rules
 
 - Create the branch in **every** target repo before writing code in any of them.
 - Use the **same** `<branch-name>` in each.
 - If creation succeeds in some repos and fails in others: **stop**, report which succeeded/failed, and do not start Task 1 until the set is consistent or the human narrows scope.
-- Isolated worktrees (`using-git-worktrees`) are optional and complementary — they do not replace this branch step. If already inside a linked worktree on the correct feature branch for a target repo, treat that repo as done for branching.
+- Isolated worktrees (`using-git-worktrees`) are optional and complementary — they do not replace this branch step. If the agent is already inside a linked worktree on the correct feature branch, still check out that branch in the folder the human has open (unless that folder *is* the worktree) and still call `SetActiveBranch` on the open folder.
 
-## 5. Hard stops
+## 6. Hard stops
 
 - Never implement on `main` / `master` / the default branch.
 - Never create a branch in a repo outside the resolved target set.
 - Never invent a second repo "just in case".
+- Never skip `SetActiveBranch` after creating or checking out the feature branch.

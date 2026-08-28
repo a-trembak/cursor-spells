@@ -48,7 +48,7 @@ Immediately after entry conditions pass, follow [references/branch-setup.md](ref
 
 1. Resolve which git repo(s) the plan/spec will change (one or many).
 2. Derive one shared feature branch name for this run.
-3. Create and check out that branch in **each** target repo from its base (`main`/`master`/default).
+3. Create and check out that branch in **each** target repo from its base (`main`/`master`/default). Call `SetActiveBranch` for each folder the human has open.
 4. Do not start Task 1 until every target repo is on that branch (or the human narrowed the set).
 
 Never implement on the default branch. Never invent repos the plan does not touch.

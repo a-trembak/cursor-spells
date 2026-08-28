@@ -948,30 +948,37 @@
     <section id="view-review-gate" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">6. review-gate</h2>
-      <p class="view-desc">HITL <em>після</em> коду, перед engineer-review. Шар плану вже закритий. Команда <code>/finish-plan</code> пише <code>.cursor/gates/review-gate/&lt;slug&gt;</code>.</p>
+      <p class="view-desc">HITL <em>після</em> коду, перед engineer-review. Шар плану вже закритий. Пайплайн <em>не</em> закінчується тут. Команда <code>/finish-plan</code> пише <code>.cursor/gates/review-gate/&lt;slug&gt;</code>, потім <code>review-surface</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>review-surface (зручність, не фінал)</h3>
+            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Після відповіді людини стартує engineer-review, далі docs, далі create-pr.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
           <div class="step-body hitl">
             <h3>HITL gate</h3>
             <div class="branches">
               <div class="branch">
                 <span class="token ok">skip</span>
-                <div class="then">Стартувати review зараз</div>
+                <div class="then">Стартувати engineer-review зараз</div>
               </div>
               <div class="branch">
                 <span class="token ok">approve / done</span>
-                <div class="then">Людина вже глянула — стартувати review</div>
+                <div class="then">Людина вже глянула — стартувати engineer-review</div>
               </div>
               <div class="branch">
                 <span class="token">fixes</span>
-                <div class="then">Описати фікси → <code>software-developer</code> (Build) → знову цей самий gate<small>не writing-plans · marker лишається</small></div>
+                <div class="then">Описати фікси → <code>software-developer</code> (Build) → знову review-surface → цей самий gate<small>не writing-plans · marker лишається</small></div>
               </div>
             </div>
           </div>
         </div>
         <div class="step">
-          <div class="step-num">2</div>
+          <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Routing (non-mutating probe)</h3>
             <p>Читає graphify / існуючий multi-repo.json / sibling scan. <strong>Не</strong> пише multi-repo.json на цьому кроці.</p>

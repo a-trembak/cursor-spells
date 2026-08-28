@@ -11,7 +11,7 @@ Run skill `start-build`:
 2. Confirm **this slug's** plan-gate / critique-gate markers are absent. Other slugs' pending gates do not block.
 3. Dispatch `software-developer` as a nested Task (feature branch(es) in target repo(s), skill routing, then `subagent-driven-development` by default).
 4. **Wait for** that Task to return. Fire-and-forget is a hard failure — do not stop after dispatch.
-5. Immediately invoke skill `finish-plan` in this parent chat (review-gate + HITL, then `engineer-reviewer` or `multi-repo-supervisor`). Do not ask the human to type `/finish-plan` or `/engineer-review`.
+5. Immediately invoke skill `finish-plan` in this parent chat (review-surface + review-gate HITL, then `engineer-reviewer` or `multi-repo-supervisor`). Do not ask the human to type `/finish-plan` or `/engineer-review`. Do not treat `finish-plan` as the pipeline end.
 
 ## Arguments
 

@@ -286,12 +286,13 @@ flowchart TD
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step. Skill `/finish-plan` writes the marker, asks HITL, then routes to review. `fixes` returns to `software-developer` (Build), then re-asks this same gate.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `/finish-plan` writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. `fixes` returns to `software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. GitHub `create-pr` still happens later, after `update-docs`.
 
 ```mermaid
 flowchart TD
   planDone(["Build complete — plan already executed"])
   writeReview{{".cursor/gates/review-gate/slug"}}
+  surface["review-surface: checkout + SetActiveBranch"]
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
   doFixes["software-developer implements fixes"]
   delReview["Clear this slug review-gate"]
@@ -306,9 +307,10 @@ flowchart TD
   reviewed(["Review complete"])
 
   planDone ==> writeReview
-  writeReview ==> hitlFinish
+  writeReview ==> surface
+  surface ==> hitlFinish
   hitlFinish -->|"fixes"| doFixes
-  doFixes -.->|"re-ask same gate"| hitlFinish
+  doFixes -->|"re-run review-surface"| surface
   hitlFinish -->|"skip or approve or done"| delReview
   delReview ==> probe
   probe ==> repoCount
