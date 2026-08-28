@@ -257,7 +257,7 @@ Ask from skill `create-pr` **after** a draft PR exists (never before). Default i
 | `keep_draft_jira` | Keep draft + comment PR URL on Jira | Jira key known |
 | `ready_jira` | Ready for review + comment PR URL on Jira | Jira key known |
 
-On `ready` / `ready_jira`: `gh pr ready` per opened PR. On `*_jira`: `addCommentToJiraIssue` with PR URL(s). On `ready` / `ready_jira` when `jira_key` is known: skill **`jira-transition`** target `review`. Never merge. Do not transition on `keep_draft` / `keep_draft_jira`.
+On `ready` / `ready_jira`: `gh pr ready` per opened PR. On `*_jira`: `addCommentToJiraIssue` with PR URL(s). Do not run `jira-transition` on the ready token itself. After `ready` / `ready_jira` when `jira_key` is known: wait until `pr_merge_ci_verdict` is `all_merged_ci_success` (every opened pull request merged and every continuous-integration build succeeded), then skill **`jira-transition`** target `review`. Never merge. Do not transition on `keep_draft` / `keep_draft_jira`.
 
 ### Trajectory fail
 

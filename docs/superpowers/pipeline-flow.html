@@ -1105,7 +1105,7 @@
     <section id="view-create-pr" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">9. create-pr · Pipeline finale</h2>
-      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge. <code>ready</code> / <code>ready_jira</code> з ключем → Jira <code>review</code>.</p>
+      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge. <code>ready</code> / <code>ready_jira</code> з ключем → Jira <code>review</code> лише після merge всіх PR і успішного CI.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1–7</div>
@@ -1126,7 +1126,7 @@
               </div>
               <div class="branch">
                 <span class="token">ready</span>
-                <div class="then"><code>gh pr ready</code> + <code>jira-transition</code> target <code>review</code> (якщо є ключ)</div>
+                <div class="then"><code>gh pr ready</code>; <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI (якщо є ключ)</div>
               </div>
               <div class="branch">
                 <span class="token">keep_draft_jira</span>
@@ -1134,7 +1134,7 @@
               </div>
               <div class="branch">
                 <span class="token">ready_jira</span>
-                <div class="then">Ready + Jira comment + <code>jira-transition</code> target <code>review</code>.</div>
+                <div class="then">Ready + Jira comment; <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI.</div>
               </div>
             </div>
           </div>
@@ -1199,7 +1199,7 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. <code>ready</code> / <code>ready_jira</code> з Jira-ключем → <code>jira-transition</code> target <code>review</code>. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. <code>ready</code> / <code>ready_jira</code> з Jira-ключем → <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">

@@ -5,7 +5,9 @@ description: >-
   /start-issue-task) or when asked to open a draft PR for the current feature
   branch work. Commits remaining changes if needed, pushes, creates or updates a
   draft GitHub PR, then HITL Pipeline finale (keep draft / ready / Jira comment).
-  Never merges. On ready / ready_jira with a Jira key, transitions the ticket to Review.
+  Never merges. On ready / ready_jira with a Jira key, waits until every
+  opened pull request is merged and every continuous-integration build
+  succeeded, then transitions the ticket to Review.
 ---
 
 # Create PR
@@ -81,7 +83,12 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
 10. **Jira comment** (only for `keep_draft_jira` / `ready_jira`):
    - Discover Atlassian MCP; call `addCommentToJiraIssue` with `cloudId` (`jira_cloud_id`), `issueIdOrKey` (`jira_key`), `commentBody` = PR URL(s) plus a one-line summary.
    - If the comment fails, report the error and **stop**. Do not retry the comment as a status transition.
-11. **Jira Review** (only for `ready` / `ready_jira` when `jira_key` and `jira_cloud_id` are known): invoke skill **`jira-transition`** with target `review`. This is the Review column while the GitHub PR is ready for review — still **never merge**. Skip if already Review-like. Report and continue on skip/failure; do not block the finale report. Do **not** transition on `keep_draft` or `keep_draft_jira`.
+11. **Jira Review** (only after `ready` / `ready_jira` when `jira_key` and `jira_cloud_id` are known): do **not** invoke `jira-transition` when the pull requests are merely marked ready. Observe every collected pull request with `gh pr view "$pr_url" --json state,url,headRefName,statusCheckRollup`. Build a JSON array of those objects and pipe it to `pr_merge_ci_verdict` from `scripts/pr-merge-ci.sh` (consumer copy after `csp update`, or kit path).
+    - `all_merged_ci_success` → invoke skill **`jira-transition`** with target `review`. Skip if already Review-like. Report and continue on skip/failure; do not block the finale report.
+    - `not_merged` or `pending_ci` → subscribe to each pull request (`subscribe_github_pr`) and to continuous integration on each head branch (`subscribe_github_ci`). Report that Review waits until every pull request is merged and every build succeeded. End the turn. On wake, re-observe the same URLs; do not transition until the verdict is `all_merged_ci_success`. If subscribe tools are missing, report the wait and re-check when the human returns — do not busy-loop and do not merge.
+    - `ci_failed` → report the failed check names; do not transition; do not merge.
+    - `no_pull_requests` → do not transition.
+    - Never `gh pr merge`. Do **not** transition on `keep_draft` or `keep_draft_jira`.
 12. Report each `repo → PR URL`, draft vs ready, Jira comment result when requested, and Jira transition result when attempted.
 
 ## Hard rules
@@ -93,7 +100,8 @@ Callers must pass `jira_key` / `jira_cloud_id` when `jira-fetch` succeeded so Ji
 - Never invent Jira transition ids (skill `jira-transition` only, after listing real transitions).
 - Never invent PR review approvals.
 - Never merge. Never `gh pr merge`. Never approve reviews.
+- Never invoke `jira-transition` target `review` until `pr_merge_ci_verdict` is `all_merged_ci_success`.
 
 ## Output
 
-One PR URL per changed repo (draft or ready per the finale choice), commit/push evidence, Jira comment result when requested, and Jira Review transition result when `ready` / `ready_jira` ran with a key.
+One PR URL per changed repo (draft or ready per the finale choice), commit/push evidence, Jira comment result when requested, and Jira Review transition result when `ready` / `ready_jira` ran with a key **and** `pr_merge_ci_verdict` was `all_merged_ci_success`.

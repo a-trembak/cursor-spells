@@ -520,7 +520,7 @@ flowchart TD
   verdict -->|"clear"| fixer ==> review ==> prNode ==> doneIssue
 ```
 
-Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` also run `jira-transition` target `review`. Never `gh pr merge`.
+Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` run `jira-transition` target `review` only after every opened pull request is merged and continuous integration succeeded. Never `gh pr merge`.
 
 ---
 
@@ -534,14 +534,15 @@ flowchart TD
   keep["keep_draft"]
   ready["gh pr ready"]
   jiraC["addCommentToJiraIssue PR URL"]
+  waitMerge["all PRs merged + CI success"]
   jiraRev[["jira-transition review"]]
   done(["Report PR URL"])
 
   startPr ==> draft ==> hitl
   hitl -->|"keep_draft"| keep --> done
-  hitl -->|"ready"| ready --> jiraRev --> done
+  hitl -->|"ready"| ready --> waitMerge --> jiraRev --> done
   hitl -->|"keep_draft_jira"| jiraC --> done
-  hitl -->|"ready_jira"| ready --> jiraC --> jiraRev --> done
+  hitl -->|"ready_jira"| ready --> jiraC --> waitMerge --> jiraRev --> done
 ```
 
-`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. `ready` / `ready_jira` with a key → `jira-transition` target `review` (skip if already Review; report and continue on failure). `keep_draft` / `keep_draft_jira` leave the ticket In Progress.
+`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. `ready` / `ready_jira` with a key → wait until `pr_merge_ci_verdict` is `all_merged_ci_success`, then `jira-transition` target `review` (skip if already Review; report and continue on failure). `keep_draft` / `keep_draft_jira` leave the ticket In Progress.

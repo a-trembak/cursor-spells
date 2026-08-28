@@ -8,7 +8,7 @@
 
 1. Full and fast `/start-task` **fetch** Jira ticket text via Atlassian MCP when the AC source is a key or browse URL — never invent AC, never treat a URL as a stub.
 2. **Route** mechanically among full / fast / issue so a Bug ticket does not silently take the feature path, and `--fast` is never chosen automatically.
-3. After `create-pr` opens a **draft** PR, one HITL gate can mark it ready and/or comment the PR URL on Jira. Never merge. **Status transitions** are specified in [`2026-08-19-jira-status-transitions-design.md`](2026-08-19-jira-status-transitions-design.md) (In Progress on start; Review on ready).
+3. After `create-pr` opens a **draft** PR, one HITL gate can mark it ready and/or comment the PR URL on Jira. Never merge. **Status transitions** are specified in [`2026-08-19-jira-status-transitions-design.md`](2026-08-19-jira-status-transitions-design.md) (In Progress on start; Review after every opened pull request is merged and continuous integration succeeded).
 4. Thin `/capture-escape` entry for production misses → `review-learn` `mode:capture` `source:production-escape`.
 
 ## Decisions
@@ -72,7 +72,7 @@ Steps 1–7 unchanged (always create/reuse **draft** first). Then:
 | `keep_draft_jira` | Jira key known | Draft + Jira comment with PR URL(s). |
 | `ready_jira` | Jira key known | Ready + Jira comment. |
 
-Comment body: PR URL(s) + one-line summary. `addCommentToJiraIssue` for `*_jira`. `ready` / `ready_jira` also run `jira-transition` target `review` when a key is known. If comment fails, report and do not retry as a transition. Never merge. Never approve reviews.
+Comment body: PR URL(s) + one-line summary. `addCommentToJiraIssue` for `*_jira`. `ready` / `ready_jira` do **not** run `jira-transition` on the token itself. When a key is known, wait until `pr_merge_ci_verdict` is `all_merged_ci_success`, then run `jira-transition` target `review`. If comment fails, report and do not retry as a transition. Never merge. Never approve reviews.
 
 ## Capture-escape
 
@@ -80,11 +80,12 @@ Command `/capture-escape`: ask HITL **Capture-escape destination**. `miss` → s
 
 ## Out of scope
 
-Writing AC; auto-installing skills; merge / CI babysit / deploy; a11y/i18n phases; Linear fetch; multi-repo ticket→repo discovery (still v1.1). Jira status transitions: see 2026-08-19 spec.
+Writing AC; auto-installing skills; merge (the agent still never `gh pr merge`; it observes merge + build success); deploy; a11y/i18n phases; Linear fetch; multi-repo ticket→repo discovery (still v1.1). Jira status transitions: see 2026-08-19 spec.
 
 ## New/changed artifacts
 
 - `scripts/jira-issue.sh` + `scripts/tests/jira-issue-test.sh`
+- `scripts/pr-merge-ci.sh` + `scripts/tests/pr-merge-ci-test.sh`
 - `skills/jira-fetch/SKILL.md`
 - `commands/start-task.md`, `commands/start-issue-task.md`, `commands/write-tech-spec.md`
 - `skills/create-pr/SKILL.md`, `skills/hitl-choice/SKILL.md`
