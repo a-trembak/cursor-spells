@@ -17,7 +17,7 @@ When a pipeline starts from a Jira ticket, move that ticket to **In Progress**. 
 | Shared skill | `jira-transition` — `getTransitionsForJiraIssue` then `transitionJiraIssue` |
 | Start trigger | After successful `jira-fetch` on `/start-task` (full and `--fast`) and `/start-issue-task` → target `in_progress` |
 | Review trigger | `create-pr` after HITL `ready` or `ready_jira` when `jira_key` is known **and** `pr_merge_ci_verdict` is `all_merged_ci_success` → target `review` |
-| Not Review | `keep_draft` / `keep_draft_jira`; ready tokens before every pull request is merged with successful builds; `ci_failed` |
+| Not Review | `keep_draft` / `keep_draft_jira`; ready tokens before every pull request is merged with successful builds; `ci_failed`; `closed_unmerged` |
 | `/write-tech-spec` | Fetch only — no transition |
 | Match field | Destination status `to.name`, then transition `name` if needed |
 | Missing transition / MCP error | Report and **continue** the pipeline (do not stop) |
@@ -26,7 +26,7 @@ When a pipeline starts from a Jira ticket, move that ticket to **In Progress**. 
 
 ## Why Review waits for merge and successful builds
 
-`ready` / `ready_jira` only mark the GitHub pull request ready for review. Jira **Review** is the column after every opened pull request in the run is `MERGED` and every check in `statusCheckRollup` succeeded (`SUCCESS` / `SKIPPED` / `NEUTRAL`, or no checks). Failed builds (`ci_failed`) do not move the ticket. The kit never calls `gh pr merge`.
+`ready` / `ready_jira` only mark the GitHub pull request ready for review. Jira **Review** is the column after every opened pull request in the run is `MERGED` and every check in `statusCheckRollup` succeeded (CheckRun `SUCCESS` / `SKIPPED` / `NEUTRAL`, or commit-status `state: SUCCESS`, or no checks). Failed builds (`ci_failed`) do not move the ticket. A pull request closed without merge (`closed_unmerged`) does not wait in a loop. The kit never calls `gh pr merge`.
 
 ## `in_progress` names
 

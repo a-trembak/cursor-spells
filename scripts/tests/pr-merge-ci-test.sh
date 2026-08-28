@@ -30,7 +30,12 @@ assert_eq mixed_open_merged "not_merged" "$(verdict '[
   {"state":"OPEN","url":"https://example.com/2","statusCheckRollup":[{"name":"build","status":"COMPLETED","conclusion":"SUCCESS"}]}
 ]')"
 
-assert_eq closed_unmerged "not_merged" "$(verdict '{"state":"CLOSED","url":"https://example.com/1","statusCheckRollup":[]}')"
+assert_eq closed_unmerged "closed_unmerged" "$(verdict '{"state":"CLOSED","url":"https://example.com/1","statusCheckRollup":[]}')"
+
+assert_eq closed_beats_open "closed_unmerged" "$(verdict '[
+  {"state":"OPEN","url":"https://example.com/1","statusCheckRollup":[]},
+  {"state":"CLOSED","url":"https://example.com/2","statusCheckRollup":[]}
+]')"
 
 assert_eq all_merged_no_checks "all_merged_ci_success" "$(verdict '{"state":"MERGED","url":"https://example.com/1","statusCheckRollup":[]}')"
 
@@ -92,6 +97,32 @@ assert_eq not_merged_beats_failed "not_merged" "$(verdict '[
   {"state":"OPEN","url":"https://example.com/1","statusCheckRollup":[{"name":"build","status":"COMPLETED","conclusion":"FAILURE"}]},
   {"state":"MERGED","url":"https://example.com/2","statusCheckRollup":[{"name":"build","status":"COMPLETED","conclusion":"SUCCESS"}]}
 ]')"
+
+assert_eq commit_status_success "all_merged_ci_success" "$(verdict '{
+  "state":"MERGED",
+  "url":"https://example.com/1",
+  "statusCheckRollup":[{"context":"ci/jenkins","state":"SUCCESS"}]
+}')"
+
+assert_eq commit_status_failure "ci_failed" "$(verdict '{
+  "state":"MERGED",
+  "url":"https://example.com/1",
+  "statusCheckRollup":[{"context":"ci/jenkins","state":"FAILURE"}]
+}')"
+
+assert_eq commit_status_pending "pending_ci" "$(verdict '{
+  "state":"MERGED",
+  "url":"https://example.com/1",
+  "statusCheckRollup":[{"context":"ci/jenkins","state":"PENDING"}]
+}')"
+
+assert_eq completed_null_conclusion "pending_ci" "$(verdict '{
+  "state":"MERGED",
+  "url":"https://example.com/1",
+  "statusCheckRollup":[{"name":"build","status":"COMPLETED","conclusion":null}]
+}')"
+
+assert_eq script_as_program "all_merged_ci_success" "$(printf '%s' '{"state":"MERGED","url":"https://example.com/1","statusCheckRollup":[]}' | bash "$ROOT/scripts/pr-merge-ci.sh")"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

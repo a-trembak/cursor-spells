@@ -60,6 +60,6 @@
     "jira_status": "In Progress",
     "pull_request": "draft",
     "review_report": "evidence-gated",
-    "notes": "Finale may later move Jira to Review only after ready or ready_jira."
+    "notes": "Finale may later move Jira to Review after every opened pull request is merged and continuous integration succeeded."
   }
 }
