@@ -56,7 +56,7 @@ Migrations and schema work are a named weak spot for AI-generated code (blast ra
 |-------|--------|
 | MySQL | [`planetscale/database-skills@mysql`](https://github.com/planetscale/database-skills) (`npx skills add planetscale/database-skills@mysql`) — schema/InnoDB, PK/index choices, measurable safe changes; [`affaan-m/everything-claude-code@mysql-patterns`](https://github.com/affaan-m/everything-claude-code) (`npx skills add affaan-m/everything-claude-code@mysql-patterns`) — large-table migrations, locks, pagination, pools; [`github/awesome-copilot@sql-code-review`](https://github.com/github/awesome-copilot) (`npx skills add github/awesome-copilot@sql-code-review`) |
 | MongoDB | [`mongodb/agent-skills@mongodb-query-optimizer`](https://github.com/mongodb/agent-skills) (`npx skills add mongodb/agent-skills@mongodb-query-optimizer`); [`mongodb/agent-skills@mongodb-connection`](https://github.com/mongodb/agent-skills) (`npx skills add mongodb/agent-skills@mongodb-connection`) (official); [`hoodini/ai-agents-skills@mongodb`](https://github.com/hoodini/ai-agents-skills) (`npx skills add hoodini/ai-agents-skills@mongodb`) — schema/collection modeling |
-| Mongoose (if present in repo) | `mongoose-mongodb` skill (name-only; not an `owner/repo@skill` id — install separately if you have it) |
+| Mongoose (if present in repo) | `mongoose-mongodb` skill (name-only; not an installable `npx skills add` id — install separately if you have it) |
 
 ### Conditional — kept in the map for future projects, not installed by default
 
@@ -65,7 +65,7 @@ Migrations and schema work are a named weak spot for AI-generated code (blast ra
 | Stack | Skills |
 |-------|--------|
 | Postgres (if a future project uses it) | [`wshobson/agents@postgresql-table-design`](https://github.com/wshobson/agents) (`npx skills add wshobson/agents@postgresql-table-design`); [`supabase/agent-skills@supabase-postgres-best-practices`](https://github.com/supabase/agent-skills) (`npx skills add supabase/agent-skills@supabase-postgres-best-practices`); `postgresql-code-review` / `sql-optimization-patterns` (name-only) |
-| Flyway/Spring | Spring Flyway migration skill (name-only; no `owner/repo@skill` id in this map) |
+| Flyway/Spring | Spring Flyway migration skill (name-only; no installable `npx skills add` id in this map) |
 | Prisma | [`prisma/skills@prisma-cli`](https://github.com/prisma/skills) (`npx skills add prisma/skills@prisma-cli`) + matching dialect skill |
 
 ## Stack detection → lint/typecheck commands (for `review-lint`)

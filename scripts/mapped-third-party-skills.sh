@@ -14,7 +14,9 @@ MTP_KIT_ROOT="${KIT_ROOT:-$(cd "$(dirname "$_MTP_SELF")/.." && pwd)}"
 MTP_SKILL_MAP="${MTP_SKILL_MAP:-$MTP_KIT_ROOT/skills/engineer-review/references/skill-map.md}"
 
 mtp_extract_ids() {
-  grep -oE '[A-Za-z0-9._-]+/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+' | sort -u || true
+  grep -oE '[A-Za-z0-9._-]+/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+' \
+    | grep -vE '^owner/repo@' \
+    | sort -u || true
 }
 
 # Recommended installs: first bash fence in skill-map.md.
@@ -110,13 +112,15 @@ mtp_install_ids() {
 
 mtp_npx_add() {
   local id="$1"
+  local npx_bin
+  npx_bin="$(command -v npx)"
   local extra=(--yes --agent cursor --global)
   # Close stdin so a prompt cannot hang an unattended install.
   # Bound runtime so a stuck npx cannot brick kit install.
   if command -v timeout >/dev/null 2>&1; then
-    timeout 60 npx --yes skills add "$id" "${extra[@]}" </dev/null
+    timeout 60 "$npx_bin" --yes skills add "$id" "${extra[@]}" </dev/null
   else
-    npx --yes skills add "$id" "${extra[@]}" </dev/null
+    "$npx_bin" --yes skills add "$id" "${extra[@]}" </dev/null
   fi
 }
 

@@ -38,8 +38,11 @@ assert_absent() {
 }
 
 # Extract owner/repo@skill ids from a markdown slice on stdin.
+# Drop the placeholder shape used in the Skill resolution protocol quote.
 extract_ids() {
-  grep -oE '[A-Za-z0-9._-]+/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+' | sort -u
+  grep -oE '[A-Za-z0-9._-]+/[A-Za-z0-9._-]+@[A-Za-z0-9._-]+' \
+    | grep -vE '^owner/repo@' \
+    | sort -u
 }
 
 # Always-on + current-stack rows; stop before Conditional (manual / detect-only).
@@ -51,13 +54,23 @@ db_default_ids() {
   ' "$ROOT/skills/engineer-review/references/skill-map.md" | extract_ids
 }
 
+# README has earlier bash fences (clone/install). Prefer the Recommended section.
 recommended_ids_from_file() {
   local file="$1"
-  awk '
-    /^```bash$/ {on=1; next}
-    on && /^```$/ {exit}
-    on {print}
-  ' "$ROOT/$file" | extract_ids
+  if grep -q '^## Recommended third-party skills$' "$ROOT/$file"; then
+    awk '
+      /^## Recommended third-party skills$/ {want=1}
+      want && /^```bash$/ {on=1; next}
+      on && /^```$/ {exit}
+      on {print}
+    ' "$ROOT/$file" | extract_ids
+  else
+    awk '
+      /^```bash$/ {on=1; next}
+      on && /^```$/ {exit}
+      on {print}
+    ' "$ROOT/$file" | extract_ids
+  fi
 }
 
 SKILLMAP="skills/engineer-review/references/skill-map.md"
@@ -230,7 +243,7 @@ FAKE
   fi
 
   : > "$MTP_NPX_LOG"
-  MTP_NPX_FAIL=1
+  export MTP_NPX_FAIL=1
   set +e
   out="$(mtp_install_curated "$TMP/app" 2>&1)"
   rc=$?
@@ -273,7 +286,7 @@ FAKE
     echo "OK   installer_skip_still_works"
   fi
 
-  MTP_NPX_FAIL=1
+  export MTP_NPX_FAIL=1
   : > "$MTP_NPX_LOG"
   set +e
   HOME="$TMP/home2" PATH="$TMP/bin:$PATH" \
