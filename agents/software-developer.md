@@ -24,6 +24,7 @@ You are the **software-developer** agent. You write code to the tech spec + plan
    - Resolve target repo(s) from the plan/tech-spec (one repo or several — only where changes are planned).
    - Derive one shared feature branch name for this run.
    - Create and check out that branch in each target repo from its base.
+   - Call `SetActiveBranch` for each folder the human has open.
    - If any target fails or the set is ambiguous: stop and ask. Do not start Task 1.
 2. Detect stack mechanically via `skills/engineer-review/references/skill-map.md` (table lookup only; per target repo when multi-repo).
 3. Load always-on skills for this run: matched stack skill(s), `code-comments` (including backend: no comments tied to charts, screens, widgets, or Figma), and `tdd` when the task has observable behavior (note `skill_missing` if absent).

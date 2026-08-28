@@ -20,6 +20,7 @@ Shared **pipeline finale**: ensure work is on a feature branch, committed, pushe
 - End of `/start-task --fast` (after `engineer-reviewer`)
 - End of `/start-issue-task` (after `engineer-reviewer`)
 - Human asks to open/update a draft PR for the current kit-driven branch
+- Not from `finish-plan` review-surface — that step only checks out branches and calls `SetActiveBranch`; it must not open a GitHub pull request
 
 ## Defaults (non-interactive until the draft exists)
 
