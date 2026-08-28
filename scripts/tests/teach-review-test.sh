@@ -108,6 +108,16 @@ test -f "$tmpl" || { echo "FAIL missing template" >&2; fail=1; }
 assert_eq template_land "draft_merge" "$(tr_land_from_file "$tmpl")"
 grep -q "auto_push" "$tmpl" || { echo "FAIL template missing auto_push comment" >&2; fail=1; }
 grep -q "draft_merge" "$tmpl" || { echo "FAIL template missing draft_merge comment" >&2; fail=1; }
+if grep -qiE 'open a draft' "$tmpl"; then
+  echo "FAIL template_not_draft: still says open a draft" >&2
+  fail=1
+else
+  echo "OK   template_not_draft"
+fi
+grep -qiE 'ready-for-review|mergeable' "$tmpl" || {
+  echo "FAIL template missing mergeable pull-request wording" >&2
+  fail=1
+}
 echo "OK   template_comments"
 
 # install-to-project.sh sources helper and calls tr_install_learn_config
