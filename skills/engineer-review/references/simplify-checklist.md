@@ -21,6 +21,7 @@ Do **not** re-flag what personas already own (bit-identical utility reuse, neste
 |-------|--------|------------------|
 | **Over-engineering / YAGNI in the implemented diff** | Strategy/plugin/factory/config knobs or “for later” branches **not** required by the tech spec / plan / AC | `P1` clarify — never silent-delete intentional extension points without evidence |
 | **Alternate project approach** | Diff solves a job the repo already solves via patterns “Do not reinvent” or the stack idiom — even if the new code is **not** a bit-identical duplicate of one helper | `P1` clarify (reuse existing approach vs keep) |
+| **Duplicated conditional navigation routing** | New local href/path builder when spec or a sibling component already defines the same routing; copy of conditional path logic (e.g. installation-type gate) without a shared util | `P1` — require the shared helper; verify **each branch** of the gate in tests without mocking the gate to a constant |
 | **Spec/plan complexity drift** | Implementation is materially heavier than declared AC/seams (extra layers, options, states) with no settled decision justifying it | `P1` clarify |
 | **Error-handling theater** | Catch-and-rethrow with no enrichment; empty catches; swallow-and-log that hides failures on the changed path | `P1` (logic may also care — keep the simplify angle: delete theater / propagate) |
 | **Magic numbers / unexplained constants** | Literals introduced by the diff with no name, shared constant, or nearby comment of non-obvious WHY | `P1` or `P2` if obvious domain literal |
