@@ -3,8 +3,9 @@
   // Does not merge to main. Does not switch or update this machine's kit checkout.
   //
   // Variants (pick exactly one string):
-  //   "draft_merge"  (default) Push branch learn/<class>-<date> and open a draft
-  //                  pull request into main. You merge when you want the rule live.
+  //   "draft_merge"  (default) Push branch learn/<class>-<date> and open a
+  //                  ready-for-review (mergeable) pull request into main.
+  //                  You merge when you want the rule live.
   //   "auto_push"    Push the same learn/ branch only. No pull request.
   "land": "draft_merge"
 }

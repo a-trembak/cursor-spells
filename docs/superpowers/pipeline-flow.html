@@ -1248,7 +1248,7 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/finish-plan · /engineer-review · /update-docs · /pr-review · /multi-review · /capture-escape</h3>
-            <p><code>/finish-plan</code> входить у <code>review-gate</code> HITL (код уже написаний). Manual <code>/engineer-review</code> пропускає цей HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> питає <code>miss</code> (kit через <code>teach-review</code>) або <code>project_secret</code> (локальний ledger). <code>/teach-review</code> після validated miss пише generalized kit instructions на remote <code>learn/…</code> (не consumer ledger, окрім коли обрано <code>project_secret</code>).</p>
+            <p><code>/finish-plan</code> входить у <code>review-gate</code> HITL (код уже написаний). Manual <code>/engineer-review</code> пропускає цей HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> питає <code>miss</code> (kit через <code>teach-review</code>) або <code>project_secret</code> (локальний ledger). <code>/teach-review</code> після validated miss пише generalized kit instructions на remote <code>learn/…</code> і відкриває ready-for-review pull request (не consumer ledger, окрім коли обрано <code>project_secret</code>).</p>
           </div>
         </div>
       </div>
