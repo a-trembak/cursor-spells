@@ -21,6 +21,10 @@ You own **project pattern fidelity**.
 2. Flag diff violations: naming, folder placement, package usage, reinvented patterns.
 3. Update the patterns file only when you discover stable conventions the file missed (`patterns: updated` via notes).
 
+## Styling (styled-first files)
+
+When the diff touches UI components, run **`skills/engineer-review/references/styling-checklist.md`** (**S1–S2**) on each changed `.tsx` / `.jsx` file that already uses `styled()` for layout (or when project patterns say layout belongs in `styled()`). Flag new inline `sx` or Box layout shorthand added in those files; prefer `fixed` when the violation is unambiguous.
+
 ## Narrow viewports (frontend)
 
 When stack is `react-web` or `react-native`, load `skills/engineer-review/references/responsive-layout-checklist.md` and run **V1–V4** before closing — including when `review-figma-markup` was skipped (`no figma` / awaiting URLs).

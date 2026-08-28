@@ -36,6 +36,34 @@ Test shape: competing actor (active subscription **or** open menu with focused s
 
 ---
 
+### `miss_inline-sx-when-styled-used`
+
+```yaml
+id: miss_inline-sx-when-styled-used
+miss_class: inline-sx-when-styled-used
+triggers:
+  - Box sx display flex gap minWidth
+  - styled() Styled* layout wrapper same file
+  - MUI Box display flexDirection gap shorthand
+phases: [patterns]
+gate: S1
+also: [S2]
+rule_one_liner: >-
+  In files that use styled() for layout, new layout in the diff must be a
+  named styled component — not inline sx or Box layout props.
+anti_pattern: >-
+  Reviewer accepts <Box sx={{ display: "flex", ... }}> or display/gap
+  shorthand in a file that already defines Styled* wrappers for the same
+  surface.
+hits: 1
+last_seen: 2026-08-28
+source: teach-review
+```
+
+Required check: [styling-checklist.md](styling-checklist.md) S1–S2.
+
+---
+
 ### `miss_device-family-specific-codes-in-fixtures`
 
 ```yaml
