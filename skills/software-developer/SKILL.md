@@ -10,7 +10,7 @@ description: >-
 
 # Software Developer
 
-Writes code **strictly** to the tech spec + implementation plan (full path), or to the short AC brief in **`mode:fast`**. Skill routing is a mechanical lookup against `engineer-review`'s `skill-map.md` — never silent third-party installs.
+Writes code **strictly** to the tech spec + implementation plan (full path), or to the short AC brief in **`mode:fast`**. Skill routing is a mechanical lookup against `engineer-review`'s [`skill-map.md`](../engineer-review/references/skill-map.md) — never silent third-party installs.
 
 ## When to Use
 
@@ -55,12 +55,12 @@ Never implement on the default branch. Never invent repos the plan does not touc
 
 ## Skill routing
 
-1. **Stack detection** — mechanical table lookup in `skills/engineer-review/references/skill-map.md` (same signals as engineer-review). Zero inventing of stack labels. Detect **per target repo** when the run spans multiple.
+1. **Stack detection** — mechanical table lookup in [`skill-map.md`](../engineer-review/references/skill-map.md) (same signals as engineer-review). Zero inventing of stack labels. Detect **per target repo** when the run spans multiple.
 2. **Always-on for this run:**
    - matched stack skill(s) from the map
    - `code-comments` (this kit) while writing — including backend services: no comments tied to charts, screens, widgets, or Figma
    - `mattpocock/skills@tdd` when the task has observable behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions)
-3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from skill-map § Database skill routing
+3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from [Database skill routing](../engineer-review/references/skill-map.md#database-skill-routing)
 4. **Conditional** — only if the plan/spec touches that surface: performance / security / architecture skills from the map
 5. **UI vs design (web):** when stack is `react-web` and the task changes user-visible UI:
    - If Figma node URLs are available (from the task/spec/clarifications): load Figma skills/MCP while implementing (`figma-use`, `figma-design-to-code` as available)

@@ -48,7 +48,7 @@ PROJECT="$TMP/app"
 mkdir -p "$FAKE_HOME" "$PROJECT"
 git -C "$PROJECT" init -q
 
-HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --user-only >/dev/null
+HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills >/dev/null
 if [[ -f "$FAKE_HOME/.cursor/rules/plain-language-chat.mdc" ]]; then
   echo "OK   user-global rule installed"
 else
@@ -62,7 +62,7 @@ else
   fail=1
 fi
 
-HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" >/dev/null
+HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills >/dev/null
 if [[ -f "$PROJECT/.cursor/rules/plain-language-chat.mdc" ]]; then
   echo "OK   project rule installed"
 else

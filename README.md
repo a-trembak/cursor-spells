@@ -24,7 +24,7 @@ cd /path/to/your-app && csp install          # same — path defaults to this re
 cd /path/to/multi-repo-workspace && csp update
 ```
 
-Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink).
+Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `CSP_SKIP_THIRD_PARTY_SKILLS=1` on air-gapped machines).
 
 **Why `--user-only` agents may not show in Cursor**
 
@@ -65,6 +65,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words chat (pipeline gate rules stay project-only) |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
+| mapped third-party skills (`npx skills add`) | Curated ids from [`skill-map.md`](skills/engineer-review/references/skill-map.md); skip with `--skip-third-party-skills` / `CSP_SKIP_THIRD_PARTY_SKILLS=1`; `npx` failure is `skill_missing`, not a failed kit install |
 
 Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
 
@@ -192,10 +193,20 @@ npx skills add everyinc/compound-engineering-plugin@ce-test-browser
 npx skills add graphify-labs/graphify@graphify
 # PR Review Canvas (Cursor plugin — not npx): install "PR Review Canvas" / pr-review-canvas
 # so /pr-review can emit a diff-orientation canvas (skip with no-canvas)
+# Database: always-on + current MySQL/MongoDB stack (same ids as skill-map Database skill routing).
+# Conditional Postgres/Flyway/Prisma stay manual unless the consumer project uses them.
+npx skills add wshobson/agents@database-migration
+npx skills add affaan-m/everything-claude-code@database-migrations
+npx skills add planetscale/database-skills@mysql
+npx skills add affaan-m/everything-claude-code@mysql-patterns
+npx skills add github/awesome-copilot@sql-code-review
+npx skills add mongodb/agent-skills@mongodb-query-optimizer
+npx skills add mongodb/agent-skills@mongodb-connection
+npx skills add hoodini/ai-agents-skills@mongodb
 ```
 
 
-Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md)'s Database skill routing section. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed.
+Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md#database-skill-routing)'s Database skill routing section. `csp install` installs the always-on + current-stack ids from that map (skip with `--skip-third-party-skills`). Conditional Postgres/Flyway/Prisma rows stay manual unless the consumer project uses them. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed mid-review.
 
 When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged.
 

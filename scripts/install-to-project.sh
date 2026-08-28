@@ -10,12 +10,15 @@
 set -euo pipefail
 
 KIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=mapped-third-party-skills.sh
+source "$KIT_ROOT/scripts/mapped-third-party-skills.sh"
 PROJECT=""
 USER_ONLY=0
 WITH_HUMANIZER=0
 COPY_MODE=0
 FORCE_REFRESH=0
 MODE="install" # install | update
+SKIP_THIRD_PARTY_SKILLS=0
 
 usage() {
   cat <<'EOF'
@@ -33,10 +36,14 @@ Flags:
   --user-only      Only ~/.cursor (no project files); still copies the plain-language-chat rule
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
+  --skip-third-party-skills
+                   Do not run npx skills add for mapped third-party skills
+                   (air-gapped). Same as CSP_SKIP_THIRD_PARTY_SKILLS=1
   -h, --help       Show help
 
 Keep one clone of cursor-spells; install/update per project. Do not vendor the
-kit inside every repository.
+kit inside every repository. Curated third-party skills come from skill-map.md
+on install/update; agents never auto-install them mid-review.
 EOF
   exit "${1:-0}"
 }
@@ -48,6 +55,10 @@ while [[ $# -gt 0 ]]; do
     --user-only|--global) USER_ONLY=1; shift ;;
     --humanizer) WITH_HUMANIZER=1; shift ;;
     --copy) COPY_MODE=1; shift ;;
+    --skip-third-party-skills)
+      SKIP_THIRD_PARTY_SKILLS=1
+      shift
+      ;;
     --user-skills|--hooks|--rule|--no-hooks|--no-rule)
       # Accepted no-ops / legacy aliases (hooks+rules always install with a project)
       shift
@@ -319,6 +330,13 @@ if [[ "$USER_ONLY" -eq 0 && -n "$PROJECT" ]]; then
   install_project_bits
 fi
 
+# Curated third-party skills from skill-map (human-launched installer only).
+# npx/network failure must not brick kit links.
+if [[ "$SKIP_THIRD_PARTY_SKILLS" -eq 1 ]]; then
+  export CSP_SKIP_THIRD_PARTY_SKILLS=1
+fi
+mtp_install_curated "${PROJECT:-}"
+
 echo "done."
 if [[ -n "$PROJECT" && "$USER_ONLY" -eq 0 ]]; then
   echo "project: $PROJECT"
@@ -331,4 +349,4 @@ elif [[ "$USER_ONLY" -eq 1 ]]; then
   echo "  • Check: ls -la ~/.cursor/agents"
 fi
 echo "next: open the project in Cursor → /start-task  /approve-plan  /pr-review  /engineer-review"
-echo "tip: npx skills add vercel-labs/agent-skills@vercel-react-best-practices"
+echo "tip: mapped third-party skills are installed from skill-map.md unless --skip-third-party-skills"
