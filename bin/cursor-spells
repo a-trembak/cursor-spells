@@ -37,6 +37,9 @@ Flags (install / update):
   --user-only     Only ~/.cursor (no project files); still copies the plain-language-chat rule
   --humanizer     Also install english-humanizer
   --copy          Copy instead of symlink into ~/.cursor
+  --skip-third-party-skills
+                  Do not run npx skills add for mapped third-party skills
+                  (air-gapped). Same as CSP_SKIP_THIRD_PARTY_SKILLS=1
   -h, --help      Show help
 
 Examples:

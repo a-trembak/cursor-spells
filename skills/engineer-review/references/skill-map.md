@@ -4,6 +4,10 @@ Canonical stack → skill routing for **`software-developer`** (while writing co
 
 Recommended installs (consumer machine / project). Do not vendor skill bodies into cursor-spells.
 
+`csp install` / `csp update` runs this list via `npx skills add` (human-launched installer, not an agent mid-review). Skip with `--skip-third-party-skills` or `CSP_SKIP_THIRD_PARTY_SKILLS=1`. Network / `npx` failure is non-fatal (`skill_missing`); kit links still install.
+
+Conditional Database rows (Postgres / Flyway / Prisma) stay **manual** unless the consumer project actually uses them — `csp install` detects those signals and only then adds those ids.
+
 ```bash
 npx skills add vercel-labs/agent-skills@vercel-react-best-practices
 npx skills add vercel-labs/agent-skills@vercel-react-native-skills
@@ -16,6 +20,15 @@ npx skills add abpai/skills@dead-code-eliminator
 # ce-simplify-code under ~/.cursor/plugins/.../skills/ce-simplify-code
 # preferred when graphify-out/ exists (optional install):
 npx skills add graphify-labs/graphify@graphify
+# Database: always-on + current MySQL/MongoDB stack (same ids as Database skill routing).
+npx skills add wshobson/agents@database-migration
+npx skills add affaan-m/everything-claude-code@database-migrations
+npx skills add planetscale/database-skills@mysql
+npx skills add affaan-m/everything-claude-code@mysql-patterns
+npx skills add github/awesome-copilot@sql-code-review
+npx skills add mongodb/agent-skills@mongodb-query-optimizer
+npx skills add mongodb/agent-skills@mongodb-connection
+npx skills add hoodini/ai-agents-skills@mongodb
 ```
 
 ## Stack detection → skills
@@ -34,24 +47,26 @@ Migrations and schema work are a named weak spot for AI-generated code (blast ra
 
 ### Always on any DB change
 
-- `wshobson/agents@database-migration` — zero-downtime patterns, rollback, expand/contract
-- `affaan-m/everything-claude-code@database-migrations` — production discipline: schema and data migrations never mixed, migrations immutable once deployed, forward-only in production
+- [`wshobson/agents@database-migration`](https://github.com/wshobson/agents) — zero-downtime patterns, rollback, expand/contract. Install: `npx skills add wshobson/agents@database-migration`
+- [`affaan-m/everything-claude-code@database-migrations`](https://github.com/affaan-m/everything-claude-code) — production discipline: schema and data migrations never mixed, migrations immutable once deployed, forward-only in production. Install: `npx skills add affaan-m/everything-claude-code@database-migrations`
 
 ### Current stack: MySQL + MongoDB
 
 | Stack | Skills |
 |-------|--------|
-| MySQL | `planetscale/database-skills@mysql` (schema/InnoDB, PK/index choices, measurable safe changes), `affaan-m/everything-claude-code@mysql-patterns` (large-table migrations, locks, pagination, pools), `github/awesome-copilot@sql-code-review` |
-| MongoDB | `mongodb/agent-skills@mongodb-query-optimizer`, `mongodb/agent-skills@mongodb-connection` (official), `hoodini/ai-agents-skills@mongodb` (schema/collection modeling) |
-| Mongoose (if present in repo) | `mongoose-mongodb` skill |
+| MySQL | [`planetscale/database-skills@mysql`](https://github.com/planetscale/database-skills) (`npx skills add planetscale/database-skills@mysql`) — schema/InnoDB, PK/index choices, measurable safe changes; [`affaan-m/everything-claude-code@mysql-patterns`](https://github.com/affaan-m/everything-claude-code) (`npx skills add affaan-m/everything-claude-code@mysql-patterns`) — large-table migrations, locks, pagination, pools; [`github/awesome-copilot@sql-code-review`](https://github.com/github/awesome-copilot) (`npx skills add github/awesome-copilot@sql-code-review`) |
+| MongoDB | [`mongodb/agent-skills@mongodb-query-optimizer`](https://github.com/mongodb/agent-skills) (`npx skills add mongodb/agent-skills@mongodb-query-optimizer`); [`mongodb/agent-skills@mongodb-connection`](https://github.com/mongodb/agent-skills) (`npx skills add mongodb/agent-skills@mongodb-connection`) (official); [`hoodini/ai-agents-skills@mongodb`](https://github.com/hoodini/ai-agents-skills) (`npx skills add hoodini/ai-agents-skills@mongodb`) — schema/collection modeling |
+| Mongoose (if present in repo) | `mongoose-mongodb` skill (name-only; not an `owner/repo@skill` id — install separately if you have it) |
 
 ### Conditional — kept in the map for future projects, not installed by default
 
+`csp install` skips these unless the consumer project actually uses that stack (signals in `package.json` / `pom.xml` / `docker-compose` / `prisma/schema.prisma`). Otherwise install by hand.
+
 | Stack | Skills |
 |-------|--------|
-| Postgres (if a future project uses it) | `wshobson/agents@postgresql-table-design`, `supabase/agent-skills@supabase-postgres-best-practices`, `postgresql-code-review` / `sql-optimization-patterns` |
-| Flyway/Spring | Spring Flyway migration skill |
-| Prisma | `prisma/skills@prisma-cli` + matching dialect skill |
+| Postgres (if a future project uses it) | [`wshobson/agents@postgresql-table-design`](https://github.com/wshobson/agents) (`npx skills add wshobson/agents@postgresql-table-design`); [`supabase/agent-skills@supabase-postgres-best-practices`](https://github.com/supabase/agent-skills) (`npx skills add supabase/agent-skills@supabase-postgres-best-practices`); `postgresql-code-review` / `sql-optimization-patterns` (name-only) |
+| Flyway/Spring | Spring Flyway migration skill (name-only; no `owner/repo@skill` id in this map) |
+| Prisma | [`prisma/skills@prisma-cli`](https://github.com/prisma/skills) (`npx skills add prisma/skills@prisma-cli`) + matching dialect skill |
 
 ## Stack detection → lint/typecheck commands (for `review-lint`)
 
