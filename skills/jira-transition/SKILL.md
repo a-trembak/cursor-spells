@@ -36,9 +36,9 @@ Source `scripts/jira-issue.sh`:
 1. If `jira_status` is set and `jira_status_matches_target "<target>" "<jira_status>"` is true → **skip** (already there). Report `skipped: already <status>`.
 2. Match **destination status** (`to.name`), not only the transition button label (e.g. "Start Progress" → In Progress).
 
-**`in_progress` destinations:** In Progress, In-Progress, Doing, WIP, Started.
+**`in_progress` destinations:** In Progress, In-Progress, In Development, Doing, WIP, Started.
 
-**`review` destinations:** Review, In Review, Code Review, Peer Review, To Review, Ready for Review.
+**`review` destinations:** Review, In Review, ES review, Code Review, Peer Review, To Review, Ready for Review.
 
 Use `jira_pick_transition_id "<target>"` on `id<TAB>to.name` lines.
 
