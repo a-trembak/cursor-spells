@@ -948,30 +948,37 @@
     <section id="view-review-gate" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">6. review-gate</h2>
-      <p class="view-desc">HITL <em>після</em> коду, перед engineer-review. Шар плану вже закритий. Команда <code>/finish-plan</code> пише <code>.cursor/gates/review-gate/&lt;slug&gt;</code>.</p>
+      <p class="view-desc">HITL <em>після</em> коду, перед engineer-review. Шар плану вже закритий. Пайплайн <em>не</em> закінчується тут. Команда <code>/finish-plan</code> пише <code>.cursor/gates/review-gate/&lt;slug&gt;</code>, потім <code>review-surface</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>review-surface (зручність, не фінал)</h3>
+            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Після відповіді людини стартує engineer-review, далі docs, далі create-pr.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
           <div class="step-body hitl">
             <h3>HITL gate</h3>
             <div class="branches">
               <div class="branch">
                 <span class="token ok">skip</span>
-                <div class="then">Стартувати review зараз</div>
+                <div class="then">Стартувати engineer-review зараз</div>
               </div>
               <div class="branch">
                 <span class="token ok">approve / done</span>
-                <div class="then">Людина вже глянула — стартувати review</div>
+                <div class="then">Людина вже глянула — стартувати engineer-review</div>
               </div>
               <div class="branch">
                 <span class="token">fixes</span>
-                <div class="then">Описати фікси → <code>software-developer</code> (Build) → знову цей самий gate<small>не writing-plans · marker лишається</small></div>
+                <div class="then">Описати фікси → <code>software-developer</code> (Build) → знову review-surface → цей самий gate<small>не writing-plans · marker лишається</small></div>
               </div>
             </div>
           </div>
         </div>
         <div class="step">
-          <div class="step-num">2</div>
+          <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Routing (non-mutating probe)</h3>
             <p>Читає graphify / існуючий multi-repo.json / sibling scan. <strong>Не</strong> пише multi-repo.json на цьому кроці.</p>
@@ -1105,7 +1112,7 @@
     <section id="view-create-pr" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">9. create-pr · Pipeline finale</h2>
-      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge. <code>ready</code> / <code>ready_jira</code> з ключем → Jira <code>review</code>.</p>
+      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge. <code>ready</code> / <code>ready_jira</code> з ключем → Jira <code>review</code> лише після merge всіх PR і успішного CI.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1–7</div>
@@ -1126,7 +1133,7 @@
               </div>
               <div class="branch">
                 <span class="token">ready</span>
-                <div class="then"><code>gh pr ready</code> + <code>jira-transition</code> target <code>review</code> (якщо є ключ)</div>
+                <div class="then"><code>gh pr ready</code>; <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI (якщо є ключ)</div>
               </div>
               <div class="branch">
                 <span class="token">keep_draft_jira</span>
@@ -1134,7 +1141,7 @@
               </div>
               <div class="branch">
                 <span class="token">ready_jira</span>
-                <div class="then">Ready + Jira comment + <code>jira-transition</code> target <code>review</code>.</div>
+                <div class="then">Ready + Jira comment; <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI.</div>
               </div>
             </div>
           </div>
@@ -1199,7 +1206,7 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. <code>ready</code> / <code>ready_jira</code> з Jira-ключем → <code>jira-transition</code> target <code>review</code>. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. <code>ready</code> / <code>ready_jira</code> з Jira-ключем → <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">
@@ -1241,7 +1248,7 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/finish-plan · /engineer-review · /update-docs · /pr-review · /multi-review · /capture-escape</h3>
-            <p><code>/finish-plan</code> входить у <code>review-gate</code> HITL (код уже написаний). Manual <code>/engineer-review</code> пропускає цей HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> питає <code>miss</code> (kit через <code>teach-review</code>) або <code>project_secret</code> (локальний ledger). <code>/teach-review</code> після validated miss пише generalized kit instructions на remote <code>learn/…</code> (не consumer ledger, окрім коли обрано <code>project_secret</code>).</p>
+            <p><code>/finish-plan</code> входить у <code>review-gate</code> HITL (код уже написаний). Manual <code>/engineer-review</code> пропускає цей HITL; <code>/update-docs</code> лишається окремим HITL destination gate. <code>/pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/capture-escape</code> питає <code>miss</code> (kit через <code>teach-review</code>) або <code>project_secret</code> (локальний ledger). <code>/teach-review</code> після validated miss пише generalized kit instructions на remote <code>learn/…</code> і відкриває ready-for-review pull request (не consumer ledger, окрім коли обрано <code>project_secret</code>).</p>
           </div>
         </div>
       </div>

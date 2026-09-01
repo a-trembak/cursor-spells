@@ -6,26 +6,27 @@
 
 ## Goal
 
-When a pipeline starts from a Jira ticket, move that ticket to **In Progress**. When the GitHub PR is marked ready for review, move it to **Review**. Do this through Atlassian MCP without inventing workflow ids and without merging the PR.
+When a pipeline starts from a Jira ticket, move that ticket to **In Progress**. When every opened GitHub pull request for that run is merged and every continuous-integration build succeeded, move it to **Review**. Do this through Atlassian MCP without inventing workflow ids and without merging the pull request.
 
 ## Decisions
 
 | Decision | Choice |
 |----------|--------|
 | Shared matcher | `scripts/jira-issue.sh`: `jira_normalize_status`, `jira_status_matches_target`, `jira_pick_transition_id` |
+| Merge + build gate | `scripts/pr-merge-ci.sh`: `pr_merge_ci_verdict` |
 | Shared skill | `jira-transition` — `getTransitionsForJiraIssue` then `transitionJiraIssue` |
 | Start trigger | After successful `jira-fetch` on `/start-task` (full and `--fast`) and `/start-issue-task` → target `in_progress` |
-| Review trigger | `create-pr` HITL `ready` or `ready_jira` when `jira_key` is known → target `review` |
-| Not Review | `keep_draft` / `keep_draft_jira` (ticket stays In Progress) |
+| Review trigger | `create-pr` after HITL `ready` or `ready_jira` when `jira_key` is known **and** `pr_merge_ci_verdict` is `all_merged_ci_success` → target `review` |
+| Not Review | `keep_draft` / `keep_draft_jira`; ready tokens before every pull request is merged with successful builds; `ci_failed`; `closed_unmerged` |
 | `/write-tech-spec` | Fetch only — no transition |
 | Match field | Destination status `to.name`, then transition `name` if needed |
 | Missing transition / MCP error | Report and **continue** the pipeline (do not stop) |
-| Comment failure | Unchanged: report and stop; do not retry as a transition |
-| GitHub merge | Still **never** `gh pr merge`. Review means the Jira Review column while the PR is ready for review |
+| Comment failure | Report and stop; do not retry as a transition |
+| GitHub merge | Never `gh pr merge`. The agent observes a later human merge and the build rollup; it does not merge |
 
-## Why Review is on ready, not GitHub merge
+## Why Review waits for merge and successful builds
 
-The kit never merges PRs (human merges later). Jira **Review** is the code-review column, which maps to marking the PR ready (`ready` / `ready_jira`), not to the merge event.
+`ready` / `ready_jira` only mark the GitHub pull request ready for review. Jira **Review** is the column after every opened pull request in the run is `MERGED` and every check in `statusCheckRollup` succeeded (CheckRun `SUCCESS` / `SKIPPED` / `NEUTRAL`, or commit-status `state: SUCCESS`, or no checks). Failed builds (`ci_failed`) do not move the ticket. A pull request closed without merge (`closed_unmerged`) does not wait in a loop. The kit never calls `gh pr merge`.
 
 ## `in_progress` names
 
@@ -40,15 +41,16 @@ Review, In Review, Code Review, Peer Review, To Review, Ready for Review.
 1. `/start-task` or `/start-issue-task` fetches the issue.
 2. If already matching `in_progress`, skip. Else list transitions, pick id via `jira_pick_transition_id in_progress`, call `transitionJiraIssue`.
 3. Pipeline continues even if the move fails.
-4. At `create-pr`, after `ready` / `ready_jira`: same steps with target `review`.
+4. At `create-pr`, after `ready` / `ready_jira`: observe every opened pull request (`state` + `statusCheckRollup`). Subscribe and wait while the verdict is `not_merged` or `pending_ci`. On `all_merged_ci_success`, same transition steps with target `review`.
 
 ## Out of scope
 
-Done/QA columns after GitHub merge; custom per-project status maps; inventing transition screens/fields; Linear; transitioning pasted (non-MCP) tickets without `jira_cloud_id`.
+Done/QA columns beyond the Review names above; custom per-project status maps; inventing transition screens/fields; Linear; transitioning pasted (non-MCP) tickets without `jira_cloud_id`.
 
 ## New/changed artifacts
 
 - `scripts/jira-issue.sh` + `scripts/tests/jira-issue-test.sh`
+- `scripts/pr-merge-ci.sh` + `scripts/tests/pr-merge-ci-test.sh`
 - `skills/jira-transition/SKILL.md`
 - `commands/start-task.md`, `commands/start-issue-task.md`
 - `skills/create-pr/SKILL.md`, `skills/hitl-choice/SKILL.md`

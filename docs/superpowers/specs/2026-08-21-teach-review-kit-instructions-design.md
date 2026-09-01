@@ -28,7 +28,7 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 | Config files | `csp install` / `csp update` create them with defaults if missing; never overwrite |
 | Config comments | Installed file has `//` notes above `land`: purpose + every legal value |
 | `auto_push` | Branch `learn/…` + `git push` only (no pull request) |
-| `draft_merge` | Same branch shape + **draft** pull request into kit `main` |
+| `draft_merge` | Same branch shape + **ready-for-review** (mergeable) pull request into kit `main` |
 | Local checkout | **Remote only** — do not merge/switch the kit checkout. Next review stays on old instructions until the human merges `learn/…` into `main` and updates the checkout |
 | Consumer ledger | Out of scope for this loop’s kit git. Routing of local vs kit stores: [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md) |
 
@@ -41,6 +41,10 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 - Inventing a miss class from an empty description.
 - Teaching pipeline stages other than engineer/PR review in v1 (`tech-spec`, critic, `software-developer`).
 - `confirm_then_push` as a third land mode (human already chose only `auto_push` / `draft_merge`).
+
+## Rejected alternatives
+
+- Draft pull request on `draft_merge` — rejected: a draft cannot be merged until marked ready; the kit needs a mergeable pull request after teaching.
 
 ## Config
 
@@ -62,7 +66,7 @@ v1 has **one** key. Unknown keys are ignored. Do not invent extra keys at instal
 
 | Value | Default? | What happens |
 |-------|----------|----------------|
-| `draft_merge` | **yes** | Create `learn/…` from `origin/main`, commit, `git push`, open a **draft** pull request into kit `main`. Never merge. Never mark ready. Local checkout stays on whatever branch it was. |
+| `draft_merge` | **yes** | Create `learn/…` from `origin/main`, commit, `git push`, open a **ready-for-review** (mergeable) pull request into kit `main`. Never merge. Local checkout stays on whatever branch it was. |
 | `auto_push` | no | Same branch + commit + `git push`. **No** pull request. Local checkout still unchanged. Reviews keep old instructions until a human merges `learn/…` into `main` and updates the checkout. |
 
 No other values. Empty, missing, or garbage → behave as `draft_merge` and tell the human once.
@@ -77,8 +81,9 @@ Install copies this exact body when the destination is missing. Comments stay in
   // Does not merge to main. Does not switch or update this machine's kit checkout.
   //
   // Variants (pick exactly one string):
-  //   "draft_merge"  (default) Push branch learn/<class>-<date> and open a draft
-  //                  pull request into main. You merge when you want the rule live.
+  //   "draft_merge"  (default) Push branch learn/<class>-<date> and open a
+  //                  ready-for-review (mergeable) pull request into main.
+  //                  You merge when you want the rule live.
   //   "auto_push"    Push the same learn/ branch only. No pull request.
   "land": "draft_merge"
 }
@@ -110,7 +115,7 @@ A project file with invalid `land` does **not** fall through to the user file: w
 | Skill `teach-review` | Generalize, route, edit the kit checkout, commit, land |
 | Command `/teach-review` | Same chain; optional miss description as the argument |
 | HITL **Teach-review miss** | After a validated review report: `miss` / `no_miss` |
-| Git lander (inside the skill) | `learn/…` branch, push, optional draft pull request |
+| Git lander (inside the skill) | `learn/…` branch, push, optional ready-for-review pull request |
 | Existing review spine | Gains always-on dispatch rows when `teach-review` creates a new phase agent |
 
 `engineer-reviewer` and `pr-reviewer` **must not** edit kit git themselves. They collect the miss text (or skip) and invoke `teach-review`.
@@ -130,7 +135,7 @@ teach-review:
   generalize → refuse if not generalizable
   route → existing file or new skill/agent + spine wiring
   resolve kit checkout → branch from origin/main → commit
-  resolve land config → push; draft pull request if draft_merge
+  resolve land config → push; ready-for-review pull request if draft_merge
   tell human: class, files, branch, pull request URL if any,
               reminder that main is unchanged until they merge
 ```
@@ -190,7 +195,7 @@ Commit **only** instruction files in the kit (skill/agent/checklist/spine/README
 | `land` | GitHub |
 |--------|--------|
 | `auto_push` | `git push -u origin learn/…` only. No pull request. |
-| `draft_merge` | Same push, then a **draft** pull request into `main` of the kit remote. Never merge. Never mark ready. |
+| `draft_merge` | Same push, then a **ready-for-review** (mergeable) pull request into `main` of the kit remote. Never merge. |
 
 Do not `git checkout main`, do not merge `learn/…` into the local checkout, do not run `csp update` as a side effect.
 
@@ -237,7 +242,7 @@ Always include:
 | Target path outside kit | Stop |
 | Dirty kit work tree | Stop; do not mix commits |
 | Invalid `land` in the **project** file | Warn; `draft_merge` |
-| Push / draft pull request failed | Report; keep local `learn/…` |
+| Push / pull request failed | Report; keep local `learn/…` |
 
 ## Tests (implementation)
 
@@ -275,4 +280,4 @@ Superseded for store routing by [`2026-08-21-review-learn-project-secret-design.
 
 ## Success
 
-A human can remark “the reviewer allowed a meaningless function name”, the kit gains a generalized naming check in the right phase (or a new always-on agent if nothing fits), a `learn/…` branch exists on the kit remote (and a draft pull request when configured), and no consumer app repository is modified. After the human merges to `main` and updates the kit checkout, later reviews in **all** linked projects load that check.
+A human can remark “the reviewer allowed a meaningless function name”, the kit gains a generalized naming check in the right phase (or a new always-on agent if nothing fits), a `learn/…` branch exists on the kit remote (and a ready-for-review pull request when configured), and no consumer app repository is modified. After the human merges to `main` and updates the kit checkout, later reviews in **all** linked projects load that check.

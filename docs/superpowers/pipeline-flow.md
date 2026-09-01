@@ -286,12 +286,13 @@ flowchart TD
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step. Skill `/finish-plan` writes the marker, asks HITL, then routes to review. `fixes` returns to `software-developer` (Build), then re-asks this same gate.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `/finish-plan` writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. `fixes` returns to `software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. GitHub `create-pr` still happens later, after `update-docs`.
 
 ```mermaid
 flowchart TD
   planDone(["Build complete — plan already executed"])
   writeReview{{".cursor/gates/review-gate/slug"}}
+  surface["review-surface: checkout + SetActiveBranch"]
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
   doFixes["software-developer implements fixes"]
   delReview["Clear this slug review-gate"]
@@ -306,9 +307,10 @@ flowchart TD
   reviewed(["Review complete"])
 
   planDone ==> writeReview
-  writeReview ==> hitlFinish
+  writeReview ==> surface
+  surface ==> hitlFinish
   hitlFinish -->|"fixes"| doFixes
-  doFixes -.->|"re-ask same gate"| hitlFinish
+  doFixes -->|"re-run review-surface"| surface
   hitlFinish -->|"skip or approve or done"| delReview
   delReview ==> probe
   probe ==> repoCount
@@ -399,7 +401,7 @@ flowchart TD
 
 Auto-fix requires all four: deterministic check, single correct answer, no information loss, zero blast radius on data/UX. Traceability drift and migrations are always `clarify`.
 
-After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
+After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch and a ready-for-review pull request when `land` is `draft_merge`; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
 
 ---
 
@@ -520,7 +522,7 @@ flowchart TD
   verdict -->|"clear"| fixer ==> review ==> prNode ==> doneIssue
 ```
 
-Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` also run `jira-transition` target `review`. Never `gh pr merge`.
+Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` run `jira-transition` target `review` only after every opened pull request is merged and continuous integration succeeded. Never `gh pr merge`.
 
 ---
 
@@ -534,14 +536,15 @@ flowchart TD
   keep["keep_draft"]
   ready["gh pr ready"]
   jiraC["addCommentToJiraIssue PR URL"]
+  waitMerge["all PRs merged + CI success"]
   jiraRev[["jira-transition review"]]
   done(["Report PR URL"])
 
   startPr ==> draft ==> hitl
   hitl -->|"keep_draft"| keep --> done
-  hitl -->|"ready"| ready --> jiraRev --> done
+  hitl -->|"ready"| ready --> waitMerge --> jiraRev --> done
   hitl -->|"keep_draft_jira"| jiraC --> done
-  hitl -->|"ready_jira"| ready --> jiraC --> jiraRev --> done
+  hitl -->|"ready_jira"| ready --> jiraC --> waitMerge --> jiraRev --> done
 ```
 
-`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. `ready` / `ready_jira` with a key → `jira-transition` target `review` (skip if already Review; report and continue on failure). `keep_draft` / `keep_draft_jira` leave the ticket In Progress.
+`keep_draft_jira` / `ready_jira` only when a Jira key is known. Never merge. `ready` / `ready_jira` with a key → wait until `pr_merge_ci_verdict` is `all_merged_ci_success`, then `jira-transition` target `review` (skip if already Review; report and continue on failure). `keep_draft` / `keep_draft_jira` leave the ticket In Progress.

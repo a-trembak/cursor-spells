@@ -92,7 +92,7 @@ Ask only after the human chose `agent` on Tech-spec entry. Do not ask in `human`
 | `done` | Done reviewing — start review |
 | `fixes` | Describe fixes first |
 
-`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description.
+`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not invoke `create-pr` here.
 
 ### Figma ask (frontend)
 
@@ -257,7 +257,7 @@ Ask from skill `create-pr` **after** a draft PR exists (never before). Default i
 | `keep_draft_jira` | Keep draft + comment PR URL on Jira | Jira key known |
 | `ready_jira` | Ready for review + comment PR URL on Jira | Jira key known |
 
-On `ready` / `ready_jira`: `gh pr ready` per opened PR. On `*_jira`: `addCommentToJiraIssue` with PR URL(s). On `ready` / `ready_jira` when `jira_key` is known: skill **`jira-transition`** target `review`. Never merge. Do not transition on `keep_draft` / `keep_draft_jira`.
+On `ready` / `ready_jira`: `gh pr ready` per opened PR. On `*_jira`: `addCommentToJiraIssue` with PR URL(s). Do not run `jira-transition` on the ready token itself. After `ready` / `ready_jira` when `jira_key` is known: wait until `pr_merge_ci_verdict` is `all_merged_ci_success` (every opened pull request merged and every continuous-integration build succeeded), then skill **`jira-transition`** target `review`. `closed_unmerged` reports and stops the wait. Never merge. Do not transition on `keep_draft` / `keep_draft_jira`.
 
 ### Trajectory fail
 

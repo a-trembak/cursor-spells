@@ -10,6 +10,7 @@ From kit root:
 
 ```bash
 bash scripts/tests/jira-issue-test.sh
+bash scripts/tests/pr-merge-ci-test.sh
 bash scripts/tests/pipeline-gates-test.sh
 bash scripts/tests/jira-ac-router-finale-test.sh
 bash scripts/tests/pipeline-flow-graph-test.sh
@@ -22,6 +23,7 @@ bash scripts/tests/trajectory-wiring-test.sh
 | Check | Expect |
 |-------|--------|
 | Key / site / class | ALL PASS (`jira-issue-test.sh`) |
+| Merge + build verdict | ALL PASS (`pr-merge-ci-test.sh`) |
 | Prose that mentions a key | `jira_looks_like_issue` is false (not a fetch) |
 | Bare `PROJ-123` or `*.atlassian.net` URL | looks-like true |
 | Bug-like types | `bug` (Bug, Defect, Fault, Incident, Problem, Error) |
@@ -35,6 +37,7 @@ Install refresh (optional throwaway consumer):
 ./scripts/install-to-project.sh /tmp/jira-ac-dogfood
 test -x /tmp/jira-ac-dogfood/scripts/jira-issue.sh
 test -x /tmp/jira-ac-dogfood/scripts/pipeline-gates.sh
+test -x /tmp/jira-ac-dogfood/scripts/pr-merge-ci.sh
 rm -rf /tmp/jira-ac-dogfood
 ```
 
@@ -60,9 +63,9 @@ After a **draft** PR exists, `create-pr` must AskQuestion **Pipeline finale**:
 | Token | Shown | Effect |
 |-------|-------|--------|
 | `keep_draft` | always | Draft stays draft (Jira stays In Progress) |
-| `ready` | always | `gh pr ready` + `jira-transition` target `review` when key known |
+| `ready` | always | `gh pr ready`; `jira-transition` target `review` only after every opened pull request is merged and every build succeeded, when key known |
 | `keep_draft_jira` | only if `jira_key` known | Draft + `addCommentToJiraIssue` (PR URL); no Review transition |
-| `ready_jira` | only if `jira_key` known | Ready + Jira comment + `jira-transition` target `review` |
+| `ready_jira` | only if `jira_key` known | Ready + Jira comment; `jira-transition` target `review` only after every opened pull request is merged and every build succeeded |
 
 Forbidden: inventing transition ids, `gh pr merge`, review approve, opening ready-for-review before this HITL, transitioning from `/write-tech-spec`.
 

@@ -58,7 +58,8 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
    - `git -C "$TMP" push -u origin "$branch"`
    - `repo="$(git -C "$KIT" remote get-url origin)"` — use for `gh --repo`
    - If `tr_land_opens_pr "$land"` (i.e. `draft_merge`):
-     `gh pr create --draft --repo "$repo" --base main --head "$branch" --title "feat(review): teach <miss_class>" --body "<rule one-liner + file list>"`
+     `gh pr create --repo "$repo" --base main --head "$branch" --title "feat(review): teach <miss_class>" --body "<rule one-liner + file list>"`
+     Do **not** pass `--draft`. The pull request must be ready for review and mergeable.
    - `auto_push`: skip `gh pr create`
    - Push or `gh` failure: report error + branch name; do not claim success
    - Always: `git -C "$KIT" worktree remove "$TMP"` (even after failure, if the worktree was added)
@@ -67,6 +68,6 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
 ## Hard rules
 
 - Never edit consumer app files (including `.cursor/review-learnings.md`) in this loop.
-- Never merge to `main`. Never mark the pull request ready.
+- Never merge to `main`. Open a ready-for-review pull request, not a draft.
 - Never auto-edit kit checklists from `review-learn` promote; this skill is the kit-edit path.
 - Failure after a review report must not retract the report; say `/teach-review` can retry.
