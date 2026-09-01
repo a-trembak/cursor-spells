@@ -45,6 +45,18 @@ Canonical rules: `skills/engineer-review/references/fixture-identifier-conventio
 
 Must apply **I1**: check each pairing against that family's identifier conventions (production validators, parsers, sibling fixtures, or documented patterns). Do not close on merge, count, or aggregation assertions alone. Do not treat production filters that drop invalid family×code pairs as this miss class.
 
+### JPA Criteria / Specification (J1–J2, N1, when triggered)
+
+Canonical rules: `skills/engineer-review/references/jpa-criteria-checklist.md`.
+
+**Triggers (any):** diff touches `Specification`, Criteria `Subquery` / `exists(`, `fetch(` / `join(` on JPA entities, or follow-up null-safety in a file recently fixed for a query/runtime NPE.
+
+Must apply the matching rules:
+
+- **J1** — Fetch join + EXISTS: correlation must use the join/fetch handle (e.g. `installationJoin.get("uuid")`), not `root.get("association").get("id")`. Flag "align to root path" rewrites.
+- **J2** — Mockito spec tests must verify the same Criteria path production uses; flag tests that only stub `root.get("installation")` when production uses the join handle.
+- **N1** — Follow-up hardening: diff hotspot against the **prior fix commit**; flag reverted query/join/collect lines; require membership-scoped smoke when bug was membership-scoped; scan shared callers for partial null-safety.
+
 ### Partial null safety across callers (N1, when triggered)
 
 Canonical rules: `skills/engineer-review/references/null-safety-checklist.md`.

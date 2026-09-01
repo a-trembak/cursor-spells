@@ -61,12 +61,13 @@ Never implement on the default branch. Never invent repos the plan does not touc
    - `code-comments` (this kit) while writing — including backend services: no comments tied to charts, screens, widgets, or Figma
    - `mattpocock/skills@tdd` when the task has observable behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions)
 3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from [Database skill routing](../engineer-review/references/skill-map.md#database-skill-routing)
-4. **Conditional** — only if the plan/spec touches that surface: performance / security / architecture skills from the map
-5. **UI vs design (web):** when stack is `react-web` and the task changes user-visible UI:
+4. **JPA Criteria** — when the task touches `Specification`, Criteria fetch/join/subquery code, or org-scoped alert/installation queries: load [jpa-criteria-patterns.md](references/jpa-criteria-patterns.md) and apply before handoff
+5. **Conditional** — only if the plan/spec touches that surface: performance / security / architecture skills from the map
+6. **UI vs design (web):** when stack is `react-web` and the task changes user-visible UI:
    - If Figma node URLs are available (from the task/spec/clarifications): load Figma skills/MCP while implementing (`figma-use`, `figma-design-to-code` as available)
    - After the UI slice is runnable: follow **`ce-test-browser`** to open affected routes and compare the **rendered** UI to those Figma nodes
    - Missing skill / no browser / no URLs → continue coding; note `skill_missing: ce-test-browser`, `browser_review_unavailable`, or `awaiting_figma_urls` in the handoff — do not invent pixel diffs
-6. **Before handoff:** run `verification-before-completion` (or the project's own lint/test/typecheck) — never claim done without evidence
+7. **Before handoff:** run `verification-before-completion` (or the project's own lint/test/typecheck) — never claim done without evidence
 
 Missing mapped skill → proceed on built-in checklist; report `skill_missing: <id>`. Never auto-install Tier-2 skills; follow skill-map's Skill resolution protocol (ask the human).
 
@@ -76,9 +77,19 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - Do not make "while I'm here" improvements outside scope
 - Do not silently change the data model described in the tech spec (full path)
 - If plan/spec/brief conflicts with the repo: **stop and ask** — do not silently deviate
-- Source-code comments: English only; apply `code-comments` Keep/Remove taxonomy
+- Source-code comments: English only; apply the **Comments** section below and `code-comments` Keep/Remove taxonomy
 - **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this
 - Do not write implementation commits on `main` / `master` / the default branch
+
+## Comments
+
+Write comments only when the code cannot express the idea on its own:
+
+- **Keep:** non-obvious business invariants, deep technical constraints (JPA bag joins, fetch join + EXISTS correlation, exclusive API bounds, security/perf trade-offs), public API contracts, `TODO`/`FIXME`.
+- **Remove / never write:** narrating what the code does, change-history notes ("previously…", "same pattern as…"), `@Transactional` rationale comments when absence/presence is obvious from the annotation, UI/chart/screen/Figma mentions in backend code.
+- **Prefer:** clearer names, smaller methods, and self-explanatory structure over explanatory comments.
+
+When in doubt, omit the comment. Align with repo precedent (e.g. `d25dedc` — code-only fixes, no meta commentary).
 
 ## Execution engine
 
