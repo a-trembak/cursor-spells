@@ -77,9 +77,19 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - Do not make "while I'm here" improvements outside scope
 - Do not silently change the data model described in the tech spec (full path)
 - If plan/spec/brief conflicts with the repo: **stop and ask** — do not silently deviate
-- Source-code comments: English only; apply `code-comments` Keep/Remove taxonomy
+- Source-code comments: English only; apply the **Comments** section below and `code-comments` Keep/Remove taxonomy
 - **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this
 - Do not write implementation commits on `main` / `master` / the default branch
+
+## Comments
+
+Write comments only when the code cannot express the idea on its own:
+
+- **Keep:** non-obvious business invariants, deep technical constraints (JPA bag joins, fetch join + EXISTS correlation, exclusive API bounds, security/perf trade-offs), public API contracts, `TODO`/`FIXME`.
+- **Remove / never write:** narrating what the code does, change-history notes ("previously…", "same pattern as…"), `@Transactional` rationale comments when absence/presence is obvious from the annotation, UI/chart/screen/Figma mentions in backend code.
+- **Prefer:** clearer names, smaller methods, and self-explanatory structure over explanatory comments.
+
+When in doubt, omit the comment. Align with repo precedent (e.g. `d25dedc` — code-only fixes, no meta commentary).
 
 ## Execution engine
 
