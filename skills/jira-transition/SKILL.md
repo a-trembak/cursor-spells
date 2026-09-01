@@ -3,7 +3,8 @@ name: jira-transition
 description: >-
   Move a Jira issue to In Progress or Review via Atlassian MCP. Use from
   /start-task and /start-issue-task (in_progress after fetch) and from
-  create-pr (review after ready / ready_jira). Never merges GitHub PRs.
+  create-pr (review after every opened pull request is merged and
+  continuous integration succeeded). Never merges GitHub PRs.
   Never invents transition ids.
 ---
 
@@ -15,7 +16,7 @@ Set a fetched Jira issue to a named workflow column. Matching uses `scripts/jira
 
 - `/start-task` (full or `--fast`) after `jira-fetch` succeeds → target `in_progress`
 - `/start-issue-task` after `jira-fetch` succeeds (or reuse of an already-fetched issue) → target `in_progress`
-- `create-pr` after HITL `ready` or `ready_jira` when `jira_key` is known → target `review`
+- `create-pr` after HITL `ready` or `ready_jira` **and** `pr_merge_ci_verdict` is `all_merged_ci_success` when `jira_key` is known → target `review`
 - Not from `/write-tech-spec`. Not on `keep_draft` / `keep_draft_jira`. Not as a substitute for `addCommentToJiraIssue`.
 
 ## Required inputs

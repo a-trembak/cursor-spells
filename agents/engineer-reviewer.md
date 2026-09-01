@@ -24,7 +24,7 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
 ## Spine
 
 1. Resolve `BASE_SHA` / `HEAD_SHA` (or user-provided range). Default: merge-base with `main`/`master`/`origin/main` .. `HEAD`.
-2. Detect stack using `references/skill-map.md`.
+2. Detect stack using [`skill-map.md`](../skills/engineer-review/references/skill-map.md).
 3. Compute budget (`git diff --name-only` + `--numstat`).
 4. **Catastrophic abort:** if files > 200 or LOC > 50_000, stop per `references/phase-protocol.md` — ask the user to narrow scope (path allow/deny, smaller range, exclude generated/lockfile noise). Do not chunk-spam.
 5. **Graphify scoping (preferred when present):** apply `references/graphify-protocol.md` — detect `graphify-out/`, query impact for changed paths, build a compact `impact_hint`. If absent/unqueryable, no-op (same as today). Never rebuild the graph during review; never paste `graph.json`.

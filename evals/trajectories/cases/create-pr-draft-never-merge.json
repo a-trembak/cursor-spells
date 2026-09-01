@@ -29,6 +29,6 @@
     "jira_status": "In Progress",
     "pull_request": "draft",
     "review_report": "absent",
-    "notes": "ready / ready_jira may later mark the pull request ready and move Jira to Review. keep_draft leaves both as they are."
+    "notes": "ready / ready_jira may later mark the pull request ready. Jira Review waits until every pull request is merged and continuous integration succeeded. keep_draft leaves both as they are."
   }
 }

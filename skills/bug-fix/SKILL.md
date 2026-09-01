@@ -38,7 +38,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 | `ce-debug` with `mode:pipeline` | Non-interactive diagnosis loop when installed |
 | `verification-before-completion` | Evidence before claiming done |
 | `code-comments` | Keep/Remove taxonomy; English-only comments |
-| skill-map stack (+ DB rows if migrations) | Same mechanical lookup as `software-developer` |
+| [`skill-map.md`](../engineer-review/references/skill-map.md) stack (+ DB rows if migrations) | Same mechanical lookup as `software-developer` |
 | `tdd` / project test conventions | Failing test that proves the bug **before** the fix |
 
 ## Spine

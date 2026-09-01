@@ -56,6 +56,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - **Automatic on `Verdict: clear`:** hand off to `start-build`.
 5. **Execution** (automatic once critique is clear): skill `start-build` dispatches `software-developer` as a nested Task — feature branch(es) in every repo the plan will touch, skill-map routing, then `subagent-driven-development` by default. **Wait for** the Task to return. **Do not treat dispatch as the end** of the pipeline. `start-build` then immediately invokes `finish-plan` in this parent chat. Do not ask "which approach?" in this orchestrated flow. If the user has already indicated they want a separate session, honor `executing-plans` instead. On `react-web` UI tasks with Figma URLs, `software-developer` also runs `ce-test-browser` against the design.
 6. **Finish plan** (automatic, from `start-build` after the developer returns — do not wait for the human to type `/finish-plan`):
+   - Apply `review-surface` (`SetActiveBranch` + checkout in each open folder) so the human can see the diff. Do **not** invoke `create-pr` here — this is not the pipeline end.
    - **HITL:** `skip` / `approve` / `done` via `hitl-choice` before `engineer-review` starts.
    - If `finish-plan` already started in this chat after the developer returned, do not re-ask — continue from its remaining steps.
 7. **Engineer review** (automatic once the HITL gate clears): run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ changed repos).
@@ -70,7 +71,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 - This command never invents an answer at any HITL gate above — it always stops and waits for the human's reply at exactly those points, and only those points.
 - **Do not treat dispatch as the end** of the pipeline: after `software-developer` returns, `finish-plan` then `engineer-reviewer` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
-- Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may transition to Review; trajectory score needs the observed status).
+- Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may wait for every pull request to merge and continuous integration to succeed, then transition to Review; trajectory score needs the observed status).
 - **Session ledger:** after routing to **full** mode, init `.cursor/gates/trajectory-run/session-full.json` for case `full-happy-path` per skill `trajectory-score` (exact invocation `/start-task PROJ-1`). Append stages and gates along the path. `create-pr` scores it when a draft exists and Pipeline finale was asked.
 - After routing to **fast** mode (not while waiting on Fast vs issue), init `session-fast.json` for case `fast-skips-plan-layer` (exact invocation `/start-task --fast PROJ-1`).
 - Append to the session ledger after every named stage and human gate (skill `trajectory-score`).

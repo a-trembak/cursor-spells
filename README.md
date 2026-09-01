@@ -24,7 +24,7 @@ cd /path/to/your-app && csp install          # same — path defaults to this re
 cd /path/to/multi-repo-workspace && csp update
 ```
 
-Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink).
+Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `CSP_SKIP_THIRD_PARTY_SKILLS=1` on air-gapped machines).
 
 **Why `--user-only` agents may not show in Cursor**
 
@@ -65,6 +65,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words chat (pipeline gate rules stay project-only) |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
+| mapped third-party skills (`npx skills add`) | Curated ids from [`skill-map.md`](skills/engineer-review/references/skill-map.md); skip with `--skip-third-party-skills` / `CSP_SKIP_THIRD_PARTY_SKILLS=1`; `npx` failure is `skill_missing`, not a failed kit install |
 
 Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
 
@@ -129,13 +130,13 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | [`hitl-choice`](skills/hitl-choice/) | HITL UX — AskQuestion (or alias) required first; typed tokens only after failed/missing tool |
 | [`bug-fix`](skills/bug-fix/) | Root-cause bug fix — reproduce, minimal fix, regression test; used by `bug-fixer` / `/start-issue-task` |
 | [`jira-fetch`](skills/jira-fetch/) | Fetch Jira issue text via Atlassian MCP; classify Bug vs Story for `/start-task` routing |
-| [`jira-transition`](skills/jira-transition/) | Move a fetched issue to In Progress (`/start-task`) or Review (`create-pr` ready / ready_jira) |
-| [`create-pr`](skills/create-pr/) | Commit/push + **draft** GitHub PR, then HITL Pipeline finale (`keep_draft` / `ready` / Jira comment). Never merge; Review transition on ready |
+| [`jira-transition`](skills/jira-transition/) | Move a fetched issue to In Progress (`/start-task`) or Review (`create-pr` after every opened pull request is merged and continuous integration succeeded) |
+| [`create-pr`](skills/create-pr/) | Commit/push + **draft** GitHub PR, then HITL Pipeline finale (`keep_draft` / `ready` / Jira comment). Never merge; Review transition after merge and successful builds |
 | [`trajectory-score`](skills/trajectory-score/) | Record a trajectory ledger and hard-score it at wired pipeline stops; session ledger for full/fast/issue paths |
 | [`trajectory-judge`](skills/trajectory-judge/) | Nested-Task judge for invented business facts and decision-doc archaeology; writes actions then re-scores |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words — no abbreviations; always-on via rule `plain-language-chat` |
-| [`finish-plan`](skills/finish-plan/) | Reliable plan→HITL handoff (writes review-gate marker, then asks) |
+| [`finish-plan`](skills/finish-plan/) | Plan→HITL handoff: `review-surface` (`SetActiveBranch`) then review-gate; engineer-review still runs after |
 | [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — Pass A/B (+ Pass C for bug-fix plans), must-fix/should-fix/accept-risk |
@@ -192,10 +193,20 @@ npx skills add everyinc/compound-engineering-plugin@ce-test-browser
 npx skills add graphify-labs/graphify@graphify
 # PR Review Canvas (Cursor plugin — not npx): install "PR Review Canvas" / pr-review-canvas
 # so /pr-review can emit a diff-orientation canvas (skip with no-canvas)
+# Database: always-on + current MySQL/MongoDB stack (same ids as skill-map Database skill routing).
+# Conditional Postgres/Flyway/Prisma stay manual unless the consumer project uses them.
+npx skills add wshobson/agents@database-migration
+npx skills add affaan-m/everything-claude-code@database-migrations
+npx skills add planetscale/database-skills@mysql
+npx skills add affaan-m/everything-claude-code@mysql-patterns
+npx skills add github/awesome-copilot@sql-code-review
+npx skills add mongodb/agent-skills@mongodb-query-optimizer
+npx skills add mongodb/agent-skills@mongodb-connection
+npx skills add hoodini/ai-agents-skills@mongodb
 ```
 
 
-Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md)'s Database skill routing section. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed.
+Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md#database-skill-routing)'s Database skill routing section. `csp install` installs the always-on + current-stack ids from that map (skip with `--skip-third-party-skills`). Conditional Postgres/Flyway/Prisma rows stay manual unless the consumer project uses them. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed mid-review.
 
 When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged.
 
@@ -208,8 +219,8 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 
 ### review-gate → HITL → engineer review
 
-1. When coding from a plan is done: `/finish-plan` (this is the **review-gate** HITL, not another planning step)
-2. Answer via interactive buttons when offered (`AskQuestion`), or type `skip` / `approve` / `done`. Type `fixes` to return to `software-developer`, then the same gate.
+1. When coding from a plan is done: `/finish-plan` (this is the **review-gate** HITL, not another planning step). First it applies [`review-surface`](skills/finish-plan/references/review-surface.md): check out the feature branch in each open folder and call `SetActiveBranch` so the pull request tab shows the diff. That is **not** a GitHub pull request and **not** the pipeline end.
+2. Answer via interactive buttons when offered (`AskQuestion`), or type `skip` / `approve` / `done`. Type `fixes` to return to `software-developer`, then the same gate. After `skip` / `approve` / `done`, **engineer-review** starts.
 3. On frontend, use the Figma picker or paste node URLs / `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
@@ -231,10 +242,10 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skills/clean-decision-docs/): rewrite the file as current truth; put "what changed" in chat, not as changelog archaeology inside the document.
 5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
-6. `review-gate` via `/finish-plan` — **HITL** `skip`/`approve`/`done` (or `fixes` back to `software-developer`)
+6. `review-gate` via `/finish-plan` — surface the diff (`SetActiveBranch`) then **HITL** `skip`/`approve`/`done` (or `fixes` back to `software-developer`). Pipeline continues.
 7. `engineer-review` — **HITL** only for clarifications it raises
 8. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write)
-9. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). `ready` / `ready_jira` also move the Jira issue to **Review**. Never merge.
+9. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). `ready` / `ready_jira` move the Jira issue to **Review** only after every opened pull request is merged and every continuous-integration build succeeded. Never merge.
 
 Full `/start-task` **does** fetch Jira when the prompt looks like a ticket. MCP failure → stop and paste the ticket (never a URL-only stub). Writing AC is still out of scope. Explicit `/start-issue-task` always stays on the issue path even if the type is Story.
 
@@ -246,7 +257,7 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Start an issue task (Jira bug fix)
 
-`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review**). Always this path when invoked explicitly, even if the type is Story.
+`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review** only after every opened pull request is merged and every continuous-integration build succeeded). Always this path when invoked explicitly, even if the type is Story.
 
 ### Capture a production escape
 

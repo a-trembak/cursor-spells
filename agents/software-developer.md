@@ -24,10 +24,11 @@ You are the **software-developer** agent. You write code to the tech spec + plan
    - Resolve target repo(s) from the plan/tech-spec (one repo or several — only where changes are planned).
    - Derive one shared feature branch name for this run.
    - Create and check out that branch in each target repo from its base.
+   - Call `SetActiveBranch` for each folder the human has open.
    - If any target fails or the set is ambiguous: stop and ask. Do not start Task 1.
-2. Detect stack mechanically via `skills/engineer-review/references/skill-map.md` (table lookup only; per target repo when multi-repo).
+2. Detect stack mechanically via [`skill-map.md`](../skills/engineer-review/references/skill-map.md) (table lookup only; per target repo when multi-repo).
 3. Load always-on skills for this run: matched stack skill(s), `code-comments` (including backend: no comments tied to charts, screens, widgets, or Figma), and `tdd` when the task has observable behavior (note `skill_missing` if absent).
-4. If the plan/task touches migrations/schema: load Database skill routing rows from the same skill-map.
+4. If the plan/task touches migrations/schema: load [Database skill routing](../skills/engineer-review/references/skill-map.md#database-skill-routing) rows from the same skill-map.
 5. If the plan/spec touches perf/security/architecture surfaces: load those mapped skills conditionally.
 6. **Web UI vs design** — only when stack is `react-web` and the task changes user-visible UI:
    a. If Figma node URLs exist: use Figma MCP/skills while implementing.
