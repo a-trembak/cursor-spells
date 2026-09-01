@@ -45,6 +45,14 @@ Canonical rules: `skills/engineer-review/references/fixture-identifier-conventio
 
 Must apply **I1**: check each pairing against that family's identifier conventions (production validators, parsers, sibling fixtures, or documented patterns). Do not close on merge, count, or aggregation assertions alone. Do not treat production filters that drop invalid family×code pairs as this miss class.
 
+### Partial null safety across callers (N1, when triggered)
+
+Canonical rules: `skills/engineer-review/references/null-safety-checklist.md`.
+
+**Trigger:** the diff fixes or hardens null handling — NPE/500 fixes, null guards, filters on null associations, map lookup changes, or shared helper extraction used by multiple endpoints.
+
+Must apply **N1**: trace every caller of each touched helper and every sibling endpoint on the same service path; verify equivalent null guards (including `getOrDefault` vs null map values, composite keys before grouping, unfiltered association access). Do not approve if one path is hardened but another caller or sibling still uses the unsafe pattern. Coverage must note `null_safety_callers: traced|partial|skipped|n/a` when this trigger applies.
+
 ## Output
 
 Follow `skills/engineer-review/references/phase-protocol.md`.  
