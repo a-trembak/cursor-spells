@@ -152,3 +152,62 @@ source: production-escape
 Mechanism: the phase compares a screenshot or JSX to Figma by vibe and skips readable token, spacing, hierarchy, and empty-placeholder misses.
 
 Required check: [figma-markup-checklist.md](figma-markup-checklist.md) F1–F7.
+
+---
+
+### `miss_jpa-fetch-join-exists-correlation`
+
+```yaml
+id: miss_jpa-fetch-join-exists-correlation
+miss_class: jpa-fetch-join-exists-correlation
+triggers:
+  - Specification | CriteriaBuilder | Subquery | exists(
+  - fetch( | JoinType.INNER | JoinType.LEFT
+  - root.get( | join( | bag join | @OneToMany
+phases: [logic]
+gate: J1
+also: [J2]
+rule_one_liner: >-
+  When a spec fetch-joins an association and filters with EXISTS, correlate
+  via the join handle — not root.get(association); mock tests must match.
+anti_pattern: >-
+  Approving a correlation rewrite to root.get("installation") while fetch
+  join remains, or tests that stub root.get("installation") but production
+  uses installationJoin.get("uuid").
+hits: 1
+last_seen: 2026-09-01
+source: production-escape
+```
+
+Mechanism: Hibernate throws NPE at query execution when EXISTS subqueries correlate through `root.get(association)` while that association is fetch-joined. Mockito spec tests that stub the wrong path pass while QA fails on membership-scoped requests.
+
+Required check: [jpa-criteria-checklist.md](jpa-criteria-checklist.md) J1–J2.
+
+---
+
+### `miss_partial-fix-regression`
+
+```yaml
+id: miss_partial-fix-regression
+miss_class: partial-fix-regression
+triggers:
+  - null-safe | Optional.empty | groupBy | resolveLastResponsible
+  - follow-up PR | hardening | align | refactor same file
+  - membership scope | org-scoped | resolveScopeOrgUuid
+phases: [logic]
+gate: N1
+rule_one_liner: >-
+  Diff follow-up hardening against the prior fix commit; do not revert a
+  working query/join line while adding null guards; smoke membership scope.
+anti_pattern: >-
+  Merging null-safe service mapping while reverting a Criteria correlation
+  fix in the same PR, or closing review after fleet-scope curl only.
+hits: 1
+last_seen: 2026-09-01
+source: production-escape
+```
+
+Mechanism: a second PR adds defensive null handling but restores an older Criteria or join line in the same hotspot, reintroducing the production 500. Review that compares only to main intent misses the regression against the immediate prior fix.
+
+Required check: [jpa-criteria-checklist.md](jpa-criteria-checklist.md) N1. Shared callers: same file N1 bullet.
+
