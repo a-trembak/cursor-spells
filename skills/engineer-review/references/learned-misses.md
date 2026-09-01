@@ -155,6 +155,35 @@ Required check: [figma-markup-checklist.md](figma-markup-checklist.md) F1–F7.
 
 ---
 
+### `miss_assumption-driven-bugfix`
+
+```yaml
+id: miss_assumption-driven-bugfix
+miss_class: assumption-driven-bugfix
+triggers:
+  - bug fix | hotfix | NPE | 500 | production escape
+  - defensive null | hardening | likely | probably
+  - multiple fix commits | still failing after merge
+phases: [logic]
+gate: E2
+also: [E1, E3, E4, E5]
+rule_one_liner: >-
+  Bug-fix must not ship without evidence (stack trace, failing integration
+  test, or debug run) proving the throwing line; blockers not guess PRs.
+anti_pattern: >-
+  Patching from plausible stories, wrong auth context reproduction, or
+  Mockito-only tests while QA still 500 without deploy/trace proof.
+hits: 1
+last_seen: 2026-09-01
+source: production-escape
+```
+
+Mechanism: agent fixes from pattern matching or partial reproduction (wrong JWT scope, no stack trace), merges multiple commits, production stays broken.
+
+Required check: [debug-evidence-gate.md](../../bug-fix/references/debug-evidence-gate.md) E1–E5 (bug-fix / bug-fixer).
+
+---
+
 ### `miss_jpa-fetch-join-exists-correlation`
 
 ```yaml
