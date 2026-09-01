@@ -211,3 +211,33 @@ Mechanism: a second PR adds defensive null handling but restores an older Criter
 
 Required check: [jpa-criteria-checklist.md](jpa-criteria-checklist.md) N1. Shared callers: same file N1 bullet.
 
+---
+
+### `miss_partial-null-safety-shared-callers`
+
+```yaml
+id: miss_partial-null-safety-shared-callers
+miss_class: partial-null-safety-shared-callers
+triggers:
+  - NPE | 500 | NullPointerException fix
+  - null guard | filter null | optional association
+  - getOrDefault | groupingBy | Collectors.toMap
+  - shared helper | private extract | sibling endpoint
+phases: [logic]
+gate: N1
+rule_one_liner: >-
+  When reviewing NPE/500 fixes, trace every caller of touched helpers and
+  every sibling endpoint on the same service path; do not approve if one
+  path is hardened but another still uses the unsafe null pattern.
+anti_pattern: >-
+  Harden one endpoint or helper path while sibling endpoints and other
+  callers still lack equivalent null guards (e.g. getOrDefault without
+  null-value check, groupingBy on nullable keys, unfiltered associations).
+hits: 1
+last_seen: 2026-09-01
+source: teach-review
+```
+
+Mechanism: a fix adds null guards to the reported endpoint but review never opens other callers of the same helper or sibling endpoints that share the mapping pipeline — so production still 500s on the untouched paths.
+
+Required check: [null-safety-checklist.md](null-safety-checklist.md) **N1**.
