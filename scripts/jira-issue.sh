@@ -61,12 +61,12 @@ jira_status_matches_target() {
   case "$target" in
     in_progress)
       case "$n" in
-        inprogress|doing|wip|started) return 0 ;;
+        inprogress|indevelopment|doing|wip|started) return 0 ;;
       esac
       ;;
     review)
       case "$n" in
-        review|inreview|codereview|peerreview|toreview|readyforreview) return 0 ;;
+        review|inreview|esreview|codereview|peerreview|toreview|readyforreview) return 0 ;;
       esac
       ;;
   esac
