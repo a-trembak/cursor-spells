@@ -3,14 +3,15 @@ name: bug-fix
 description: >-
   Use when fixing a bug from a Jira/issue ticket or a cleared fix plan: find
   root cause before changing code, apply a minimal fix with a regression test,
-  then verify. Use from /start-issue-task after implementation-critic Verdict
-  clear, or when asked to fix a diagnosed bug. Not for feature work (use
-  software-developer).
+  then verify. Never patch on assumptions — only after debug evidence confirms
+  the causal line. Use from /start-issue-task after implementation-critic
+  Verdict clear, or when asked to fix a diagnosed bug. Not for feature work
+  (use software-developer).
 ---
 
 # Bug Fix
 
-Implements a **minimal, root-cause fix** from a critiqued-clear fix plan (or an equivalent diagnosed bug brief). Diagnosis-first; no shotgun patches.
+Implements a **minimal, root-cause fix** from a critiqued-clear fix plan (or an equivalent diagnosed bug brief). Diagnosis-first; **no fixes on assumptions**.
 
 ## When to Use
 
@@ -32,6 +33,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 
 | Skill | Role |
 |-------|------|
+| [debug-evidence-gate.md](references/debug-evidence-gate.md) | **Always load** — E1–E5; no fix without verified evidence |
 | `systematic-debugging` | No fix without root-cause investigation |
 | `ce-debug` with `mode:pipeline` | Non-interactive diagnosis loop when installed |
 | `verification-before-completion` | Evidence before claiming done |
@@ -41,17 +43,20 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 
 ## Spine
 
+0. **Evidence gate** — follow [debug-evidence-gate.md](references/debug-evidence-gate.md) E1–E5. **Do not skip to step 5** without confirmed evidence for the throwing line.
 1. **Branch setup** — follow `skills/software-developer/references/branch-setup.md`. Prefer `fix/<jira-key>-<short-topic>` when a ticket id exists.
-2. **Reproduce** — confirm the failure (test, script, or documented steps). If unreproducible: stop and report; do not guess a fix.
-3. **Root cause** — complete systematic-debugging / `ce-debug mode:pipeline` until the causal chain has no gaps. Do not propose a patch before this.
-4. **Regression test first** — add or extend a test that fails for the bug and would pass after the fix (project conventions; `tdd` if installed).
-5. **Minimal fix** — change only what the root cause requires. No “while I’m here” refactors.
+2. **Reproduce** — confirm the failure (test, script, or documented steps) in the **same context as production/QA**. If unreproducible: stop and report blockers; **do not guess a fix**.
+3. **Root cause** — complete systematic-debugging / `ce-debug mode:pipeline` until the causal chain has **evidence** (stack trace, failing integration test, or debug run). Do not propose a patch before this.
+4. **Regression test first** — add or extend a test that fails for the bug and would pass after the fix (prefer real stack/integration over Mockito-only when the bug is runtime/SQL/Hibernate).
+5. **Minimal fix** — change only what the **confirmed** root cause requires. No “while I’m here” refactors. No defensive null-check scatter without a proven null site.
 6. **Verify** — run the new/updated test plus relevant project lint/test/typecheck (`verification-before-completion`). Keep evidence.
-7. **Handoff** — return `next_skill: engineer-reviewer`, `repo → branch` map, root-cause summary (1–3 sentences), verification evidence, and any `skill_missing` notes. **nested Task:** stop after that block (no `AskQuestion` / `engineer-reviewer` from the Task). Callers **Wait for** the return then run `engineer-reviewer` then `create-pr` (do not skip those for `/start-issue-task`).
+7. **Handoff** — return `next_skill: engineer-reviewer`, `repo → branch` map, root-cause summary with **evidence citation** (file:line or test name), verification evidence, and any `skill_missing` notes. **nested Task:** stop after that block (no `AskQuestion` / `engineer-reviewer` from the Task). Callers **Wait for** the return then run `engineer-reviewer` then `create-pr` (do not skip those for `/start-issue-task`).
 8. **Review-learn on escapes** — if this defect was a **production escape** (or the plan states prior review should have caught it), after the fix is verified invoke agent `review-learn` with `source: production-escape` per `skills/engineer-review/references/review-learn-protocol.md` so the miss class strengthens future reviews. Do not block the fix handoff on HITL promote.
 
 ## Hard rules
 
+- **Never fix on assumption.** Hypothesis → verify → then patch. If verification is missing, stop and list blockers.
+- **Never stack “likely” fixes** across commits when QA/production still fails — treat prior hypothesis as falsified; re-gather evidence.
 - Never expand scope beyond the fix plan / diagnosed bug.
 - Never ship a symptom-only patch when the root cause is known and in-repo.
 - If Jira/MCP facts conflict with repo evidence: **stop and ask** (HITL via `hitl-choice` when a closed choice exists).
