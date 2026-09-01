@@ -57,6 +57,14 @@ Must apply the matching rules:
 - **J2** — Mockito spec tests must verify the same Criteria path production uses; flag tests that only stub `root.get("installation")` when production uses the join handle.
 - **N1** — Follow-up hardening: diff hotspot against the **prior fix commit**; flag reverted query/join/collect lines; require membership-scoped smoke when bug was membership-scoped; scan shared callers for partial null-safety.
 
+### Partial null safety across callers (N1, when triggered)
+
+Canonical rules: `skills/engineer-review/references/null-safety-checklist.md`.
+
+**Trigger:** the diff fixes or hardens null handling — NPE/500 fixes, null guards, filters on null associations, map lookup changes, or shared helper extraction used by multiple endpoints.
+
+Must apply **N1**: trace every caller of each touched helper and every sibling endpoint on the same service path; verify equivalent null guards (including `getOrDefault` vs null map values, composite keys before grouping, unfiltered association access). Do not approve if one path is hardened but another caller or sibling still uses the unsafe pattern. Coverage must note `null_safety_callers: traced|partial|skipped|n/a` when this trigger applies.
+
 ## Output
 
 Follow `skills/engineer-review/references/phase-protocol.md`.  
