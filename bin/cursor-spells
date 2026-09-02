@@ -26,12 +26,13 @@ Usage:
 
 Commands:
   install   First-time (or add) sync into ~/.cursor + project
-  update    git pull this kit, then re-sync ~/.cursor + project
+  update    git pull this kit, then re-sync ~/.cursor (+ project if resolved)
   status    Show kit path, commit, and what is linked
   help      Show this help
 
 With no project-path: uses the current git repo, or the multi-repo workspace
 you are standing in (cwd with multi-repo.json / graphify-out / 2+ sibling repos).
+`csp update` with no resolvable project refreshes ~/.cursor only.
 
 Flags (install / update):
   --user-only     Only ~/.cursor (no project files); still copies the plain-language-chat rule
