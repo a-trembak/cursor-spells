@@ -37,6 +37,7 @@ Check: `ls -la ~/.cursor/agents` and (after full install) `ls -la .cursor/agents
 ```bash
 csp update /path/to/your-app   # git pull the kit, then re-sync ~/.cursor + project files
 cd /path/to/your-app && csp update   # path optional — current repo / workspace
+csp update                     # git pull + refresh ~/.cursor only (when cwd is not a project)
 csp install --user-only        # ~/.cursor only (also: csp update --user-only)
 csp status                     # kit path, commit, what is linked
 ```
@@ -46,9 +47,9 @@ csp status                     # kit path, commit, what is linked
 1. Git toplevel of the current directory (works inside a leaf repo of a multi-repo)
 2. Else cwd if it has `.cursor/multi-repo.json` or `graphify-out/`
 3. Else cwd if it contains 2+ immediate child git repos (workspace parent)
-4. Else error — pass a path or `--user-only`
+4. Else: `csp update` refreshes `~/.cursor` only; `csp install` errors — pass a path or `--user-only`
 
-Installing into the `cursor-spells` kit checkout itself is refused.
+Installing into the `cursor-spells` kit checkout itself is refused on `install`. On `update`, that case also falls back to refreshing `~/.cursor` only.
 With **symlink** mode (default), `git pull` in the kit already refreshes skill/command/agent *contents*; `csp update` still matters to **add new** skills/commands/agents and to **refresh** project hooks/rules. With `--copy`, `csp update` is required to refresh copied bodies.
 
 ### What install creates

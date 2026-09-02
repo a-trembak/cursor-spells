@@ -30,6 +30,7 @@ Usage:
   install-to-project.sh --update [project-path] [flags]
 
 With no project-path: uses the current repo / multi-repo workspace (cwd).
+In --update mode with no resolvable project: refreshes ~/.cursor only.
 
 Flags:
   --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
@@ -114,6 +115,12 @@ resolve_default_project() {
 if [[ "$USER_ONLY" -eq 0 && -z "$PROJECT" ]]; then
   if PROJECT="$(resolve_default_project)"; then
     echo "project (auto): $PROJECT"
+  elif [[ "$MODE" == "update" ]]; then
+    # `csp update` with no resolvable project → refresh ~/.cursor only
+    # (kit pull already happened in bin/cursor-spells). Restores pre-a4c66ea UX
+    # so `csp update` from ~ or any non-repo cwd still succeeds.
+    USER_ONLY=1
+    echo "no project in cwd → refreshing ~/.cursor only (pass a path to sync a project)"
   else
     echo "No project path given, and cwd is not a git repo or multi-repo workspace." >&2
     echo "Run from inside a repo/workspace, pass a path, or use --user-only." >&2
@@ -128,9 +135,15 @@ if [[ -n "$PROJECT" ]]; then
   fi
   PROJECT="$(cd "$PROJECT" && pwd)"
   if [[ "$PROJECT" == "$KIT_ROOT" ]]; then
-    echo "Refusing to install project bits into the cursor-spells kit itself ($KIT_ROOT)." >&2
-    echo "cd into your app or multi-repo workspace, or pass its path. Use --user-only for ~/.cursor only." >&2
-    exit 1
+    if [[ "$MODE" == "update" ]]; then
+      echo "note: refusing project bits into the cursor-spells kit itself; refreshing ~/.cursor only"
+      USER_ONLY=1
+      PROJECT=""
+    else
+      echo "Refusing to install project bits into the cursor-spells kit itself ($KIT_ROOT)." >&2
+      echo "cd into your app or multi-repo workspace, or pass its path. Use --user-only for ~/.cursor only." >&2
+      exit 1
+    fi
   fi
 fi
 
