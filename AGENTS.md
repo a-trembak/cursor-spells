@@ -8,4 +8,10 @@ Keep exact only inside backticks or code fences: paths, symbols, error strings, 
 
 ## Product code in this harness
 
-Never write or patch product code in the parent chat. Dispatch nested Task `software-developer` for features, plan tasks, review-gate fixes, and `/start-task --fast`. Dispatch nested Task `bug-fixer` for ticket bugs and `/start-issue-task`. Wait for the Task to return. If the path is unclear, ask once. Always-on rule: `code-via-coding-agents`.
+Never write or patch product code in the parent chat. Dispatch nested Task `software-developer` for features, plan tasks, review-gate fixes, and `/start-task --fast`. Dispatch nested Task `bug-fixer` for ticket bugs and `/start-issue-task`. Wait for the Task to return.
+
+For ad-hoc “write/fix code in chat” with no cleared plan or spec, ask once via **Pipeline route**: `full` / `fast` / `issue` (same tokens the kit already uses). Then dispatch `software-developer` on the full path, `software-developer` with explicit `mode:fast`, or `bug-fixer` / `/start-issue-task`. Do not auto-select `fast`. If write vs fix is still unclear, ask once.
+
+Nested Task `software-developer`, `bug-fixer`, and engineer-review phase agents that apply eligible auto-fixes are the intended code writers and are not restricted by this rule.
+
+Always-on rule: `code-via-coding-agents`.

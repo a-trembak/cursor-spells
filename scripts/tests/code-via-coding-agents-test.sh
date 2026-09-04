@@ -16,7 +16,7 @@ assert_file() {
 
 assert_grep() {
   local name="$1" path="$2" pattern="$3"
-  if grep -E -q "$pattern" "$ROOT/$path"; then
+  if grep -E -q "$pattern" "$ROOT/$path" 2>/dev/null; then
     echo "OK   $name"
   else
     echo "FAIL $name: /$pattern/ not in $path" >&2
@@ -35,7 +35,8 @@ assert_grep agents_section "AGENTS.md" "software-developer"
 assert_grep agents_bug_fixer "AGENTS.md" "bug-fixer"
 assert_grep installer_project_rules "scripts/install-to-project.sh" "code-via-coding-agents[.]mdc"
 assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/code-via-coding-agents"
-assert_grep readme_user_rule "README.md" "code-via-coding-agents[.]mdc"
+assert_grep readme_user_rule "README.md" "~/[.]cursor/rules/code-via-coding-agents"
+assert_grep readme_project_rule "README.md" "<project>/[.]cursor/rules/code-via-coding-agents"
 
 # Installer must drop the always-on rule into user-global and project rules.
 TMP="$(mktemp -d)"
@@ -45,16 +46,20 @@ PROJECT="$TMP/app"
 mkdir -p "$FAKE_HOME" "$PROJECT"
 git -C "$PROJECT" init -q
 
-HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills >/dev/null
-if [[ -f "$FAKE_HOME/.cursor/rules/code-via-coding-agents.mdc" ]]; then
+if ! HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills >/dev/null; then
+  echo "FAIL user-only install exited non-zero" >&2
+  fail=1
+elif [[ -f "$FAKE_HOME/.cursor/rules/code-via-coding-agents.mdc" ]]; then
   echo "OK   user-global rule installed"
 else
   echo "FAIL user-global rule missing at $FAKE_HOME/.cursor/rules/code-via-coding-agents.mdc" >&2
   fail=1
 fi
 
-HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills >/dev/null
-if [[ -f "$PROJECT/.cursor/rules/code-via-coding-agents.mdc" ]]; then
+if ! HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills >/dev/null; then
+  echo "FAIL project install exited non-zero" >&2
+  fail=1
+elif [[ -f "$PROJECT/.cursor/rules/code-via-coding-agents.mdc" ]]; then
   echo "OK   project rule installed"
 else
   echo "FAIL project rule missing at $PROJECT/.cursor/rules/code-via-coding-agents.mdc" >&2

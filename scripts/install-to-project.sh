@@ -34,7 +34,7 @@ In --update mode with no resolvable project: refreshes ~/.cursor only.
 
 Flags:
   --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
-  --user-only      Only ~/.cursor (no project files); still copies the plain-language-chat rule
+  --user-only      Only ~/.cursor (no project files); still copies plain-language-chat and code-via-coding-agents rules
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
   --skip-third-party-skills

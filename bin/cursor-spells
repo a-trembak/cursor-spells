@@ -35,7 +35,7 @@ you are standing in (cwd with multi-repo.json / graphify-out / 2+ sibling repos)
 `csp update` with no resolvable project refreshes ~/.cursor only.
 
 Flags (install / update):
-  --user-only     Only ~/.cursor (no project files); still copies the plain-language-chat rule
+  --user-only     Only ~/.cursor (no project files); still copies plain-language-chat and code-via-coding-agents rules
   --humanizer     Also install english-humanizer
   --copy          Copy instead of symlink into ~/.cursor
   --skip-third-party-skills
