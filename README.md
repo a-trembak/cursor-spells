@@ -64,6 +64,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/commands/<file>.md` | Symlink → `<kit>/commands/…` (all slash commands) |
 | `~/.cursor/agents/<file>.md` | Symlink → `<kit>/agents/…` (all agents, including `review-*`) |
 | `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words chat (pipeline gate rules stay project-only) |
+| `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `software-developer` / `bug-fixer` for product code |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
 | mapped third-party skills (`npx skills add`) | Curated ids from [`skill-map.md`](skills/engineer-review/references/skill-map.md); skip with `--skip-third-party-skills` / `CSP_SKIP_THIRD_PARTY_SKILLS=1`; `npx` failure is `skill_missing`, not a failed kit install |
@@ -83,6 +84,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/clean-decision-docs.mdc` | Copied / refreshed — specs/plans stay final-form (no revision archaeology) |
 | `<project>/.cursor/rules/hitl-askquestion.mdc` | Copied / refreshed — closed-set HITL must call AskQuestion first |
 | `<project>/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — chat with the human uses full words, never abbreviations |
+| `<project>/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch coding agents for product code |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |

@@ -1,0 +1,19 @@
+---
+description: Parent harness chat must dispatch software-developer or bug-fixer for product code — never patch product trees inline
+alwaysApply: true
+---
+
+# Code via coding agents
+
+In this harness, the **parent / orchestrator chat** must not write or patch **product** code itself.
+
+1. Features, accepted plan tasks, review-gate `fixes`, and `/start-task --fast` → load and dispatch nested Task **`software-developer`**, then **wait** for it to return.
+2. Ticket bugs and `/start-issue-task` → load and dispatch nested Task **`bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
+3. If write vs fix is ambiguous → ask once; do not invent product diffs in the parent.
+4. Violating “I will just patch it here for speed” in the parent is a **protocol bug**.
+
+Allowed in the parent: orchestration, reading, review reports, kit docs/skills/rules edits when changing this kit, pipeline gate markers, and meta tooling.
+
+Engineer-review **phase** auto-fix under the kit protocol is unchanged and is not parent ad-hoc product patching.
+
+Pipeline commands that already dispatch these agents stay as they are; this rule closes ad-hoc chat coding.
