@@ -34,7 +34,7 @@ In --update mode with no resolvable project: refreshes ~/.cursor only.
 
 Flags:
   --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
-  --user-only      Only ~/.cursor (no project files); still copies the plain-language-chat rule
+  --user-only      Only ~/.cursor (no project files); still copies plain-language-chat and code-via-coding-agents rules
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
   --skip-third-party-skills
@@ -267,6 +267,8 @@ install_user_bits() {
   mkdir -p "$HOME/.cursor/rules"
   cp "$KIT_ROOT/rules/plain-language-chat.mdc" "$HOME/.cursor/rules/plain-language-chat.mdc"
   echo "copied: $HOME/.cursor/rules/plain-language-chat.mdc"
+  cp "$KIT_ROOT/rules/code-via-coding-agents.mdc" "$HOME/.cursor/rules/code-via-coding-agents.mdc"
+  echo "copied: $HOME/.cursor/rules/code-via-coding-agents.mdc"
 }
 
 install_project_bits() {
@@ -301,7 +303,7 @@ install_project_bits() {
 
   # Rules — always refresh from kit
   local rule
-  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc hitl-askquestion.mdc plain-language-chat.mdc; do
+  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc hitl-askquestion.mdc plain-language-chat.mdc code-via-coding-agents.mdc; do
     cp "$KIT_ROOT/rules/$rule" "$PROJECT/.cursor/rules/$rule"
     echo "copied: $PROJECT/.cursor/rules/$rule"
   done
