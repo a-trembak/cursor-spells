@@ -140,6 +140,7 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words — no abbreviations; always-on via rule `plain-language-chat` |
 | [`finish-plan`](skills/finish-plan/) | Plan→HITL handoff: `review-surface` (`SetActiveBranch`) then review-gate; engineer-review still runs after |
+| [`propose-commit`](skills/propose-commit/) | Post-review HITL — propose commit message + file list; `approve-commit` / `revise`; `git commit` only (never push); writes `commit-approved` gate |
 | [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
 | [`implementation-critic`](skills/implementation-critic/) | Pre-code plan audit — Pass A/B (+ Pass C for bug-fix plans), must-fix/should-fix/accept-risk |
@@ -222,7 +223,7 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 
 ### review-gate → HITL → engineer review
 
-1. When coding from a plan is done: `/finish-plan` (this is the **review-gate** HITL, not another planning step). First it applies [`review-surface`](skills/finish-plan/references/review-surface.md): check out the feature branch in each open folder and call `SetActiveBranch` so the pull request tab shows the diff. That is **not** a GitHub pull request and **not** the pipeline end.
+1. When coding from a plan is done: `/finish-plan` (this is the **review-gate** HITL, not another planning step). First it applies [`review-surface`](skills/finish-plan/references/review-surface.md): check out the feature branch in each open folder and call `SetActiveBranch` so the pull request tab shows the diff. That is **not** a GitHub pull request and **not** the pipeline end. When the branch has **zero commits ahead of base**, the tab may be empty — the surface still shows **uncommitted** work in chat (`git status` / `git diff`).
 2. Answer via interactive buttons when offered (`AskQuestion`), or type `skip` / `approve` / `done`. Type `fixes` to return to `software-developer`, then the same gate. After `skip` / `approve` / `done`, **engineer-review** starts.
 3. On frontend, use the Figma picker or paste node URLs / `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
@@ -247,8 +248,9 @@ On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skill
 5. Executes via `software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `review-gate` via `/finish-plan` — surface the diff (`SetActiveBranch`) then **HITL** `skip`/`approve`/`done` (or `fixes` back to `software-developer`). Pipeline continues.
 7. `engineer-review` — **HITL** only for clarifications it raises
-8. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write)
-9. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). `ready` / `ready_jira` move the Jira issue to **Review** only after every opened pull request is merged and every continuous-integration build succeeded. Never merge.
+8. [`propose-commit`](skills/propose-commit/) — **HITL** `approve-commit` / `revise`; stages listed paths and `git commit` only (never push); writes `.cursor/gates/commit-approved/<slug>`
+9. `/update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write); residual **`propose-commit`** if docs left uncommitted files
+10. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). `ready` / `ready_jira` move the Jira issue to **Review** only after every opened pull request is merged and every continuous-integration build succeeded. Never merge.
 
 Full `/start-task` **does** fetch Jira when the prompt looks like a ticket. MCP failure → stop and paste the ticket (never a URL-only stub). Writing AC is still out of scope. Explicit `/start-issue-task` always stays on the issue path even if the type is Story.
 
@@ -256,11 +258,11 @@ Prefer `/write-tech-spec [ac-source]` directly if you only want the tech spec, w
 
 ### Start a task (fast — no planning HITL)
 
-`/start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no review-gate HITL) → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
+`/start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `software-developer` `mode:fast` → `engineer-reviewer` (no review-gate HITL) → `propose-commit` → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
 
 ### Start an issue task (Jira bug fix)
 
-`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review** only after every opened pull request is merged and every continuous-integration build succeeded). Always this path when invoked explicitly, even if the type is Story.
+`/start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `bug-fixer` → `engineer-reviewer` → `propose-commit` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review** only after every opened pull request is merged and every continuous-integration build succeeded). Always this path when invoked explicitly, even if the type is Story.
 
 ### Capture a production escape
 
