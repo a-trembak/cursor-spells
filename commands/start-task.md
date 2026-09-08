@@ -71,6 +71,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 ### Full-mode notes
 
 - This command never invents an answer at any HITL gate above — it always stops and waits for the human's reply at exactly those points, and only those points.
+- **Orientation:** every closed-set human gate uses skill `hitl-choice`, which prints a `pipeline-status` orientation strip before the question. Humans may run `/pipeline-status` anytime for the same strip + canvas link (does not advance gates). Applies on full, `--fast`, and issue human gates alike.
 - **Do not treat dispatch as the end** of the pipeline: after `software-developer` returns, `finish-plan` then `engineer-reviewer` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
 - Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may wait for every pull request to merge and continuous integration to succeed, then transition to Review; trajectory score needs the observed status).

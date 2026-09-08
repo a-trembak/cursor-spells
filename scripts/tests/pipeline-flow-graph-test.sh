@@ -51,6 +51,20 @@ assert_absent html_overview_finish_label "$HTML" '<div class="label">finish-plan
 assert_contains md_propose_commit "$MD" "propose-commit"
 assert_contains html_propose_commit "$HTML" "propose-commit"
 
+# Orientation query-param contract (live highlight)
+assert_contains html_url_search_params "$HTML" "URLSearchParams"
+assert_contains html_reads_layer "$HTML" 'get("layer")'
+assert_contains html_reads_stage "$HTML" 'get("stage")'
+assert_contains html_css_layer_done "$HTML" ".layer.done"
+assert_contains html_css_layer_here "$HTML" ".layer.here"
+assert_contains html_css_layer_waiting "$HTML" ".layer.waiting"
+assert_contains html_css_node_here "$HTML" ".node.here"
+assert_contains html_css_seq_here "$HTML" ".seq-strip li.here"
+assert_contains html_css_waiting "$HTML" ".waiting"
+# Document orientation param names (route, layer, stage)
+assert_contains html_param_docs_route "$HTML" "route"
+assert_contains html_param_docs_layer "$HTML" 'data-orientation-params="route,layer,stage"'
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1

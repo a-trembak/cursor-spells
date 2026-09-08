@@ -26,6 +26,29 @@ Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`com
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
+### Orientation strip and live canvas
+
+At every closed-set human gate, skill `hitl-choice` prints a short **orientation strip** (via skill `pipeline-status` / `scripts/pipeline-status.sh`) before the question. Humans may run `/pipeline-status` anytime — read-only; it does not advance gates.
+
+| Surface | What it does |
+|---------|----------------|
+| Chat strip | Route · layer · stage · next stages · legal returns · canvas link |
+| `/pipeline-status` | Same strip from disk markers + optional session ledger |
+| Canvas URL | `pipeline-flow.html?route=&layer=&stage=` (+ optional `#stage` hash) |
+
+**URL query parameters** (highlight on load; overview stays highlighted; hash opens a detail view and keeps the query so Back retains highlight):
+
+| Param | Example | Effect |
+|-------|---------|--------|
+| `route` | `full` | Shown in the header when present |
+| `layer` | `review` | That layer box is `here`; earlier layers `done`; later `waiting` |
+| `stage` | `review-gate` | Matching overview node (`data-stage`) is `here` |
+| `pending` | `review-gate` | Optional; styles waiting human-gate nodes |
+
+**Legal returns** in the strip are **informational only** in v1 (for example `fixes` → Build). There is no `/pipeline-back` that mutates gates.
+
+Resolver: `scripts/pipeline-status.sh` (`--json`, `--canvas-url`). Pending-gate precedence for stage/layer: `docs-gate` → `review-gate` → `critique-gate` → `plan-gate`; else last `stages_entered` from the session ledger; else `idle`.
+
 ---
 
 ## 1. Layers, sequence, and cycles
