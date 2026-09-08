@@ -3,11 +3,11 @@ name: create-pr
 description: >-
   Use at the end of a kit pipeline (/start-task, /start-task --fast,
   /start-issue-task) or when asked to open a draft PR for the current feature
-  branch work. Commits remaining changes if needed, pushes, creates or updates a
-  draft GitHub PR, then HITL Pipeline finale (keep draft / ready / Jira comment).
-  Never merges. On ready / ready_jira with a Jira key, waits until every
-  opened pull request is merged and every continuous-integration build
-  succeeded, then transitions the ticket to Review.
+  branch work. Product commits happen only via skill `propose-commit`; this
+  skill pushes and opens or updates a draft GitHub PR, then HITL Pipeline finale
+  (keep draft / ready / Jira comment). Never merges. On ready / ready_jira with
+  a Jira key, waits until every opened pull request is merged and every
+  continuous-integration build succeeded, then transitions the ticket to Review.
 ---
 
 # Create PR
@@ -43,8 +43,10 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
 2. Confirm you are **not** on the default branch. If still on default with changes: create/check out the shared feature branch from the handoff (or derive via `software-developer/references/branch-setup.md`) before continuing.
 3. If `ce-commit-push-pr` is installed: run it with `mode:pipeline` (and any PR ref already known). Prefer its commit grouping and PR body conventions. Skip to step 7 when it succeeds (it must still create/reuse a **draft**).
 4. Else **built-in path**:
-   - `git status` / `git diff` — stage intentional files only (never `git add -A` / `git add .`).
-   - Commit if there are staged/uncommitted changes; match recent commit style (default `fix:` when ambiguous for bug work, `feat:` only for new capability).
+   - Inspect `git status` / `git diff`.
+   - If the work tree is **dirty** with intentional product/docs changes: **stop**. Tell the human to run skill `propose-commit` (requires settled engineer-review + `approve-commit`). Do **not** silently commit. Do **not** invent a commit message here.
+   - If the work tree is clean and the feature branch is ahead of base: continue to push (commits must already exist from `propose-commit`).
+   - If `ce-commit-push-pr` is installed: it must **not** create product commits without `approve-commit` / `commit-approved` for this run. Prefer built-in push+PR when the third-party skill would quiet-commit; otherwise stop and report.
    - `git push -u origin <branch>` (retry with backoff on network errors).
 5. Check for an existing open PR: `gh pr list --head <branch> --state open …`. Exit 0 + `[]` → create. Non-zero `gh` → stop and report auth/connectivity (do not assume “no PR”).
 6. Create draft PR if none:
@@ -106,6 +108,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
 
 ## Hard rules
 
+- Never silently commit ungated product changes. Dirty tree → stop and point at `propose-commit` / `commit-approved`.
 - Never force-push to shared default branches.
 - Never open a non-draft PR in steps 1–7. Ready-for-review is **only** after the human picks `ready` or `ready_jira`.
 - Never call `gh pr ready` before the trajectory score when the scorer ran.
