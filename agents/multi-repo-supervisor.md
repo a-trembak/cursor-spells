@@ -52,7 +52,10 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
    - `api:C1: A` / `C1@api: A` → re-dispatch `engineer-reviewer` for that repo with the answer in `clarifications`; apply agreed per-repo fixes only.
    - `C_CR1: B` → re-dispatch `review-cross-repo` with the answer for clarify follow-up only — **still no auto-apply for `C_CR*`** even when the fix looks trivial.
    - Re-merge and re-emit the unified report after follow-ups complete.
-9. **Pipeline docs handoff:** when this run was entered via `/start-task` or `finish-plan` (not bare `/multi-review`), after the unified report is settled, invoke skill `update-docs` for the product-docs HITL destination gate. Do not invent a docs destination.
+9. **Pipeline handoff:** after a successful **pipeline** multi-repo review (from `/start-task` / `finish-plan` / `/start-task --fast` / `/start-issue-task`), once the unified report is settled: invoke skill **`propose-commit`** next. Then:
+    - Full path: `update-docs` (existing product-docs HITL destination gate — do not invent a docs destination), then if the tree is still dirty invoke **`propose-commit`** again for residual docs, then `create-pr`.
+    - Fast / issue: `create-pr` (no `update-docs` unless the human asked).
+    Bare `/multi-review` does **not** auto-start `propose-commit` or `update-docs` unless the human asks.
 
 ## Internal envelope
 
