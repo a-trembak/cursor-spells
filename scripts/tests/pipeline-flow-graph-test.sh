@@ -48,6 +48,9 @@ assert_contains html_alias "$HTML" '"finish-plan": "review-gate"'
 # Overview must not present the post-build HITL as a finish-plan plan step.
 assert_absent html_overview_finish_label "$HTML" '<div class="label">finish-plan</div>'
 
+assert_contains md_propose_commit "$MD" "propose-commit"
+assert_contains html_propose_commit "$HTML" "propose-commit"
+
 # Orientation query-param contract (live highlight)
 assert_contains html_url_search_params "$HTML" "URLSearchParams"
 assert_contains html_reads_layer "$HTML" 'get("layer")'

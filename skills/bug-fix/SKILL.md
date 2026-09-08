@@ -50,13 +50,14 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 4. **Regression test first** — add or extend a test that fails for the bug and would pass after the fix (prefer real stack/integration over Mockito-only when the bug is runtime/SQL/Hibernate).
 5. **Minimal fix** — change only what the **confirmed** root cause requires. No “while I’m here” refactors. No defensive null-check scatter without a proven null site.
 6. **Verify** — run the new/updated test plus relevant project lint/test/typecheck (`verification-before-completion`). Keep evidence.
-7. **Handoff** — return `next_skill: engineer-reviewer`, `repo → branch` map, root-cause summary with **evidence citation** (file:line or test name), verification evidence, and any `skill_missing` notes. **nested Task:** stop after that block (no `AskQuestion` / `engineer-reviewer` from the Task). Callers **Wait for** the return then run `engineer-reviewer` then `create-pr` (do not skip those for `/start-issue-task`).
+7. **Handoff** — return `next_skill: engineer-reviewer`, `repo → branch` map, root-cause summary with **evidence citation** (file:line or test name), verification evidence, and any `skill_missing` notes. **nested Task:** stop after that block (no `AskQuestion` / `engineer-reviewer` from the Task). Callers **Wait for** the return then run `engineer-reviewer`, then skill **`propose-commit`**, then **`create-pr`** (do not skip those for `/start-issue-task`).
 8. **Review-learn on escapes** — if this defect was a **production escape** (or the plan states prior review should have caught it), after the fix is verified invoke agent `review-learn` with `source: production-escape` per `skills/engineer-review/references/review-learn-protocol.md` so the miss class strengthens future reviews. Do not block the fix handoff on HITL promote.
 
 ## Hard rules
 
 - **Never fix on assumption.** Hypothesis → verify → then patch. If verification is missing, stop and list blockers.
 - **Never stack “likely” fixes** across commits when QA/production still fails — treat prior hypothesis as falsified; re-gather evidence.
+- **Never `git commit`** during pipeline fix work. Leave changes uncommitted for skill `propose-commit` after engineer-review. Nested `bug-fixer` / task agents inherit this forbid
 - Never expand scope beyond the fix plan / diagnosed bug.
 - Never ship a symptom-only patch when the root cause is known and in-repo.
 - If Jira/MCP facts conflict with repo evidence: **stop and ask** (HITL via `hitl-choice` when a closed choice exists).

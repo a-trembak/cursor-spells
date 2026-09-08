@@ -22,7 +22,7 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 
 `review-gate` is the HITL **after code**. Skill `/finish-plan` writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
 
-Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `jira-transition`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`, `teach-review`.
+Source of truth: [`commands/start-task.md`](../../commands/start-task.md), [`commands/start-issue-task.md`](../../commands/start-issue-task.md), [`commands/capture-escape.md`](../../commands/capture-escape.md), plus `jira-fetch`, `jira-transition`, `tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `propose-commit`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`, `teach-review`.
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
@@ -87,16 +87,20 @@ flowchart TB
 
   subgraph shipLayer [Docs and PR]
     direction TB
+    commit["propose-commit"]
     docs["update-docs"]
+    commit2["propose-commit residual"]
     pr["create-pr"]
-    docs ==> pr
+    commit ==> docs
+    docs ==> commit2
+    commit2 ==> pr
   end
 
   fetch ==> spec
   critic ==>|"Verdict: clear"| startB
   code ==>|"tasks verified"| gate
   gate -.->|"fixes — back to Build, not Plan"| code
-  review ==> docs
+  review ==> commit
 ```
 
 | Cycle | Returns to | Does not return to |
@@ -133,7 +137,9 @@ flowchart TD
   softwareDev[["software-developer"]]
   reviewGate[/"review-gate"/]
   engReview[["engineer-reviewer or multi-repo-supervisor"]]
+  proposeCommit[["propose-commit HITL approve-commit"]]
   updateDocs[["update-docs"]]
+  proposeCommit2[["propose-commit residual if dirty"]]
   createPr[["create-pr draft then HITL finale"]]
   doneNode(["PR URL + docs path"])
 
@@ -163,8 +169,12 @@ flowchart TD
   reviewGate -.->|"fixes"| softwareDev
   reviewGate ==>|"skip / approve / done"| engReview
   engReview -.->|"Needs clarification"| engReview
-  engReview ==> updateDocs
-  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| createPr
+  engReview ==> proposeCommit
+  proposeCommit ==>|"approve-commit"| updateDocs
+  proposeCommit -.->|"revise"| proposeCommit
+  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| proposeCommit2
+  proposeCommit2 ==>|"if dirty"| createPr
+  proposeCommit2 -.->|"clean tree"| createPr
   createPr ==>|"keep_draft / ready / *_jira"| doneNode
 ```
 
@@ -309,7 +319,7 @@ flowchart TD
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `/finish-plan` writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. `fixes` returns to `software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. GitHub `create-pr` still happens later, after `update-docs`.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `/finish-plan` writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` still surfaces the **uncommitted working tree** in chat (`git status` / `git diff` summaries). `fixes` returns to `software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
 
 ```mermaid
 flowchart TD
@@ -426,9 +436,42 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch and a ready-for-review pull request when `land` is `draft_merge`; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
 
+Pipeline handoff (full / `--fast` / issue): invoke skill **`propose-commit`** next — HITL `approve-commit` / `revise`, then `git commit` only (never push). Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`propose-commit`** again for residual files, then `create-pr`. Manual `/engineer-review` does not auto-start `propose-commit`.
+
 ---
 
-## 9. Marker state machine
+## 9. Propose-commit (commit gate)
+
+```mermaid
+flowchart TD
+  reviewDone(["Review settled + teach-review handled"])
+  propose[["propose-commit"]]
+  hitlCommit[/"HITL: approve-commit / revise"/]
+  revise["Re-propose message + file list"]
+  stageCommit["Stage listed paths + git commit"]
+  writeCommit{{".cursor/gates/commit-approved/slug"}}
+  toDocs(["update-docs or create-pr"])
+
+  reviewDone ==> propose
+  propose ==> hitlCommit
+  hitlCommit -->|"revise"| revise
+  revise --> propose
+  hitlCommit -->|"approve-commit"| stageCommit
+  stageCommit ==> writeCommit
+  writeCommit ==> toDocs
+```
+
+| Rule | Detail |
+|------|--------|
+| When | After engineer-review (or multi-repo-supervisor) settles; again on full path if docs left uncommitted files |
+| HITL | `approve-commit` / `revise` via skill `hitl-choice` preset **Propose commit** |
+| Marker | `.cursor/gates/commit-approved/<slug>` written on `approve-commit` |
+| Never | `git push`, `gh pr create`, `git add -A`, commits on default branch |
+| Zero commits until gate | `software-developer` / `bug-fixer` must not product-commit; branch may be 0 commits ahead of base until this gate |
+
+---
+
+## 10. Marker state machine
 
 Runtime markers live in the **consumer project** `.cursor/gates/<kind>/<slug>` (never the kit). Parallel tickets use different slugs; a foreign slug never blocks this plan. Stop hooks emit `followup_message` only when the current plan path is known and that slug is pending. Unknown plan path stays silent — listing every open slug auto-continues unrelated chats and cannot be cleared there. Legacy flat files (`.cursor/*.pending`, `plan-critique.clear`) migrate-on-read then delete.
 
@@ -447,9 +490,12 @@ stateDiagram-v2
   ReviewGate --> Building: fixes then software-developer
   Building --> ReviewGate: re-ask review-gate
   Reviewing --> Reviewing: Needs clarification
-  Reviewing --> DocsGate: update-docs writes docs-gate/slug
+  Reviewing --> CommitGate: propose-commit writes commit-approved/slug
+  CommitGate --> DocsGate: update-docs writes docs-gate/slug
+  DocsGate --> CommitGate: residual propose-commit if dirty
   DocsGate --> [*]: skip / publish complete
   DocsGate --> DocsGate: waiting location follow-up
+  CommitGate --> [*]: fast / issue path to create-pr
 
   note right of CritiqueClear
     plan-critique-clear/slug must match this plan path
@@ -462,11 +508,12 @@ stateDiagram-v2
 | `.cursor/gates/critique-gate/<slug>` | after plan approval | `Verdict: clear` |
 | `.cursor/gates/plan-critique-clear/<slug>` | on `Verdict: clear` | invalidated on `revise` / re-approve |
 | `.cursor/gates/review-gate/<slug>` | `/finish-plan` (`review-gate` HITL) | `skip` / `approve` / `done` |
+| `.cursor/gates/commit-approved/<slug>` | `propose-commit` on `approve-commit` | consumed by `create-pr` / next pipeline step |
 | `.cursor/gates/docs-gate/<slug>` | `update-docs` | `skip` or publish/abort complete |
 
 ---
 
-## 10. Standalone entry points (bypass full orchestrator)
+## 11. Standalone entry points (bypass full orchestrator)
 
 ```mermaid
 flowchart LR
@@ -492,7 +539,7 @@ flowchart LR
 
 ---
 
-## 11. Fast mode (`/start-task --fast`)
+## 12. Fast mode (`/start-task --fast`)
 
 ```mermaid
 flowchart TD
@@ -505,20 +552,21 @@ flowchart TD
   brief["Short AC brief in chat"]
   exec["software-developer mode:fast"]
   review["engineer-reviewer no review-gate HITL"]
+  commitNode[["propose-commit HITL approve-commit"]]
   prNode[["create-pr draft then HITL finale"]]
   doneFast(["PR URL"])
 
   startFast ==> looksJira
   looksJira -->|"yes"| fetch --> inProgress --> fastVsIssue --> boot
   looksJira -->|"no"| boot
-  boot ==> brief ==> exec ==> review ==> prNode ==> doneFast
+  boot ==> brief ==> exec ==> review ==> commitNode ==> prNode ==> doneFast
 ```
 
 No tech-spec, writing-plans, approve-plan, critic, review-gate, or update-docs. Clarify HITL only if engineer-review needs it. `--fast` is explicit only.
 
 ---
 
-## 12. Issue mode (`/start-issue-task`)
+## 13. Issue mode (`/start-issue-task`)
 
 ```mermaid
 flowchart TD
@@ -534,6 +582,7 @@ flowchart TD
   hitlCrit[/"HITL: revise or accept F-id"/]
   fixer["bug-fixer"]
   review["engineer-reviewer"]
+  commitNode[["propose-commit HITL approve-commit"]]
   prNode[["create-pr draft then HITL finale"]]
   doneIssue(["PR URL"])
 
@@ -542,14 +591,14 @@ flowchart TD
   jiraFail -->|"yes"| inProgress ==> planFix ==> critic ==> verdict
   verdict -->|"blocked or pending accept"| hitlCrit
   hitlCrit --> planFix
-  verdict -->|"clear"| fixer ==> review ==> prNode ==> doneIssue
+  verdict -->|"clear"| fixer ==> review ==> commitNode ==> prNode ==> doneIssue
 ```
 
 Always this path when `/start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` run `jira-transition` target `review` only after every opened pull request is merged and continuous integration succeeded. Never `gh pr merge`.
 
 ---
 
-## 13. Create-pr Pipeline finale
+## 14. Create-pr Pipeline finale
 
 ```mermaid
 flowchart TD

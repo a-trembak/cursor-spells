@@ -587,9 +587,16 @@
             <span class="open-detail">деталі →</span>
           </div>
           <div class="cycle-chip">↺ Needs clarification → цей самий review</div>
+          <div class="connector"><span class="edge-label">settled</span></div>
+          <div class="node hitl" tabindex="0" data-go="propose-commit" role="button">
+            <div class="kind">7b · HITL commit gate</div>
+            <div class="label">propose-commit</div>
+            <div class="hint"><code>approve-commit</code> / <code>revise</code> · git commit only, never push</div>
+            <span class="open-detail">деталі →</span>
+          </div>
         </div>
 
-        <div class="flow-down">↓ review settled</div>
+        <div class="flow-down">↓ commit-approved marker</div>
 
         <div class="layer ship" data-layer="ship">
           <div class="layer-head">Docs + PR</div>
@@ -599,7 +606,7 @@
             <div class="hint">skip / docs_md / docs_repo / confluence</div>
             <span class="open-detail">деталі →</span>
           </div>
-          <div class="cycle-chip">↺ чекати path / URL / Confluence space</div>
+          <div class="cycle-chip">↺ чекати path / URL / Confluence space · residual <code>propose-commit</code> якщо dirty</div>
           <div class="connector"><span class="edge-label">then</span></div>
           <div class="node hitl" tabindex="0" data-go="create-pr" data-stage="create-pr" data-layer="ship" role="button">
             <div class="kind">9 · HITL</div>
@@ -991,7 +998,7 @@
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>review-surface (зручність, не фінал)</h3>
-            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Після відповіді людини стартує engineer-review, далі docs, далі create-pr.</p>
+            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Коли гілка має <strong>0 commits ahead of base</strong>, вкладка може бути порожньою — покажи <strong>uncommitted</strong> робоче дерево в чаті (<code>git status</code> / <code>git diff</code>). Після відповіді людини стартує engineer-review, далі <code>propose-commit</code>, docs, далі create-pr.</p>
           </div>
         </div>
         <div class="step">
@@ -1097,6 +1104,49 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="review-gate">← review-gate</button>
+        <button type="button" class="primary" data-go="propose-commit">Далі: propose-commit →</button>
+      </div>
+    </section>
+
+    <!-- PROPOSE-COMMIT -->
+    <section id="view-propose-commit" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">7b. propose-commit</h2>
+      <p class="view-desc">HITL <em>після</em> settled engineer-review. Пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>Preconditions</h3>
+            <p>Feature branch (не default). Settled engineer-review report. Intentional file list — ніколи <code>git add -A</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body hitl">
+            <h3>HITL Propose commit</h3>
+            <div class="branches">
+              <div class="branch">
+                <span class="token ok">approve-commit</span>
+                <div class="then">Stage listed paths → <code>git commit</code> → write <code>commit-approved</code> marker</div>
+              </div>
+              <div class="branch">
+                <span class="token">revise</span>
+                <div class="then">Чекати нове повідомлення / file list; re-propose; не commit</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body auto">
+            <h3>Handoff</h3>
+            <p>Full path → <code>update-docs</code>. Fast / issue → <code>create-pr</code>. Residual dirty tree після docs → ще один <code>propose-commit</code>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="review">← Review</button>
         <button type="button" class="primary" data-go="update-docs">Далі: Update Docs →</button>
       </div>
     </section>
@@ -1140,7 +1190,7 @@
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" data-go="review">← Review</button>
+        <button type="button" data-go="propose-commit">← propose-commit</button>
         <button type="button" class="primary" data-go="create-pr">Далі: create-pr →</button>
       </div>
     </section>
@@ -1221,6 +1271,11 @@
             <td><code>skip</code> / <code>approve</code> / <code>done</code></td>
           </tr>
           <tr>
+            <td><code>gates/commit-approved/&lt;slug&gt;</code></td>
+            <td><code>propose-commit</code> на <code>approve-commit</code></td>
+            <td>споживає <code>create-pr</code> / наступний крок</td>
+          </tr>
+          <tr>
             <td><code>gates/docs-gate/&lt;slug&gt;</code></td>
             <td>update-docs</td>
             <td><code>skip</code> / publish complete</td>
@@ -1243,21 +1298,21 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: commit/push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. <code>ready</code> / <code>ready_jira</code> з Jira-ключем → <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI. Викликається після update-docs у full <code>/start-task</code>, після engineer-review у <code>--fast</code> та <code>/start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. Потребує <code>commit-approved</code> marker від <code>propose-commit</code>. Викликається після update-docs (+ residual propose-commit) у full <code>/start-task</code>, після <code>propose-commit</code> у <code>--fast</code> та <code>/start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>software-developer mode:fast</code> → engineer-reviewer → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>software-developer mode:fast</code> → engineer-reviewer → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/start-issue-task</h3>
-            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
+            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>bug-fixer</code> → engineer-reviewer → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
           </div>
         </div>
         <div class="step">

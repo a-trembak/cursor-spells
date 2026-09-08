@@ -38,7 +38,9 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
 
 6. **Engineer review** (automatic): immediately after `bug-fixer` returns, run agent **`engineer-reviewer`** (or `multi-repo-supervisor` when 2+ repos changed per multi-repo probe). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the ticket/context. HITL only for **Needs clarification** via `hitl-choice`.
 
-7. **Create PR** (automatic): invoke skill **`create-pr`**. Draft PR title includes the Jira key; body links the ticket and fix plan path. Pass `jira_key` / `jira_cloud_id` for the Pipeline finale HITL.
+6b. **Propose commit** — invoke skill **`propose-commit`** (HITL `approve-commit` / `revise`).
+
+7. **Create PR** (automatic): invoke skill **`create-pr`** (push + draft + Pipeline finale). Do not expect `create-pr` to invent product commits. Draft PR title includes the Jira key; body links the ticket and fix plan path. Pass `jira_key` / `jira_cloud_id` for the Pipeline finale HITL.
 
 ## Notes
 

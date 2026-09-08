@@ -42,7 +42,10 @@ Emit only the full Fixed / Clarify template in `references/feedback-format.md`: 
     - `miss` → collect description (open-ended if needed), invoke skill `teach-review`. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
     - `project_secret` → collect description (open-ended if needed), dispatch `review-learn` `mode:capture` with destination `project_secret`. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not ask **Review-learn promote**. Never edit kit files.
     Do not write both stores on the same miss.
-16. **Pipeline docs handoff:** after `/start-task` / `finish-plan` (not bare `/engineer-review`), invoke `update-docs` when settled.
+16. **Pipeline handoff:** after a successful **pipeline** review (from `/start-task` / `finish-plan` / `/start-task --fast` / `/start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`propose-commit`** next. Then:
+    - Full path: `update-docs` (existing destination HITL), then if the tree is still dirty invoke **`propose-commit`** again for residual docs, then `create-pr`.
+    - Fast / issue: `create-pr` (no `update-docs` unless the human asked).
+    Manual `/engineer-review` does **not** auto-start `propose-commit` or `update-docs` unless the human asks.
 
 ## Subagents
 

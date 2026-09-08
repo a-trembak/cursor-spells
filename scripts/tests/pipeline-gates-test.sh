@@ -63,6 +63,22 @@ test ! -f "$TMP/.cursor/gates/critique-gate/ACP-2656"
 test ! -f "$TMP/.cursor/gates/plan-gate/ACP-2656"
 echo "OK   this_plan_clear_ignores_foreign_critique"
 
+# commit-approved kind (no legacy file required)
+pg_write_gate "$TMP" commit-approved "docs/plans/2026-propose-commit.md"
+CA_FILE="$(pg__find_gate_for_plan "$TMP" commit-approved "docs/plans/2026-propose-commit.md")"
+if [[ -f "$CA_FILE" ]]; then
+  echo "OK   commit-approved gate written"
+else
+  echo "FAIL commit-approved gate missing" >&2
+  exit 1
+fi
+pg_clear_gate "$TMP" commit-approved "docs/plans/2026-propose-commit.md"
+if pg__find_gate_for_plan "$TMP" commit-approved "docs/plans/2026-propose-commit.md" >/dev/null; then
+  echo "FAIL commit-approved gate still present after clear" >&2
+  exit 1
+fi
+echo "OK   commit-approved gate cleared"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1

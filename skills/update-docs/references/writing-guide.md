@@ -73,9 +73,9 @@ Reuse skill **`english-humanizer`** patterns for the engineer section: direct, n
 ### Separate documentation repository
 
 - After HITL `docs_repo`, wait for the human to name the repo path or clone URL (and optional branch / folder).
-- Check out or open that repo, follow **its** contribution conventions (folder layout, PR required, etc.).
+- Check out or open that repo; follow folder layout and sibling doc patterns (style only — do not commit or open a pull request from skill `update-docs`).
 - **Style:** run Style resolution — read sibling docs + any style guide in that repo; ask once if the human has a custom user and/or engineer style to prefer over what you found.
-- Open or update a PR there when the human expects it; otherwise leave a committed branch and report the path.
+- Leave written files **uncommitted** on the feature branch; report paths. Residual **`propose-commit`** then **`create-pr`** own commit and pull request.
 
 ### Confluence
 
