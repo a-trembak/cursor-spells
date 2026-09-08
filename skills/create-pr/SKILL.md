@@ -12,7 +12,7 @@ description: >-
 
 # Create PR
 
-Shared **pipeline finale**: ensure work is on a feature branch, committed, pushed, and represented by a **draft** GitHub pull request, then one HITL gate. Prefer third-party `ce-commit-push-pr` with `mode:pipeline` when installed; otherwise use the built-in `gh` steps below.
+Shared **pipeline finale**: ensure work is on a feature branch, committed, pushed, and represented by a **draft** GitHub pull request, then one HITL gate. When third-party `ce-commit-push-pr` is installed, prefer it for commit grouping and PR body **only when it will not quiet-commit**; otherwise use the built-in `gh` steps below.
 
 ## When to Use
 
@@ -41,13 +41,14 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
 
 1. Resolve target repo(s) from the handoff `repo → branch` map, or the current git root. Multi-repo: repeat steps 2–6 **per changed repo**.
 2. Confirm you are **not** on the default branch. If still on default with changes: create/check out the shared feature branch from the handoff (or derive via `software-developer/references/branch-setup.md`) before continuing.
-3. If `ce-commit-push-pr` is installed: run it with `mode:pipeline` (and any PR ref already known). Prefer its commit grouping and PR body conventions. Skip to step 7 when it succeeds (it must still create/reuse a **draft**).
-4. Else **built-in path**:
+3. **Pre-push guard** (always, before any commit/push helper):
    - Inspect `git status` / `git diff`.
    - If the work tree is **dirty** with intentional product/docs changes: **stop**. Tell the human to run skill `propose-commit` (requires settled engineer-review + `approve-commit`). Do **not** silently commit. Do **not** invent a commit message here.
-   - If the work tree is clean and the feature branch is ahead of base: continue to push (commits must already exist from `propose-commit`).
-   - If `ce-commit-push-pr` is installed: it must **not** create product commits without `approve-commit` / `commit-approved` for this run. Prefer built-in push+PR when the third-party skill would quiet-commit; otherwise stop and report.
-   - `git push -u origin <branch>` (retry with backoff on network errors).
+   - If the work tree is clean and the feature branch is ahead of base: continue (commits must already exist from `propose-commit`).
+4. **Push**:
+   - If `ce-commit-push-pr` is installed: it must **not** create product commits without `approve-commit` / `commit-approved` for this run. Prefer built-in push+PR when the third-party skill would quiet-commit; otherwise stop and report. When it will not quiet-commit, run it with `mode:pipeline` (and any PR ref already known). Skip to step 7 only when it succeeds **without** inventing product commits (tree was already clean / commits already from `propose-commit`); it must still create/reuse a **draft**.
+   - Else **built-in path**:
+     - `git push -u origin <branch>` (retry with backoff on network errors).
 5. Check for an existing open PR: `gh pr list --head <branch> --state open …`. Exit 0 + `[]` → create. Non-zero `gh` → stop and report auth/connectivity (do not assume “no PR”).
 6. Create draft PR if none:
    ```bash
