@@ -80,6 +80,7 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - Source-code comments: English only; apply the **Comments** section below and `code-comments` Keep/Remove taxonomy
 - **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this
 - Do not write implementation commits on `main` / `master` / the default branch
+- **Never `git commit`** during pipeline implementation, verification, or handoff. Leave all product changes uncommitted for skill `propose-commit` after engineer-review. Nested task agents inherit this forbid. Branch creation/checkout only — no implementation commits on any branch until `approve-commit`
 
 ## Comments
 

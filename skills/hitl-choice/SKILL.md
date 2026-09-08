@@ -7,7 +7,7 @@ description: >-
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
   start-issue-task blocked critic, blocked implementation-critic gates,
   pipeline route / Fast vs issue, create-pr Pipeline finale, Teach-review miss,
-  and Capture-escape destination.
+  approve-commit, and Capture-escape destination.
 ---
 
 # HITL Choice
@@ -16,7 +16,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Pipeline finale**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Propose commit** (`approve-commit` / `revise`), **Pipeline finale**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -245,6 +245,17 @@ Ask only from `/start-task --fast` when `jira_class` is `bug`. The agent never a
 |----|-------|
 | `issue` | Switch to `/start-issue-task` (root-cause bug path) |
 | `stay_fast` | Stay on `--fast` |
+
+### Propose commit
+
+Ask from skill `propose-commit` after a settled engineer-review report (and again after `update-docs` when residual files remain). Never ask before engineer-review. Never treat this as Pipeline finale.
+
+| id | label |
+|----|-------|
+| `approve-commit` | Approve commit message and file list |
+| `revise` | Revise message or files (describe next) |
+
+On `revise`, wait for free-text changes, then re-propose. On `approve-commit`, the calling skill runs `git commit` only (no push).
 
 ### Pipeline finale
 

@@ -57,6 +57,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 
 - **Never fix on assumption.** Hypothesis → verify → then patch. If verification is missing, stop and list blockers.
 - **Never stack “likely” fixes** across commits when QA/production still fails — treat prior hypothesis as falsified; re-gather evidence.
+- **Never `git commit`** during pipeline fix work. Leave changes uncommitted for skill `propose-commit` after engineer-review. Nested `bug-fixer` / task agents inherit this forbid
 - Never expand scope beyond the fix plan / diagnosed bug.
 - Never ship a symptom-only patch when the root cause is known and in-repo.
 - If Jira/MCP facts conflict with repo evidence: **stop and ask** (HITL via `hitl-choice` when a closed choice exists).
