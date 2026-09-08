@@ -2,7 +2,7 @@
 
 ## Status
 
-`draft` — design sections approved in chat; awaiting human review of this written spec before `writing-plans`.
+`approved` — human chose `approve-spec` on the written design; implementation plan next.
 
 ## Goal
 
