@@ -134,7 +134,7 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | [`bug-fix`](skills/bug-fix/) | Root-cause bug fix — reproduce, minimal fix, regression test; used by `bug-fixer` / `/start-issue-task` |
 | [`jira-fetch`](skills/jira-fetch/) | Fetch Jira issue text via Atlassian MCP; classify Bug vs Story for `/start-task` routing |
 | [`jira-transition`](skills/jira-transition/) | Move a fetched issue to In Progress (`/start-task`) or Review (`create-pr` after every opened pull request is merged and continuous integration succeeded) |
-| [`create-pr`](skills/create-pr/) | Commit/push + **draft** GitHub PR, then HITL Pipeline finale (`keep_draft` / `ready` / Jira comment). Never merge; Review transition after merge and successful builds |
+| [`create-pr`](skills/create-pr/) | Push + **draft** GitHub PR (requires `commit-approved` when commits were needed), then HITL Pipeline finale (`keep_draft` / `ready` / Jira comment). Never merge; Review transition after merge and successful builds |
 | [`trajectory-score`](skills/trajectory-score/) | Record a trajectory ledger and hard-score it at wired pipeline stops; session ledger for full/fast/issue paths |
 | [`trajectory-judge`](skills/trajectory-judge/) | Nested-Task judge for invented business facts and decision-doc archaeology; writes actions then re-scores |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |

@@ -62,7 +62,11 @@ assert_grep sd_no_commit "skills/software-developer/SKILL.md" "Never.*git commit
 assert_grep bf_no_commit "skills/bug-fix/SKILL.md" "Never.*git commit|do not.*git commit|no product commit|forbid.*git commit"
 
 assert_grep create_pr_guard "skills/create-pr/SKILL.md" "propose-commit|commit-approved"
+assert_grep create_pr_gate_find "skills/create-pr/SKILL.md" "pg__find_gate_for_plan|pipeline-gates\\.sh"
+assert_grep create_pr_gate_clear "skills/create-pr/SKILL.md" "pg_clear_gate.*commit-approved|commit-approved.*pg_clear_gate"
 assert_grep create_pr_no_quiet "skills/create-pr/SKILL.md" "must not silently commit|do not silently commit|Never silently commit|quiet product commit"
+assert_grep propose_staged_match "skills/propose-commit/SKILL.md" "git diff --cached --name-only|restore --staged"
+assert_grep docs_repo_no_commit "skills/update-docs/SKILL.md" "docs_repo.*uncommitted|Do \\*\\*not\\*\\*.*git commit"
 
 assert_grep er_handoff "skills/engineer-review/SKILL.md" "propose-commit"
 assert_grep docs_residual "skills/update-docs/SKILL.md" "propose-commit"

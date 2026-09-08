@@ -44,9 +44,10 @@ If any fail: **stop** and say which precondition is missing. Do not commit.
    - `revise` — wait for message and/or file-list changes; re-propose; do **not** commit.
    - `approve-commit` — continue.
 4. On `approve-commit`, per repo with changes:
-   - Stage only the listed paths
-   - `git commit` with the approved message
-   - Confirm not on default branch before committing
+   - Stage **only** the human-approved paths for that repo (`git add -- <path>…`). If anything else is staged, `git restore --staged -- <extra-path>…` until the index matches the approved list.
+   - **Pre-commit check:** `git diff --cached --name-only` (sorted) must match the approved file list (sorted) exactly. If it does not: **stop**, do **not** commit, re-propose the message and file list.
+   - Confirm not on default branch before committing.
+   - `git commit` with the approved message.
 5. Write the gate in the **current project** (consumer root):
 
    ```bash

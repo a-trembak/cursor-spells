@@ -45,10 +45,26 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
    - Inspect `git status` / `git diff`.
    - If the work tree is **dirty** with intentional product/docs changes: **stop**. Tell the human to run skill `propose-commit` (requires settled engineer-review + `approve-commit`). Do **not** silently commit. Do **not** invent a commit message here.
    - If the work tree is clean and the feature branch is ahead of base: continue (commits must already exist from `propose-commit`).
+   - **Pipeline runs** (caller passed `plan_path`, or it is recoverable from the handoff): before push, require the `commit-approved` marker for this run's plan path. Source the consumer copy or kit path:
+
+     ```bash
+     source scripts/pipeline-gates.sh   # pg__find_gate_for_plan, pg_clear_gate
+     pg__find_gate_for_plan "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
+     ```
+
+     If product commits were needed for this repo (feature branch ahead of base, or this run required a `propose-commit` pass) and the marker is **missing**: **stop** and point at skill `propose-commit` — do **not** push.
+   - If the tree is clean, nothing is ahead of base, and no product commit was required this run: skip the marker check for that repo.
 4. **Push**:
    - If `ce-commit-push-pr` is installed: it must **not** create product commits without `approve-commit` / `commit-approved` for this run. Prefer built-in push+PR when the third-party skill would quiet-commit; otherwise stop and report. When it will not quiet-commit, run it with `mode:pipeline` (and any PR ref already known). Skip to step 7 only when it succeeds **without** inventing product commits (tree was already clean / commits already from `propose-commit`); it must still create/reuse a **draft**.
    - Else **built-in path**:
      - `git push -u origin <branch>` (retry with backoff on network errors).
+   - After a **successful** push, or after confirming the branch is already pushed and up to date with `origin/<branch>`: clear the consumed marker (pipeline runs only):
+
+     ```bash
+     pg_clear_gate "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
+     ```
+
+     Do not clear before push succeeds. If push fails, leave the marker so `propose-commit` evidence remains.
 5. Check for an existing open PR: `gh pr list --head <branch> --state open …`. Exit 0 + `[]` → create. Non-zero `gh` → stop and report auth/connectivity (do not assume “no PR”).
 6. Create draft PR if none:
    ```bash
@@ -110,6 +126,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
 ## Hard rules
 
 - Never silently commit ungated product changes. Dirty tree → stop and point at `propose-commit` / `commit-approved`.
+- Pipeline runs: require `pg__find_gate_for_plan` `commit-approved` before push when commits were needed; `pg_clear_gate` only after push succeeds (or branch already up to date).
 - Never force-push to shared default branches.
 - Never open a non-draft PR in steps 1–7. Ready-for-review is **only** after the human picks `ready` or `ready_jira`.
 - Never call `gh pr ready` before the trajectory score when the scorer ran.

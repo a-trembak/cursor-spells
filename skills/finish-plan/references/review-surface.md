@@ -63,7 +63,7 @@ Keep attempting `SetActiveBranch` (step 2) for checkout visibility.
 
 ## 3. Then ask HITL — pipeline continues
 
-Only after steps 1–2 were attempted, ask skill `hitl-choice` preset **Finish-plan / engineer-review / multi-repo HITL**.
+Only after steps 1–2b were attempted, ask skill `hitl-choice` preset **Finish-plan / engineer-review / multi-repo HITL**.
 
 In the question prompt, include each `repo → branch` so the human can open the tab. State clearly that this is their own look at the diff, not the end of the pipeline: after `approve` / `done` / `skip`, engineer-review starts.
 
