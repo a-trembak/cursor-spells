@@ -244,6 +244,16 @@
     .seq-strip li.here {
       border-color: var(--hitl);
       color: var(--text);
+      box-shadow: 0 0 0 1px var(--hitl);
+    }
+    .seq-strip li.done {
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+    .seq-strip li.waiting {
+      border-style: dashed;
+      border-color: var(--muted);
+      opacity: 0.75;
     }
     .seq-strip li:not(:last-child)::after {
       content: "→";
@@ -261,6 +271,32 @@
       flex-direction: column;
       align-items: center;
       margin: 0.15rem 0;
+    }
+    .layer.done {
+      border-style: solid;
+      border-color: var(--ok);
+      background: rgba(61, 204, 145, 0.08);
+    }
+    .layer.here {
+      border-style: solid;
+      border-color: var(--hitl);
+      background: rgba(232, 168, 56, 0.12);
+      box-shadow: 0 0 0 1px rgba(232, 168, 56, 0.35);
+    }
+    .layer.waiting {
+      border-style: dashed;
+      opacity: 0.7;
+    }
+    .node.done {
+      border-color: var(--ok);
+    }
+    .node.here {
+      border-color: var(--hitl);
+      box-shadow: 0 8px 24px var(--shadow), 0 0 0 1px var(--hitl);
+    }
+    .node.waiting {
+      border-style: dashed;
+      opacity: 0.75;
     }
     .layer-head {
       width: 100%;
@@ -441,9 +477,10 @@
   </style>
 </head>
 <body>
-  <header>
+  <header data-orientation-params="route,layer,stage">
     <h1>cursor-spells · Pipeline canvas</h1>
     <p class="sub">Шари зверху вниз · клік по етапу — гілки і цикли ↺</p>
+    <p class="sub" id="orientation-route" hidden></p>
     <div class="legend">
       <span><i class="swatch auto"></i> automatic</span>
       <span><i class="swatch hitl"></i> HITL</span>
@@ -465,18 +502,18 @@
       </p>
 
       <ol class="seq-strip" aria-label="Happy path sequence">
-        <li>Fetch</li>
-        <li>Plan</li>
-        <li>Build</li>
-        <li class="here">Review</li>
-        <li>Docs</li>
-        <li>PR</li>
+        <li data-layer="fetch">Fetch</li>
+        <li data-layer="plan">Plan</li>
+        <li data-layer="build">Build</li>
+        <li data-layer="review">Review</li>
+        <li data-layer="ship">Docs</li>
+        <li data-layer="ship">PR</li>
       </ol>
 
       <div class="canvas">
-        <div class="layer fetch">
+        <div class="layer fetch" data-layer="fetch">
           <div class="layer-head">Fetch</div>
-          <div class="node hitl" tabindex="0" data-go="route" role="button">
+          <div class="node hitl" tabindex="0" data-go="route" data-stage="pipeline-route-hitl" data-layer="fetch" role="button">
             <div class="kind">0 · fetch + route</div>
             <div class="label">Jira fetch + router</div>
             <div class="hint">MCP · In Progress · Bug → issue · never auto --fast</div>
@@ -486,16 +523,16 @@
 
         <div class="flow-down">↓ AC є</div>
 
-        <div class="layer plan">
+        <div class="layer plan" data-layer="plan">
           <div class="layer-head">Plan · spec і план, ще без коду</div>
-          <div class="node auto" tabindex="0" data-go="bootstrap" role="button">
+          <div class="node auto" tabindex="0" data-go="bootstrap" data-stage="bootstrap" data-layer="plan" role="button">
             <div class="kind">1 · automatic</div>
             <div class="label">Bootstrap</div>
             <div class="hint">project-patterns + stack detect</div>
             <span class="open-detail">деталі →</span>
           </div>
           <div class="connector"><span class="edge-label">AC є</span></div>
-          <div class="node hitl" tabindex="0" data-go="tech-spec" role="button">
+          <div class="node hitl" tabindex="0" data-go="tech-spec" data-stage="tech-spec" data-layer="plan" role="button">
             <div class="kind">2 · HITL</div>
             <div class="label">Tech Spec</div>
             <div class="hint">entry → depth → approve-spec</div>
@@ -503,14 +540,14 @@
           </div>
           <div class="cycle-chip">↺ <code>revise</code> лишається в Tech Spec</div>
           <div class="connector"><span class="edge-label">approved | skip</span></div>
-          <div class="node auto" tabindex="0" data-go="plan" role="button">
+          <div class="node auto" tabindex="0" data-go="plan" data-stage="writing-plans" data-layer="plan" role="button">
             <div class="kind">3 · automatic</div>
             <div class="label">writing-plans</div>
             <div class="hint">implementation plan з tech spec</div>
             <span class="open-detail">деталі →</span>
           </div>
           <div class="connector"></div>
-          <div class="node hitl" tabindex="0" data-go="approve-plan" role="button">
+          <div class="node hitl" tabindex="0" data-go="approve-plan" data-stage="approve-plan" data-layer="plan" role="button">
             <div class="kind">4 · HITL + auto critic</div>
             <div class="label">approve-plan → critic</div>
             <div class="hint">Verdict: clear → Build</div>
@@ -521,9 +558,9 @@
 
         <div class="flow-down ok">↓ Verdict: clear — шар плану закрито</div>
 
-        <div class="layer build">
+        <div class="layer build" data-layer="build">
           <div class="layer-head">Build · написання коду</div>
-          <div class="node auto" tabindex="0" data-go="build" role="button">
+          <div class="node auto" tabindex="0" data-go="build" data-stage="software-developer" data-layer="build" role="button">
             <div class="kind">5 · automatic</div>
             <div class="label">start-build → software-developer</div>
             <div class="hint">чекати developer → далі review-gate, не новий план</div>
@@ -533,9 +570,9 @@
 
         <div class="flow-down">↓ tasks verified</div>
 
-        <div class="layer review">
+        <div class="layer review" data-layer="review">
           <div class="layer-head">Review · план уже виконано</div>
-          <div class="node hitl" tabindex="0" data-go="review-gate" role="button">
+          <div class="node hitl" tabindex="0" data-go="review-gate" data-stage="review-gate" data-layer="review" role="button">
             <div class="kind">6 · HITL review-gate</div>
             <div class="label">review-gate</div>
             <div class="hint"><code>/finish-plan</code> пише маркер · skip / approve / done</div>
@@ -543,7 +580,7 @@
           </div>
           <div class="cycle-chip">↺ <code>fixes</code> повертає в <strong>software-developer</strong> (Build), не в writing-plans</div>
           <div class="connector"><span class="edge-label">skip / approve / done</span></div>
-          <div class="node hitl" tabindex="0" data-go="review" role="button">
+          <div class="node hitl" tabindex="0" data-go="review" data-stage="engineer-review" data-layer="review" role="button">
             <div class="kind">7 · conditional HITL</div>
             <div class="label">engineer-review</div>
             <div class="hint">1 repo vs ≥2 · Figma · clarify</div>
@@ -554,9 +591,9 @@
 
         <div class="flow-down">↓ review settled</div>
 
-        <div class="layer ship">
+        <div class="layer ship" data-layer="ship">
           <div class="layer-head">Docs + PR</div>
-          <div class="node hitl" tabindex="0" data-go="update-docs" role="button">
+          <div class="node hitl" tabindex="0" data-go="update-docs" data-stage="update-docs" data-layer="ship" role="button">
             <div class="kind">8 · HITL</div>
             <div class="label">update-docs</div>
             <div class="hint">skip / docs_md / docs_repo / confluence</div>
@@ -564,14 +601,14 @@
           </div>
           <div class="cycle-chip">↺ чекати path / URL / Confluence space</div>
           <div class="connector"><span class="edge-label">then</span></div>
-          <div class="node hitl" tabindex="0" data-go="create-pr" role="button">
+          <div class="node hitl" tabindex="0" data-go="create-pr" data-stage="create-pr" data-layer="ship" role="button">
             <div class="kind">9 · HITL</div>
             <div class="label">create-pr</div>
             <div class="hint">draft first · keep_draft / ready / Jira Review</div>
             <span class="open-detail">деталі →</span>
           </div>
           <div class="connector"><span class="edge-label">done</span></div>
-          <div class="node ok" tabindex="0" data-go="markers" role="button">
+          <div class="node ok" tabindex="0" data-go="markers" data-stage="markers" data-layer="ship" role="button">
             <div class="kind">markers · state</div>
             <div class="label">PR + docs</div>
             <div class="hint">draft або ready · таблиця маркерів .cursor/gates</div>
@@ -1265,8 +1302,14 @@
 
   <script>
     const views = document.querySelectorAll(".view");
+    const LAYER_ORDER = ["fetch", "plan", "build", "review", "ship"];
 
     const aliases = { "finish-plan": "review-gate" };
+
+    function orientationUrl(hashId) {
+      const q = location.search || "";
+      return q + "#" + hashId;
+    }
 
     function show(id) {
       id = aliases[id] || id;
@@ -1277,7 +1320,79 @@
         v.hidden = !on;
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
-      history.replaceState(null, "", "#" + id);
+      // Keep orientation query params when switching views so Back retains highlight.
+      history.replaceState(null, "", orientationUrl(id));
+    }
+
+    function clearOrientationClasses(root) {
+      root.querySelectorAll(".done, .here, .waiting").forEach((el) => {
+        el.classList.remove("done", "here", "waiting");
+      });
+    }
+
+    function applyOrientationHighlight() {
+      // Orientation params: route, layer, stage (optional pending).
+      // Default: stay on overview with highlights. A hash opens that detail view.
+      const params = new URLSearchParams(location.search);
+      const route = params.get("route") || "";
+      const layer = params.get("layer") || "";
+      const stage = params.get("stage") || "";
+      const pending = params.get("pending") || "";
+
+      const routeEl = document.getElementById("orientation-route");
+      if (routeEl) {
+        if (route) {
+          routeEl.hidden = false;
+          routeEl.textContent = "Route: " + route;
+        } else {
+          routeEl.hidden = true;
+          routeEl.textContent = "";
+        }
+      }
+
+      if (!layer && !stage && !pending) return;
+
+      const overview = document.getElementById("view-overview");
+      if (!overview) return;
+      clearOrientationClasses(overview);
+
+      const layerIdx = LAYER_ORDER.indexOf(layer);
+      overview.querySelectorAll(".layer[data-layer]").forEach((el) => {
+        const name = el.getAttribute("data-layer");
+        const idx = LAYER_ORDER.indexOf(name);
+        if (layerIdx >= 0 && idx >= 0) {
+          if (idx < layerIdx) el.classList.add("done");
+          else if (idx === layerIdx) el.classList.add("here");
+          else el.classList.add("waiting");
+        }
+      });
+
+      overview.querySelectorAll(".seq-strip li[data-layer]").forEach((el) => {
+        const name = el.getAttribute("data-layer");
+        const idx = LAYER_ORDER.indexOf(name);
+        if (layerIdx >= 0 && idx >= 0) {
+          if (idx < layerIdx) el.classList.add("done");
+          else if (idx === layerIdx) el.classList.add("here");
+          else el.classList.add("waiting");
+        }
+      });
+
+      if (stage) {
+        overview.querySelectorAll(".node[data-stage]").forEach((el) => {
+          if (el.getAttribute("data-stage") === stage) {
+            el.classList.add("here");
+          }
+        });
+      }
+
+      if (pending) {
+        overview.querySelectorAll(".node[data-stage]").forEach((el) => {
+          const st = el.getAttribute("data-stage");
+          if (st === pending && !el.classList.contains("here")) {
+            el.classList.add("waiting");
+          }
+        });
+      }
     }
 
     document.addEventListener("click", (e) => {
@@ -1294,9 +1409,13 @@
       show(btn.getAttribute("data-go"));
     });
 
+    applyOrientationHighlight();
+
     const hash = (location.hash || "#overview").slice(1);
     const resolved = aliases[hash] || hash;
-    if (document.getElementById("view-" + resolved)) show(hash);
+    if (hash && document.getElementById("view-" + resolved)) {
+      show(hash);
+    }
   </script>
 </body>
 </html>
