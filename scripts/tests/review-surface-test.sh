@@ -61,6 +61,9 @@ assert_grep surface_create_pr_later "skills/finish-plan/references/review-surfac
 assert_no_grep surface_no_mode "skills/finish-plan/references/review-surface.md" "mode:surface"
 assert_grep surface_forbid_gh_create "skills/finish-plan/references/review-surface.md" "not.*gh pr create"
 assert_grep surface_never_finale "skills/finish-plan/references/review-surface.md" "Do not ask Pipeline finale|do not ask Pipeline finale|Never ask Pipeline finale"
+assert_grep surface_uncommitted "skills/finish-plan/references/review-surface.md" "git status|uncommitted|working tree"
+assert_grep surface_no_placeholder "skills/finish-plan/references/review-surface.md" "placeholder commit|Do not.*placeholder"
+assert_grep surface_propose "skills/finish-plan/references/review-surface.md" "propose-commit"
 
 assert_no_grep create_pr_no_surface "skills/create-pr/SKILL.md" "mode:surface"
 
