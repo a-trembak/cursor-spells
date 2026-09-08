@@ -61,10 +61,12 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - If `finish-plan` already started in this chat after the developer returned, do not re-ask — continue from its remaining steps.
 7. **Engineer review** (automatic once the HITL gate clears): run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ changed repos).
    - **HITL:** only for `Needs clarification` items the review surfaces.
-8. **Update docs** (automatic invocation after review completes): invoke skill `update-docs`:
+7b. **Propose commit** (automatic after review settles): invoke skill **`propose-commit`** (HITL `approve-commit` / `revise`). Zero product commits before this step.
+8. **Update docs** (automatic invocation after propose-commit): invoke skill `update-docs`:
    - **HITL:** `skip` / `docs_md` / `docs_repo` / `confluence` via `hitl-choice` — where product/internal docs should land (current-repo Markdown, a separate docs repo, or Confluence). Never invent the destination.
    - On a non-skip choice, **resolve style first** (required for `docs_repo` / `confluence`): human custom style for user and/or engineer → existing house docs at the destination → kit dual-audience default. Then draft, polish with `english-humanizer` without fighting house voice, and publish.
-9. **Create PR** (automatic): invoke skill **`create-pr`** — commit/push remaining work if needed, open or reuse a **draft** GitHub PR per changed repo, then the **Pipeline finale** HITL (`keep_draft` / `ready` / Jira comment when a key is known).
+9. **Propose commit (residual)** — if `update-docs` left uncommitted intentional files, invoke **`propose-commit`** again.
+10. **Create PR** (automatic): invoke skill **`create-pr`** (push + draft + Pipeline finale). Do not expect `create-pr` to invent product commits. Open or reuse a **draft** GitHub PR per changed repo, then the **Pipeline finale** HITL (`keep_draft` / `ready` / Jira comment when a key is known).
 
 ### Full-mode notes
 
@@ -89,7 +91,8 @@ For small tasks that do not need tech-spec, plan approval, critic, finish-plan, 
 3. **Short task brief** (automatic, in chat only — not a tech-spec file): 3–6 bullets covering goal, touched areas if obvious, and done criteria from the AC. Do not run `tech-spec`, `writing-plans`, `approve-plan`, or `implementation-critic`.
 4. **Execute** — create feature branch(es) per `software-developer` branch-setup; implement with skill **`software-developer`** using **`mode:fast`** as a nested Task (entry gates for tech-spec Status / critique-clear are skipped — see that skill). Prefer `subagent-driven-development` when available; verify with lint/test/typecheck before handoff. **Wait for** `software-developer` to return. Do not treat dispatch as the end.
 5. **Engineer review** — immediately after that return, run `engineer-reviewer` (or `multi-repo-supervisor` for 2+ repos). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the AC/context. HITL only for **Needs clarification**.
-6. **Create PR** — invoke skill **`create-pr`** (draft PR, then Pipeline finale HITL).
+5b. **Propose commit** — invoke skill **`propose-commit`**.
+6. **Create PR** — invoke skill **`create-pr`** (push + draft + Pipeline finale). Do not expect `create-pr` to invent product commits.
 
 ### Fast-mode notes
 

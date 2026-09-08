@@ -58,7 +58,10 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
     - `miss` → collect description (open-ended if needed), invoke skill `teach-review`. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
     - `project_secret` → collect description (open-ended if needed), dispatch `review-learn` `mode:capture` with destination `project_secret`. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not ask **Review-learn promote**. Never edit kit files.
     Do not write both stores on the same miss. Production misses **without** a full review use slash command `/capture-escape` (destination `miss` or `project_secret`). Append session ledger per skill `trajectory-score` (stage `engineer-review`, gate `teach-review-miss`, artifact report `engineer-review`, end `review_report: evidence-gated`).
-15. Pipeline docs handoff via `update-docs` after `/start-task` / `finish-plan` (not bare `/engineer-review`), once the report is settled.
+15. After a successful **pipeline** review (from `/start-task` / `finish-plan` / `/start-task --fast` / `/start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`propose-commit`** next. Then:
+    - Full path: `update-docs` (existing destination HITL), then if the tree is still dirty invoke **`propose-commit`** again for residual docs, then `create-pr`.
+    - Fast / issue: `create-pr` (no `update-docs` unless the human asked).
+    Manual `/engineer-review` does **not** auto-start `propose-commit` or `update-docs` unless the human asks.
 
 ## Fix policy
 
@@ -87,7 +90,7 @@ Pass URLs into clarifications for `review-figma-markup`. Do not block other phas
 
 `review-learn` runs in two modes: **`load`** (before phases — returns compact hints; orchestrator never reads ledgers) and **`capture`** (only after `project_secret` — append/dedupe this project's private ledger). Shareable misses use skill `teach-review`. Matched hints require phases to open the linked checklist — see [`review-learn-protocol.md`](references/review-learn-protocol.md). Never auto-edits kit checklists from a consumer repo.
 
-Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`. After a successful pipeline review (from `/start-task` / `finish-plan`), hand off to skill `update-docs` for the product-docs HITL destination gate — do not invent a docs destination. Manual `/engineer-review` does not auto-start `update-docs` unless the human asks.
+Orchestrator agent: `engineer-reviewer`. Plan handoff: `finish-plan`. After a successful pipeline review (from `/start-task` / `finish-plan` / `/start-task --fast` / `/start-issue-task`), invoke skill `propose-commit` next; full path continues to `update-docs` (product-docs HITL destination gate — do not invent a docs destination), then residual `propose-commit` if needed, then `create-pr`. Fast / issue paths go to `create-pr` without `update-docs` unless the human asks. Manual `/engineer-review` does not auto-start `propose-commit` or `update-docs` unless the human asks.
 
 ## Multi-repo
 

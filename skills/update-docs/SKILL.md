@@ -68,7 +68,7 @@ Load **`references/writing-guide.md`** before drafting.
    - Draft to the resolved style (kit default only when nothing stronger applies).
    - Run an `english-humanizer` pass on engineer-facing prose (and on user-facing prose if it drifted into AI filler), without fighting the house voice (terminology and section shape stay as resolved).
    - **Publish** to the chosen destination:
-     - `docs_md` — write/update the Markdown file under `docs/` (never under `docs/superpowers/` for product docs). Stage/commit only if the human's workflow for this repo expects it in the same PR; otherwise leave the file and report the path.
+     - `docs_md` — write/update the Markdown file under `docs/` (never under `docs/superpowers/` for product docs). Leave uncommitted for `propose-commit`; do not bypass the gate. Report the path.
      - `docs_repo` — work in the named docs repo; follow that repo's PR conventions **and** its existing doc style.
      - `confluence` — use Atlassian/Confluence MCP tools when authenticated; otherwise present the final Markdown for paste and optionally stage a local draft under `docs/` marked as Confluence staging. Match space/sibling page style. Never overwrite an unrelated page.
    - `pg_clear_gate "$(pwd)" docs-gate "<plan-path>"` when the publish step finishes or the human aborts after seeing the draft.
@@ -77,6 +77,7 @@ Load **`references/writing-guide.md`** before drafting.
 
 ## Notes
 
+- After publish on the **full** `/start-task` path: if intentional files remain uncommitted in the product repo, the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` those files to bypass the gate (leave files on disk; report paths).
 - Manual `/update-docs` may run without a preceding review; still use the same HITL destination gate.
 - This skill never auto-selects Confluence vs repo from heuristics — wrong destination is worse than `skip`.
 - Markers live in the consumer project `.cursor/gates/<kind>/<slug>`, same as other kit gates.
