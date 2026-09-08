@@ -188,22 +188,6 @@ ps__legal_returns_json() {
   esac
 }
 
-ps__next_stages() {
-  local stage="$1"
-  case "$stage" in
-    review-gate) printf '%s' "engineer-review, update-docs, create-pr" ;;
-    docs-gate) printf '%s' "create-pr" ;;
-    critique-gate|implementation-critic) printf '%s' "start-build, software-developer" ;;
-    plan-gate|approve-plan) printf '%s' "implementation-critic, start-build" ;;
-    software-developer) printf '%s' "review-gate, engineer-review" ;;
-    start-build) printf '%s' "software-developer, review-gate" ;;
-    tech-spec) printf '%s' "writing-plans, approve-plan" ;;
-    writing-plans) printf '%s' "approve-plan, implementation-critic" ;;
-    idle) printf '%s' "(none)" ;;
-    *) printf '%s' "(see pipeline-flow)" ;;
-  esac
-}
-
 ps__json_escape() {
   python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()[:-1] if False else sys.argv[1]))' "$1"
 }
