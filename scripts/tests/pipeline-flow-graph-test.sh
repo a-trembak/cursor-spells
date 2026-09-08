@@ -48,6 +48,9 @@ assert_contains html_alias "$HTML" '"finish-plan": "review-gate"'
 # Overview must not present the post-build HITL as a finish-plan plan step.
 assert_absent html_overview_finish_label "$HTML" '<div class="label">finish-plan</div>'
 
+assert_contains md_propose_commit "$MD" "propose-commit"
+assert_contains html_propose_commit "$HTML" "propose-commit"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
