@@ -98,6 +98,7 @@ pg_legacy_path() {
     plan-critique-clear) printf '%s/.cursor/plan-critique.clear' "$root" ;;
     review-gate) printf '%s/.cursor/review-gate.pending' "$root" ;;
     docs-gate) printf '%s/.cursor/docs-gate.pending' "$root" ;;
+    commit-approved) printf '%s/.cursor/commit-approved.pending' "$root" ;;
     *)
       echo "pipeline-gates: unknown kind: $kind" >&2
       return 1
