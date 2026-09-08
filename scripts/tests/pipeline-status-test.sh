@@ -101,11 +101,11 @@ assert_eq ledger_stage "software-developer" "$(json_field "$led_json" 'd["stage"
 assert_eq ledger_layer "build" "$(json_field "$led_json" 'd["layer"]')"
 assert_eq ledger_entered_last "software-developer" "$(json_field "$led_json" 'd["stages_entered"][-1]')"
 
-# --- Fixture: plan-critique-clear present ---
-CLR="$TMP/clear"
-mkdir -p "$CLR/.cursor/gates/plan-critique-clear" "$CLR/.cursor/gates/trajectory-run"
-printf '%s\n' "docs/plans/demo.md" >"$CLR/.cursor/gates/plan-critique-clear/DEMO"
-cat >"$CLR/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
+# --- Fixture: plan-critique-clear alone (no pending → active plan unknown) ---
+CLR_ORPHAN="$TMP/clear-orphan"
+mkdir -p "$CLR_ORPHAN/.cursor/gates/plan-critique-clear" "$CLR_ORPHAN/.cursor/gates/trajectory-run"
+printf '%s\n' "docs/plans/demo.md" >"$CLR_ORPHAN/.cursor/gates/plan-critique-clear/DEMO"
+cat >"$CLR_ORPHAN/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
 {
   "case_id": "full-happy-path",
   "stages_entered": ["start-build"],
@@ -115,8 +115,81 @@ cat >"$CLR/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
   "end": {}
 }
 EOF
-clr_json="$("$SCRIPT" --json --root "$CLR")"
-assert_eq critique_clear_true "True" "$(json_field "$clr_json" 'd["critique_clear"]')"
+clr_orphan_json="$("$SCRIPT" --json --root "$CLR_ORPHAN")"
+assert_eq critique_clear_orphan_false "False" "$(json_field "$clr_orphan_json" 'd["critique_clear"]')"
+
+# --- Fixture: matching clear for active pending plan → critique_clear true ---
+CLR_MATCH="$TMP/clear-match"
+mkdir -p "$CLR_MATCH/.cursor/gates/review-gate" "$CLR_MATCH/.cursor/gates/plan-critique-clear"
+printf '%s\n' "docs/plans/demo.md" >"$CLR_MATCH/.cursor/gates/review-gate/DEMO"
+printf '%s\n' "docs/plans/demo.md" >"$CLR_MATCH/.cursor/gates/plan-critique-clear/DEMO"
+clr_match_json="$("$SCRIPT" --json --root "$CLR_MATCH")"
+assert_eq critique_clear_match_true "True" "$(json_field "$clr_match_json" 'd["critique_clear"]')"
+assert_eq critique_clear_match_stage "review-gate" "$(json_field "$clr_match_json" 'd["stage"]')"
+
+# --- Fixture: foreign clear does not count when pending gate is for another plan ---
+CLR_FOREIGN="$TMP/clear-foreign"
+mkdir -p "$CLR_FOREIGN/.cursor/gates/review-gate" "$CLR_FOREIGN/.cursor/gates/plan-critique-clear"
+printf '%s\n' "docs/plans/plan-a.md" >"$CLR_FOREIGN/.cursor/gates/review-gate/PLAN-A"
+printf '%s\n' "docs/plans/other.md" >"$CLR_FOREIGN/.cursor/gates/plan-critique-clear/OTHER"
+clr_foreign_json="$("$SCRIPT" --json --root "$CLR_FOREIGN")"
+assert_eq critique_clear_foreign_false "False" "$(json_field "$clr_foreign_json" 'd["critique_clear"]')"
+assert_eq critique_clear_foreign_stage "review-gate" "$(json_field "$clr_foreign_json" 'd["stage"]')"
+assert_eq critique_clear_foreign_slug "PLAN-A" "$(json_field "$clr_foreign_json" 'd["pending_gates"][0]["slug"]')"
+
+# --- Fixture: bootstrap stage maps to plan layer (not fetch) ---
+BOOT="$TMP/bootstrap"
+mkdir -p "$BOOT/.cursor/gates/trajectory-run"
+cat >"$BOOT/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
+{
+  "case_id": "full-happy-path",
+  "stages_entered": ["pipeline-route-hitl", "bootstrap"],
+  "artifacts_present": [],
+  "actions_taken": [],
+  "human_gates_asked": [],
+  "end": {}
+}
+EOF
+boot_json="$("$SCRIPT" --json --root "$BOOT")"
+assert_eq bootstrap_stage "bootstrap" "$(json_field "$boot_json" 'd["stage"]')"
+assert_eq bootstrap_layer "plan" "$(json_field "$boot_json" 'd["layer"]')"
+# fetch-family stage still maps to fetch
+FETCH="$TMP/fetch-stage"
+mkdir -p "$FETCH/.cursor/gates/trajectory-run"
+cat >"$FETCH/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
+{
+  "case_id": "full-happy-path",
+  "stages_entered": ["jira-fetch", "pipeline-route-hitl"],
+  "artifacts_present": [],
+  "actions_taken": [],
+  "human_gates_asked": [],
+  "end": {}
+}
+EOF
+fetch_json="$("$SCRIPT" --json --root "$FETCH")"
+assert_eq fetch_family_stage "pipeline-route-hitl" "$(json_field "$fetch_json" 'd["stage"]')"
+assert_eq fetch_family_layer "fetch" "$(json_field "$fetch_json" 'd["layer"]')"
+
+# --- Source guard: sourcing defines functions only; no CLI record printed ---
+src_stdout="$(mktemp)"
+src_stderr="$(mktemp)"
+# shellcheck disable=SC1090
+if bash -c 'source "$1"; declare -F ps__build_record >/dev/null && declare -F ps__layer_for_stage >/dev/null && echo funcs_ok' bash "$SCRIPT" \
+    >"$src_stdout" 2>"$src_stderr"; then
+  src_body="$(cat "$src_stdout")"
+  assert_eq source_defines_funcs "funcs_ok" "$src_body"
+  if [[ "$src_body" == *"Route:"* ]] || [[ "$src_body" == *"\"stage\""* ]]; then
+    echo "FAIL source_no_cli_output: sourced script printed orientation record" >&2
+    fail=1
+  else
+    echo "OK   source_no_cli_output"
+  fi
+else
+  echo "FAIL source_guard: sourcing failed" >&2
+  cat "$src_stderr" >&2 || true
+  fail=1
+fi
+rm -f "$src_stdout" "$src_stderr"
 
 # --- Canvas URL shape ---
 canvas_url="$("$SCRIPT" --canvas-url --root "$REV" --kit-root "$ROOT")"

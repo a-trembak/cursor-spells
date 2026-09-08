@@ -1,62 +1,15 @@
 #!/usr/bin/env bash
 # Pipeline orientation resolver: derive where-am-I from gates + session ledger.
-# Usage:
+# Sourceable library (defines helpers only) + CLI:
 #   pipeline-status.sh [--root <dir>]
 #   pipeline-status.sh --json [--root <dir>]
 #   pipeline-status.sh --canvas-url [--root <dir>] [--kit-root <dir>]
-set -euo pipefail
+#   source scripts/pipeline-status.sh   # functions only; no record printed
 
 ps__script_dir() {
   local src="${BASH_SOURCE[0]}"
   cd "$(dirname "$src")" && pwd
 }
-
-PS_MODE="text"
-PS_ROOT=""
-PS_KIT_ROOT=""
-
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --json)
-      PS_MODE="json"
-      shift
-      ;;
-    --canvas-url)
-      PS_MODE="canvas-url"
-      shift
-      ;;
-    --root)
-      PS_ROOT="${2:?--root requires a directory}"
-      shift 2
-      ;;
-    --kit-root)
-      PS_KIT_ROOT="${2:?--kit-root requires a directory}"
-      shift 2
-      ;;
-    -h|--help)
-      cat <<'EOF'
-Usage: pipeline-status.sh [--root <dir>] [--kit-root <dir>]
-       pipeline-status.sh --json [--root <dir>]
-       pipeline-status.sh --canvas-url [--root <dir>] [--kit-root <dir>]
-EOF
-      exit 0
-      ;;
-    *)
-      echo "pipeline-status: unknown argument: $1" >&2
-      exit 2
-      ;;
-  esac
-done
-
-if [[ -z "$PS_ROOT" ]]; then
-  PS_ROOT="$(pwd)"
-fi
-PS_ROOT="$(cd "$PS_ROOT" && pwd)"
-
-if [[ -z "$PS_KIT_ROOT" ]]; then
-  # Prefer sibling of this script (kit or installed copy under project scripts/)
-  PS_KIT_ROOT="$(cd "$(ps__script_dir)/.." && pwd)"
-fi
 
 # shellcheck source=pipeline-gates.sh
 source "$(ps__script_dir)/pipeline-gates.sh"
@@ -132,10 +85,10 @@ ps__layer_for_stage() {
     idle|"")
       printf '%s' "idle"
       ;;
-    jira-fetch|jira-transition-in-progress|jira-transition|pipeline-route-hitl|bootstrap|fetch)
+    jira-fetch|jira-transition-in-progress|jira-transition|pipeline-route-hitl|fetch)
       printf '%s' "fetch"
       ;;
-    tech-spec|writing-plans|approve-plan|implementation-critic|plan-gate|critique-gate|clean-decision-docs|issue-fix-plan)
+    bootstrap|tech-spec|writing-plans|approve-plan|implementation-critic|plan-gate|critique-gate|clean-decision-docs|issue-fix-plan)
       printf '%s' "plan"
       ;;
     start-build|software-developer|bug-fixer|executing-plans)
@@ -189,7 +142,7 @@ ps__legal_returns_json() {
 }
 
 ps__json_escape() {
-  python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()[:-1] if False else sys.argv[1]))' "$1"
+  python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"
 }
 
 ps__build_record() {
@@ -197,7 +150,7 @@ ps__build_record() {
   local stages_json="[]" pending_json="[]" legal_json="[]"
   local canvas_path="docs/superpowers/pipeline-flow.html"
   local canvas_hash="" canvas_query=""
-  local line kind slug plan_path first_pending_plan=""
+  local kind slug plan_path first_pending_plan=""
 
   if ledger_path="$(ps__find_ledger)"; then
     route="$(ps__route_from_ledger "$ledger_path")"
@@ -206,7 +159,7 @@ ps__build_record() {
     ledger_path=""
   fi
 
-  # pending_gates array
+  # pending_gates array + first plan path for the precedence-winning pending kind
   pending_json="$(
     {
       echo '['
@@ -222,9 +175,6 @@ ps__build_record() {
           "$(ps__json_escape "$kind")" \
           "$(ps__json_escape "$slug")" \
           "$(ps__json_escape "$plan_path")"
-        if [[ -z "$first_pending_plan" ]]; then
-          first_pending_plan="$plan_path"
-        fi
       done < <(ps__collect_pending)
       echo ']'
     }
@@ -232,6 +182,13 @@ ps__build_record() {
 
   if pending_kind="$(ps__pick_pending_kind)"; then
     stage="$pending_kind"
+    while IFS=$'\t' read -r kind slug plan_path; do
+      [[ -n "${kind:-}" ]] || continue
+      if [[ "$kind" == "$pending_kind" ]]; then
+        first_pending_plan="$plan_path"
+        break
+      fi
+    done < <(ps__collect_pending)
   elif [[ -n "$ledger_path" ]]; then
     stage="$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); s=d.get("stages_entered") or []; print(s[-1] if s else "idle")' "$ledger_path")"
   else
@@ -240,9 +197,9 @@ ps__build_record() {
   [[ -n "$stage" ]] || stage="idle"
   layer="$(ps__layer_for_stage "$stage")"
 
-  # critique_clear: any plan-critique-clear marker
-  if [[ -d "$PS_ROOT/.cursor/gates/plan-critique-clear" ]] && \
-     compgen -G "$PS_ROOT/.cursor/gates/plan-critique-clear/*" >/dev/null 2>&1; then
+  # critique_clear: plan-critique-clear for the active pending plan path when known
+  if [[ -n "$first_pending_plan" ]] && \
+     pg__find_gate_for_plan "$PS_ROOT" "plan-critique-clear" "$first_pending_plan" >/dev/null 2>&1; then
     critique_clear="true"
   else
     critique_clear="false"
@@ -365,16 +322,73 @@ print(full)
 PY
 }
 
-RECORD="$(ps__build_record)"
+ps__main() {
+  local mode="text" kit_root="" record
 
-case "$PS_MODE" in
-  json)
-    printf '%s\n' "$RECORD"
-    ;;
-  canvas-url)
-    ps__print_canvas_url "$RECORD" "$PS_KIT_ROOT"
-    ;;
-  text)
-    ps__print_text "$RECORD"
-    ;;
-esac
+  # PS_ROOT is intentionally global: helpers (ps__collect_pending, ps__find_ledger, …) read it.
+  PS_ROOT=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --json)
+        mode="json"
+        shift
+        ;;
+      --canvas-url)
+        mode="canvas-url"
+        shift
+        ;;
+      --root)
+        PS_ROOT="${2:?--root requires a directory}"
+        shift 2
+        ;;
+      --kit-root)
+        kit_root="${2:?--kit-root requires a directory}"
+        shift 2
+        ;;
+      -h|--help)
+        cat <<'EOF'
+Usage: pipeline-status.sh [--root <dir>] [--kit-root <dir>]
+       pipeline-status.sh --json [--root <dir>]
+       pipeline-status.sh --canvas-url [--root <dir>] [--kit-root <dir>]
+EOF
+        exit 0
+        ;;
+      *)
+        echo "pipeline-status: unknown argument: $1" >&2
+        exit 2
+        ;;
+    esac
+  done
+
+  if [[ -z "$PS_ROOT" ]]; then
+    PS_ROOT="$(pwd)"
+  fi
+  PS_ROOT="$(cd "$PS_ROOT" && pwd)"
+
+  if [[ -z "$kit_root" ]]; then
+    # Prefer sibling of this script (kit or installed copy under project scripts/)
+    kit_root="$(cd "$(ps__script_dir)/.." && pwd)"
+  fi
+
+  record="$(ps__build_record)"
+
+  case "$mode" in
+    json)
+      printf '%s\n' "$record"
+      ;;
+    canvas-url)
+      ps__print_canvas_url "$record" "$kit_root"
+      ;;
+    text)
+      ps__print_text "$record"
+      ;;
+  esac
+}
+
+# CLI entry: when executed (not sourced), parse args and print the orientation record.
+# When sourced, only function definitions above remain available.
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  set -euo pipefail
+  ps__main "$@"
+fi
