@@ -136,7 +136,7 @@ flowchart TD
   startBuild[["start-build"]]
   softwareDev[["csp-software-developer"]]
   reviewGate[/"review-gate"/]
-  engReview[["engineer-reviewer or multi-repo-supervisor"]]
+  engReview[["csp-engineer-reviewer or csp-multi-repo-supervisor"]]
   proposeCommit[["propose-commit HITL approve-commit"]]
   updateDocs[["update-docs"]]
   proposeCommit2[["propose-commit residual if dirty"]]
@@ -278,7 +278,7 @@ Should-fix findings are visible but never block.
 
 ---
 
-## 5. Start-build → software-developer
+## 5. Start-build → csp-software-developer
 
 ```mermaid
 flowchart TD
@@ -327,7 +327,7 @@ flowchart TD
   writeReview{{".cursor/gates/review-gate/slug"}}
   surface["review-surface: checkout + SetActiveBranch"]
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
-  doFixes["software-developer implements fixes"]
+  doFixes["csp-software-developer implements fixes"]
   delReview["Clear this slug review-gate"]
   probe["Non-mutating multi-repo probe"]
   repoCount{Changed repo count?}
@@ -405,12 +405,12 @@ Writing shape: skill `update-docs` + `references/writing-guide.md`. For `docs_re
 ```mermaid
 flowchart TD
   orch(["csp-engineer-reviewer"])
-  lint[["review-lint first"]]
+  lint[["csp-review-lint first"]]
   parallelFind["Parallel find: logic / patterns / deadcode / simplify / architecture / performance / security? / figma?"]
   autofix{Auto-fix eligible?}
   apply["Serialize apply: lint then patterns deadcode logic arch perf security figma"]
   clarifyItem[/"clarify — never silent apply"/]
-  verifyLint["Verify: re-run review-lint once"]
+  verifyLint["Verify: re-run csp-review-lint once"]
   merge["Merge JSON + evidence gate + validate report"]
   needsClarify{Needs clarification?}
   waitHitl[/"HITL wait for C-id answers"/]
@@ -463,7 +463,7 @@ flowchart TD
 
 | Rule | Detail |
 |------|--------|
-| When | After engineer-review (or multi-repo-supervisor) settles; again on full path if docs left uncommitted files |
+| When | After engineer-review (or `csp-multi-repo-supervisor`) settles; again on full path if docs left uncommitted files |
 | HITL | `approve-commit` / `revise` via skill `hitl-choice` preset **Propose commit** |
 | Marker | `.cursor/gates/commit-approved/<slug>` written on `approve-commit` |
 | Never | `git push`, `gh pr create`, `git add -A`, commits on default branch |
@@ -484,10 +484,10 @@ stateDiagram-v2
   PlanGate --> PlanGate: revise clears this slug plan-critique-clear
   CritiqueGate --> CritiqueClear: Verdict clear
   CritiqueGate --> CritiqueGate: blocked / pending accept
-  CritiqueClear --> Building: start-build + software-developer
+  CritiqueClear --> Building: start-build + csp-software-developer
   Building --> ReviewGate: /csp-finish-plan writes review-gate/slug
   ReviewGate --> Reviewing: skip / approve / done
-  ReviewGate --> Building: fixes then software-developer
+  ReviewGate --> Building: fixes then csp-software-developer
   Building --> ReviewGate: re-ask review-gate
   Reviewing --> Reviewing: Needs clarification
   Reviewing --> CommitGate: propose-commit writes commit-approved/slug
@@ -526,11 +526,11 @@ flowchart LR
   docs["/csp-update-docs"] --> docsFlow[["HITL destination then write"]]
   pr["/csp-pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
   multi["/csp-multi-review"] --> multiDirect[["csp-multi-repo-supervisor"]]
-  issue["/csp-start-issue-task"] --> issuePipe[["Jira MCP + bug-fixer + create-pr finale"]]
+  issue["/csp-start-issue-task"] --> issuePipe[["Jira MCP + csp-bug-fixer + create-pr finale"]]
   fast["/csp-start-task --fast"] --> fastPipe[["fetch + brief + mode:fast + review + create-pr finale"]]
   escape["/csp-capture-escape"] --> dest[/"miss vs project_secret"/]
   dest -->|miss| teachEsc[["teach-review"]]
-  dest -->|project_secret| learnPipe[["review-learn capture production-escape"]]
+  dest -->|project_secret| learnPipe[["csp-review-learn capture production-escape"]]
 ```
 
 `/csp-critique-plan` alone does **not** write `plan-critique-clear/<slug>` for build — prefer `/csp-approve-plan` so plan HITL is not skipped.
@@ -550,8 +550,8 @@ flowchart TD
   fastVsIssue[/"HITL Fast vs issue if class bug"/]
   boot["Bootstrap"]
   brief["Short AC brief in chat"]
-  exec["software-developer mode:fast"]
-  review["engineer-reviewer no review-gate HITL"]
+  exec["csp-software-developer mode:fast"]
+  review["csp-engineer-reviewer no review-gate HITL"]
   commitNode[["propose-commit HITL approve-commit"]]
   prNode[["create-pr draft then HITL finale"]]
   doneFast(["PR URL"])

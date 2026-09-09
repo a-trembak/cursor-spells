@@ -562,7 +562,7 @@
           <div class="layer-head">Build · написання коду</div>
           <div class="node auto" tabindex="0" data-go="build" data-stage="csp-software-developer" data-layer="build" role="button">
             <div class="kind">5 · automatic</div>
-            <div class="label">start-build → software-developer</div>
+            <div class="label">start-build → csp-software-developer</div>
             <div class="hint">чекати developer → далі review-gate, не новий план</div>
             <span class="open-detail">деталі →</span>
           </div>
@@ -578,7 +578,7 @@
             <div class="hint"><code>/csp-finish-plan</code> пише маркер · skip / approve / done</div>
             <span class="open-detail">деталі →</span>
           </div>
-          <div class="cycle-chip">↺ <code>fixes</code> повертає в <strong>software-developer</strong> (Build), не в writing-plans</div>
+          <div class="cycle-chip">↺ <code>fixes</code> повертає в <strong>csp-software-developer</strong> (Build), не в writing-plans</div>
           <div class="connector"><span class="edge-label">skip / approve / done</span></div>
           <div class="node hitl" tabindex="0" data-go="review" data-stage="engineer-review" data-layer="review" role="button">
             <div class="kind">7 · conditional HITL</div>
@@ -925,7 +925,7 @@
     <!-- BUILD -->
     <section id="view-build" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
-      <h2 class="view-title">5. start-build → software-developer</h2>
+      <h2 class="view-title">5. start-build → csp-software-developer</h2>
       <p class="view-desc">Тонкий handoff. Critic тут не запускається. Код лише після clear critique.</p>
       <div class="detail-flow">
         <div class="step">
@@ -977,7 +977,7 @@
         <div class="step">
           <div class="step-num">5</div>
           <div class="step-body auto">
-            <h3>Wait → review-gate → engineer-reviewer</h3>
+            <h3>Wait → review-gate → csp-engineer-reviewer</h3>
             <p><code>start-build</code> <strong>чекає</strong> return від nested Task <code>csp-software-developer</code> (fire-and-forget заборонено). Потім у цьому ж чаті викликає <code>/csp-finish-plan</code> — це HITL <code>review-gate</code>, не повернення до writing-plans. Після <code>skip</code> / <code>approve</code> / <code>done</code> стартує <code>csp-engineer-reviewer</code>.</p>
           </div>
         </div>
@@ -1033,11 +1033,11 @@
               </div>
               <div class="branch">
                 <span class="token ok">1 repo</span>
-                <div class="then">engineer-reviewer (+ Figma HITL якщо frontend)</div>
+                <div class="then">csp-engineer-reviewer (+ Figma HITL якщо frontend)</div>
               </div>
               <div class="branch">
                 <span class="token auto">≥ 2 repos</span>
-                <div class="then">multi-repo-supervisor</div>
+                <div class="then">csp-multi-repo-supervisor</div>
               </div>
             </div>
           </div>
@@ -1305,14 +1305,14 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>software-developer mode:fast</code> → engineer-reviewer → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-issue-task</h3>
-            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → engineer-reviewer → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
+            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
           </div>
         </div>
         <div class="step">
