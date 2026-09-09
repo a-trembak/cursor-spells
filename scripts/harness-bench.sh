@@ -17,7 +17,6 @@ echo "Reports → $report_path"
 
 overall_start=$(date +%s)
 failed=0
-test_count=0
 
 shopt -s nullglob
 tests=("$TESTS_GLOB"/*.sh)
@@ -26,11 +25,12 @@ shopt -u nullglob
 if [[ ${#tests[@]} -eq 0 ]]; then
   echo "FAIL no tests under $TESTS_GLOB" >&2
   failed=1
+  # Record a failing row so report failed_count matches tests[] (no silent fail).
+  printf '%s\t%s\t%s\t%s\n' "(no-tests)" "fail" "1" "0" >>"$tmp_results"
 fi
 
 for test_script in "${tests[@]}"; do
   name="$(basename "$test_script")"
-  test_count=$((test_count + 1))
   echo "==> $name"
   start=$(date +%s)
   set +e
@@ -79,12 +79,9 @@ echo "==> trajectory-validate → $traj_validate_status ($traj_validate_code)"
 echo "==> trajectory-score-fixtures → $traj_score_status ($traj_score_code)"
 
 overall_end=$(date +%s)
-ok=true
-if [[ "$failed" -ne 0 ]]; then
-  ok=false
-fi
 
-python3 - "$report_path" "$tmp_results" "$timestamp" "$overall_start" "$overall_end" "$test_count" "$failed" "$ok" <<'PY'
+# Derive test_count / failed_count / ok from recorded rows so they stay consistent.
+python3 - "$report_path" "$tmp_results" "$timestamp" "$overall_start" "$overall_end" <<'PY'
 import json, sys
 from pathlib import Path
 
@@ -93,9 +90,6 @@ results_path = Path(sys.argv[2])
 timestamp = sys.argv[3]
 overall_start = int(sys.argv[4])
 overall_end = int(sys.argv[5])
-test_count = int(sys.argv[6])
-failed_count = int(sys.argv[7])
-ok = sys.argv[8] == "true"
 
 tests = []
 for line in results_path.read_text(encoding="utf-8").splitlines():
@@ -111,10 +105,11 @@ for line in results_path.read_text(encoding="utf-8").splitlines():
         }
     )
 
+failed_count = sum(1 for t in tests if t["status"] != "pass")
 payload = {
     "timestamp": timestamp,
-    "ok": ok,
-    "test_count": test_count,
+    "ok": failed_count == 0,
+    "test_count": len(tests),
     "failed_count": failed_count,
     "duration_s": overall_end - overall_start,
     "tests": tests,
