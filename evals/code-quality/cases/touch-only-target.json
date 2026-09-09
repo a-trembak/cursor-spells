@@ -1,0 +1,19 @@
+{
+  "id": "touch-only-target",
+  "title": "Fix adder without creating side files or editing unrelated.txt",
+  "source": "docs/superpowers/dogfood/code-quality-evals-checklist.md",
+  "status": "active",
+  "mode": "slice",
+  "fixture": "evals/code-quality/fixtures/touch-only-target",
+  "expected_files": ["adder.py", "test_adder.py", "unrelated.txt"],
+  "forbidden_paths": ["side_effect.py", "docs/plans/extra.md"],
+  "required_substrings": {
+    "adder.py": ["def add(", "return a + b"],
+    "unrelated.txt": ["UNRELATED_MARKER_DO_NOT_EDIT"]
+  },
+  "forbidden_substrings": {
+    "unrelated.txt": ["MODIFIED_BY_AGENT"],
+    "adder.py": ["print("]
+  },
+  "test_commands": ["python3 -m unittest test_adder.py"]
+}

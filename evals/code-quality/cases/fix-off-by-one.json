@@ -1,0 +1,18 @@
+{
+  "id": "fix-off-by-one",
+  "title": "Fix inclusive upper-bound clamp and keep regression tests green",
+  "source": "docs/superpowers/dogfood/code-quality-evals-checklist.md",
+  "status": "active",
+  "mode": "issue",
+  "fixture": "evals/code-quality/fixtures/fix-off-by-one",
+  "expected_files": ["clamp.py", "test_clamp.py"],
+  "forbidden_paths": ["docs/superpowers/plans/fix-clamp.md", "scratch.tmp"],
+  "required_substrings": {
+    "clamp.py": ["def clamp(", "return high"],
+    "test_clamp.py": ["test_high_inclusive"]
+  },
+  "forbidden_substrings": {
+    "clamp.py": ["n >= high", "TODO HACK"]
+  },
+  "test_commands": ["python3 -m unittest test_clamp.py"]
+}

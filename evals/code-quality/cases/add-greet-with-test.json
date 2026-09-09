@@ -1,0 +1,18 @@
+{
+  "id": "add-greet-with-test",
+  "title": "Add greet(name) helper with a unit test",
+  "source": "docs/superpowers/dogfood/code-quality-evals-checklist.md",
+  "status": "active",
+  "mode": "full",
+  "fixture": "evals/code-quality/fixtures/add-greet-with-test",
+  "expected_files": ["greet.py", "test_greet.py"],
+  "forbidden_paths": ["greet.js", "node_modules"],
+  "required_substrings": {
+    "greet.py": ["def greet(", "Hello,"],
+    "test_greet.py": ["greet(\"Ada\")"]
+  },
+  "forbidden_substrings": {
+    "greet.py": ["eval(", "exec("]
+  },
+  "test_commands": ["python3 -m unittest test_greet.py"]
+}
