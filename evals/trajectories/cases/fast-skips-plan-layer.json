@@ -1,12 +1,12 @@
 {
   "id": "fast-skips-plan-layer",
   "title": "Explicit --fast implements, reviews, and opens a draft without spec, plan, critic, review-gate, or docs",
-  "source": "commands/start-task.md",
+  "source": "commands/csp-start-task.md",
   "pipeline": "fast",
   "end_to_end": true,
   "status": "active",
   "input": {
-    "invocation": "/start-task --fast PROJ-1",
+    "invocation": "/csp-start-task --fast PROJ-1",
     "fetch": "ok",
     "jira_class": "feature"
   },
@@ -14,7 +14,7 @@
     "jira-fetch",
     "jira-transition-in-progress",
     "bootstrap",
-    "software-developer",
+    "csp-software-developer",
     "engineer-review",
     "create-pr",
     "pipeline-finale-hitl"

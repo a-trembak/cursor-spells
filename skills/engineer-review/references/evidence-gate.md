@@ -1,6 +1,6 @@
 # Evidence gate (mandatory before user-facing review output)
 
-Orchestrators (`engineer-reviewer`, `pr-reviewer`, `multi-repo-supervisor` merge) **must not** show a Fixed / Clarify / Findings item until it passes this gate. Phase agents **must** fill these fields in JSON; if they do not, the orchestrator backfills or drops the item.
+Orchestrators (`csp-engineer-reviewer`, `csp-pr-reviewer`, `csp-multi-repo-supervisor` merge) **must not** show a Fixed / Clarify / Findings item until it passes this gate. Phase agents **must** fill these fields in JSON; if they do not, the orchestrator backfills or drops the item.
 
 Also read [forbidden-formats.md](forbidden-formats.md): a “Verdict / Blockers / Блокери” digest with class names but **no** File/Jump/snippet is a failed report even if the analysis is right.
 

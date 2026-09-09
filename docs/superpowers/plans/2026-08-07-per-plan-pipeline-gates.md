@@ -272,9 +272,9 @@ git commit -m "feat(hooks): per-slug post-plan review-gate"
 **Files:**
 - Modify: `skills/approve-plan/SKILL.md`
 - Modify: `skills/start-build/SKILL.md`
-- Modify: `commands/approve-plan.md`
-- Modify: `commands/start-build.md`
-- Modify: `commands/start-issue-task.md` (critique markers)
+- Modify: `commands/csp-approve-plan.md`
+- Modify: `commands/csp-start-build.md`
+- Modify: `commands/csp-start-issue-task.md` (critique markers)
 - Modify: `rules/before-build-critique-gate.mdc`
 
 - [ ] **Step 1: Rewrite marker bash in `approve-plan`**
@@ -311,7 +311,7 @@ Same path vocabulary; rule item 4 becomes "Do not dispatch Task 1 while **this p
 
 ```bash
 git add skills/approve-plan/SKILL.md skills/start-build/SKILL.md \
-  commands/approve-plan.md commands/start-build.md commands/start-issue-task.md \
+  commands/csp-approve-plan.md commands/csp-start-build.md commands/csp-start-issue-task.md \
   rules/before-build-critique-gate.mdc
 git commit -m "feat(skills): approve-plan and start-build use per-plan gates"
 ```
@@ -324,10 +324,10 @@ git commit -m "feat(skills): approve-plan and start-build use per-plan gates"
 - Modify: `skills/finish-plan/SKILL.md`
 - Modify: `skills/update-docs/SKILL.md`
 - Modify: `skills/hitl-choice/SKILL.md`
-- Modify: `commands/finish-plan.md`
-- Modify: `commands/update-docs.md`
+- Modify: `commands/csp-finish-plan.md`
+- Modify: `commands/csp-update-docs.md`
 - Modify: `rules/after-plan-review-gate.mdc`
-- Modify: agents that mention `review-gate.pending` / `docs-gate.pending` / `plan-critique.clear` (`agents/software-developer.md`, `agents/bug-fixer.md`, `agents/engineer-reviewer.md` as needed)
+- Modify: agents that mention `review-gate.pending` / `docs-gate.pending` / `plan-critique.clear` (`agents/csp-software-developer.md`, `agents/csp-bug-fixer.md`, `agents/csp-engineer-reviewer.md` as needed)
 
 - [ ] **Step 1: finish-plan / update-docs write plan path**
 
@@ -360,8 +360,8 @@ Update legacy paths to `.cursor/gates/...` language.
 
 ```bash
 git add skills/finish-plan/SKILL.md skills/update-docs/SKILL.md skills/hitl-choice/SKILL.md \
-  commands/finish-plan.md commands/update-docs.md rules/after-plan-review-gate.mdc \
-  agents/software-developer.md agents/bug-fixer.md agents/engineer-reviewer.md
+  commands/csp-finish-plan.md commands/csp-update-docs.md rules/after-plan-review-gate.mdc \
+  agents/csp-software-developer.md agents/csp-bug-fixer.md agents/csp-engineer-reviewer.md
 git commit -m "feat(skills): per-plan review/docs gates and force-clear HITL"
 ```
 

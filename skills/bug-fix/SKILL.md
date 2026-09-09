@@ -4,7 +4,7 @@ description: >-
   Use when fixing a bug from a Jira/issue ticket or a cleared fix plan: find
   root cause before changing code, apply a minimal fix with a regression test,
   then verify. Never patch on assumptions — only after debug evidence confirms
-  the causal line. Use from /start-issue-task after implementation-critic
+  the causal line. Use from /csp-start-issue-task after implementation-critic
   Verdict clear, or when asked to fix a diagnosed bug. Not for feature work
   (use software-developer).
 ---
@@ -15,14 +15,14 @@ Implements a **minimal, root-cause fix** from a critiqued-clear fix plan (or an 
 
 ## When to Use
 
-- `/start-issue-task` after `implementation-critic` yields `Verdict: clear`
+- `/csp-start-issue-task` after `implementation-critic` yields `Verdict: clear`
 - Human asks to implement an already-cleared bug-fix plan
-- Not for greenfield features (`software-developer`) and not for writing/critiquing the plan itself
+- Not for greenfield features (`csp-software-developer`) and not for writing/critiquing the plan itself
 
 ## Entry conditions
 
 1. Fix plan exists (typically `docs/superpowers/plans/YYYY-MM-DD-<jira-key>-fix.md`) **or** the caller passed an equivalent root-cause brief with reproduction steps.
-2. For `/start-issue-task`: `.cursor/gates/plan-critique-clear/<slug>` matches that plan path (critic `Verdict: clear`).
+2. For `/csp-start-issue-task`: `.cursor/gates/plan-critique-clear/<slug>` matches that plan path (critic `Verdict: clear`).
 3. Ticket / bug description is available (Jira fields already fetched by the orchestrator, or pasted text).
 
 If a gate is missing: **stop** and name it. Do not code.
@@ -38,7 +38,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 | `ce-debug` with `mode:pipeline` | Non-interactive diagnosis loop when installed |
 | `verification-before-completion` | Evidence before claiming done |
 | `code-comments` | Keep/Remove taxonomy; English-only comments |
-| [`skill-map.md`](../engineer-review/references/skill-map.md) stack (+ DB rows if migrations) | Same mechanical lookup as `software-developer` |
+| [`skill-map.md`](../engineer-review/references/skill-map.md) stack (+ DB rows if migrations) | Same mechanical lookup as `csp-software-developer` |
 | `tdd` / project test conventions | Failing test that proves the bug **before** the fix |
 
 ## Spine
@@ -50,14 +50,14 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 4. **Regression test first** — add or extend a test that fails for the bug and would pass after the fix (prefer real stack/integration over Mockito-only when the bug is runtime/SQL/Hibernate).
 5. **Minimal fix** — change only what the **confirmed** root cause requires. No “while I’m here” refactors. No defensive null-check scatter without a proven null site.
 6. **Verify** — run the new/updated test plus relevant project lint/test/typecheck (`verification-before-completion`). Keep evidence.
-7. **Handoff** — return `next_skill: engineer-reviewer`, `repo → branch` map, root-cause summary with **evidence citation** (file:line or test name), verification evidence, and any `skill_missing` notes. **nested Task:** stop after that block (no `AskQuestion` / `engineer-reviewer` from the Task). Callers **Wait for** the return then run `engineer-reviewer`, then skill **`propose-commit`**, then **`create-pr`** (do not skip those for `/start-issue-task`).
-8. **Review-learn on escapes** — if this defect was a **production escape** (or the plan states prior review should have caught it), after the fix is verified invoke agent `review-learn` with `source: production-escape` per `skills/engineer-review/references/review-learn-protocol.md` so the miss class strengthens future reviews. Do not block the fix handoff on HITL promote.
+7. **Handoff** — return `next_skill: csp-engineer-reviewer`, `repo → branch` map, root-cause summary with **evidence citation** (file:line or test name), verification evidence, and any `skill_missing` notes. **nested Task:** stop after that block (no `AskQuestion` / `csp-engineer-reviewer` from the Task). Callers **Wait for** the return then run `csp-engineer-reviewer`, then skill **`propose-commit`**, then **`create-pr`** (do not skip those for `/csp-start-issue-task`).
+8. **Review-learn on escapes** — if this defect was a **production escape** (or the plan states prior review should have caught it), after the fix is verified invoke agent `csp-review-learn` with `source: production-escape` per `skills/engineer-review/references/review-learn-protocol.md` so the miss class strengthens future reviews. Do not block the fix handoff on HITL promote.
 
 ## Hard rules
 
 - **Never fix on assumption.** Hypothesis → verify → then patch. If verification is missing, stop and list blockers.
 - **Never stack “likely” fixes** across commits when QA/production still fails — treat prior hypothesis as falsified; re-gather evidence.
-- **Never `git commit`** during pipeline fix work. Leave changes uncommitted for skill `propose-commit` after engineer-review. Nested `bug-fixer` / task agents inherit this forbid
+- **Never `git commit`** during pipeline fix work. Leave changes uncommitted for skill `propose-commit` after engineer-review. Nested `csp-bug-fixer` / task agents inherit this forbid
 - Never expand scope beyond the fix plan / diagnosed bug.
 - Never ship a symptom-only patch when the root cause is known and in-repo.
 - If Jira/MCP facts conflict with repo evidence: **stop and ask** (HITL via `hitl-choice` when a closed choice exists).

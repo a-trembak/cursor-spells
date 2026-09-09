@@ -36,8 +36,8 @@ assert_grep skill_human_in_the_loop "skills/plain-language-chat/SKILL.md" "human
 assert_grep installer_copies_rule "scripts/install-to-project.sh" "plain-language-chat.mdc"
 assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/plain-language-chat"
 assert_grep humanizer_points_to_skill "skills/english-humanizer/SKILL.md" "plain-language-chat"
-assert_grep reviewer_loads_skill "agents/engineer-reviewer.md" "plain-language-chat"
-assert_grep pr_reviewer_loads_skill "agents/pr-reviewer.md" "plain-language-chat"
+assert_grep reviewer_loads_skill "agents/csp-engineer-reviewer.md" "plain-language-chat"
+assert_grep pr_reviewer_loads_skill "agents/csp-pr-reviewer.md" "plain-language-chat"
 assert_grep readme_lists_skill "README.md" "plain-language-chat"
 
 # Installer must drop the always-on rule into user-global and project rules.

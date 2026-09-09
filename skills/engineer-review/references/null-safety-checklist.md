@@ -1,6 +1,6 @@
 # Null safety checklist (N1)
 
-Canonical gate for `review-logic` when a diff fixes NPE, 500, or null-pointer failures in a service method, shared helper, repository query, or mapper. Catch **partial null hardening**: one path gets guards while sibling endpoints or other callers of the same helper still use the unsafe pattern.
+Canonical gate for `csp-review-logic` when a diff fixes NPE, 500, or null-pointer failures in a service method, shared helper, repository query, or mapper. Catch **partial null hardening**: one path gets guards while sibling endpoints or other callers of the same helper still use the unsafe pattern.
 
 Do **not** hardcode product names, ticket ids, or endpoint labels. Apply the rule; examples are illustration only.
 

@@ -2,7 +2,7 @@
 
 ## Problem
 
-`cursor-spells` today is strong **after** a plan is executed (`finish-plan` → HITL → `engineer-reviewer` / `multi-repo-supervisor`), but has no structured support **before** code is written. Quality currently depends on whatever the plan-writing session happened to capture. The goal is to shift quality left: catch ambiguity, over-engineering, and architectural risk **before** the developer agent writes a single line, so `engineer-review` becomes a safety net instead of the primary quality gate.
+`cursor-spells` today is strong **after** a plan is executed (`finish-plan` → HITL → `csp-engineer-reviewer` / `csp-multi-repo-supervisor`), but has no structured support **before** code is written. Quality currently depends on whatever the plan-writing session happened to capture. The goal is to shift quality left: catch ambiguity, over-engineering, and architectural risk **before** the developer agent writes a single line, so `engineer-review` becomes a safety net instead of the primary quality gate.
 
 ## Goals
 
@@ -102,15 +102,15 @@ A separate agent that reviews the **plan** (and the tech spec it's based on) bef
 
 ### When it runs
 
-Not inside `/start-build`. Pipeline order:
+Not inside `/csp-start-build`. Pipeline order:
 
 1. `writing-plans` produces the plan
 2. **HITL `approve-plan`** — human reads the plan (`skills/approve-plan`)
 3. **Automatic** `implementation-critic` right after `approve-plan` (no HITL to start the critic)
 4. **HITL** only if `Verdict` is `blocked` or `clear pending accept`
-5. On `Verdict: clear` → `/start-build` → `software-developer`
+5. On `Verdict: clear` → `/csp-start-build` → `software-developer`
 
-Ad-hoc: `/critique-plan` still works outside the pipeline.
+Ad-hoc: `/csp-critique-plan` still works outside the pipeline.
 
 ### Skills (two complementary lenses, not a single tool)
 
@@ -207,7 +207,7 @@ A diff/spec touching `**/db/migration/**`, `*.sql`, ORM schema/entity files, or 
 
 ## 5. Comments policy (`code-comments` skill)
 
-Addresses a concrete current gap: `review-deadcode` today only says "keep comments for non-obvious intent" — too vague to consistently apply or auto-fix.
+Addresses a concrete current gap: `csp-review-deadcode` today only says "keep comments for non-obvious intent" — too vague to consistently apply or auto-fix.
 
 Shared by the developer (prevention) and `engineer-review`'s deadcode phase (enforcement).
 
@@ -220,7 +220,7 @@ Shared by the developer (prevention) and `engineer-review`'s deadcode phase (enf
 
 Preference order: rename/simplify the code over adding a comment to compensate for unclear naming.
 
-`review-deadcode`'s severity table is replaced by the auto-fix eligibility test in §7 for the "which of these get auto-applied" decision — the table above only decides *what's junk*, not what's safe to silently remove.
+`csp-review-deadcode`'s severity table is replaced by the auto-fix eligibility test in §7 for the "which of these get auto-applied" decision — the table above only decides *what's junk*, not what's safe to silently remove.
 
 ---
 
@@ -228,7 +228,7 @@ Preference order: rename/simplify the code over adding a comment to compensate f
 
 Two existing skills, different roles, both folded into every stage above rather than becoming their own pipeline stage:
 
-- **`using-superpowers`** is not a process — it's the enforcement rule "check whether a designated protocol/skill exists for this step before acting, even if the step looks simple." Every agent in this pipeline (`tech-spec`, `implementation-critic`, `software-developer`, `engineer-reviewer`, `skill-resolver`) carries this as a standing self-check before producing output: *did I actually apply my checklist, or did I skip it because this looked obvious?*
+- **`using-superpowers`** is not a process — it's the enforcement rule "check whether a designated protocol/skill exists for this step before acting, even if the step looks simple." Every agent in this pipeline (`tech-spec`, `implementation-critic`, `software-developer`, `csp-engineer-reviewer`, `skill-resolver`) carries this as a standing self-check before producing output: *did I actually apply my checklist, or did I skip it because this looked obvious?*
 - **`brainstorming`**'s question-loop mechanics (one question per message, multiple-choice preferred, 2-3 options with trade-offs before presenting a design) are reused as the reference implementation for the Tech Spec's Decision-tier interview (§1) — not brainstorming itself as a stage, since the tech spec's artifact is intentionally narrower (an engineering action plan, not a product/UX design doc).
 
 ---
@@ -266,7 +266,7 @@ Traceability drift (spec vs. diff mismatch, §8) is `clarify`-only by constructi
 
 Applied on top of the existing orchestrator (`skills/engineer-review/`), not a rewrite:
 
-- `review-deadcode` adopts the comments taxonomy from §5 verbatim, and the auto-fix decision for every finding in every phase uses the §7 test instead of a severity guess.
+- `csp-review-deadcode` adopts the comments taxonomy from §5 verbatim, and the auto-fix decision for every finding in every phase uses the §7 test instead of a severity guess.
 - New lightweight check in the `patterns` phase: when a tech spec / AC trace exists for the diff, verify the diff matches the declared services/tables/seams. A mismatch is always `clarify` (§7's traceability row), never silently accepted or auto-fixed.
 - DB skills from §4 are available to `logic`/`architecture` phases whenever the diff includes a migration, mirroring the developer's routing.
 - Each phase agent's self-check before emitting a verdict: did it actually load and apply its mapped skill/checklist for this finding, per §6.
@@ -295,17 +295,17 @@ Because no unvetted code is ever pulled in without a human decision in the loop,
 
 ## New/changed artifacts
 
-- `agents/tech-spec.md` (new) — drives §1
-- `agents/implementation-critic.md` (new) — drives §2
-- `skills/approve-plan/SKILL.md` + `commands/approve-plan.md` — HITL approve-plan, then auto critic, then `start-build` on clear
+- `agents/csp-tech-spec.md` (new) — drives §1
+- `agents/csp-implementation-critic.md` (new) — drives §2
+- `skills/approve-plan/SKILL.md` + `commands/csp-approve-plan.md` — HITL approve-plan, then auto critic, then `start-build` on clear
 - `skills/start-build/SKILL.md` — thin execution handoff (requires `.cursor/plan-critique.clear`; does not run the critic)
-- `agents/software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (branch setup in target repo(s), skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
+- `agents/csp-software-developer.md` + `skills/software-developer/SKILL.md` (new) — drives §3 (branch setup in target repo(s), skill-map routing, code-comments, verify-before-handoff; on `react-web` also Figma + `ce-test-browser`)
 - `skills/software-developer/references/branch-setup.md` — resolve target repos from plan/spec, shared feature branch name, create/checkout before Task 1
-- `commands/start-task.md`, `commands/write-tech-spec.md`, `commands/critique-plan.md` (new)
-- `skills/update-docs/SKILL.md` + `commands/update-docs.md` — post-review HITL for product-docs destination (`docs_md` / `docs_repo` / `confluence` / `skip`) + dual-audience writing guide
-- `skills/code-comments/SKILL.md` (new) — drives §5, shared by developer + `review-deadcode`
+- `commands/csp-start-task.md`, `commands/csp-write-tech-spec.md`, `commands/csp-critique-plan.md` (new)
+- `skills/update-docs/SKILL.md` + `commands/csp-update-docs.md` — post-review HITL for product-docs destination (`docs_md` / `docs_repo` / `confluence` / `skip`) + dual-audience writing guide
+- `skills/code-comments/SKILL.md` (new) — drives §5, shared by developer + `csp-review-deadcode`
 - `skills/engineer-review/references/skill-map.md` — add DB rows (§4) and a `## Discovered` section for Tier-2 human-approved additions (§9)
-- `agents/review-deadcode.md` — adopt §5 taxonomy + §7 test
+- `agents/csp-review-deadcode.md` — adopt §5 taxonomy + §7 test
 - `skills/engineer-review/references/phase-protocol.md` — reference §7 as the apply/clarify decision rule (replacing the current severity-only heuristic for edge cases), add the traceability check note from §8
 
 ## Open questions

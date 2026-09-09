@@ -26,9 +26,9 @@ assert_not_grep() {
 assert_grep fetch_score "skills/jira-fetch/SKILL.md" "trajectory-cases.py score"
 assert_grep fetch_case "skills/jira-fetch/SKILL.md" "fetch-failure-stops"
 assert_grep fetch_skip "skills/jira-fetch/SKILL.md" "skip score"
-assert_grep fetch_exact_input "skills/jira-fetch/SKILL.md" '--invocation "/start-task PROJ-1"'
+assert_grep fetch_exact_input "skills/jira-fetch/SKILL.md" '--invocation "/csp-start-task PROJ-1"'
 assert_not_grep fetch_no_live_input "skills/jira-fetch/SKILL.md" "(live|real) invocation string"
-assert_grep start_score "commands/start-task.md" "fetch-failure-stops"
+assert_grep start_score "commands/csp-start-task.md" "fetch-failure-stops"
 assert_grep cpr_score "skills/create-pr/SKILL.md" "trajectory-cases.py score"
 assert_grep cpr_case "skills/create-pr/SKILL.md" "create-pr-draft-never-merge"
 assert_grep cpr_before_ready "skills/create-pr/SKILL.md" "before.*gh pr ready|before applying"
@@ -44,7 +44,7 @@ assert_grep cpr_merged_action "skills/create-pr/SKILL.md" 'merge-pull-request'
 assert_grep cpr_skip_review_like "skills/create-pr/SKILL.md" 'already Review-like.*skip score|skip score.*already Review-like'
 assert_grep cpr_skip_unknown_jira "skills/create-pr/SKILL.md" 'jira_status.*In Progress|skip score.*jira_status'
 assert_grep cpr_progress_only_when_scoring "skills/create-pr/SKILL.md" '--jira-status "In Progress".*only when scoring'
-assert_grep start_pass_status "commands/start-task.md" "jira_status"
+assert_grep start_pass_status "commands/csp-start-task.md" "jira_status"
 assert_grep dogfood "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md" "trajectory-wiring-test.sh"
 assert_grep readme "README.md" "fetch-failure-stops"
 assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Trajectory fail"
@@ -52,7 +52,7 @@ assert_grep token_gen "skills/hitl-choice/SKILL.md" '`generalize`'
 assert_grep token_skip "skills/hitl-choice/SKILL.md" '`skip`'
 assert_grep fetch_ask "skills/jira-fetch/SKILL.md" "Trajectory fail"
 assert_grep cpr_ask "skills/create-pr/SKILL.md" "Trajectory fail"
-assert_grep capture_fail "commands/capture-escape.md" "FAIL "
+assert_grep capture_fail "commands/csp-capture-escape.md" "FAIL "
 assert_grep readme_gen "evals/trajectories/README.md" "generalize"
 assert_grep readme_human_confirm "evals/trajectories/README.md" "wait for the human to confirm.*before.*git commit"
 assert_grep readme_show_json "evals/trajectories/README.md" "[Ss]how.*validated case JSON|[Dd]isplay.*validated case JSON"
@@ -67,26 +67,26 @@ assert_grep score_skill_fail "skills/trajectory-score/SKILL.md" "Trajectory fail
 assert_grep score_session "skills/trajectory-score/SKILL.md" "session-full|session-fast|session-issue"
 assert_grep judge_skill "skills/trajectory-judge/SKILL.md" "invent-business-facts"
 assert_grep judge_archaeology "skills/trajectory-judge/SKILL.md" "archaeology-in-decision-docs"
-assert_grep judge_not_developer "skills/trajectory-judge/SKILL.md" "software-developer"
+assert_grep judge_not_developer "skills/trajectory-judge/SKILL.md" "csp-software-developer"
 assert_grep judge_re_score "skills/trajectory-judge/SKILL.md" "record action"
-assert_grep judge_agent "agents/trajectory-judge.md" "trajectory-judge"
+assert_grep judge_agent "agents/csp-trajectory-judge.md" "csp-trajectory-judge"
 
-assert_grep route_unknown "commands/start-task.md" "route-unknown-asks-human"
-assert_grep route_feature "commands/start-task.md" "route-feature-to-full"
-assert_grep route_bug "commands/start-task.md" "route-bug-to-issue"
-assert_grep fast_bug "commands/start-task.md" "fast-bug-asks-human"
-assert_grep full_e2e "commands/start-task.md" "full-happy-path"
-assert_grep fast_e2e "commands/start-task.md" "fast-skips-plan-layer"
-assert_grep story_stays "commands/start-issue-task.md" "start-issue-story-stays-issue"
-assert_grep issue_e2e "commands/start-issue-task.md" "issue-happy-path"
+assert_grep route_unknown "commands/csp-start-task.md" "route-unknown-asks-human"
+assert_grep route_feature "commands/csp-start-task.md" "route-feature-to-full"
+assert_grep route_bug "commands/csp-start-task.md" "route-bug-to-issue"
+assert_grep fast_bug "commands/csp-start-task.md" "fast-bug-asks-human"
+assert_grep full_e2e "commands/csp-start-task.md" "full-happy-path"
+assert_grep fast_e2e "commands/csp-start-task.md" "fast-skips-plan-layer"
+assert_grep story_stays "commands/csp-start-issue-task.md" "start-issue-story-stays-issue"
+assert_grep issue_e2e "commands/csp-start-issue-task.md" "issue-happy-path"
 assert_grep review_fixes "skills/finish-plan/SKILL.md" "review-gate-fixes-to-build"
 assert_grep critic_case "skills/implementation-critic/SKILL.md" "critic-blocks-flawed-plan"
-assert_grep critic_cmd "commands/critique-plan.md" "critic-blocks-flawed-plan"
-assert_grep capture_typical "commands/capture-escape.md" "capture-escape-no-review"
-assert_grep capture_promote "commands/capture-escape.md" "capture-escape-promote-new-gate"
+assert_grep critic_cmd "commands/csp-critique-plan.md" "critic-blocks-flawed-plan"
+assert_grep capture_typical "commands/csp-capture-escape.md" "capture-escape-no-review"
+assert_grep capture_promote "commands/csp-capture-escape.md" "capture-escape-promote-new-gate"
 assert_grep tech_spec_case "skills/tech-spec/SKILL.md" "tech-spec-no-invented-facts"
 assert_grep tech_spec_judge "skills/tech-spec/SKILL.md" "trajectory-judge"
-assert_grep write_spec_case "commands/write-tech-spec.md" "tech-spec-no-invented-facts"
+assert_grep write_spec_case "commands/csp-write-tech-spec.md" "tech-spec-no-invented-facts"
 assert_grep clean_case "skills/clean-decision-docs/SKILL.md" "clean-revise-no-archaeology"
 assert_grep clean_judge "skills/clean-decision-docs/SKILL.md" "trajectory-judge"
 assert_grep create_pr_session "skills/create-pr/SKILL.md" "session-"
@@ -105,7 +105,7 @@ CREATE_PR_LEDGER="$TMP/create-pr-draft-never-merge.json"
 
 python3 "$ROOT/scripts/trajectory-cases.py" record init \
   --ledger "$FETCH_LEDGER" --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" --fetch fail
+  --invocation "/csp-start-task PROJ-1" --fetch fail
 python3 "$ROOT/scripts/trajectory-cases.py" record stage \
   --ledger "$FETCH_LEDGER" jira-fetch
 python3 "$ROOT/scripts/trajectory-cases.py" record artifact \

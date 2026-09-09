@@ -19,8 +19,8 @@ After a plan is executed, review is either skipped, monolithic (burns context), 
 ## Goals
 
 - Portable: live in this kit; consume from any project via symlink/copy
-- Dual entry: automatic gate after plan completion + manual `/engineer-review`
-- HITL: never start `engineer-reviewer` until user `skip` / `approve` / `done` (prefer skill `hitl-choice` / `AskQuestion` buttons; typed tokens remain valid)
+- Dual entry: automatic gate after plan completion + manual `/csp-engineer-review`
+- HITL: never start `csp-engineer-reviewer` until user `skip` / `approve` / `done` (prefer skill `hitl-choice` / `AskQuestion` buttons; typed tokens remain valid)
 - Phase isolation: each checklist item is a subagent
 - Output: **Fixed now** vs **Needs clarification**
 - Pattern cache in the *target* project after first run
@@ -75,7 +75,7 @@ cursor-spells/
 
 ### Manual
 
-User runs `/engineer-review` or invokes `@engineer-reviewer` / skill `engineer-review`.
+User runs `/csp-engineer-review` or invokes `@csp-engineer-reviewer` / skill `engineer-review`.
 
 ### After plan (HITL gate)
 
@@ -109,16 +109,16 @@ Target orchestrator prompt size: ~2–4k tokens + summaries.
 | Order | Agent | When | Primary skills (recommended) |
 |------:|-------|------|------------------------------|
 | 0 | (orchestrator) stack detect + patterns ensure | always | — |
-| 1 | `review-lint` | always (deterministic tooling; skips if no lint config resolvable) | project's own eslint/tsc/checkstyle/ktlint |
-| 2 | `review-logic` | always | stack skill (Vercel React BP / RN / Java Spring) |
-| 3 | `review-patterns` | always | project-patterns.md; prefer graphify when present |
-| 4 | `review-deadcode` | always | dead-code-eliminator + local unused/comment rules; prefer graphify callers when present |
-| 4b | `review-simplify` | always | **Primary** `ce-simplify-code` personas + kit extensions ([simplify-checklist.md](../../../skills/engineer-review/references/simplify-checklist.md)); quality verify after apply |
-| 5 | `review-architecture` | always | architecture-review skill; prefer graphify call/impact when present |
-| 6 | `review-performance` | always | addyosmani performance + Vercel on frontend; prefer graphify impact when present |
-| 7 | `review-security` | if auth/data/network/secrets touch diff | security-review |
-| 8 | `review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use; always [figma-markup-checklist.md](../../../skills/engineer-review/references/figma-markup-checklist.md) F1–F7; on `react-web` also `ce-test-browser` |
-| — | `review-lint` (verify pass) | once, after the coordinated apply step | same as above |
+| 1 | `csp-review-lint` | always (deterministic tooling; skips if no lint config resolvable) | project's own eslint/tsc/checkstyle/ktlint |
+| 2 | `csp-review-logic` | always | stack skill (Vercel React BP / RN / Java Spring) |
+| 3 | `csp-review-patterns` | always | project-patterns.md; prefer graphify when present |
+| 4 | `csp-review-deadcode` | always | dead-code-eliminator + local unused/comment rules; prefer graphify callers when present |
+| 4b | `csp-review-simplify` | always | **Primary** `ce-simplify-code` personas + kit extensions ([simplify-checklist.md](../../../skills/engineer-review/references/simplify-checklist.md)); quality verify after apply |
+| 5 | `csp-review-architecture` | always | architecture-review skill; prefer graphify call/impact when present |
+| 6 | `csp-review-performance` | always | addyosmani performance + Vercel on frontend; prefer graphify impact when present |
+| 7 | `csp-review-security` | if auth/data/network/secrets touch diff | security-review |
+| 8 | `csp-review-figma-markup` | frontend only, after user pastes Figma node URLs | figma-design-to-code / figma-use; always [figma-markup-checklist.md](../../../skills/engineer-review/references/figma-markup-checklist.md) F1–F7; on `react-web` also `ce-test-browser` |
+| — | `csp-review-lint` (verify pass) | once, after the coordinated apply step | same as above |
 
 Phases may run **sequentially for mutating fixes** on the same files, or **parallel for read-only finding passes** then a single apply pass. Default: find in parallel where independent, apply unambiguous fixes in one orchestrated apply step to avoid write conflicts.
 
@@ -133,7 +133,7 @@ After the user answers clarification questions, the orchestrator re-dispatches t
 
 On first review in a project (or if `.cursor/project-patterns.md` missing):
 
-1. `review-patterns` scans structure (folders, naming, packages, idioms)
+1. `csp-review-patterns` scans structure (folders, naming, packages, idioms)
 2. Writes/updates `.cursor/project-patterns.md` from `patterns-template.md`
 3. Later reviews read that file first; only update when drift is detected
 
@@ -168,7 +168,7 @@ Document in README:
 # from cursor-spells
 ln -s "$(pwd)/skills/engineer-review" ~/.cursor/skills/engineer-review
 ln -s "$(pwd)/agents"/*.md ~/.cursor/agents/   # or project .cursor/agents
-ln -s "$(pwd)/commands/engineer-review.md" ~/.cursor/commands/engineer-review.md
+ln -s "$(pwd)/commands/csp-engineer-review.md" ~/.cursor/commands/csp-engineer-review.md
 # optional hooks: copy hooks/ into project .cursor/
 ```
 
@@ -185,7 +185,7 @@ Recommended consumer installs (not vendored here):
 ## Success criteria
 
 - After plan, agent stops for HITL before review
-- Manual `/engineer-review` works without a plan
+- Manual `/csp-engineer-review` works without a plan
 - Each phase is a separate subagent
 - Unambiguous fixes applied; questions listed separately
 - First run creates project patterns MD
@@ -208,13 +208,13 @@ Shipped in the same kit iteration:
 
 **Problem observed:** a real review run applied fixes via the heuristic phases but let a mechanical `eslint import/first` violation ("Import in body of module; reorder to top.") through unnoticed. Root cause: every phase in the kit was LLM judgment reading a diff — none of them actually *executed* the project's own linter/typechecker/build, so deterministic, mechanical rule violations depended on an LLM happening to notice them.
 
-**Fix:** added a new phase agent, `review-lint`, instead of overloading `review-patterns` or `review-deadcode`:
+**Fix:** added a new phase agent, `csp-review-lint`, instead of overloading `csp-review-patterns` or `csp-review-deadcode`:
 
 - Deterministic tool execution (project's own `npm run lint` / `eslint` / `tsc --noEmit` / checkstyle / ktlint) is a different kind of check than LLM heuristic review and deserves its own phase, not a bolt-on to a judgment-based one.
 - Runs **first**, before the heuristic phases — it has no dependency on `patterns` or a stack skill, and its findings are cheap to trust (a tool said so).
 - Auto-fixable rule violations use the tool's own fixer (`eslint --fix`) as unambiguous `P1`; never a hand-written edit.
-- The orchestrator re-runs `review-lint` once as a **verify pass** after the coordinated apply step, so a fix from another phase (e.g. `deadcode` removing code that leaves an import unused) cannot silently reintroduce a lint violation.
+- The orchestrator re-runs `csp-review-lint` once as a **verify pass** after the coordinated apply step, so a fix from another phase (e.g. `deadcode` removing code that leaves an import unused) cannot silently reintroduce a lint violation.
 - Skips cleanly with `no_lint_config` / `tooling_unavailable` reasons (visible in Coverage) instead of failing the whole review when a stack has no configured linter.
 
-See `agents/review-lint.md`, and the updated `phase-protocol.md` / `skill-map.md` / `output-schema.md` / `SKILL.md` in `skills/engineer-review/`.
+See `agents/csp-review-lint.md`, and the updated `phase-protocol.md` / `skill-map.md` / `output-schema.md` / `SKILL.md` in `skills/engineer-review/`.
 

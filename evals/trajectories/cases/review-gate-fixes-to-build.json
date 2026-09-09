@@ -6,12 +6,12 @@
   "end_to_end": false,
   "status": "active",
   "input": {
-    "invocation": "/finish-plan",
+    "invocation": "/csp-finish-plan",
     "fetch": "skip"
   },
   "required_stages": [
     "review-gate",
-    "software-developer"
+    "csp-software-developer"
   ],
   "required_artifacts": [
     {"kind": "gate", "name": "review-gate"}

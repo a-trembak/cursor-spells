@@ -18,7 +18,7 @@ Strengthen architectural decisions during the kit's design stage (`tech-spec` / 
 | Entry depth | HITL `light` \| `full` only in **agent** mode; **human** mode always **full** |
 | Human mode | Human supplies a plan/notes → designer formats → critic audits |
 | Agent light | Existing 7-section tech-spec path (no system-design pair) |
-| Agent full | Designer + critic → merge into standard tech-spec |
+| Agent full | Designer + critic → merge into standard csp-tech-spec |
 | Inter-agent disputes | Auto-consensus (revise / re-check rounds); do not ask the human |
 | Mid-flight HITL | Only Blocker when AC lacks a business fact with no happy path |
 | Design approval | No separate `approve-design`; only existing `approve-spec` / `revise` / `skip` |
@@ -69,7 +69,7 @@ human        agent
 
 Shared input for both agents: Acceptance Criteria reference, optional human plan text, `.cursor/project-patterns.md` if present, detected stack label. Never invent business requirements.
 
-### `system-design-designer`
+### `csp-system-design-designer`
 
 - Skill: vendored `skills/system-design` (Anthropic framework: requirements → high-level design → deep dive → scale/reliability → trade-off analysis).
 - Modes: `format-human-plan` (structure/clarify human input) vs `draft-from-ac` (agent-authored design from AC + patterns).
@@ -78,7 +78,7 @@ Shared input for both agents: Acceptance Criteria reference, optional human plan
 
 ### `system-design-critic`
 
-- New agent `system-design-critic` (not a reuse of `implementation-critic`).
+- New agent `csp-system-design-critic` (not a reuse of `implementation-critic`).
 - Read-only audit of the system-design draft.
 - Lenses: YAGNI / unnecessary complexity, failure modes, operational risk, over-engineering, fit with existing patterns/stack.
 - Findings: **Must-fix** / **Should-fix** / **Accept-risk** (same severity vocabulary as `implementation-critic`, scoped to design).
@@ -123,12 +123,12 @@ Rules:
 | Artifact | Change |
 |----------|--------|
 | `skills/system-design/SKILL.md` | New — Anthropic framework + kit adaptations (AC, patterns, modes, English paths) |
-| `agents/system-design-designer.md` | New — draft/format system-design |
-| `agents/system-design-critic.md` | New — design audit + finding severities |
+| `agents/csp-system-design-designer.md` | New — draft/format system-design |
+| `agents/csp-system-design-critic.md` | New — design audit + finding severities |
 | `skills/tech-spec/SKILL.md` (+ refs as needed) | Entry HITL for light/full; full-path orchestration; merge; context budget |
-| `agents/tech-spec.md` | Same spine updates |
-| `commands/start-task.md`, `commands/write-tech-spec.md` | Document new HITL steps |
-| `docs/superpowers/pipeline-flow.md` (+ html if maintained) | Full vs light branch on tech-spec |
+| `agents/csp-tech-spec.md` | Same spine updates |
+| `commands/csp-start-task.md`, `commands/csp-write-tech-spec.md` | Document new HITL steps |
+| `docs/superpowers/pipeline-flow.md` (+ html if maintained) | Full vs light branch on csp-tech-spec |
 | `README.md` | List new skill/agents |
 | Dogfood checklist | Scenarios: human full, agent full, agent light |
 
@@ -142,7 +142,7 @@ Rules:
 - Changing `implementation-critic` or post-plan gates
 - Dual competing designers as the default
 - Auto-fetch of Jira/ticket bodies
-- A standalone slash command only for system-design (entry remains `/write-tech-spec` and `/start-task`)
+- A standalone slash command only for system-design (entry remains `/csp-write-tech-spec` and `/csp-start-task`)
 - Product/UX brainstorming outside engineering tech-spec
 
 ## Success criteria

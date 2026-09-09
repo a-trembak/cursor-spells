@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a read-only `implementation-critic` skill/agent and a `/critique-plan` command that audit an existing implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before any developer agent starts writing code.
+**Goal:** Add a read-only `implementation-critic` skill/agent and a `/csp-critique-plan` command that audit an existing implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before any developer agent starts writing code.
 
 **Architecture:** A single agent runs two sequential, complementary lenses (Pass A design/YAGNI, Pass B risk/migration) over a plan file and its tech spec, each backed by a named third-party skill with a built-in fallback checklist when that skill isn't installed. Findings are classified `must-fix` / `should-fix` / `accept-risk` and emitted as a markdown report; the agent never edits the plan or any source file.
 
@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Never vendor third-party skill bodies into the kit — reference `plan-reviewer` (mblode/agent-skills) and `project-verify-plan` (envoydev/agents-stack) by id only, with an inline built-in fallback checklist for when they're not installed (same pattern as `agents/review-architecture.md`'s `architecture-review` reference).
+- Never vendor third-party skill bodies into the kit — reference `plan-reviewer` (mblode/agent-skills) and `project-verify-plan` (envoydev/agents-stack) by id only, with an inline built-in fallback checklist for when they're not installed (same pattern as `agents/csp-review-architecture.md`'s `architecture-review` reference).
 - The critic is **read-only**: it never edits the plan file, never edits source files, and never auto-applies any finding.
 - Every finding must cite a fresh, same-turn quote of the plan/spec line or repo `file:line` it targets — never a finding based on memory or inference.
 - Source-code comments in any code samples inside these files: English only.
@@ -24,12 +24,12 @@
 - `skills/implementation-critic/SKILL.md` — entry skill: when to use, the two-lens table, spine, fix policy, gate rule
 - `skills/implementation-critic/references/lenses.md` — Pass A and Pass B checklists (used verbatim as fallback when the named skill isn't installed) + the anti-confabulation rule
 - `skills/implementation-critic/references/output-schema.md` — the exact markdown report shape, field names, and `Verdict` rule
-- `agents/implementation-critic.md` — the agent definition (preconditions, spine, hard rules, output contract)
-- `commands/critique-plan.md` — `/critique-plan [path]` entry point
+- `agents/csp-implementation-critic.md` — the agent definition (preconditions, spine, hard rules, output contract)
+- `commands/csp-critique-plan.md` — `/csp-critique-plan [path]` entry point
 - `docs/superpowers/dogfood/implementation-critic-checklist.md` — manual verification fixture (mirrors `docs/superpowers/dogfood/engineer-review-checklist.md`)
 - `README.md` — add rows to the Skills/Agents tables + a short Usage note
 
-Each file has one responsibility: the skill file is the "what and why", the references are the two swappable checklists, the agent file is the "how to run it", the command is the entry point, the dogfood file is the acceptance fixture. This mirrors the existing split between `skills/engineer-review/SKILL.md`, its `references/*.md`, and `agents/engineer-reviewer.md`.
+Each file has one responsibility: the skill file is the "what and why", the references are the two swappable checklists, the agent file is the "how to run it", the command is the entry point, the dogfood file is the acceptance fixture. This mirrors the existing split between `skills/engineer-review/SKILL.md`, its `references/*.md`, and `agents/csp-engineer-reviewer.md`.
 
 ---
 
@@ -45,12 +45,12 @@ Each file has one responsibility: the skill file is the "what and why", the refe
 
 ```markdown
 ---
-name: implementation-critic
+name: csp-implementation-critic
 description: >-
   Use after an implementation plan (and its tech spec, if any) is written and
   before any code is written. Audits the plan for unnecessary complexity,
   abstraction violations, missed risks, and scope drift. Use when the user
-  runs /critique-plan, asks to critique/audit a plan, or before dispatching
+  runs /csp-critique-plan, asks to critique/audit a plan, or before dispatching
   a developer agent to implement a plan.
 ---
 
@@ -61,7 +61,7 @@ Audits an existing implementation plan **before code is written**. Never writes 
 ## When to Use
 
 - A plan exists (from `writing-plans` or elsewhere) and a developer is about to start implementing it
-- Manual `/critique-plan <path>` or `@implementation-critic`
+- Manual `/csp-critique-plan <path>` or `@csp-implementation-critic`
 - Not for reviewing a code diff (that's `engineer-review`) and not for writing a new plan (that's `writing-plans`)
 
 ## Two lenses, both required
@@ -115,7 +115,7 @@ git commit -m "Add implementation-critic skill entry file"
 
 **Interfaces:**
 - Consumes: the Pass A / Pass B naming from Task 1.
-- Produces: the exact checklist bullet lists and the anti-confabulation rule that `agents/implementation-critic.md` (Task 4) and the dogfood fixture (Task 6) reference by name.
+- Produces: the exact checklist bullet lists and the anti-confabulation rule that `agents/csp-implementation-critic.md` (Task 4) and the dogfood fixture (Task 6) reference by name.
 
 - [ ] **Step 1: Write the lenses reference file**
 
@@ -182,7 +182,7 @@ git commit -m "Add implementation-critic Pass A/B lens checklists"
 
 **Interfaces:**
 - Consumes: `must-fix` / `should-fix` / `accept-risk` classification names from Task 1.
-- Produces: the exact report field names (`Coverage`, `Must-fix`, `Should-fix`, `Accept-risk candidates`, `Verdict`, finding id prefix `F`) that `agents/implementation-critic.md` (Task 4), `commands/critique-plan.md` (Task 5), and the dogfood fixture (Task 6) all depend on matching exactly.
+- Produces: the exact report field names (`Coverage`, `Must-fix`, `Should-fix`, `Accept-risk candidates`, `Verdict`, finding id prefix `F`) that `agents/csp-implementation-critic.md` (Task 4), `commands/csp-critique-plan.md` (Task 5), and the dogfood fixture (Task 6) all depend on matching exactly.
 
 - [ ] **Step 1: Write the output schema file**
 
@@ -229,7 +229,7 @@ Emit this markdown to the user. Keep it scannable. No persona text before or aft
 - `Verdict` is `blocked` whenever at least one `must-fix` item is still open (no matching `accept F<id>` reply on record); it is `clear pending accept` once every `must-fix` item is resolved or accepted but at least one `accept-risk` item has not yet been explicitly accepted; it is `clear` only when every `must-fix` item is resolved or accepted and every `accept-risk` item has been explicitly accepted (or there are no findings at all).
 - If `Verdict` is `blocked` or `clear pending accept`, end the report with:
 
-  > Reply `accept F<id>` to accept a specific finding by id, or revise the plan and re-run `/critique-plan`. Implementation should not start while `Verdict` is not `clear`.
+  > Reply `accept F<id>` to accept a specific finding by id, or revise the plan and re-run `/csp-critique-plan`. Implementation should not start while `Verdict` is not `clear`.
 ```
 
 - [ ] **Step 2: Verify the schema defines the Verdict states and finding id convention**
@@ -249,21 +249,21 @@ git commit -m "Add implementation-critic output schema"
 ### Task 4: Create the `implementation-critic` agent
 
 **Files:**
-- Create: `agents/implementation-critic.md`
+- Create: `agents/csp-implementation-critic.md`
 
 **Interfaces:**
 - Consumes: skill name and reference file paths from Tasks 1–3 (`skills/implementation-critic/SKILL.md`, `references/lenses.md`, `references/output-schema.md`), the `must-fix`/`should-fix`/`accept-risk` and `Verdict` vocabulary from Task 3.
-- Produces: the agent name `implementation-critic` that `commands/critique-plan.md` (Task 5) invokes.
+- Produces: the agent name `implementation-critic` that `commands/csp-critique-plan.md` (Task 5) invokes.
 
 - [ ] **Step 1: Write the agent file**
 
 ```markdown
 ---
-name: implementation-critic
+name: csp-implementation-critic
 description: >-
   Audits an implementation plan (and tech spec, if any) before any code is
   written: unnecessary complexity, abstraction violations, missing risks,
-  scope drift. Use when the user runs /critique-plan or asks to critique a
+  scope drift. Use when the user runs /csp-critique-plan or asks to critique a
   plan. Never writes plans or code.
 ---
 
@@ -303,22 +303,22 @@ Return the markdown report from `references/output-schema.md` directly to the us
 
 - [ ] **Step 2: Verify the agent references both checklists and the schema by exact path**
 
-Run: `grep -c "references/lenses.md" agents/implementation-critic.md && grep -c "references/output-schema.md" agents/implementation-critic.md && grep -c "^name: implementation-critic$" agents/implementation-critic.md`
+Run: `grep -c "references/lenses.md" agents/csp-implementation-critic.md && grep -c "references/output-schema.md" agents/csp-implementation-critic.md && grep -c "^name: implementation-critic$" agents/csp-implementation-critic.md`
 Expected: `3`, `2`, `1` (the agent's Spine legitimately references `references/lenses.md` on three lines — Pass A, Pass B, and the anti-confabulation rule — and `references/output-schema.md` on two — Spine step 8 and the Output section)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/implementation-critic.md
+git add agents/csp-implementation-critic.md
 git commit -m "Add implementation-critic agent"
 ```
 
 ---
 
-### Task 5: Create the `/critique-plan` command
+### Task 5: Create the `/csp-critique-plan` command
 
 **Files:**
-- Create: `commands/critique-plan.md`
+- Create: `commands/csp-critique-plan.md`
 
 **Interfaces:**
 - Consumes: agent name `implementation-critic` from Task 4, `Verdict: blocked` vocabulary from Task 3.
@@ -331,7 +331,7 @@ description: Audit an implementation plan for complexity, risk, and scope drift 
 argument-hint: "[path/to/plan.md]"
 ---
 
-# /critique-plan
+# /csp-critique-plan
 
 Run the **implementation-critic** agent against an existing plan.
 
@@ -342,7 +342,7 @@ Run the **implementation-critic** agent against an existing plan.
 ## Steps
 
 1. Read and follow skill `implementation-critic` (`skills/implementation-critic/SKILL.md`).
-2. Invoke agent `implementation-critic` with the plan path (and tech spec path, if discoverable).
+2. Invoke agent `csp-implementation-critic` with the plan path (and tech spec path, if discoverable).
 3. Emit the report per `references/output-schema.md`.
 4. If `Verdict` is `blocked` or `clear pending accept`, stop and wait for the user to either revise the plan and re-run this command, or reply `accept F<id>` for a specific finding.
 
@@ -354,14 +354,14 @@ Run the **implementation-critic** agent against an existing plan.
 
 - [ ] **Step 2: Verify the command invokes the right agent and skill**
 
-Run: `grep -c "implementation-critic" commands/critique-plan.md`
+Run: `grep -c "csp-implementation-critic" commands/csp-critique-plan.md`
 Expected: `3` (skill reference, agent invocation, and the header title match)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add commands/critique-plan.md
-git commit -m "Add /critique-plan command"
+git add commands/csp-critique-plan.md
+git commit -m "Add /csp-critique-plan command"
 ```
 
 ---
@@ -472,7 +472,7 @@ git commit -m "Add implementation-critic dogfood fixture"
 - Modify: `README.md:65-77` (Agents table)
 
 **Interfaces:**
-- Consumes: skill path `skills/implementation-critic/`, agent name `implementation-critic`, command `/critique-plan` from Tasks 1, 4, 5.
+- Consumes: skill path `skills/implementation-critic/`, agent name `implementation-critic`, command `/csp-critique-plan` from Tasks 1, 4, 5.
 
 - [ ] **Step 1: Add a row to the Skills table**
 
@@ -494,30 +494,30 @@ to:
 In `README.md`, change:
 
 ```markdown
-| `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
+| `csp-review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
 ```
 
 to:
 
 ```markdown
-| `review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
+| `csp-review-cross-repo` | Reports cross-repo contract drift as clarification-only findings |
 | `implementation-critic` | Audits a plan before code — complexity (Pass A) + risk (Pass B) lenses, read-only |
 ```
 
 - [ ] **Step 3: Add a Usage note**
 
-In `README.md`, after the existing `**Manual review:** /engineer-review` line, add:
+In `README.md`, after the existing `**Manual review:** /csp-engineer-review` line, add:
 
 ```markdown
 ### Critique a plan before coding
 
-`/critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
+`/csp-critique-plan [path]` audits an implementation plan for unnecessary complexity, abstraction violations, missing risk coverage, and scope drift — before a developer starts implementing it. If the report's `Verdict` is not `clear`, revise the plan or reply `accept F<id>` for a specific finding, then re-run.
 ```
 
 - [ ] **Step 4: Verify all three additions landed**
 
-Run: `grep -c "implementation-critic" README.md && grep -c "critique-plan" README.md`
-Expected: `2`, `1` (the Skills and Agents table rows both name `implementation-critic`; the usage note names the command `/critique-plan` instead, so it doesn't add to the first count)
+Run: `grep -c "csp-implementation-critic" README.md && grep -c "critique-plan" README.md`
+Expected: `2`, `1` (the Skills and Agents table rows both name `implementation-critic`; the usage note names the command `/csp-critique-plan` instead, so it doesn't add to the first count)
 
 - [ ] **Step 5: Commit**
 
@@ -530,7 +530,7 @@ git commit -m "Document implementation-critic in README"
 
 ## Self-Review
 
-**1. Spec coverage:** Every element of design spec §2 (`docs/superpowers/specs/2026-07-24-quality-pipeline-design.md`) is covered: two-lens table (Task 1/2), Must-fix/Should-fix/Accept-risk output contract (Task 3), read-only scope + gate rule (Task 1/4), anti-confabulation citation rule (Task 2/4), `skill_missing` fallback without blocking the run (Task 2/4), and the `New/changed artifacts` list's `agents/implementation-critic.md` entry (Task 4). The tech-spec-agent, DB routing, skill-resolver, and comments-policy items from the design remain out of scope for this plan by design (they are sub-projects 4, 2, and 1 respectively).
+**1. Spec coverage:** Every element of design spec §2 (`docs/superpowers/specs/2026-07-24-quality-pipeline-design.md`) is covered: two-lens table (Task 1/2), Must-fix/Should-fix/Accept-risk output contract (Task 3), read-only scope + gate rule (Task 1/4), anti-confabulation citation rule (Task 2/4), `skill_missing` fallback without blocking the run (Task 2/4), and the `New/changed artifacts` list's `agents/csp-implementation-critic.md` entry (Task 4). The tech-spec-agent, DB routing, skill-resolver, and comments-policy items from the design remain out of scope for this plan by design (they are sub-projects 4, 2, and 1 respectively).
 
 **2. Placeholder scan:** No `TBD`/`TODO`/"implement later" text anywhere in the plan's file contents. Every step contains the literal file content to write, not a description of it.
 

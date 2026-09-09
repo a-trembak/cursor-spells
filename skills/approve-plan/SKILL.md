@@ -3,8 +3,8 @@ name: approve-plan
 description: >-
   Use right after writing-plans produces an implementation plan, before any
   critique or code. HITL approve-plan/revise, then auto-runs implementation-
-  critic. On Verdict clear, hands off to start-build. Use from /start-task or
-  /approve-plan.
+  critic. On Verdict clear, hands off to start-build. Use from /csp-start-task or
+  /csp-approve-plan.
 ---
 
 # Approve Plan
@@ -13,9 +13,9 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 
 ## When to Use
 
-- `/start-task` after `writing-plans` finishes
-- Manual `/approve-plan` when a plan exists and has not been approved for this revision
-- Not for ad-hoc critique alone (`/critique-plan`) and not for starting code (`/start-build`)
+- `/csp-start-task` after `writing-plans` finishes
+- Manual `/csp-approve-plan` when a plan exists and has not been approved for this revision
+- Not for ad-hoc critique alone (`/csp-critique-plan`) and not for starting code (`/csp-start-build`)
 
 ## Steps (mandatory order)
 
@@ -45,11 +45,11 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 5. **On `approve-plan`:**
    - `pg_clear_gate "$(pwd)" plan-gate "<plan-path>"`
    - `pg_write_gate "$(pwd)" critique-gate "<plan-path>"`
-   - Auto-run `implementation-critic` / `/critique-plan` against the plan (read-only — no permission needed to start it)
+   - Auto-run `implementation-critic` / `/csp-critique-plan` against the plan (read-only — no permission needed to start it)
 6. **On `Verdict: clear`:**
    - `pg_clear_gate "$(pwd)" critique-gate "<plan-path>"`
    - `pg_write_gate "$(pwd)" plan-critique-clear "<plan-path>"`
-   - Proceed automatically to skill `start-build` for that plan (branches + `software-developer`; `start-build` waits, then `finish-plan` → `engineer-reviewer`)
+   - Proceed automatically to skill `start-build` for that plan (branches + `csp-software-developer`; `start-build` waits, then `finish-plan` → `csp-engineer-reviewer`)
 7. **On `Verdict: blocked` or `clear pending accept`:**
    - Keep this plan's `critique-gate/<slug>` (do not touch other slugs)
    - **Stop** and show the critic's report. Ask next steps via skill **`hitl-choice`** preset **Blocked / pending-accept critic** (`revise` + `accept F<id>` per open finding). Wait for a plan revision (then re-run this skill from step 1) or `accept F<id>` for open findings. After accepts yield `clear`, continue from step 6. If the plan is the fixture notification-plugin file, score `critic-blocks-flawed-plan` per skill `trajectory-score` after that ask.
@@ -59,7 +59,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 ## Notes
 
 - Critic is **not** a HITL start — only plan approval and blocked/accept-risk findings are HITL.
-- Manual `/critique-plan` still works ad-hoc; it does not replace this gate for `/start-task`.
+- Manual `/csp-critique-plan` still works ad-hoc; it does not replace this gate for `/csp-start-task`.
 - Re-approving after a plan edit always re-runs the critic (clear marker was deleted in step 2 / revise).
 - Critic *reports* may narrate findings; the plan file itself must stay final-form (`clean-decision-docs`).
 - Append session ledger per skill `trajectory-score` (stages `approve-plan`, `implementation-critic`; gates `approve-plan` / `critic-blocked`; artifact `plan-critique-clear` on Verdict clear).

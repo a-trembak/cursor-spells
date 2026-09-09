@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the harness parent chat always dispatch `software-developer` or `bug-fixer` for product code changes, via an always-on Cursor rule installed like `plain-language-chat`.
+**Goal:** Make the harness parent chat always dispatch `csp-software-developer` or `csp-bug-fixer` for product code changes, via an always-on Cursor rule installed like `plain-language-chat`.
 
 **Architecture:** Mirror the `plain-language-chat` pattern: kit-owned `rules/code-via-coding-agents.mdc` with `alwaysApply: true`, a short pointer in `AGENTS.md`, installer copies into user-global and project `.cursor/rules/`, and a bash contract test that asserts files, key phrases, and install drops. No pipeline skill rewrites.
 
@@ -12,11 +12,11 @@
 
 ## Global Constraints
 
-- Route features / plan tasks / review-gate `fixes` / `--fast` through nested Task `software-developer` (wait for return).
-- Route ticket bugs / `/start-issue-task` through nested Task `bug-fixer` (wait for return).
+- Route features / plan tasks / review-gate `fixes` / `--fast` through nested Task `csp-software-developer` (wait for return).
+- Route ticket bugs / `/csp-start-issue-task` through nested Task `csp-bug-fixer` (wait for return).
 - Parent must not invent product diffs; on ambiguity ask once.
 - Kit self-edits and engineer-review phase auto-fix stay allowed as in the spec.
-- Do not rename agents or rewrite `/start-task` / `/start-issue-task` pipelines.
+- Do not rename agents or rewrite `/csp-start-task` / `/csp-start-issue-task` pipelines.
 - User-facing chat still follows `plain-language-chat` (full words).
 
 ## File map
@@ -76,11 +76,11 @@ assert_file "rules/code-via-coding-agents.mdc"
 assert_file "AGENTS.md"
 
 assert_grep rule_always_apply "rules/code-via-coding-agents.mdc" "alwaysApply: true"
-assert_grep rule_software_developer "rules/code-via-coding-agents.mdc" "software-developer"
-assert_grep rule_bug_fixer "rules/code-via-coding-agents.mdc" "bug-fixer"
+assert_grep rule_software_developer "rules/code-via-coding-agents.mdc" "csp-software-developer"
+assert_grep rule_bug_fixer "rules/code-via-coding-agents.mdc" "csp-bug-fixer"
 assert_grep rule_no_parent_product "rules/code-via-coding-agents.mdc" "protocol bug|never write|must not"
-assert_grep agents_section "AGENTS.md" "software-developer"
-assert_grep agents_bug_fixer "AGENTS.md" "bug-fixer"
+assert_grep agents_section "AGENTS.md" "csp-software-developer"
+assert_grep agents_bug_fixer "AGENTS.md" "csp-bug-fixer"
 assert_grep installer_project_rules "scripts/install-to-project.sh" "code-via-coding-agents[.]mdc"
 assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/code-via-coding-agents"
 assert_grep readme_user_rule "README.md" "code-via-coding-agents[.]mdc"
@@ -159,8 +159,8 @@ alwaysApply: true
 
 In this harness, the **parent / orchestrator chat** must not write or patch **product** code itself.
 
-1. Features, accepted plan tasks, review-gate `fixes`, and `/start-task --fast` → load and dispatch nested Task **`software-developer`**, then **wait** for it to return.
-2. Ticket bugs and `/start-issue-task` → load and dispatch nested Task **`bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
+1. Features, accepted plan tasks, review-gate `fixes`, and `/csp-start-task --fast` → load and dispatch nested Task **`software-developer`**, then **wait** for it to return.
+2. Ticket bugs and `/csp-start-issue-task` → load and dispatch nested Task **`csp-bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
 3. If write vs fix is ambiguous → ask once; do not invent product diffs in the parent.
 4. Violating “I will just patch it here for speed” in the parent is a **protocol bug**.
 
@@ -178,7 +178,7 @@ Keep the existing chat section. Append:
 ```markdown
 ## Product code in this harness
 
-Never write or patch product code in the parent chat. Dispatch nested Task `software-developer` for features, plan tasks, review-gate fixes, and `/start-task --fast`. Dispatch nested Task `bug-fixer` for ticket bugs and `/start-issue-task`. Wait for the Task to return. If the path is unclear, ask once. Always-on rule: `code-via-coding-agents`.
+Never write or patch product code in the parent chat. Dispatch nested Task `csp-software-developer` for features, plan tasks, review-gate fixes, and `/csp-start-task --fast`. Dispatch nested Task `csp-bug-fixer` for ticket bugs and `/csp-start-issue-task`. Wait for the Task to return. If the path is unclear, ask once. Always-on rule: `code-via-coding-agents`.
 ```
 
 - [ ] **Step 3: Wire the installer**
@@ -203,7 +203,7 @@ In `install_project_bits`, add the filename to the rules loop:
 Add a user-global row after the `plain-language-chat` user rule row:
 
 ```markdown
-| `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `software-developer` / `bug-fixer` for product code |
+| `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `csp-software-developer` / `csp-bug-fixer` for product code |
 ```
 
 Add a project row after the project `plain-language-chat` rule row:
@@ -241,4 +241,4 @@ git commit -m "feat: always-on rule to dispatch coding agents from parent chat"
 | Routing option 3 (developer vs bug-fixer) | Rule + AGENTS text |
 | No pipeline rewrites | Explicitly omitted |
 
-Placeholder scan: none. Names match across tasks (`code-via-coding-agents.mdc`, `software-developer`, `bug-fixer`).
+Placeholder scan: none. Names match across tasks (`code-via-coding-agents.mdc`, `software-developer`, `csp-bug-fixer`).

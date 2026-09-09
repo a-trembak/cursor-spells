@@ -1,5 +1,5 @@
 ---
-description: Parent harness chat must dispatch software-developer or bug-fixer for product code — never patch product trees inline
+description: Parent harness chat must dispatch csp-software-developer or csp-bug-fixer for product code — never patch product trees inline
 alwaysApply: true
 ---
 
@@ -7,9 +7,9 @@ alwaysApply: true
 
 In this harness, the **parent / orchestrator chat** must not write or patch **product** code itself.
 
-1. Features, accepted plan tasks, review-gate `fixes`, and `/start-task --fast` → load and dispatch nested Task **`software-developer`**, then **wait** for it to return.
-2. Ticket bugs and `/start-issue-task` → load and dispatch nested Task **`bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
-3. **Ad-hoc** “write/fix code in chat” with no cleared plan or spec → ask once via skill **`hitl-choice`** preset **Pipeline route**: `full` / `fast` / `issue` (same tokens the kit already uses). Then dispatch accordingly: **`software-developer`** on the full path (after plan work), **`software-developer`** with explicit **`mode:fast`**, or **`bug-fixer`** / **`/start-issue-task`**. Do **not** auto-select `fast`.
+1. Features, accepted plan tasks, review-gate `fixes`, and `/csp-start-task --fast` → load and dispatch nested Task **`csp-software-developer`**, then **wait** for it to return.
+2. Ticket bugs and `/csp-start-issue-task` → load and dispatch nested Task **`csp-bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
+3. **Ad-hoc** “write/fix code in chat” with no cleared plan or spec → ask once via skill **`hitl-choice`** preset **Pipeline route**: `full` / `fast` / `issue` (same tokens the kit already uses). Then dispatch accordingly: **`csp-software-developer`** on the full path (after plan work), **`csp-software-developer`** with explicit **`mode:fast`**, or **`csp-bug-fixer`** / **`/csp-start-issue-task`**. Do **not** auto-select `fast`.
 4. If write vs fix is ambiguous → ask once; do not invent product diffs in the parent.
 5. Violating “I will just patch it here for speed” in the parent is a **protocol bug**.
 
@@ -19,4 +19,4 @@ Engineer-review **phase** auto-fix under the kit protocol is unchanged and is no
 
 Pipeline commands that already dispatch these agents stay as they are; this rule closes ad-hoc chat coding.
 
-Does not apply to nested Task agents **`software-developer`**, **`bug-fixer`**, and engineer-review **phase** agents that apply eligible auto-fixes — they are the intended code writers and are not restricted by this rule.
+Does not apply to nested Task agents **`csp-software-developer`**, **`csp-bug-fixer`**, and engineer-review **phase** agents that apply eligible auto-fixes — they are the intended code writers and are not restricted by this rule.

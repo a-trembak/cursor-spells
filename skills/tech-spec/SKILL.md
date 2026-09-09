@@ -4,7 +4,7 @@ description: >-
   Use once Acceptance Criteria are agreed and before an implementation plan is
   written. Drives a developer's technical action plan (services, tables,
   contracts, rollout order) for a change — not a PRD. Use when the user runs
-  /write-tech-spec, /start-task, or asks to write a technical spec for a
+  /csp-write-tech-spec, /csp-start-task, or asks to write a technical spec for a
   feature. Never invents business requirements.
 ---
 
@@ -15,7 +15,7 @@ Produces a **developer's technical action plan**, not a PRD or user-story prose:
 ## When to Use
 
 - AC are agreed and an implementation plan doesn't exist yet
-- Manual `/write-tech-spec` or `/start-task`, or the user asks for a technical spec / technical design for a change
+- Manual `/csp-write-tech-spec` or `/csp-start-task`, or the user asks for a technical spec / technical design for a change
 - Not for writing AC themselves (assumed already agreed), and not for the implementation plan's task breakdown (that's `writing-plans`, consuming this spec's output)
 
 ## Entry question (always ask first)
@@ -61,7 +61,7 @@ See [references/template.md](references/template.md) for the full 7-section temp
 5. If `full`: follow [references/full-path.md](references/full-path.md) with designer mode `draft-from-ac`.
 6. Present `approve-spec` / `revise` / `skip` via `hitl-choice`.
 7. On `revise`: rewrite affected tech-spec sections as current truth (`clean-decision-docs`); if revision needs design rework, re-enter full-path consensus on the system-design file then re-merge — chat summarizes; files stay final-form.
-8. After the spec file exists, invoke skill **`trajectory-judge`** (nested Task, not `software-developer`). Then, when the acceptance criteria match case `tech-spec-no-invented-facts`, score that case per skill `trajectory-score`. Append session ledger after entry / depth / decision-blocker / tech-spec-gate.
+8. After the spec file exists, invoke skill **`trajectory-judge`** (nested Task, not `csp-software-developer`). Then, when the acceptance criteria match case `tech-spec-no-invented-facts`, score that case per skill `trajectory-score`. Append session ledger after entry / depth / decision-blocker / tech-spec-gate.
 
 ## Gate
 

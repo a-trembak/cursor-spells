@@ -50,7 +50,7 @@ Examples:
   csp install --user-only
   csp status
 
-Slash commands after install: /start-task  /approve-plan  /start-build  /finish-plan  /pr-review  /engineer-review
+Slash commands after install: /csp-start-task  /csp-approve-plan  /csp-start-build  /csp-finish-plan  /csp-pr-review  /csp-engineer-review
 
 Do NOT clone this kit into each app. Keep one checkout; install/update per project.
 EOF

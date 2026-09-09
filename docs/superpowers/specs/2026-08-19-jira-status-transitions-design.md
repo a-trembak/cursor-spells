@@ -15,10 +15,10 @@ When a pipeline starts from a Jira ticket, move that ticket to **In Progress**. 
 | Shared matcher | `scripts/jira-issue.sh`: `jira_normalize_status`, `jira_status_matches_target`, `jira_pick_transition_id` |
 | Merge + build gate | `scripts/pr-merge-ci.sh`: `pr_merge_ci_verdict` |
 | Shared skill | `jira-transition` — `getTransitionsForJiraIssue` then `transitionJiraIssue` |
-| Start trigger | After successful `jira-fetch` on `/start-task` (full and `--fast`) and `/start-issue-task` → target `in_progress` |
+| Start trigger | After successful `jira-fetch` on `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task` → target `in_progress` |
 | Review trigger | `create-pr` after HITL `ready` or `ready_jira` when `jira_key` is known **and** `pr_merge_ci_verdict` is `all_merged_ci_success` → target `review` |
 | Not Review | `keep_draft` / `keep_draft_jira`; ready tokens before every pull request is merged with successful builds; `ci_failed`; `closed_unmerged` |
-| `/write-tech-spec` | Fetch only — no transition |
+| `/csp-write-tech-spec` | Fetch only — no transition |
 | Match field | Destination status `to.name`, then transition `name` if needed |
 | Missing transition / MCP error | Report and **continue** the pipeline (do not stop) |
 | Comment failure | Report and stop; do not retry as a transition |
@@ -38,7 +38,7 @@ Review, In Review, Code Review, Peer Review, To Review, Ready for Review.
 
 ## Flow
 
-1. `/start-task` or `/start-issue-task` fetches the issue.
+1. `/csp-start-task` or `/csp-start-issue-task` fetches the issue.
 2. If already matching `in_progress`, skip. Else list transitions, pick id via `jira_pick_transition_id in_progress`, call `transitionJiraIssue`.
 3. Pipeline continues even if the move fails.
 4. At `create-pr`, after `ready` / `ready_jira`: observe every opened pull request (`state` + `statusCheckRollup`). Subscribe and wait while the verdict is `not_merged` or `pending_ci`. On `all_merged_ci_success`, same transition steps with target `review`.
@@ -52,7 +52,7 @@ Done/QA columns beyond the Review names above; custom per-project status maps; i
 - `scripts/jira-issue.sh` + `scripts/tests/jira-issue-test.sh`
 - `scripts/pr-merge-ci.sh` + `scripts/tests/pr-merge-ci-test.sh`
 - `skills/jira-transition/SKILL.md`
-- `commands/start-task.md`, `commands/start-issue-task.md`
+- `commands/csp-start-task.md`, `commands/csp-start-issue-task.md`
 - `skills/create-pr/SKILL.md`, `skills/hitl-choice/SKILL.md`
 - `scripts/tests/jira-ac-router-finale-test.sh`
 - README, pipeline-flow.md/html, dogfood checklist

@@ -75,7 +75,7 @@ tr_is_kit_checkout() {
   local path="${1%/}"
   [[ -d "$path/.git" || -f "$path/.git" ]] || return 1
   git -C "$path" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
-  [[ -e "$path/skills/engineer-review" && -f "$path/agents/engineer-reviewer.md" ]]
+  [[ -e "$path/skills/engineer-review" && -f "$path/agents/csp-engineer-reviewer.md" ]]
 }
 
 tr_kit_is_dirty() {

@@ -15,7 +15,7 @@ Every phase subagent follows this contract. Orchestrator merges JSON only — no
 - `chunk_id`: optional string when the orchestrator split a large diff
 - `graphify_available`: optional boolean — `true` when orchestrator detect/query succeeded ([graphify-protocol.md](graphify-protocol.md))
 - `impact_hint`: optional compact module/path list from graphify impact (never raw `graph.json`)
-- `learned_hints`: optional compact miss-class rows from `review-learn` `mode:load` ([review-learn-protocol.md](review-learn-protocol.md)) — **only** rows whose `phases` include this phase; never full ledgers. On match the phase **must** open `checklist` and run those gates (one-liner is not enough).
+- `learned_hints`: optional compact miss-class rows from `csp-review-learn` `mode:load` ([review-learn-protocol.md](review-learn-protocol.md)) — **only** rows whose `phases` include this phase; never full ledgers. On match the phase **must** open `checklist` and run those gates (one-liner is not enough).
 
 ## Budget hard caps (per phase invocation)
 
@@ -50,8 +50,8 @@ Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`) AND passing
 `simplify` sits after `deadcode` so unused junk is owned by deadcode first; simplify then challenges overbuilt / redundant / locally wasteful code that still runs. It does not steal hot-path systemic perf (`performance`) or layering (`architecture`).
 
 **Verify passes:** after the orchestrator applies unambiguous `P0`/`P1` fixes across all phases:
-1. Re-run `review-lint` once in `find` mode over the final diff (lint regressions, e.g. unused import left by a deadcode removal).
-2. Re-run `review-simplify` once in `find` mode as a **quality verify** (leftover overbuilt / redundant / locally wasteful solutions).
+1. Re-run `csp-review-lint` once in `find` mode over the final diff (lint regressions, e.g. unused import left by a deadcode removal).
+2. Re-run `csp-review-simplify` once in `find` mode as a **quality verify** (leftover overbuilt / redundant / locally wasteful solutions).
 
 Fold any new findings into the same apply/clarify pass; do not repeat either verify pass more than once per review round.
 
@@ -63,7 +63,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
 - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
 - When the figma phase is in scope (frontend, not `user_said_no_figma`): Coverage **must** note `figma_markup: compared|source-only|skipped|n/a` (**F7**). Optional: `figma_nodes: …`. Detail: [`figma-markup-checklist.md`](figma-markup-checklist.md) (phase-owned — orchestrator does not load the body).
-- When tables, expandable cards, dialogs, or overlays are in scope: Coverage **must** note `narrow_viewport: tablet+phone|source-only|skipped|n/a` (**V4**). Figma skip does not waive this — `review-patterns` still records it. Detail: [`responsive-layout-checklist.md`](responsive-layout-checklist.md) (phase-owned).
+- When tables, expandable cards, dialogs, or overlays are in scope: Coverage **must** note `narrow_viewport: tablet+phone|source-only|skipped|n/a` (**V4**). Figma skip does not waive this — `csp-review-patterns` still records it. Detail: [`responsive-layout-checklist.md`](responsive-layout-checklist.md) (phase-owned).
 - When null-hardening triggers apply: Coverage **must** note `null_safety_callers: traced|partial|skipped|n/a` (**N1**) from logic/architecture notes.
 - Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
 

@@ -1,12 +1,12 @@
 # Pipeline orientation — Technical Spec
 
 **Status:** approved  
-**AC:** Closes the agreed orientation criteria from the 2026-09-08 investigation: chat status strip at every human-gate stop; `/pipeline-status` showing current layer/stage and legal returns; live highlight on `pipeline-flow.html` via URL parameters; tests and pipeline-flow docs updated for the new behavior.
+**AC:** Closes the agreed orientation criteria from the 2026-09-08 investigation: chat status strip at every human-gate stop; `/csp-pipeline-status` showing current layer/stage and legal returns; live highlight on `pipeline-flow.html` via URL parameters; tests and pipeline-flow docs updated for the new behavior.
 
 ## 1. AC references
 
 - AC-1: At every closed-set human-in-the-loop gate, the orchestrator shows a short status strip (route, layer, current stage, next stages, legal returns, canvas link).
-- AC-2: Slash command `/pipeline-status` reports the same orientation from disk state without advancing the pipeline.
+- AC-2: Slash command `/csp-pipeline-status` reports the same orientation from disk state without advancing the pipeline.
 - AC-3: `pipeline-flow.html` highlights done / current / waiting nodes when opened with orientation query parameters produced by the status tool.
 - AC-4: Contract tests cover the status resolver and the HTML query-parameter contract; `pipeline-flow.md` / README mention the orientation surfaces.
 
@@ -16,11 +16,11 @@ Order of touch (kit only — no consumer application services):
 
 1. **Resolver library** — new `scripts/pipeline-status.sh` (sourceable + CLI). Reads consumer-project `.cursor/gates/<kind>/<slug>` and optional `.cursor/gates/trajectory-run/session-{full,fast,issue}.json`. Emits a stable orientation record (stdout: human text; optional `--json`; optional `--canvas-url`).
 2. **Chat strip contract** — new skill `skills/pipeline-status/` (thin): documents the strip template and when to call the resolver; used by orchestrators before `hitl-choice` asks. Extend `skills/hitl-choice/SKILL.md` with a required “orientation strip before the question” step (call resolver or fall back to the known stage name when the script is missing).
-3. **Slash command** — new `commands/pipeline-status.md` that runs the resolver in the consumer project root and prints the strip + legal returns + canvas link.
+3. **Slash command** — new `commands/csp-pipeline-status.md` that runs the resolver in the consumer project root and prints the strip + legal returns + canvas link.
 4. **Canvas** — update `docs/superpowers/pipeline-flow.html` to parse query parameters and apply CSS classes (`done` / `here` / `waiting`) on overview layer nodes and the `seq-strip`; keep hash navigation for detail views (`#review-gate` etc.).
 5. **Docs twin** — update `docs/superpowers/pipeline-flow.md` (orientation section + legend) and README canvas blurb.
 6. **Installer** — `scripts/install-to-project.sh` already walks `commands/*.md`; new command installs via existing symlink/copy walk. No new always-on rule file required for v1 (strip is skill protocol, not a Cursor rule).
-7. **Tests** — `scripts/tests/pipeline-status-test.sh` (resolver fixtures) and extend `scripts/tests/pipeline-flow-graph-test.sh` (HTML query-param / class contract). Dogfood checklist row for `/pipeline-status`.
+7. **Tests** — `scripts/tests/pipeline-status-test.sh` (resolver fixtures) and extend `scripts/tests/pipeline-flow-graph-test.sh` (HTML query-param / class contract). Dogfood checklist row for `/csp-pipeline-status`.
 
 ## 3. Data model / contracts
 
@@ -80,7 +80,7 @@ No slash command rewinds the pipeline automatically in v1.
 
 1. Land resolver script + unit/contract tests with fixture gate dirs (no skill wiring yet).
 2. Land HTML query-parameter highlighting + graph contract asserts.
-3. Land skill `pipeline-status` + command `/pipeline-status`.
+3. Land skill `pipeline-status` + command `/csp-pipeline-status`.
 4. Wire `hitl-choice` (and start-task notes) to require the strip before closed-set asks.
 5. Update `pipeline-flow.md` / README; dogfood checklist.
 6. Installer walk picks up the new command on next `csp update` / install — no schema migration.

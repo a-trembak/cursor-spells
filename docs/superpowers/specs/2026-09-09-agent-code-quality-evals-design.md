@@ -19,7 +19,7 @@ Measure whether an agent’s **resulting tree** satisfies closed acceptance sens
 | Scorer | `python3 scripts/code-quality-cases.py validate\|score` — stdlib only; **not** folded into `trajectory-cases.py` |
 | Hard sensors | Expected files exist; forbidden paths absent (or untouched / not created); `test_commands` exit 0; required substrings present; forbidden substrings absent |
 | Judge | None — no LLM judge in `score` |
-| Skill | `code-quality-score` — how to validate/score; never replaces `engineer-reviewer` |
+| Skill | `code-quality-score` — how to validate/score; never replaces `csp-engineer-reviewer` |
 | Modes covered | Include at least one `mode:fast` case that forbids inventing plan/tech-spec files |
 | Install | No special install; never copy `evals/` |
 
@@ -57,7 +57,7 @@ A run JSON is:
 
 ## Non-goals
 
-- Replacing `engineer-reviewer` or trajectory scoring
+- Replacing `csp-engineer-reviewer` or trajectory scoring
 - Executing a live coding agent inside continuous integration
 - Subjective style or design taste scoring
 

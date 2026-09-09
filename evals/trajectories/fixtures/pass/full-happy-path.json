@@ -1,7 +1,7 @@
 {
   "case_id": "full-happy-path",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "feature"
   },
@@ -9,12 +9,12 @@
     "jira-fetch",
     "jira-transition-in-progress",
     "bootstrap",
-    "tech-spec",
+    "csp-tech-spec",
     "writing-plans",
     "approve-plan",
-    "implementation-critic",
+    "csp-implementation-critic",
     "start-build",
-    "software-developer",
+    "csp-software-developer",
     "review-gate",
     "engineer-review",
     "update-docs",
@@ -22,7 +22,7 @@
     "pipeline-finale-hitl"
   ],
   "artifacts_present": [
-    {"kind": "file", "name": "tech-spec", "path": "docs/superpowers/specs/2099-01-01-feature-tech-spec.md"},
+    {"kind": "file", "name": "csp-tech-spec", "path": "docs/superpowers/specs/2099-01-01-feature-tech-spec.md"},
     {"kind": "file", "name": "implementation-plan", "path": "docs/superpowers/plans/2099-01-01-feature.md"},
     {"kind": "gate", "name": "plan-critique-clear"},
     {"kind": "git", "name": "feature-branch"},

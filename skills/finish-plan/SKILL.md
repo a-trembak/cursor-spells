@@ -43,23 +43,23 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 
    **Already answered (mandatory):** If the user already sent `skip`, `approve`, or `done` in this chat after the gate was asked — including while a stop-hook followup was looping — treat that as the answer. Delete this plan's review-gate marker and continue step 6 immediately. Do **not** re-ask.
 
-   On `fixes` / a typed fix description: implement/fix via `software-developer` (wait for it to return). Then score `review-gate-fixes-to-build` per skill `trajectory-score` (stages `review-gate` then `software-developer`; gate tokens `skip,approve,done,fixes`). Then **re-run review-surface** and re-ask this HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
+   On `fixes` / a typed fix description: implement/fix via `csp-software-developer` (wait for it to return). Then score `review-gate-fixes-to-build` per skill `trajectory-score` (stages `review-gate` then `csp-software-developer`; gate tokens `skip,approve,done,fixes`). Then **re-run review-surface** and re-ask this HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
 
 6. On `skip` | `approve` | `done`:
    - `pg_clear_gate "$(pwd)" review-gate "<plan-path>"` **first** (before any review work). If delete fails, stop and report the path — do not re-ask HITL. Never delete another slug's review-gate; HITL **Force-clear foreign gate** first if the human explicitly asks.
    - Before starting review, read and apply `skills/engineer-review/references/multi-repo-protocol.md` routing with its **non-mutating probe** mode. This probe may read graphify, read an existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it **MUST NOT** write or refresh `multi-repo.json`.
    - Detect changed repos with the protocol.
    - If changed repo count is **0**, stop and say no changed repos were found.
-   - If changed repo count is **>= 2**, invoke agent `multi-repo-supervisor` and pass:
+   - If changed repo count is **>= 2**, invoke agent `csp-multi-repo-supervisor` and pass:
      - `hitl_already_approved: true`
      - `figma_clarifications` only if Figma URLs were already collected in this flow
      The supervisor owns Figma clarification collection when none were already collected.
    - If changed repo count is **1**, keep the existing single-repo path unchanged:
      - If frontend stack (`react-web` / `react-native`): also ask Figma via skill **`hitl-choice`** preset **Figma ask** (or text: paste links / `no figma`).
-     - Then run skill `engineer-review` / agent `engineer-reviewer` for the changed repo (pass Figma URLs in clarifications if provided).
+     - Then run skill `engineer-review` / agent `csp-engineer-reviewer` for the changed repo (pass Figma URLs in clarifications if provided).
 
 ## Notes
 
-- Manual `/engineer-review` does not need this skill.
+- Manual `/csp-engineer-review` does not need this skill.
 - If the user describes fixes first, implement/fix, then re-run review-surface, then re-ask the HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
 - Append session ledger per skill `trajectory-score` (stage `review-gate`, artifact gate `review-gate`).

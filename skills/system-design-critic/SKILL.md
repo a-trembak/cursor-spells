@@ -12,7 +12,7 @@ Read-only audit of a **system-design draft** before it merges into a tech-spec. 
 
 ## When to Use
 
-- Full tech-spec path after `system-design-designer` wrote `…-system-design.md`
+- Full tech-spec path after `csp-system-design-designer` wrote `…-system-design.md`
 - Consensus re-check rounds
 - Not for light tech-spec; not for implementation plans; not for code review
 

@@ -1,6 +1,6 @@
 # Review feedback format
 
-User-facing output for `engineer-review` / `engineer-reviewer` (and the shared base for `pr-review`). Every finding must answer: **what broke / looks wrong**, **where exactly**, **why it matters**, **what to do** — plus enough **context** that a peer can act without guessing.
+User-facing output for `engineer-review` / `csp-engineer-reviewer` (and the shared base for `pr-review`). Every finding must answer: **what broke / looks wrong**, **where exactly**, **why it matters**, **what to do** — plus enough **context** that a peer can act without guessing.
 
 **Before emitting:** pass every item through [evidence-gate.md](evidence-gate.md) and reject anything in [forbidden-formats.md](forbidden-formats.md). No exception for “small” nits that still name a file.
 

@@ -94,19 +94,19 @@ git commit -m "docs: add engineer-review skill spine and design spec"
 ### Task 2: Orchestrator + phase agents
 
 **Files:**
-- Create: `agents/engineer-reviewer.md`
-- Create: `agents/review-logic.md`
-- Create: `agents/review-patterns.md`
-- Create: `agents/review-deadcode.md`
-- Create: `agents/review-architecture.md`
-- Create: `agents/review-performance.md`
-- Create: `agents/review-security.md`
-- Create: `agents/review-figma-markup.md`
+- Create: `agents/csp-engineer-reviewer.md`
+- Create: `agents/csp-review-logic.md`
+- Create: `agents/csp-review-patterns.md`
+- Create: `agents/csp-review-deadcode.md`
+- Create: `agents/csp-review-architecture.md`
+- Create: `agents/csp-review-performance.md`
+- Create: `agents/csp-review-security.md`
+- Create: `agents/csp-review-figma-markup.md`
 - Delete or ignore: `agents/.gitkeep` if empty placeholder conflicts
 
 **Interfaces:**
 - Consumes: `skills/engineer-review/references/*`
-- Produces: Cursor custom agents invokable as `@engineer-reviewer` etc.
+- Produces: Cursor custom agents invokable as `@csp-engineer-reviewer` etc.
 
 - [ ] **Step 1: Write `engineer-reviewer.md`**
 
@@ -130,7 +130,7 @@ git commit -m "feat: add engineer-reviewer orchestrator and phase agents"
 ### Task 3: Slash command, rule, optional hook
 
 **Files:**
-- Create: `commands/engineer-review.md`
+- Create: `commands/csp-engineer-review.md`
 - Create: `rules/after-plan-review-gate.mdc`
 - Create: `hooks/hooks.json`
 - Create: `hooks/post-plan-review-gate.sh`
@@ -138,11 +138,11 @@ git commit -m "feat: add engineer-reviewer orchestrator and phase agents"
 
 **Interfaces:**
 - Consumes: agents + skill
-- Produces: `/engineer-review`; always-on reminder rule; optional stop hook
+- Produces: `/csp-engineer-review`; always-on reminder rule; optional stop hook
 
 - [ ] **Step 1: Write command**
 
-`commands/engineer-review.md` invokes the engineer-review skill/orchestrator; accept optional base/head or default to branch diff vs main.
+`commands/csp-engineer-review.md` invokes the engineer-review skill/orchestrator; accept optional base/head or default to branch diff vs main.
 
 - [ ] **Step 2: Write rule**
 

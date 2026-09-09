@@ -8,11 +8,11 @@ Supersedes the “orthogonal / unchanged consumer ledger” relationship in [`20
 
 ## Goal
 
-Shareable review misses become kit instructions. The consumer ledger exists only for miss classes that cannot be published (client names, internal product terms). Existing ledger files are not deleted. `review-learn` `mode:load` still reads kit seed plus any local ledger.
+Shareable review misses become kit instructions. The consumer ledger exists only for miss classes that cannot be published (client names, internal product terms). Existing ledger files are not deleted. `csp-review-learn` `mode:load` still reads kit seed plus any local ledger.
 
 ## Problem
 
-After `teach-review` landed, two writers still ran on the same miss: automatic `review-learn` `mode:capture` into `.cursor/review-learnings.md`, and the post-report `miss` / `no_miss` gate into the kit. The local file is invisible to other projects. Automatic capture keeps filling it with classes that belong in the kit.
+After `teach-review` landed, two writers still ran on the same miss: automatic `csp-review-learn` `mode:capture` into `.cursor/review-learnings.md`, and the post-report `miss` / `no_miss` gate into the kit. The local file is invisible to other projects. Automatic capture keeps filling it with classes that belong in the kit.
 
 ## Decisions
 
@@ -22,8 +22,8 @@ After `teach-review` landed, two writers still ran on the same miss: automatic `
 | Local ledger | Only when the human chooses `project_secret` |
 | Automatic capture after a settled report | **Removed.** No P0 / replay / escape auto-append |
 | Post-report gate | Always ask **Teach-review miss**: `miss` / `project_secret` / `no_miss`. Recommended: `miss` |
-| `/teach-review` | Still kit-only; invoking it **is** `miss` (no destination gate) |
-| `/capture-escape` | Ask **Capture-escape destination**: `miss` / `project_secret`. Recommended: `miss`. Command is already a miss, so no `no_miss` |
+| `/csp-teach-review` | Still kit-only; invoking it **is** `miss` (no destination gate) |
+| `/csp-capture-escape` | Ask **Capture-escape destination**: `miss` / `project_secret`. Recommended: `miss`. Command is already a miss, so no `no_miss` |
 | Same miss, both stores | Forbidden |
 | **Review-learn promote** | Do not ask on `project_secret` capture. Kit publishes go through `teach-review` |
 | Existing `.cursor/review-learnings.md` | Leave in place; do not migrate or delete |
@@ -33,8 +33,8 @@ After `teach-review` landed, two writers still ran on the same miss: automatic `
 
 | Token | Where | Effect |
 |-------|-------|--------|
-| `miss` | Teach-review miss, Capture-escape destination, `/teach-review` | Skill `teach-review`. Strip product / client names. Do not write the consumer ledger |
-| `project_secret` | Teach-review miss, Capture-escape destination | `review-learn` `mode:capture` into `<project>/.cursor/review-learnings.md`. Keep client / internal names. Do not edit kit git. Do not ask **Review-learn promote** |
+| `miss` | Teach-review miss, Capture-escape destination, `/csp-teach-review` | Skill `teach-review`. Strip product / client names. Do not write the consumer ledger |
+| `project_secret` | Teach-review miss, Capture-escape destination | `csp-review-learn` `mode:capture` into `<project>/.cursor/review-learnings.md`. Keep client / internal names. Do not edit kit git. Do not ask **Review-learn promote** |
 | `no_miss` | Teach-review miss only | Write nothing |
 
 Empty description → ask open-ended; still empty → stop. Do not invent a class.
@@ -50,11 +50,11 @@ Empty description → ask open-ended; still empty → stop. Do not invent a clas
 
 ## Non-goals
 
-- Deleting consumer ledgers or `review-learn` `mode:load`.
+- Deleting consumer ledgers or `csp-review-learn` `mode:load`.
 - Auto-merging kit `learn/…` branches.
 - Putting secrets (passwords, tokens, personal data) in either store.
 - Changing `teach-review` land modes (`draft_merge` / `auto_push`).
 
 ## Success
 
-After a settled review, the human can send a naming miss to the kit (`miss`) or keep a client-named miss in this project only (`project_secret`). A production escape through `/capture-escape` uses the same two stores. Settled reports no longer append the local ledger on their own.
+After a settled review, the human can send a naming miss to the kit (`miss`) or keep a client-named miss in this project only (`project_secret`). A production escape through `/csp-capture-escape` uses the same two stores. Settled reports no longer append the local ledger on their own.

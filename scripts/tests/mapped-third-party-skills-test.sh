@@ -79,9 +79,9 @@ HELPER="scripts/mapped-third-party-skills.sh"
 assert_file "$SKILLMAP"
 assert_file "scripts/install-to-project.sh"
 assert_file "README.md"
-assert_file "agents/software-developer.md"
-assert_file "agents/review-logic.md"
-assert_file "agents/review-architecture.md"
+assert_file "agents/csp-software-developer.md"
+assert_file "agents/csp-review-logic.md"
+assert_file "agents/csp-review-architecture.md"
 assert_file "$HELPER"
 
 # Named MySQL + always-on migration skills must be in both recommended lists.
@@ -140,24 +140,24 @@ done < <(db_default_ids)
 # Clickable markdown links to the canonical map (and Database skill routing).
 link_pat='\[[^]]+\]\([^)]*skill-map\.md[^)]*\)'
 db_frag='skill-map.md#database-skill-routing'
-assert_grep sd_agent_link "agents/software-developer.md" "$link_pat"
-assert_grep sd_agent_db "agents/software-developer.md" "$db_frag"
-assert_grep logic_agent_link "agents/review-logic.md" "$link_pat"
-assert_grep logic_agent_db "agents/review-logic.md" "$db_frag"
-assert_grep arch_agent_link "agents/review-architecture.md" "$link_pat"
-assert_grep arch_agent_db "agents/review-architecture.md" "$db_frag"
-assert_grep er_agent_link "agents/engineer-reviewer.md" "$link_pat"
-assert_grep bug_agent_link "agents/bug-fixer.md" "$link_pat"
+assert_grep sd_agent_link "agents/csp-software-developer.md" "$link_pat"
+assert_grep sd_agent_db "agents/csp-software-developer.md" "$db_frag"
+assert_grep logic_agent_link "agents/csp-review-logic.md" "$link_pat"
+assert_grep logic_agent_db "agents/csp-review-logic.md" "$db_frag"
+assert_grep arch_agent_link "agents/csp-review-architecture.md" "$link_pat"
+assert_grep arch_agent_db "agents/csp-review-architecture.md" "$db_frag"
+assert_grep er_agent_link "agents/csp-engineer-reviewer.md" "$link_pat"
+assert_grep bug_agent_link "agents/csp-bug-fixer.md" "$link_pat"
 assert_grep sd_skill_link "skills/software-developer/SKILL.md" "$link_pat"
 assert_grep sd_skill_db "skills/software-developer/SKILL.md" "$db_frag"
 assert_grep bug_skill_link "skills/bug-fix/SKILL.md" "$link_pat"
 
 # Agents must never silently install mid-run.
-assert_absent sd_no_npx "agents/software-developer.md" "npx skills add"
-assert_absent er_no_npx "agents/engineer-reviewer.md" "npx skills add"
-assert_absent logic_no_npx "agents/review-logic.md" "npx skills add"
-assert_grep sd_no_auto "agents/software-developer.md" "Never auto-install"
-assert_grep er_tier2 "agents/engineer-reviewer.md" "Never install a third-party skill"
+assert_absent sd_no_npx "agents/csp-software-developer.md" "npx skills add"
+assert_absent er_no_npx "agents/csp-engineer-reviewer.md" "npx skills add"
+assert_absent logic_no_npx "agents/csp-review-logic.md" "npx skills add"
+assert_grep sd_no_auto "agents/csp-software-developer.md" "Never auto-install"
+assert_grep er_tier2 "agents/csp-engineer-reviewer.md" "Never install a third-party skill"
 
 # Installer: skip flag, helper as source of truth (no hardcoded skill ids).
 assert_grep install_skip_flag "scripts/install-to-project.sh" "skip-third-party-skills"

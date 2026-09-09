@@ -25,9 +25,9 @@ assert_file() {
 }
 
 assert_contains hitl_mentions_pipeline_status "$ROOT/skills/hitl-choice/SKILL.md" "pipeline-status"
-assert_file command_pipeline_status_exists "$ROOT/commands/pipeline-status.md"
-assert_contains start_task_orientation "$ROOT/commands/start-task.md" "/pipeline-status"
-assert_contains start_task_strip "$ROOT/commands/start-task.md" "orientation strip"
+assert_file command_pipeline_status_exists "$ROOT/commands/csp-pipeline-status.md"
+assert_contains start_task_orientation "$ROOT/commands/csp-start-task.md" "/csp-pipeline-status"
+assert_contains start_task_strip "$ROOT/commands/csp-start-task.md" "orientation strip"
 assert_file skill_pipeline_status_exists "$ROOT/skills/pipeline-status/SKILL.md"
 assert_file resolver_exists "$ROOT/scripts/pipeline-status.sh"
 

@@ -6,20 +6,20 @@
 
 ## Problem
 
-A single task frequently spans multiple repositories at once — e.g. a Java/Spring API, a React web app, and a React Native app changing together. Running `engineer-reviewer` per repo by hand misses **cross-repo contract drift** (an endpoint removed in the API but still called by the web client, a shared type changed on one side only) and produces fragmented, per-repo reports with no single human-in-the-loop gate.
+A single task frequently spans multiple repositories at once — e.g. a Java/Spring API, a React web app, and a React Native app changing together. Running `csp-engineer-reviewer` per repo by hand misses **cross-repo contract drift** (an endpoint removed in the API but still called by the web client, a shared type changed on one side only) and produces fragmented, per-repo reports with no single human-in-the-loop gate.
 
 ## Goals
 
-- Add a **supervisor** layer above `engineer-reviewer` that fans out one orchestrator per changed repo and runs them in parallel.
+- Add a **supervisor** layer above `csp-engineer-reviewer` that fans out one orchestrator per changed repo and runs them in parallel.
 - Add a **cross-repo phase** that detects contract/interface drift between repos.
 - **Single HITL gate** for the whole multi-repo task (not one per repo).
-- **Auto-route:** only engage the supervisor when 2+ repos changed; a single-repo task keeps using `engineer-reviewer` unchanged.
+- **Auto-route:** only engage the supervisor when 2+ repos changed; a single-repo task keeps using `csp-engineer-reviewer` unchanged.
 - **Repo discovery** with explicit path override, graphify as the preferred source when no paths are provided, or a parent `multi-repo.json` / sibling-scan fallback when graphify is absent or unqueryable.
 - Unified report: per-repo findings + a dedicated cross-repo impact section.
 
 ## Non-goals
 
-- Replacing `engineer-reviewer` or its phase agents (supervisor reuses them as-is).
+- Replacing `csp-engineer-reviewer` or its phase agents (supervisor reuses them as-is).
 - Cross-repo automatic fixes to contracts (drift is surfaced as clarify by default; only same-repo unambiguous fixes are auto-applied by the per-repo orchestrators).
 - Orchestrating deploys, migrations, or release coordination.
 - Monorepo-internal package fan-out (single repo → single orchestrator already covers it; supervisor is for physically separate repos).
@@ -44,7 +44,7 @@ Single-repo projects are completely unaffected: no new files are required, no be
 
 Order of precedence:
 
-1. **Explicit args (override, v1).** `/multi-review <path...>` supplies the repo set directly for that run. Stack heuristics still apply per path. Graphify may still be used later for cross-repo impact among those repos, but it must not replace or expand the chosen set.
+1. **Explicit args (override, v1).** `/csp-multi-review <path...>` supplies the repo set directly for that run. Stack heuristics still apply per path. Graphify may still be used later for cross-repo impact among those repos, but it must not replace or expand the chosen set.
 
 2. **Graphify (preferred when no explicit paths).** If a workspace-level graphify build exists (parent dir over the repos, `graphify-out/`), query it:
    - map of repos and their languages/stacks
@@ -58,14 +58,14 @@ Order of precedence:
      - `package.json` with `react-native`/`expo` → `react-native`
      - `package.json` with `react`/`next` → `react-web`
      - `tsconfig.json` only → `typescript`
-   - In `finish-plan` routing, keep this scan in memory only. Write **`<workspace-parent>/.cursor/multi-repo.json`** (parent folder that contains the sibling repos — never inside a single leaf repo) only after a multi-repo run is confirmed, or when `/multi-review --refresh` explicitly requests it.
+   - In `finish-plan` routing, keep this scan in memory only. Write **`<workspace-parent>/.cursor/multi-repo.json`** (parent folder that contains the sibling repos — never inside a single leaf repo) only after a multi-repo run is confirmed, or when `/csp-multi-review --refresh` explicitly requests it.
 
 5. **Ticket-driven discovery (v1.1 follow-up).** Jira (primary) and Linear (secondary) via MCP: resolve ticket → extract linked repos/PRs → feed supervisor. Not required for v1; core routing works without it.
 
 ### Probe vs persist
 
 - **Probe (non-mutating):** used by `finish-plan` routing. It may read graphify, read existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it does not write `multi-repo.json`.
-- **Persist (mutating):** write or refresh parent `.cursor/multi-repo.json` only when a multi-repo run is confirmed and graphify is absent or unqueryable, or when `/multi-review --refresh` explicitly requests it. Explicit-path runs do not persist; the paths are run-local.
+- **Persist (mutating):** write or refresh parent `.cursor/multi-repo.json` only when a multi-repo run is confirmed and graphify is absent or unqueryable, or when `/csp-multi-review --refresh` explicitly requests it. Explicit-path runs do not persist; the paths are run-local.
 
 ### `multi-repo.json` shape (fallback only)
 
@@ -93,13 +93,13 @@ cursor-spells/
 │   ├── multi-repo-supervisor.md   # NEW: top orchestrator
 │   └── review-cross-repo.md       # NEW: contract drift via graphify / heuristics
 ├── commands/
-│   └── multi-review.md            # NEW: /multi-review [paths | ticket]
+│   └── multi-review.md            # NEW: /csp-multi-review [paths | ticket]
 └── skills/engineer-review/references/
     ├── multi-repo-protocol.md     # NEW: supervisor contract + discovery + merge
     └── skill-map.md               # UPDATE: graphify cross-repo usage note
 ```
 
-Reused unchanged: `engineer-reviewer` and all `review-*` phase agents, `finish-plan` (extended only with the routing check), hooks, patterns cache.
+Reused unchanged: `csp-engineer-reviewer` and all `review-*` phase agents, `finish-plan` (extended only with the routing check), hooks, patterns cache.
 
 ## Flow
 
@@ -123,7 +123,7 @@ multi-repo-supervisor
 
 Context budget: supervisor holds only the repo map + each orchestrator's compact JSON summary + the cross-repo summary. Full diffs and skill bodies never reach the supervisor. Each per-repo orchestrator keeps its own 200k budget with existing chunking.
 
-## Cross-repo phase (`review-cross-repo`)
+## Cross-repo phase (`csp-review-cross-repo`)
 
 Detects drift **between** repos, not within a single one:
 
@@ -170,10 +170,10 @@ Fixed now / Needs clarification / Residual (standard engineer-review report)
 
 ## Success criteria
 
-- 1 changed repo → `engineer-reviewer` runs, supervisor never engages.
+- 1 changed repo → `csp-engineer-reviewer` runs, supervisor never engages.
 - 2+ changed repos → supervisor runs per-repo reviewers in parallel + cross-repo phase.
 - With graphify: repos + impact resolved from the graph, no `multi-repo.json` created.
-- Without graphify: `.cursor/multi-repo.json` is generated only after a multi-repo run is confirmed, or on explicit `/multi-review --refresh`; single-repo `finish-plan` probes do not write it.
+- Without graphify: `.cursor/multi-repo.json` is generated only after a multi-repo run is confirmed, or on explicit `/csp-multi-review --refresh`; single-repo `finish-plan` probes do not write it.
 - Single HITL gate; unified report with a distinct Cross-repo impact section.
 - No behavior change for existing single-repo users.
 
@@ -182,7 +182,7 @@ Fixed now / Needs clarification / Residual (standard engineer-review report)
 1. **`multi-repo.json` location:** workspace parent `.cursor/multi-repo.json` (folder that owns sibling repos).
 2. **Cross-repo fixes:** always clarify in v1; no auto-apply of contract changes.
 3. **Ticket discovery:** deferred to **v1.1** after core ships.
-   - v1: `/multi-review` explicit paths → graphify → `multi-repo.json` fallback → sibling scan.
+   - v1: `/csp-multi-review` explicit paths → graphify → `multi-repo.json` fallback → sibling scan.
    - v1.1: Jira MCP (primary) + Linear MCP (secondary) ticket → repo resolution.
    - Rationale for split: core routing does not need a ticket tracker; Jira/Linear MCP auth and field shapes are a separate failure surface and should not block the supervisor.
 

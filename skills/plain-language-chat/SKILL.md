@@ -53,7 +53,7 @@ Also expand clipped Ukrainian (`репозиторій` not `репо`, `ком�
 
 ## Keep exact (inside backticks or fences)
 
-File paths, symbol names, error strings, ticket keys (`ACP-2656`), URLs, slash-command names (`/start-task`), CLI flags.
+File paths, symbol names, error strings, ticket keys (`ACP-2656`), URLs, slash-command names (`/csp-start-task`), CLI flags.
 
 ## Before / after
 

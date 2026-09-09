@@ -1,10 +1,10 @@
 {
   "case_id": "review-gate-fixes-to-build",
   "input": {
-    "invocation": "/finish-plan",
+    "invocation": "/csp-finish-plan",
     "fetch": "skip"
   },
-  "stages_entered": ["review-gate", "software-developer", "review-gate"],
+  "stages_entered": ["review-gate", "csp-software-developer", "review-gate"],
   "artifacts_present": [{"kind": "gate", "name": "review-gate"}],
   "actions_taken": [],
   "human_gates_asked": [

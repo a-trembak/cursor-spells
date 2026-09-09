@@ -6,13 +6,13 @@
   "end_to_end": false,
   "status": "active",
   "input": {
-    "invocation": "/write-tech-spec",
+    "invocation": "/csp-write-tech-spec",
     "fetch": "skip",
     "acceptance_criteria": "AC-1: As a customer, I can download a file containing my past orders."
   },
-  "required_stages": ["tech-spec"],
+  "required_stages": ["csp-tech-spec"],
   "required_artifacts": [
-    {"kind": "file", "name": "tech-spec", "pattern": "docs/superpowers/specs/*-order-export-tech-spec.md"}
+    {"kind": "file", "name": "csp-tech-spec", "pattern": "docs/superpowers/specs/*-order-export-tech-spec.md"}
   ],
   "forbidden": [
     "invent-business-facts",
