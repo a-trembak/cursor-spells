@@ -270,3 +270,34 @@ source: teach-review
 Mechanism: a fix adds null guards to the reported endpoint but review never opens other callers of the same helper or sibling endpoints that share the mapping pipeline — so production still 500s on the untouched paths.
 
 Required check: [null-safety-checklist.md](null-safety-checklist.md) **N1**.
+
+---
+
+### `miss_asymmetric-empty-collection-fail-close`
+
+```yaml
+id: miss_asymmetric-empty-collection-fail-close
+miss_class: asymmetric-empty-collection-fail-close
+triggers:
+  - Optional.empty | empty list | absent response
+  - empty children | nested collection walk
+  - scoped candidate | fallback candidate | include current context
+  - fail-close | early return empty
+phases: [logic]
+gate: FC1
+rule_one_liner: >-
+  When empty/absent upstream collections fail closed before adding a
+  scoped/fallback candidate, require the same policy for present-but-empty
+  children — both empty shapes must include or exclude candidates consistently.
+anti_pattern: >-
+  Early-returning empty on Optional.empty()/absent wrapper while still
+  adding a scoped/fallback candidate when the collection exists with empty
+  children.
+hits: 1
+last_seen: 2026-09-09
+source: teach-review
+```
+
+Mechanism: review closes after checking the happy path or one empty shape; the other empty shape short-circuits earlier and drops the scoped/fallback candidate, so fail-close is inconsistent.
+
+Required check: [empty-collection-fail-close-checklist.md](empty-collection-fail-close-checklist.md) **FC1**.
