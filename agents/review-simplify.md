@@ -63,7 +63,7 @@ ce-simplify-code's own Steps 3–4 **apply fixes and verify**. In engineer-revie
 If `ce-simplify-code/SKILL.md` cannot be resolved:
 
 1. Set `notes` to include `skill_missing: ce-simplify-code`
-2. Load `skills/engineer-review/references/simplify-checklist.md` and run **Lens A–C** plus **Kit extensions**
+2. Load `skills/engineer-review/references/simplify-lenses-fallback.md` (**Lens A–C**) plus `simplify-checklist.md` **Kit extensions**
 3. Continue the phase — never skip the whole simplify pass for a missing skill
 ## Also load
 
@@ -103,6 +103,6 @@ Overlap is fine when you add a **simpler-alternative** angle the other phase mis
 
 Before setting `applied: true`, check `skills/engineer-review/references/auto-fix-eligibility.md`.
 
-## Evidence (mandatory)
+## Evidence
 
-Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, `snippet`, and `context`. Clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`. Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
+Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context; clarify `options`).
