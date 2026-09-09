@@ -64,6 +64,7 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
    - Push or `gh` failure: report error + branch name; do not claim success
    - Always: `git -C "$KIT" worktree remove "$TMP"` (even after failure, if the worktree was added)
 7. Tell the human (full words in chat): `miss_class`, rule one-liner, kit-relative paths, branch name, pull request URL if `draft_merge` succeeded, and that reviews keep old instructions until `learn/…` is merged to `main` and this machine’s kit checkout points at that `main`.
+8. **Return to the caller.** This skill is never a pipeline terminal. After the land (or failure) report, stop this skill and hand control back — do not open the next pipeline gate yourself. Never invoke skill `propose-commit`, skill `update-docs`, or skill `create-pr`. Bare `/teach-review` and Capture-escape stop meaningfully when the **caller** has nothing further; on a pipeline review the caller (`engineer-review` / `engineer-reviewer`) continues per its spine.
 
 ## Hard rules
 
@@ -71,3 +72,4 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
 - Never merge to `main`. Open a ready-for-review pull request, not a draft.
 - Never auto-edit kit checklists from `review-learn` promote; this skill is the kit-edit path.
 - Failure after a review report must not retract the report; say `/teach-review` can retry.
+- Never a pipeline terminal: always return to the caller after the report. Never invoke skill `propose-commit`, `update-docs`, or `create-pr`.

@@ -72,6 +72,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | Human chose `project_secret` | `review-learn` `mode:capture` appends or dedupes; Coverage `review_learn: appended\|deduped`; no **Review-learn promote** |
 | Clarify HITL (`C#`) | Each AskQuestion repeats File, Lines, Jump, and the numbered fence from that item — not title-only |
 | Validated report shown | HITL **Teach-review miss**; `no_miss` writes nothing; `miss` + description runs `teach-review`; `project_secret` writes this project only |
+| Pipeline miss handled (`no_miss` / teach land / `project_secret`) | Next user-visible gate is **Propose commit** with orientation strip — not a silent end after the teach land report |
 
 ## Patterns CI helper
 

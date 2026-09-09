@@ -217,6 +217,8 @@ Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (
 
 `no_miss` → do not invoke `teach-review`; do not run `review-learn` `mode:capture`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. `project_secret` → if this message has no description, wait for free text, then dispatch `review-learn` `mode:capture` (never **Review-learn promote**, never kit git). Failure of `teach-review` must not retract the report. Do not write both stores on the same miss.
 
+After `no_miss`, after skill `teach-review` returns (success or failure), or after `project_secret` capture settles: on a **pipeline** review the **calling** pipeline skill must continue to skill `propose-commit` per engineer-review step 15. Do **not** ask Propose commit from inside this miss preset — the calling skill owns that gate. Manual `/engineer-review` / `/pr-review` do **not** auto-start `propose-commit` unless the human asks.
+
 ### Capture-escape destination
 
 Ask from `/capture-escape` after a non-empty miss description. The command is already a miss, so do not offer `no_miss`. Recommended: `miss`.
