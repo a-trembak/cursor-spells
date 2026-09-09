@@ -20,7 +20,7 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Cross `--x` | Stop / blocked |
 | Dotted `-.->` | Cycle: stay in this layer, or go **one layer back** |
 
-`review-gate` is the HITL **after code**. Skill `/csp-finish-plan` writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
+`review-gate` is the HITL **after code**. Skill `finish-plan` (slash command `/csp-finish-plan`) writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
 
 Source of truth: [`commands/csp-start-task.md`](../../commands/csp-start-task.md), [`commands/csp-start-issue-task.md`](../../commands/csp-start-issue-task.md), [`commands/csp-capture-escape.md`](../../commands/csp-capture-escape.md), plus `jira-fetch`, `jira-transition`, `csp-tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `propose-commit`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`, `teach-review`.
 
@@ -178,7 +178,7 @@ flowchart TD
   createPr ==>|"keep_draft / ready / *_jira"| doneNode
 ```
 
-`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/csp-start-issue-task` always stays on the issue path. Skill `/csp-finish-plan` is how the orchestrator enters `review-gate` after `csp-software-developer` returns.
+`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/csp-start-issue-task` always stays on the issue path. Skill `finish-plan` (slash command `/csp-finish-plan`) is how the orchestrator enters `review-gate` after `csp-software-developer` returns.
 
 ---
 
@@ -319,7 +319,7 @@ flowchart TD
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `/csp-finish-plan` writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` still surfaces the **uncommitted working tree** in chat (`git status` / `git diff` summaries). `fixes` returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/csp-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` still surfaces the **uncommitted working tree** in chat (`git status` / `git diff` summaries). `fixes` returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
 
 ```mermaid
 flowchart TD
