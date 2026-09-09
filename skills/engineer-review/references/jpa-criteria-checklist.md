@@ -1,6 +1,6 @@
 # JPA Criteria / Specification checklist
 
-Canonical gates for `review-logic` when the diff touches JPA `Specification`, Criteria API subqueries, fetch joins, or collection joins on entities.
+Canonical gates for `csp-review-logic` when the diff touches JPA `Specification`, Criteria API subqueries, fetch joins, or collection joins on entities.
 
 Do **not** hardcode product names or ticket ids. Apply the rule; examples are illustration only.
 

@@ -14,7 +14,7 @@ Post-review HITL gate for **product / internal documentation** that a human can 
 
 ## When to Use
 
-- End of `/start-task` after engineer-review (or multi-repo-supervisor) finishes
+- End of `/csp-start-task` after engineer-review (or multi-repo-supervisor) finishes
 - Human asks to document what just shipped
 - Not a substitute for `tech-spec`, `clean-decision-docs`, or `ce-compound` (solutions/learnings) — those stay separate
 
@@ -77,8 +77,8 @@ Load **`references/writing-guide.md`** before drafting.
 
 ## Notes
 
-- After publish on the **full** `/start-task` path: if intentional files remain uncommitted in **any** repo touched (product repo and/or separate docs repo), the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` in any repo to bypass the gate (leave files on disk; report paths and extend `repo_branch_map`).
-- Manual `/update-docs` may run without a preceding review; still use the same HITL destination gate.
+- After publish on the **full** `/csp-start-task` path: if intentional files remain uncommitted in **any** repo touched (product repo and/or separate docs repo), the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` in any repo to bypass the gate (leave files on disk; report paths and extend `repo_branch_map`).
+- Manual `/csp-update-docs` may run without a preceding review; still use the same HITL destination gate.
 - This skill never auto-selects Confluence vs repo from heuristics — wrong destination is worse than `skip`.
 - Markers live in the consumer project `.cursor/gates/<kind>/<slug>`, same as other kit gates.
 - Append session ledger per skill `trajectory-score` (stage `update-docs`, gate `docs-update`).

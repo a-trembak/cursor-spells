@@ -56,7 +56,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -87,7 +87,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -163,10 +163,10 @@ write_json "$fixes_run" <<'JSON'
 {
   "case_id": "review-gate-fixes-to-build",
   "input": {
-    "invocation": "/finish-plan",
+    "invocation": "/csp-finish-plan",
     "fetch": "skip"
   },
-  "stages_entered": ["review-gate", "writing-plans", "software-developer"],
+  "stages_entered": ["review-gate", "writing-plans", "csp-software-developer"],
   "artifacts_present": [{"kind": "gate", "name": "review-gate"}],
   "actions_taken": [],
   "human_gates_asked": [
@@ -188,10 +188,10 @@ write_json "$fetch_run" <<'JSON'
 {
   "case_id": "fetch-failure-stops",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "fail"
   },
-  "stages_entered": ["jira-fetch", "bootstrap", "tech-spec"],
+  "stages_entered": ["jira-fetch", "bootstrap", "csp-tech-spec"],
   "artifacts_present": [{"kind": "report", "name": "stop-paste-ticket"}],
   "actions_taken": [],
   "human_gates_asked": [],
@@ -211,7 +211,7 @@ write_json "$full_run" <<'JSON'
 {
   "case_id": "full-happy-path",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "feature"
   },
@@ -219,12 +219,12 @@ write_json "$full_run" <<'JSON'
     "jira-fetch",
     "jira-transition-in-progress",
     "bootstrap",
-    "tech-spec",
+    "csp-tech-spec",
     "writing-plans",
     "approve-plan",
-    "implementation-critic",
+    "csp-implementation-critic",
     "start-build",
-    "software-developer",
+    "csp-software-developer",
     "review-gate",
     "engineer-review",
     "update-docs",
@@ -232,7 +232,7 @@ write_json "$full_run" <<'JSON'
     "pipeline-finale-hitl"
   ],
   "artifacts_present": [
-    {"kind": "file", "name": "tech-spec"},
+    {"kind": "file", "name": "csp-tech-spec"},
     {"kind": "file", "name": "implementation-plan"},
     {"kind": "git", "name": "feature-branch"},
     {"kind": "github", "name": "draft-pull-request"},
@@ -264,7 +264,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -289,7 +289,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/start-task --fast PROJ-1",
+    "invocation": "/csp-start-task --fast PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -314,7 +314,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/start-task PROJ-1",
+    "invocation": "/csp-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -341,8 +341,8 @@ write_json "$any_token_case" <<'JSON'
   "pipeline": "slice",
   "end_to_end": false,
   "status": "active",
-  "input": {"invocation": "/critique-plan", "fetch": "skip"},
-  "required_stages": ["implementation-critic"],
+  "input": {"invocation": "/csp-critique-plan", "fetch": "skip"},
+  "required_stages": ["csp-implementation-critic"],
   "required_artifacts": [{"kind": "report", "name": "critic-verdict-blocked"}],
   "forbidden": ["edit-plan-during-critic"],
   "human_must_appear": [{"gate": "critic-blocked"}],
@@ -358,8 +358,8 @@ any_token_run="$TMP/any-token-run.json"
 write_json "$any_token_run" <<'JSON'
 {
   "case_id": "any-token-slice",
-  "input": {"invocation": "/critique-plan", "fetch": "skip"},
-  "stages_entered": ["implementation-critic"],
+  "input": {"invocation": "/csp-critique-plan", "fetch": "skip"},
+  "stages_entered": ["csp-implementation-critic"],
   "artifacts_present": [{"kind": "report", "name": "critic-verdict-blocked"}],
   "actions_taken": [],
   "human_gates_asked": [
@@ -378,8 +378,8 @@ assert_grep_out pass_any_tokens_line "PASS any-token-slice" "${SCORE[@]}" --case
 write_json "$any_token_run" <<'JSON'
 {
   "case_id": "any-token-slice",
-  "input": {"invocation": "/critique-plan", "fetch": "skip"},
-  "stages_entered": ["implementation-critic"],
+  "input": {"invocation": "/csp-critique-plan", "fetch": "skip"},
+  "stages_entered": ["csp-implementation-critic"],
   "artifacts_present": [{"kind": "report", "name": "critic-verdict-blocked"}],
   "actions_taken": [],
   "human_gates_asked": [],

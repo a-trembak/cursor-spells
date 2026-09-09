@@ -39,7 +39,7 @@ Manual checks for the where-am-I strip and live canvas highlight.
 
    Expect: with no pending gates and no useful ledger stage, `stage`/`layer` report `idle` (or last ledger stage if a session file remains).
 
-5. **Optional:** run `/pipeline-status` in chat and confirm the orchestrator adapts the English skeleton per `plain-language-chat`.
+5. **Optional:** run `/csp-pipeline-status` in chat and confirm the orchestrator adapts the English skeleton per `plain-language-chat`.
 
 ## Pass criteria
 

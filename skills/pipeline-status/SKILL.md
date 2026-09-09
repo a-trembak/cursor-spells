@@ -2,7 +2,7 @@
 name: pipeline-status
 description: >-
   Use before every hitl-choice closed-set ask, and when the human runs
-  /pipeline-status. Resolves where-am-I from disk gates + session ledger,
+  /csp-pipeline-status. Resolves where-am-I from disk gates + session ledger,
   prints a chat orientation strip and canvas link. Never advances gates.
 ---
 
@@ -15,7 +15,7 @@ write gates or invent a new gate kind.
 ## When to Use
 
 - **Required** before every `hitl-choice` closed-set ask (same user-visible turn as the question)
-- When the human runs `/pipeline-status`
+- When the human runs `/csp-pipeline-status`
 - Anytime an orchestrator needs a “where am I” strip without advancing the pipeline
 
 ## How to run

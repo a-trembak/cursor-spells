@@ -36,13 +36,13 @@ assert_absent() {
 }
 
 CHECKLIST="skills/engineer-review/references/figma-markup-checklist.md"
-AGENT="agents/review-figma-markup.md"
+AGENT="agents/csp-review-figma-markup.md"
 LEARN="skills/engineer-review/references/learned-misses.md"
 FEEDBACK="skills/engineer-review/references/feedback-format.md"
 PHASE="skills/engineer-review/references/phase-protocol.md"
-ORCH="agents/engineer-reviewer.md"
+ORCH="agents/csp-engineer-reviewer.md"
 SKILL="skills/engineer-review/SKILL.md"
-PR_AGENT="agents/pr-reviewer.md"
+PR_AGENT="agents/csp-pr-reviewer.md"
 DOGFOOD="docs/superpowers/dogfood/engineer-review-checklist.md"
 SKILLMAP="skills/engineer-review/references/skill-map.md"
 LEARN_PROTO="skills/engineer-review/references/review-learn-protocol.md"

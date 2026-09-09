@@ -57,7 +57,7 @@ Print the `FAIL` lines. Do not invent a language-model re-judge. Fix the tree or
 
 ## Hard rules
 
-- Do not replace `engineer-reviewer` with this skill
+- Do not replace `csp-engineer-reviewer` with this skill
 - Do not copy `evals/` into consumer apps
 - Do not fold these cases into `trajectory-cases.py`
 - `mode:fast` cases must keep forbidding invented plan/tech-spec files when that is the contract

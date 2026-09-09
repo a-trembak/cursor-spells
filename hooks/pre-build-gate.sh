@@ -77,7 +77,7 @@ if [[ -n "$plan_path" ]]; then
       if [[ "$kind" == "plan-gate" ]]; then
         message="Plan-gate marker still present (${rel_gate}, plan: ${plan_path}). Wait for approve-plan or revise before running the critic or dispatching Task 1."
       else
-        message="Critique-gate marker still present (${rel_gate}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /approve-plan, or reply accept F<id>) before dispatching Task 1."
+        message="Critique-gate marker still present (${rel_gate}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /csp-approve-plan, or reply accept F<id>) before dispatching Task 1."
       fi
       emit_followup "$message"
       exit 0

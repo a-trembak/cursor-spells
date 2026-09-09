@@ -6,20 +6,20 @@
 
 ## Goal
 
-When a human catches a miss that `engineer-reviewer` (or a later remark) should have caught, turn that remark into **durable kit instructions** — checklists, skills, or agents — and land the change on the `cursor-spells` GitHub repository so every consumer project picks it up after the branch is merged to `main` and the kit checkout is updated.
+When a human catches a miss that `csp-engineer-reviewer` (or a later remark) should have caught, turn that remark into **durable kit instructions** — checklists, skills, or agents — and land the change on the `cursor-spells` GitHub repository so every consumer project picks it up after the branch is merged to `main` and the kit checkout is updated.
 
 This is not a per-repo memory file. The artifact is the same instruction set the reviewer already follows.
 
 ## Problem
 
-Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings.md` (easy to write, invisible to other projects) or proposes kit promotion (hard to write: default `consumer_only`, never auto-edit kit checklists from a leaf app). The human’s actual request is the opposite of that default: **patch the reviewer’s instructions in the kit and send them to the kit remote.**
+Today `csp-review-learn` generalizes misses into `<project>/.cursor/review-learnings.md` (easy to write, invisible to other projects) or proposes kit promotion (hard to write: default `consumer_only`, never auto-edit kit checklists from a leaf app). The human’s actual request is the opposite of that default: **patch the reviewer’s instructions in the kit and send them to the kit remote.**
 
 ## Decisions
 
 | Decision | Choice |
 |----------|--------|
-| Mechanism | New skill `teach-review` (not an extension of `review-learn` capture) |
-| Entries | Slash command `/teach-review` **and** a mandatory post-report gate on every settled `engineer-review` / `pr-review` |
+| Mechanism | New skill `teach-review` (not an extension of `csp-review-learn` capture) |
+| Entries | Slash command `/csp-teach-review` **and** a mandatory post-report gate on every settled `engineer-review` / `pr-review` |
 | Post-review gate | Always ask `miss` / `no_miss`. `no_miss` writes nothing |
 | Routing | Skill chooses the kit file (existing phase/checklist/skill first; new skill/agent last) |
 | New files | Allowed: new checklist, new skill, new agent; wire **always-on** into the review spine |
@@ -34,7 +34,7 @@ Today `review-learn` generalizes misses into `<project>/.cursor/review-learnings
 
 ## Non-goals
 
-- Deleting consumer ledgers or `review-learn` `mode:load`. Capture eligibility is narrowed in [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md).
+- Deleting consumer ledgers or `csp-review-learn` `mode:load`. Capture eligibility is narrowed in [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md).
 - Auto-merging to `main` (neither land mode merges).
 - Updating the local kit `main` checkout after push.
 - Writing instructions into the consumer application repository.
@@ -113,12 +113,12 @@ A project file with invalid `land` does **not** fall through to the user file: w
 | Piece | Role |
 |-------|------|
 | Skill `teach-review` | Generalize, route, edit the kit checkout, commit, land |
-| Command `/teach-review` | Same chain; optional miss description as the argument |
+| Command `/csp-teach-review` | Same chain; optional miss description as the argument |
 | HITL **Teach-review miss** | After a validated review report: `miss` / `no_miss` |
 | Git lander (inside the skill) | `learn/…` branch, push, optional ready-for-review pull request |
 | Existing review spine | Gains always-on dispatch rows when `teach-review` creates a new phase agent |
 
-`engineer-reviewer` and `pr-reviewer` **must not** edit kit git themselves. They collect the miss text (or skip) and invoke `teach-review`.
+`csp-engineer-reviewer` and `csp-pr-reviewer` **must not** edit kit git themselves. They collect the miss text (or skip) and invoke `teach-review`.
 
 ## Data flow
 
@@ -127,7 +127,7 @@ settled review report
   → HITL miss / no_miss
        no_miss → stop (report already shown)
        miss    → require free-text description → teach-review
-/teach-review [description]
+/csp-teach-review [description]
   → if no description, ask open-ended (not a closed-set gate)
   → teach-review
 
@@ -140,7 +140,7 @@ teach-review:
               reminder that main is unchanged until they merge
 ```
 
-One miss class per invocation. If the human describes two classes, take the primary and say the rest can be a second `/teach-review`.
+One miss class per invocation. If the human describes two classes, take the primary and say the rest can be a second `/csp-teach-review`.
 
 ## Generalize
 
@@ -151,7 +151,7 @@ Reuse the quality bar from `review-learn-protocol.md` (do not copy product names
 - `anti_pattern` — what the reviewer did instead
 - `target_kind` — `checklist` / `phase_agent` / `skill` / `new_skill_agent`
 - `target_path` — kit-relative path(s) to edit or create
-- `spine_wiring` — which orchestrator files must list a new agent (`engineer-reviewer`, `pr-reviewer`, `engineer-review` skill, `skill-map.md` as needed)
+- `spine_wiring` — which orchestrator files must list a new agent (`csp-engineer-reviewer`, `csp-pr-reviewer`, `engineer-review` skill, `skill-map.md` as needed)
 
 Refuse and ask for a check-shaped class when the only content is a ticket, a widget name, or “the file at path X” with no transferable rule.
 
@@ -162,11 +162,11 @@ If an existing kit checklist or phase already covers the class, **extend that fi
 Preference order:
 
 1. Existing checklist under `skills/engineer-review/references/` (or the phase’s own skill body) that owns this concern — append a gate the phase already loads **every** run.
-2. Existing phase agent (`review-patterns`, `review-logic`, `review-deadcode`, `review-simplify`, `code-comments` taxonomy, etc.).
+2. Existing phase agent (`csp-review-patterns`, `csp-review-logic`, `csp-review-deadcode`, `csp-review-simplify`, `code-comments` taxonomy, etc.).
 3. New checklist file in `references/` plus an always-on load line in the phase that should own it.
-4. Last resort: new `skills/<name>/SKILL.md` + `agents/<name>.md`, then always-on dispatch in **both** `engineer-reviewer` and `pr-reviewer` (same phase set), plus `skills/engineer-review/SKILL.md` / `skill-map.md` / README tables so `csp install` / `csp update` links them like every other agent.
+4. Last resort: new `skills/<name>/SKILL.md` + `agents/<name>.md`, then always-on dispatch in **both** `csp-engineer-reviewer` and `csp-pr-reviewer` (same phase set), plus `skills/engineer-review/SKILL.md` / `skill-map.md` / README tables so `csp install` / `csp update` links them like every other agent.
 
-New agents run on **every** review after the change exists on the checkout the consumer is linked to. Do not hide them behind `review-learn` trigger matching.
+New agents run on **every** review after the change exists on the checkout the consumer is linked to. Do not hide them behind `csp-review-learn` trigger matching.
 
 Never write outside the kit checkout.
 
@@ -174,7 +174,7 @@ Never write outside the kit checkout.
 
 ### Locate
 
-Same as other kit helpers: `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path`. The path must be an existing git work tree whose remote is the kit (presence of `skills/engineer-review` + `agents/engineer-reviewer.md` is enough). If missing or not the kit → stop with install hint (`csp install` / kit clone).
+Same as other kit helpers: `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path`. The path must be an existing git work tree whose remote is the kit (presence of `skills/engineer-review` + `agents/csp-engineer-reviewer.md` is enough). If missing or not the kit → stop with install hint (`csp install` / kit clone).
 
 ### Cleanliness
 
@@ -212,15 +212,15 @@ Add preset **Teach-review miss** to `hitl-choice`:
 
 Ask **after** the validated report is shown, on:
 
-- pipeline `engineer-reviewer` (after `/finish-plan` / `/start-task` / `/start-issue-task` / `--fast`)
-- manual `/engineer-review`
-- `/pr-review` (same phase set)
+- pipeline `csp-engineer-reviewer` (after `/csp-finish-plan` / `/csp-start-task` / `/csp-start-issue-task` / `--fast`)
+- manual `/csp-engineer-review`
+- `/csp-pr-review` (same phase set)
 
 `no_miss` → do not invoke `teach-review`. `miss` → if the same message does not already contain the description, wait for free text (open-ended; not a second closed-set), then invoke.
 
-Closed-set still uses `hitl-choice` (AskQuestion first). `/teach-review` with a non-empty argument skips the `miss` / `no_miss` gate (the command **is** the miss).
+Closed-set still uses `hitl-choice` (AskQuestion first). `/csp-teach-review` with a non-empty argument skips the `miss` / `no_miss` gate (the command **is** the miss).
 
-Failure of `teach-review` after a report must **not** retract the report. Say that kit instructions were not updated and that `/teach-review` can retry.
+Failure of `teach-review` after a report must **not** retract the report. Say that kit instructions were not updated and that `/csp-teach-review` can retry.
 
 ## Human-visible result
 
@@ -262,10 +262,10 @@ Shell tests against a temp git repo pretending to be the kit (same pattern as `s
 | Path | Change |
 |------|--------|
 | `skills/teach-review/SKILL.md` | New skill |
-| `commands/teach-review.md` | Slash command |
+| `commands/csp-teach-review.md` | Slash command |
 | `skills/hitl-choice/SKILL.md` | Preset **Teach-review miss** |
-| `agents/engineer-reviewer.md`, `skills/engineer-review/SKILL.md` | After validated report, always the miss gate; never edit kit git here |
-| `agents/pr-reviewer.md`, `skills/pr-review/SKILL.md` | Same miss gate |
+| `agents/csp-engineer-reviewer.md`, `skills/engineer-review/SKILL.md` | After validated report, always the miss gate; never edit kit git here |
+| `agents/csp-pr-reviewer.md`, `skills/pr-review/SKILL.md` | Same miss gate |
 | `README.md`, `docs/superpowers/pipeline-flow.md` (+ html if the post-review node needs a label) | Document command + gate |
 | `skills/teach-review/references/cursor-spells-learn.json` | Default template with `land` comment catalog + `"draft_merge"` |
 | `scripts/install-to-project.sh`, `README.md` install tables | Create-once user + project config copies |
@@ -274,7 +274,7 @@ Shell tests against a temp git repo pretending to be the kit (same pattern as `s
 
 Runtime edits when teaching a **new** phase (produced by the skill, not by this spec PR): new `skills/` + `agents/` + spine rows + README tables.
 
-## Relationship to `review-learn`
+## Relationship to `csp-review-learn`
 
 Superseded for store routing by [`2026-08-21-review-learn-project-secret-design.md`](2026-08-21-review-learn-project-secret-design.md): shareable misses use this skill; `.cursor/review-learnings.md` only on `project_secret`. Do not run both stores on the same miss. Kit git / land rules in this spec still apply.
 

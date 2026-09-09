@@ -4,7 +4,7 @@
 
 **Goal:** After a review miss, generalize the human’s remark into kit instructions and land a `learn/…` branch on the `cursor-spells` remote (`draft_merge` by default).
 
-**Architecture:** A sourceable bash library owns config resolve, kit-path checks, and branch naming. `csp install` copies a commented JSONC template create-once. Skill `teach-review` (plus `/teach-review`) edits the kit checkout and lands git. Orchestrators only ask `miss` / `no_miss` and invoke the skill — they never edit kit git.
+**Architecture:** A sourceable bash library owns config resolve, kit-path checks, and branch naming. `csp install` copies a commented JSONC template create-once. Skill `teach-review` (plus `/csp-teach-review`) edits the kit checkout and lands git. Orchestrators only ask `miss` / `no_miss` and invoke the skill — they never edit kit git.
 
 **Tech Stack:** Bash helpers + Cursor skill/command/agent markdown in the cursor-spells kit; `gh` for draft pull requests; consumer install via `scripts/install-to-project.sh`.
 
@@ -16,7 +16,7 @@
 - Install copies the template only when the destination is missing; never overwrite.
 - `auto_push`: `git push` of `learn/…` only. `draft_merge`: same plus `gh pr create --draft` into kit `main`. Neither merges. Neither updates the local kit checkout.
 - Orchestrators must not edit kit git. One miss class per `teach-review` invocation.
-- Do not replace `review-learn` or consumer `.cursor/review-learnings.md`.
+- Do not replace `csp-review-learn` or consumer `.cursor/review-learnings.md`.
 - Frequent small commits — one per task.
 - Nested fences: use 4-backtick outer fences when embedding ``` inside plan steps.
 - User-facing chat in this kit still goes through `plain-language-chat` (full words). Skill/spec/plan English is unchanged.
@@ -32,15 +32,15 @@
 | `skills/teach-review/references/cursor-spells-learn.json` | Install template with `//` catalog above `land` |
 | `scripts/install-to-project.sh` | Create-once copy to `~/.cursor/` and project `.cursor/` |
 | `skills/teach-review/SKILL.md` | Generalize, route, edit kit, commit, land |
-| `commands/teach-review.md` | Slash entry |
+| `commands/csp-teach-review.md` | Slash entry |
 | `skills/hitl-choice/SKILL.md` | Preset **Teach-review miss** (`miss` / `no_miss`) |
-| `agents/engineer-reviewer.md`, `skills/engineer-review/SKILL.md` | After validated report: miss gate, then invoke skill |
-| `agents/pr-reviewer.md`, `skills/pr-review/SKILL.md` | Same miss gate |
+| `agents/csp-engineer-reviewer.md`, `skills/engineer-review/SKILL.md` | After validated report: miss gate, then invoke skill |
+| `agents/csp-pr-reviewer.md`, `skills/pr-review/SKILL.md` | Same miss gate |
 | `scripts/tests/teach-review-contract-test.sh` | Grep contracts (tokens, wiring, install, README) |
 | `README.md`, `docs/superpowers/pipeline-flow.md` | Document command + gate |
 | `docs/superpowers/dogfood/engineer-review-checklist.md` | Post-report miss gate row |
 
-Do **not** copy `teach-review.sh` into consumer `scripts/` (only the kit checkout uses it). `csp install` still links `skills/teach-review` and `commands/teach-review.md` via the existing skills/commands walk.
+Do **not** copy `teach-review.sh` into consumer `scripts/` (only the kit checkout uses it). `csp install` still links `skills/teach-review` and `commands/csp-teach-review.md` via the existing skills/commands walk.
 
 ---
 
@@ -55,7 +55,7 @@ Do **not** copy `teach-review.sh` into consumer `scripts/` (only the kit checkou
 - `tr_land_from_file <path>` — stdout `auto_push` \| `draft_merge` \| `invalid` \| empty (missing file or missing `land` key)
 - `tr_resolve_land <project_root>` — uses `TR_HOME` if set, else `$HOME`; stdout always `auto_push` or `draft_merge`; stderr one-line warn when project `land` is `invalid`
 - `tr_kit_path <project_root>` — first existing `cursor-spells-kit-path` under `<project>/.cursor/` then `$TR_HOME/.cursor/`; stdout path or empty
-- `tr_is_kit_checkout <path>` — exit 0 if git work tree and `skills/engineer-review` + `agents/engineer-reviewer.md` exist
+- `tr_is_kit_checkout <path>` — exit 0 if git work tree and `skills/engineer-review` + `agents/csp-engineer-reviewer.md` exist
 - `tr_kit_is_dirty <kit>` — exit 0 if `git -C <kit> status --porcelain` is non-empty
 - `tr_learn_branch_base <miss_class> [YYYYMMDD]` — stdout `learn/<miss_class>-<date>` (date default: `date +%Y%m%d`)
 - `tr_unique_learn_branch <kit> <base>` — append `-2`, `-3`, … while `refs/heads/<name>` or `refs/remotes/origin/<name>` exists
@@ -142,7 +142,7 @@ git -C "$KIT" config user.email "t@example.com"
 git -C "$KIT" config user.name "t"
 mkdir -p "$KIT/skills/engineer-review" "$KIT/agents"
 printf '%s\n' '{}' > "$KIT/skills/engineer-review/SKILL.md"
-printf '%s\n' '{}' > "$KIT/agents/engineer-reviewer.md"
+printf '%s\n' '{}' > "$KIT/agents/csp-engineer-reviewer.md"
 git -C "$KIT" add skills agents
 git -C "$KIT" commit -qm init
 tr_is_kit_checkout "$KIT" || { echo "FAIL is_kit" >&2; fail=1; }
@@ -268,7 +268,7 @@ tr_is_kit_checkout() {
   local path="${1%/}"
   [[ -d "$path/.git" || -f "$path/.git" ]] || return 1
   git -C "$path" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
-  [[ -e "$path/skills/engineer-review" && -f "$path/agents/engineer-reviewer.md" ]]
+  [[ -e "$path/skills/engineer-review" && -f "$path/agents/csp-engineer-reviewer.md" ]]
 }
 
 tr_kit_is_dirty() {
@@ -435,12 +435,12 @@ git commit -m "feat(review): install teach-review land config create-once"
 
 **Files:**
 - Create: `skills/teach-review/SKILL.md`
-- Create: `commands/teach-review.md`
+- Create: `commands/csp-teach-review.md`
 
 **Interfaces:**
 - Consumes: `tr_resolve_land`, `tr_kit_path`, `tr_is_kit_checkout`, `tr_kit_is_dirty`, `tr_learn_branch_base`, `tr_unique_learn_branch`, `tr_land_opens_pr`
 - Produces: kit edits + `learn/…` commit; push; optional draft pull request
-- Callers: `/teach-review`, `engineer-reviewer`, `pr-reviewer`
+- Callers: `/csp-teach-review`, `csp-engineer-reviewer`, `csp-pr-reviewer`
 
 - [ ] **Step 1: Write the failing contract assertions** (file missing)
 
@@ -470,14 +470,14 @@ assert_grep() {
   fi
 }
 assert_file "skills/teach-review/SKILL.md"
-assert_file "commands/teach-review.md"
+assert_file "commands/csp-teach-review.md"
 assert_grep skill_source "skills/teach-review/SKILL.md" "teach-review.sh"
 assert_grep skill_one_class "skills/teach-review/SKILL.md" "One miss class"
 assert_grep skill_no_local_merge "skills/teach-review/SKILL.md" "Do not merge"
 assert_grep skill_draft "skills/teach-review/SKILL.md" "gh pr create --draft"
 assert_grep skill_auto_push "skills/teach-review/SKILL.md" "auto_push"
 assert_grep skill_refuse "skills/teach-review/SKILL.md" "not generalizable"
-assert_grep cmd_invoke "commands/teach-review.md" "teach-review"
+assert_grep cmd_invoke "commands/csp-teach-review.md" "teach-review"
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
@@ -503,17 +503,17 @@ name: teach-review
 description: >-
   Turn a human remark about an engineer-review miss into generalized kit
   instructions (checklist, skill, or agent), commit on learn/…, and land on
-  the cursor-spells remote. Use after Teach-review miss (miss) or /teach-review.
+  the cursor-spells remote. Use after Teach-review miss (miss) or /csp-teach-review.
 ---
 
 # Teach-review
 
-You write **kit instructions**, not a consumer ledger. Do not edit the application repository. Do not invoke `review-learn` `mode:capture` as a substitute.
+You write **kit instructions**, not a consumer ledger. Do not edit the application repository. Do not invoke `csp-review-learn` `mode:capture` as a substitute.
 
 ## When to Use
 
-- Human chose `miss` after a validated `engineer-reviewer` / `pr-reviewer` report and pasted a description
-- Slash command `/teach-review` (argument is the description)
+- Human chose `miss` after a validated `csp-engineer-reviewer` / `csp-pr-reviewer` report and pasted a description
+- Slash command `/csp-teach-review` (argument is the description)
 
 ## Inputs
 
@@ -532,12 +532,12 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
    - `target_path` kit-relative
    - `spine_wiring` if new agent
    Refuse when the only content is a ticket, a widget name, or a path with no transferable rule. Ask for a check-shaped class. Do not commit.
-   If two classes are described, take the primary; tell the human to run `/teach-review` again for the rest.
+   If two classes are described, take the primary; tell the human to run `/csp-teach-review` again for the rest.
 3. **Route** (you choose the file). Preference:
    1. Existing checklist under `skills/engineer-review/references/` or the phase skill body — append a gate that phase already loads every run.
-   2. Existing phase agent (`review-patterns`, `review-logic`, `review-deadcode`, `review-simplify`, `code-comments`, …).
+   2. Existing phase agent (`csp-review-patterns`, `csp-review-logic`, `csp-review-deadcode`, `csp-review-simplify`, `code-comments`, …).
    3. New checklist in `references/` plus an always-on load line in the owning phase.
-   4. Last resort: new `skills/<name>/SKILL.md` + `agents/<name>.md`, always-on dispatch in **both** `engineer-reviewer` and `pr-reviewer`, plus `skills/engineer-review/SKILL.md`, `skill-map.md`, and README tables.
+   4. Last resort: new `skills/<name>/SKILL.md` + `agents/<name>.md`, always-on dispatch in **both** `csp-engineer-reviewer` and `csp-pr-reviewer`, plus `skills/engineer-review/SKILL.md`, `skill-map.md`, and README tables.
    If a checklist already covers the class but the miss still happened, **strengthen that file** — do not no-op and do not clone a parallel skill.
    Never write a path outside the kit checkout.
 4. Source helpers (`scripts/teach-review.sh` in the kit). Resolve:
@@ -563,11 +563,11 @@ You write **kit instructions**, not a consumer ledger. Do not edit the applicati
 
 - Never edit consumer app files (including `.cursor/review-learnings.md`) in this loop.
 - Never merge to `main`. Never mark the pull request ready.
-- Never auto-edit kit checklists from `review-learn` promote; this skill is the kit-edit path.
-- Failure after a review report must not retract the report; say `/teach-review` can retry.
+- Never auto-edit kit checklists from `csp-review-learn` promote; this skill is the kit-edit path.
+- Failure after a review report must not retract the report; say `/csp-teach-review` can retry.
 ````
 
-Create `commands/teach-review.md`:
+Create `commands/csp-teach-review.md`:
 
 ````markdown
 ---
@@ -575,7 +575,7 @@ description: Publish a review miss into cursor-spells kit instructions (learn/ b
 argument-hint: "[what the reviewer missed]"
 ---
 
-# /teach-review
+# /csp-teach-review
 
 Turn a human remark into generalized **kit** instructions. Does **not** write `.cursor/review-learnings.md`. Does **not** run `engineer-review`.
 
@@ -592,7 +592,7 @@ Turn a human remark into generalized **kit** instructions. Does **not** write `.
 
 ## Notes
 
-- Do not start `engineer-reviewer` or `/capture-escape` unless the human asks.
+- Do not start `csp-engineer-reviewer` or `/csp-capture-escape` unless the human asks.
 - One miss class per invocation.
 ````
 
@@ -605,7 +605,7 @@ Expected: `ALL PASS` on both.
 - [ ] **Step 5: Commit**
 
 ````bash
-git add skills/teach-review/SKILL.md commands/teach-review.md scripts/tests/teach-review-contract-test.sh
+git add skills/teach-review/SKILL.md commands/csp-teach-review.md scripts/tests/teach-review-contract-test.sh
 git commit -m "feat(review): add teach-review skill and slash command"
 ````
 
@@ -615,9 +615,9 @@ git commit -m "feat(review): add teach-review skill and slash command"
 
 **Files:**
 - Modify: `skills/hitl-choice/SKILL.md` (When to Use + new preset after Review-learn promote)
-- Modify: `agents/engineer-reviewer.md` (after capture learnings; before pipeline docs handoff)
+- Modify: `agents/csp-engineer-reviewer.md` (after capture learnings; before pipeline docs handoff)
 - Modify: `skills/engineer-review/SKILL.md` (same spine point)
-- Modify: `agents/pr-reviewer.md` and `skills/pr-review/SKILL.md` (after settled report / `review-learn`)
+- Modify: `agents/csp-pr-reviewer.md` and `skills/pr-review/SKILL.md` (after settled report / `csp-review-learn`)
 - Modify: `scripts/tests/teach-review-contract-test.sh`
 
 **Interfaces:**
@@ -634,12 +634,12 @@ Append greps to `scripts/tests/teach-review-contract-test.sh` before `ALL PASS`:
 assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Teach-review miss"
 assert_grep token_miss "skills/hitl-choice/SKILL.md" '`miss`'
 assert_grep token_no_miss "skills/hitl-choice/SKILL.md" '`no_miss`'
-assert_grep er_agent_gate "agents/engineer-reviewer.md" "Teach-review miss"
+assert_grep er_agent_gate "agents/csp-engineer-reviewer.md" "Teach-review miss"
 assert_grep er_skill_gate "skills/engineer-review/SKILL.md" "Teach-review miss"
-assert_grep pr_agent_gate "agents/pr-reviewer.md" "Teach-review miss"
+assert_grep pr_agent_gate "agents/csp-pr-reviewer.md" "Teach-review miss"
 assert_grep pr_skill_gate "skills/pr-review/SKILL.md" "Teach-review miss"
-assert_grep er_no_kit_git "agents/engineer-reviewer.md" "never edit kit git"
-assert_grep pr_invoke "agents/pr-reviewer.md" "teach-review"
+assert_grep er_no_kit_git "agents/csp-engineer-reviewer.md" "never edit kit git"
+assert_grep pr_invoke "agents/csp-pr-reviewer.md" "teach-review"
 ````
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -657,7 +657,7 @@ Insert this preset **immediately after** `### Review-learn promote` (before `###
 ````markdown
 ### Teach-review miss
 
-Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (pipeline and manual `/engineer-review` / `/pr-review`). Do not ask on `/teach-review` (the command is already the miss).
+Ask **after** a validated `csp-engineer-reviewer` or `csp-pr-reviewer` report is shown (pipeline and manual `/csp-engineer-review` / `/csp-pr-review`). Do not ask on `/csp-teach-review` (the command is already the miss).
 
 | id | label |
 |----|-------|
@@ -667,21 +667,21 @@ Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (
 `no_miss` → do not invoke `teach-review`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. Failure of `teach-review` must not retract the report.
 ````
 
-In `agents/engineer-reviewer.md` spine, after capture learnings (current step 15), insert a new step **before** pipeline docs handoff. Renumber as needed so order is: capture `review-learn` → **Teach-review miss** → `update-docs` when in pipeline.
+In `agents/csp-engineer-reviewer.md` spine, after capture learnings (current step 15), insert a new step **before** pipeline docs handoff. Renumber as needed so order is: capture `csp-review-learn` → **Teach-review miss** → `update-docs` when in pipeline.
 
 Add this step text:
 
 ````markdown
-16. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `no_miss`). `no_miss` → continue. `miss` → collect description (open-ended if needed), invoke skill `teach-review`. **Never edit kit git** in this orchestrator. If `teach-review` fails, keep the report; tell the human to retry with `/teach-review`.
+16. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `no_miss`). `no_miss` → continue. `miss` → collect description (open-ended if needed), invoke skill `teach-review`. **Never edit kit git** in this orchestrator. If `teach-review` fails, keep the report; tell the human to retry with `/csp-teach-review`.
 ````
 
 Shift the previous docs-handoff step to 17.
 
 In **Hard rules**, keep “Never auto-edit kit checklists from a consumer review” (that still applies to this orchestrator). Add: `Never edit kit git; kit instruction publishes go through skill teach-review.`
 
-In `skills/engineer-review/SKILL.md`, after Capture (`review-learn`), add the same Teach-review miss step; docs handoff stays after it.
+In `skills/engineer-review/SKILL.md`, after Capture (`csp-review-learn`), add the same Teach-review miss step; docs handoff stays after it.
 
-In `agents/pr-reviewer.md` / `skills/pr-review/SKILL.md`, after “After the report is settled, run `review-learn`…”, add:
+In `agents/csp-pr-reviewer.md` / `skills/pr-review/SKILL.md`, after “After the report is settled, run `csp-review-learn`…”, add:
 
 ````markdown
 11. **Teach-review miss:** ask `hitl-choice` preset **Teach-review miss**. `no_miss` → stop. `miss` → description then skill `teach-review`. Never edit kit git here.
@@ -698,7 +698,7 @@ Expected: `ALL PASS`.
 - [ ] **Step 5: Commit**
 
 ````bash
-git add skills/hitl-choice/SKILL.md agents/engineer-reviewer.md skills/engineer-review/SKILL.md agents/pr-reviewer.md skills/pr-review/SKILL.md scripts/tests/teach-review-contract-test.sh
+git add skills/hitl-choice/SKILL.md agents/csp-engineer-reviewer.md skills/engineer-review/SKILL.md agents/csp-pr-reviewer.md skills/pr-review/SKILL.md scripts/tests/teach-review-contract-test.sh
 git commit -m "feat(review): always ask teach-review miss after reports"
 ````
 
@@ -711,7 +711,7 @@ git commit -m "feat(review): always ask teach-review miss after reports"
 - Modify: `docs/superpowers/pipeline-flow.md` (post-review note + source-of-truth list)
 - Modify: `docs/superpowers/dogfood/engineer-review-checklist.md`
 - Modify: `scripts/tests/teach-review-contract-test.sh`
-- Modify: `docs/superpowers/pipeline-flow.html` only if it already lists post-review HITL nodes in prose/legend that would otherwise omit this gate — if the HTML is a canvas of the same mermaid, add a one-line note in the same place as `review-learn` / capture-escape if present; otherwise skip HTML.
+- Modify: `docs/superpowers/pipeline-flow.html` only if it already lists post-review HITL nodes in prose/legend that would otherwise omit this gate — if the HTML is a canvas of the same mermaid, add a one-line note in the same place as `csp-review-learn` / capture-escape if present; otherwise skip HTML.
 
 **Interfaces:**
 - None (documentation)
@@ -720,7 +720,7 @@ git commit -m "feat(review): always ask teach-review miss after reports"
 
 ````bash
 assert_grep readme_skill "README.md" "teach-review"
-assert_grep readme_cmd "README.md" "/teach-review"
+assert_grep readme_cmd "README.md" "/csp-teach-review"
 assert_grep flow_teach "docs/superpowers/pipeline-flow.md" "teach-review"
 assert_grep dogfood_miss "docs/superpowers/dogfood/engineer-review-checklist.md" "Teach-review miss"
 ````
@@ -739,10 +739,10 @@ README Skills table, add after `pr-review` (or near `engineer-review`):
 | [`teach-review`](skills/teach-review/) | After a review miss: generalize into kit instructions, `learn/…` branch, land via `cursor-spells-learn.json` (`draft_merge` / `auto_push`) |
 ````
 
-README usage near `/capture-escape`:
+README usage near `/csp-capture-escape`:
 
 ````markdown
-`/teach-review [what slipped]` writes generalized **kit** instructions (not `.cursor/review-learnings.md`). After every settled engineer/PR review the orchestrator asks `miss` / `no_miss`. Land config: `~/.cursor/cursor-spells-learn.json` and `<project>/.cursor/cursor-spells-learn.json` (created on `csp install` if missing).
+`/csp-teach-review [what slipped]` writes generalized **kit** instructions (not `.cursor/review-learnings.md`). After every settled engineer/PR review the orchestrator asks `miss` / `no_miss`. Land config: `~/.cursor/cursor-spells-learn.json` and `<project>/.cursor/cursor-spells-learn.json` (created on `csp install` if missing).
 ````
 
 In `docs/superpowers/pipeline-flow.md` legend/source-of-truth sentence that lists skills, add `teach-review`. After the review layer description, add:
@@ -791,6 +791,6 @@ git commit -m "docs(review): document teach-review miss gate and land config"
 | `auto_push` vs `draft_merge` (no local merge) | 1 + 3 |
 | README / pipeline-flow / dogfood | 5 |
 | Helper tests + contract tests | 1, 2, 4, 5 |
-| Do not replace `review-learn` | 3 notes + 4 order (capture still first) |
+| Do not replace `csp-review-learn` | 3 notes + 4 order (capture still first) |
 
 No third land mode. No consumer ledger writes in this loop. New phase files are **runtime** output of the skill (not this plan’s commits) except the skill/command themselves.

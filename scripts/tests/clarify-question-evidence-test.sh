@@ -40,9 +40,9 @@ assert_not_grep() {
 HITL="skills/hitl-choice/SKILL.md"
 
 assert_file "$HITL"
-assert_file "agents/engineer-reviewer.md"
-assert_file "agents/pr-reviewer.md"
-assert_file "agents/multi-repo-supervisor.md"
+assert_file "agents/csp-engineer-reviewer.md"
+assert_file "agents/csp-pr-reviewer.md"
+assert_file "agents/csp-multi-repo-supervisor.md"
 assert_file "skills/engineer-review/references/feedback-format.md"
 assert_file "skills/engineer-review/references/forbidden-formats.md"
 
@@ -62,11 +62,11 @@ assert_grep hitl_fallback_not_see_report "$HITL" "not .see the report above"
 
 # Orchestrators that ask the questions must restate the evidence bar
 # (not only the report template).
-assert_grep er_clarify_ask "agents/engineer-reviewer.md" "Never ask a clarify"
-assert_grep er_clarify_no_title_only "agents/engineer-reviewer.md" "Jump path is not enough"
-assert_grep pr_clarify_ask "agents/pr-reviewer.md" "Never ask a clarify"
-assert_grep pr_clarify_no_title_only "agents/pr-reviewer.md" "Jump path is not enough"
-assert_grep mr_clarify_ask "agents/multi-repo-supervisor.md" "Never ask a clarify"
+assert_grep er_clarify_ask "agents/csp-engineer-reviewer.md" "Never ask a clarify"
+assert_grep er_clarify_no_title_only "agents/csp-engineer-reviewer.md" "Jump path is not enough"
+assert_grep pr_clarify_ask "agents/csp-pr-reviewer.md" "Never ask a clarify"
+assert_grep pr_clarify_no_title_only "agents/csp-pr-reviewer.md" "Jump path is not enough"
+assert_grep mr_clarify_ask "agents/csp-multi-repo-supervisor.md" "Never ask a clarify"
 
 # Report format + forbidden list must not let the question collapse to title-only.
 assert_grep fmt_repeat_where "skills/engineer-review/references/feedback-format.md" "repeats that item"
