@@ -114,7 +114,7 @@ If the caller is `csp-multi-repo-supervisor`, or discovery finds **2+ changed re
 - [phase-protocol-detail.md](references/phase-protocol-detail.md), [skill-map.md](references/skill-map.md), [review-learn-capture.md](references/review-learn-capture.md), [graphify-r3-force-include.md](references/graphify-r3-force-include.md)
 - Checklists: `interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, `null-safety-checklist.md`, `jpa-criteria-checklist.md`, `styling-checklist.md`, `fixture-identifier-conventions.md`, `simplify-checklist.md`, `simplify-lenses-fallback.md`
 - [learned-misses.md](references/learned-misses.md) (except pointing `csp-review-learn` at it)
-- Phase agent prompts (`agents/review-*.md`)
+- Phase agent prompts (`agents/csp-review-*.md`)
 
 ### Merge-only (load at report time — not at start; skip on abort)
 

@@ -21,4 +21,4 @@ Run skill `start-build`:
 
 - This command does **not** run `implementation-critic`. Approve + critique happen in `/csp-approve-plan`.
 - Do not start Task 1 without a matching `plan-critique-clear/<slug>` for this plan.
-- Do not treat `software-developer` dispatch as the end — **Wait for** the Task, then `finish-plan` → `csp-engineer-reviewer`.
+- Do not treat `csp-software-developer` dispatch as the end — **Wait for** the Task, then `finish-plan` → `csp-engineer-reviewer`.

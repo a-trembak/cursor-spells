@@ -16,7 +16,7 @@ globs:
 Before you **dispatch Task 1** of an implementation plan (via `csp-software-developer`, `subagent-driven-development`, or `executing-plans`):
 
 1. Prefer invoking skill **`approve-plan`** if this plan's `.cursor/gates/plan-critique-clear/<slug>` is missing or does not match this plan (HITL `approve-plan`/`revise` via `hitl-choice` (AskQuestion required; text only after failed/missing tool), then auto `implementation-critic`).
-2. Prefer **`start-build`** only when this plan's `plan-critique-clear/<slug>` already matches the plan — it dispatches `software-developer` and does **not** re-run the critic.
+2. Prefer **`start-build`** only when this plan's `plan-critique-clear/<slug>` already matches the plan — it dispatches `csp-software-developer` and does **not** re-run the critic.
 3. If you cannot load those skills, still:
    - Do not start Task 1 until the human has approved the plan and `implementation-critic` reports `Verdict: clear`
    - Keep `.cursor/gates/critique-gate/<slug>` while blocked / accept-risk is open

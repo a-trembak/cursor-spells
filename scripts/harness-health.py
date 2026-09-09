@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any
 
 CONTEXT_BUDGET_SKILLS = (
-    "csp-tech-spec",
-    "csp-implementation-critic",
+    "tech-spec",
+    "implementation-critic",
     "engineer-review",
     "system-design",
 )

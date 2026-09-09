@@ -22,7 +22,7 @@ When you **finish executing an implementation plan** (all plan tasks done, or yo
    - **Stop** and ask via skill **`hitl-choice`** (AskQuestion required; preset Finish-plan HITL); text only after failed/missing tool:
 
    > Plan done. The pull request tab should show the diff. This is your look — engineer-review starts after you answer.
-   > - `skip` — start engineer-reviewer now
+   > - `skip` — start csp-engineer-reviewer now
    > - `approve` / `done` — I finished my look; start engineer-review
    > - or describe fixes first
 
