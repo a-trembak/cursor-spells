@@ -270,3 +270,36 @@ source: teach-review
 Mechanism: a fix adds null guards to the reported endpoint but review never opens other callers of the same helper or sibling endpoints that share the mapping pipeline — so production still 500s on the untouched paths.
 
 Required check: [null-safety-checklist.md](null-safety-checklist.md) **N1**.
+
+---
+
+### `miss_prefixed-agent-unprefixed-skill`
+
+```yaml
+id: miss_prefixed-agent-unprefixed-skill
+miss_class: prefixed-agent-unprefixed-skill
+triggers:
+  - commands/ rename | agents/ rename | shared prefix csp-
+  - pipeline-flow.md | pipeline-flow.html | Mermaid agent label
+  - skills/<name>/SKILL.md | harness-health | skill name:
+  - Skill `/finish-plan` | Skill `/csp-
+phases: [patterns]
+gate: P1
+also: [P2, P3, P4]
+rule_one_liner: >-
+  When slash commands and agents share a prefix, update Mermaid and
+  pipeline-canvas agent labels to the prefixed agent ids; keep skill
+  folders and name fields unprefixed; never write Skill with a slash path;
+  harness opens skills/<name>/ with unprefixed names.
+anti_pattern: >-
+  Prefixing commands/agents while leaving Mermaid or canvas labels on the
+  old agent ids, inventing skills/csp-…/, writing Skill `/csp-…`, or
+  pointing harness health at prefixed skill directories.
+hits: 1
+last_seen: 2026-09-09
+source: teach-review
+```
+
+Mechanism: a shared command/agent prefix rename updates `commands/` and `agents/` but skips pipeline Mermaid/canvas labels, or mistakenly prefixes skill folders and harness paths — collapsing the skill vs slash-command distinction.
+
+Required check: [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) **P1–P4**.

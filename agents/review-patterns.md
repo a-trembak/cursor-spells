@@ -32,6 +32,15 @@ When stack is `react-web` or `react-native`, load `skills/engineer-review/refere
 - If **V1** fired: require existing compact-table patterns (hide columns, stack, row expanders) instead of a full desktop column set on tablet/phone (**V3**).
 - Record Coverage `narrow_viewport: tablet+phone | source-only | skipped | n/a` (**V4**). Prefer `source-only` when no browser pass ran; never silently omit the line when V1 fired.
 
+## Kit prefix rename (commands / agents vs skills)
+
+When the diff renames or prefixes kit slash commands / agents, or edits `docs/superpowers/pipeline-flow.md` / `pipeline-flow.html` / harness paths that open `skills/<name>/SKILL.md`, load `skills/engineer-review/references/kit-prefix-rename-checklist.md` and run **P1–P4** before closing.
+
+- Prefixed agent ids must appear in Mermaid and pipeline-canvas labels (**P1**).
+- Skill folders and skill `name:` fields stay unprefixed (**P2**).
+- Never write ``Skill `/…`` `` — distinguish skill `finish-plan` from slash command `/csp-finish-plan` (or the kit's current command spelling) (**P3**).
+- Harness / health checks that open `skills/<name>/SKILL.md` keep unprefixed skill directory names (**P4**).
+
 ## Traceability check (when a tech spec exists)
 
 If a tech spec or AC trace exists for this diff (`tech_spec_path` from the orchestrator, or discoverable under `docs/**/specs/` matching the branch/task topic), verify the diff matches the spec's declared services/tables/seams. Any mismatch — missing what the spec calls for, or extra scope the spec doesn't mention — is always `clarify`, never auto-applied (see `skills/engineer-review/references/auto-fix-eligibility.md`).
