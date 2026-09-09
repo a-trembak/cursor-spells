@@ -2,6 +2,14 @@
 
 Contracts for how the kit agent must behave on a given invocation. These files are **not** product tests and are **not** installed into consumer apps.
 
+**Before changing skills or agents**, run the full kit harness bench (all `scripts/tests/*.sh` plus this validate/score pass):
+
+```bash
+bash scripts/harness-bench.sh
+```
+
+Reports land under `evals/harness/reports/` (see [`../harness/README.md`](../harness/README.md)). For inventory without a full bench: `python3 scripts/harness-health.py`.
+
 Validate cases:
 
 ```bash
