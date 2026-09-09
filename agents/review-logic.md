@@ -45,6 +45,12 @@ When triggered: **open the full checklist** `skills/engineer-review/references/j
 
 When triggered: **open the full checklist** `skills/engineer-review/references/null-safety-checklist.md` and apply **N1**. Coverage must note `null_safety_callers: traced|partial|skipped|n/a` when this trigger applies.
 
+### Empty-collection fail-close (FC1, when triggered)
+
+**Trigger:** the diff short-circuits on an empty or absent upstream collection (`Optional.empty()`, null/absent response, empty list/map) **or** walks nested children of that collection, **and** also adds (or plans to add) a scoped, current-context, or other fallback candidate to the result.
+
+When triggered: **open the full checklist** `skills/engineer-review/references/empty-collection-fail-close-checklist.md` and apply **FC1**. Coverage must note `empty_fail_close: both-shapes|one-shape|skipped|n/a` when this trigger applies.
+
 ## Output
 
 Follow `skills/engineer-review/references/phase-protocol.md` and `phase-protocol-detail.md`.  
