@@ -85,7 +85,7 @@ Writers always create the per-plan path. After a successful migrate of a legacy 
 
 ## Skill semantics
 
-Applies to: `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `start-issue-task`, and any command/agent that today reads or writes the five legacy markers (`software-developer` / `bug-fixer` preconditions, engineer-review finish handoff, etc.).
+Applies to: `approve-plan`, `start-build`, `finish-plan`, `update-docs`, `start-issue-task`, and any command/agent that today reads or writes the five legacy markers (`software-developer` / `csp-bug-fixer` preconditions, engineer-review finish handoff, etc.).
 
 1. Resolve plan path → slug.
 2. Migrate-on-read for kinds about to be read.

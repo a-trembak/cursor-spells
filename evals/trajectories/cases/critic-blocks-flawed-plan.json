@@ -6,10 +6,10 @@
   "end_to_end": false,
   "status": "active",
   "input": {
-    "invocation": "/critique-plan docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md",
+    "invocation": "/csp-critique-plan docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md",
     "fetch": "skip"
   },
-  "required_stages": ["implementation-critic"],
+  "required_stages": ["csp-implementation-critic"],
   "required_artifacts": [
     {"kind": "report", "name": "critic-verdict-blocked"},
     {"kind": "file", "name": "unchanged-plan", "pattern": "docs/superpowers/plans/2099-01-01-fixture-notification-plugin.md"}

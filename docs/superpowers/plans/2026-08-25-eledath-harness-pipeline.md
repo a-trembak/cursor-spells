@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Bind the existing `/start-task` quality pipeline into Bassim Eledath level 6: a recorded run is scored against a golden trajectory contract, a fail stops the orchestrator, and a confirmed fail can become the next lesson — without adding agents or jumping to unsupervised background teams.
+**Goal:** Bind the existing `/csp-start-task` quality pipeline into Bassim Eledath level 6: a recorded run is scored against a golden trajectory contract, a fail stops the orchestrator, and a confirmed fail can become the next lesson — without adding agents or jumping to unsupervised background teams.
 
-**Architecture:** Keep today's skills, gates, and `engineer-reviewer` as the product-quality layers. Add a kit-owned evaluation loop beside them: golden case → session ledger → hard-sensor `score` at the moment the contract is provable → on fail, a human-in-the-loop `generalize` / `skip` (not a second diff review). Do not fold scoring into `engineer-reviewer` phases. Do not remove human gates to chase levels 7–8.
+**Architecture:** Keep today's skills, gates, and `csp-engineer-reviewer` as the product-quality layers. Add a kit-owned evaluation loop beside them: golden case → session ledger → hard-sensor `score` at the moment the contract is provable → on fail, a human-in-the-loop `generalize` / `skip` (not a second diff review). Do not fold scoring into `csp-engineer-reviewer` phases. Do not remove human gates to chase levels 7–8.
 
 **Tech Stack:** Cursor skills and commands already in this kit; Python 3 stdlib `scripts/trajectory-cases.py` (`validate`, `score`, and new `record` subcommands); JSON cases under `evals/trajectories/`; existing `hitl-choice` tokens as the human-gate vocabulary.
 
@@ -12,12 +12,12 @@
 
 - Ladder: Bassim Eledath, *The 8 Levels of Agentic Engineering* (tab-complete → agent IDE → context → compounding → skills → harness and feedback loops → background agents → agent teams).
 - Specs already shipped: `docs/superpowers/specs/2026-08-25-agent-trajectory-golden-set-design.md`, `docs/superpowers/specs/2026-08-25-agent-trajectory-hard-sensors-design.md`.
-- Evaluation measures **agent path**, not product-code taste. `engineer-reviewer` stays the diff reviewer.
+- Evaluation measures **agent path**, not product-code taste. `csp-engineer-reviewer` stays the diff reviewer.
 - Score a case only when its artifacts can exist. Full happy-path contracts that need a draft pull request are unprovable during engineer-review.
 - `create-pr-draft-never-merge` is scored **after** Pipeline finale tokens are offered and **before** `gh pr ready` / merge. Scoring before the ask would fail `human_must_appear`.
 - Corpus and fixtures stay kit-only. `csp install` must not copy `evals/` into consumer apps. Live score uses `--kit-root` pointing at the kit checkout from `.cursor/cursor-spells-kit-path`.
 - Stdlib only. No language-model judge in Tasks 1–3.
-- Human-in-the-loop gates already in `/start-task` stay. Wiring a score must not invent `approve-spec` / `skip` / `ready` answers.
+- Human-in-the-loop gates already in `/csp-start-task` stay. Wiring a score must not invent `approve-spec` / `skip` / `ready` answers.
 - Missing ledger or missing kit path: skip score, continue the existing stop. Do not brick old chats.
 - Do not merge pull requests. Do not auto-select `--fast`.
 - User-facing chat still goes through `plain-language-chat`. Plan and spec English is unchanged.
@@ -68,10 +68,10 @@ flowchart LR
 | `scripts/tests/trajectory-record-test.sh` | Missing | Recorder CLI |
 | `scripts/tests/trajectory-wiring-test.sh` | Missing | Grep contracts for the two wired stops + fail gate |
 | `evals/trajectories/runs/` | Missing | Gitignored live dumps (kit dogfood only) |
-| `skills/jira-fetch/SKILL.md`, `commands/start-task.md` | Fetch-fail already stops | Dump ledger + `score` against `fetch-failure-stops` |
+| `skills/jira-fetch/SKILL.md`, `commands/csp-start-task.md` | Fetch-fail already stops | Dump ledger + `score` against `fetch-failure-stops` |
 | `skills/create-pr/SKILL.md` | Draft then Pipeline finale | Dump + `score` against `create-pr-draft-never-merge` after the ask, before `gh pr ready` |
 | `skills/hitl-choice/SKILL.md` | Existing presets | Add **Trajectory fail** (`generalize` / `skip`) |
-| `commands/capture-escape.md` | Production misses | Optional FAIL-log path on `skip` |
+| `commands/csp-capture-escape.md` | Production misses | Optional FAIL-log path on `skip` |
 | `docs/superpowers/dogfood/*.md` | **Have** | Stay the `source` for cases; add recorder/score rows |
 
 Do **not** add `scripts/trajectory-record.py`. Hyphen-module import is painful; `record` lives on the existing scorer.
@@ -101,7 +101,7 @@ Legend: **Have** = already in the kit (including this branch). **Brainstorm add*
 
 | **Have** | **Add** |
 |----------|---------|
-| `review-learn` load/capture; `/capture-escape`; `/teach-review` → `learn/…` | **On score fail**, ask **Trajectory fail**. `skip` may feed `/capture-escape`. `generalize` may add a case **only in the kit checkout**, after the human confirms. |
+| `csp-review-learn` load/capture; `/csp-capture-escape`; `/csp-teach-review` → `learn/…` | **On score fail**, ask **Trajectory fail**. `skip` may feed `/csp-capture-escape`. `generalize` may add a case **only in the kit checkout**, after the human confirms. |
 | `clean-decision-docs` rewrite-as-truth | Never auto-write cases from one FAIL. |
 | `.cursor/project-patterns.md` | — |
 
@@ -111,7 +111,7 @@ Without the close-the-loop step, levels 3–5 still forget yesterday’s traject
 
 | **Have** | **Add** |
 |----------|---------|
-| Skills/agents: `tech-spec`, `implementation-critic`, `software-developer`, `engineer-reviewer`, `create-pr`, Jira fetch/transition, `skill-map` | Do **not** add another review phase that re-reads the diff. |
+| Skills/agents: `tech-spec`, `implementation-critic`, `software-developer`, `csp-engineer-reviewer`, `create-pr`, Jira fetch/transition, `skill-map` | Do **not** add another review phase that re-reads the diff. |
 | Subagent fan-out; implementer ≠ reviewer | Recorder must not require a new Model Context Protocol server. Markers + asked tokens + git are enough. |
 
 ### Level 6 — harness and automated feedback loops
@@ -125,7 +125,7 @@ This is the target. Split into backpressure that already existed versus evaluati
 - `verification-before-completion` on the developer
 - Auto-fix only if `auto-fix-eligibility.md` (four deterministic tests)
 - `validate-review-report.sh` evidence gate
-- `review-lint` as a real tool sensor
+- `csp-review-lint` as a real tool sensor
 
 **Have — evaluation corpus (this brainstorm, shipped on the branch)**
 
@@ -143,16 +143,16 @@ This is the target. Split into backpressure that already existed versus evaluati
 
 **Do not add at level 6**
 
-- A sixth `engineer-reviewer` phase named “eval”
+- A sixth `csp-engineer-reviewer` phase named “eval”
 - Scoring `full-happy-path` during review, before a draft exists
-- Executing `/start-task` inside kit continuous integration as a live agent
+- Executing `/csp-start-task` inside kit continuous integration as a live agent
 
 ### Levels 7–8 — background agents and agent teams
 
 | **Have** | **Do not add now** |
 |----------|-------------------|
 | Nested `software-developer` Task with parent wait | Ralph-style overnight loops that skip `approve-spec` / `approve-plan` / `review-gate` |
-| Hub-and-spoke: `engineer-reviewer`, `multi-repo-supervisor` | Agent-to-agent teams without an orchestrator |
+| Hub-and-spoke: `csp-engineer-reviewer`, `csp-multi-repo-supervisor` | Agent-to-agent teams without an orchestrator |
 
 Eledath’s own warning: levels 6–8 amplify whatever 3–5 got wrong. Unsupervised nights without a scored contract is a slop machine.
 
@@ -262,7 +262,7 @@ LEDGER="$TMP/fetch.json"
 assert_exit init_fetch 0 "${REC[@]}" init \
   --ledger "$LEDGER" \
   --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" \
+  --invocation "/csp-start-task PROJ-1" \
   --fetch fail
 
 python3 - "$LEDGER" <<'PY'
@@ -569,7 +569,7 @@ Record a live ledger (stdlib; same run shape as the fixtures):
 python3 scripts/trajectory-cases.py record init \
   --ledger evals/trajectories/runs/fetch-failure-stops.json \
   --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" \
+  --invocation "/csp-start-task PROJ-1" \
   --fetch fail
 python3 scripts/trajectory-cases.py record stage --ledger evals/trajectories/runs/fetch-failure-stops.json jira-fetch
 python3 scripts/trajectory-cases.py record artifact --ledger evals/trajectories/runs/fetch-failure-stops.json \
@@ -615,7 +615,7 @@ Do not wire all 15 cases. Wire the two that taught the placement rule.
 **Files:**
 
 - Modify: `skills/jira-fetch/SKILL.md` (fetch-failure stop)
-- Modify: `commands/start-task.md` (same stop at the orchestrator)
+- Modify: `commands/csp-start-task.md` (same stop at the orchestrator)
 - Modify: `skills/create-pr/SKILL.md` (after Pipeline finale is asked, before `gh pr ready`)
 - Create: `scripts/tests/trajectory-wiring-test.sh`
 - Modify: `docs/superpowers/dogfood/jira-ac-router-finale-checklist.md` (helper-test row)
@@ -626,7 +626,7 @@ Do not wire all 15 cases. Wire the two that taught the placement rule.
 - Consumes: Task 1 `record` CLI; `score --kit-root` / `--run`
 - Kit root: `KIT` from `<project>/.cursor/cursor-spells-kit-path`, else `~/.cursor/cursor-spells-kit-path` (trim newline). Same resolve as `teach-review`.
 - Consumer ledger: `.cursor/gates/trajectory-run/<case_id>.json`
-- Each wired stop **re-inits** a ledger with that case’s exact `input` (do not reuse a full-path ledger for a slice case). `create-pr-draft-never-merge` uses `invocation: "skill create-pr"` even when the parent was `/start-task`.
+- Each wired stop **re-inits** a ledger with that case’s exact `input` (do not reuse a full-path ledger for a slice case). `create-pr-draft-never-merge` uses `invocation: "skill create-pr"` even when the parent was `/csp-start-task`.
 
 **Skip score when any of:** kit path missing; `scripts/trajectory-cases.py` missing under kit; ledger dump fails. Then continue the existing human stop. In chat, one full-sentence note that trajectory score was skipped.
 
@@ -657,7 +657,7 @@ assert_grep() {
 assert_grep fetch_score "skills/jira-fetch/SKILL.md" "trajectory-cases.py score"
 assert_grep fetch_case "skills/jira-fetch/SKILL.md" "fetch-failure-stops"
 assert_grep fetch_skip "skills/jira-fetch/SKILL.md" "skip score"
-assert_grep start_score "commands/start-task.md" "fetch-failure-stops"
+assert_grep start_score "commands/csp-start-task.md" "fetch-failure-stops"
 assert_grep cpr_score "skills/create-pr/SKILL.md" "trajectory-cases.py score"
 assert_grep cpr_case "skills/create-pr/SKILL.md" "create-pr-draft-never-merge"
 assert_grep cpr_before_ready "skills/create-pr/SKILL.md" "before.*gh pr ready|before applying"
@@ -694,7 +694,7 @@ KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
 LEDGER=".cursor/gates/trajectory-run/fetch-failure-stops.json"
 python3 "$KIT/scripts/trajectory-cases.py" record init \
   --ledger "$LEDGER" --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" --fetch fail
+  --invocation "/csp-start-task PROJ-1" --fetch fail
 python3 "$KIT/scripts/trajectory-cases.py" record stage --ledger "$LEDGER" jira-fetch
 python3 "$KIT/scripts/trajectory-cases.py" record artifact --ledger "$LEDGER" \
   --kind report --name stop-paste-ticket
@@ -705,15 +705,15 @@ python3 "$KIT/scripts/trajectory-cases.py" score --kit-root "$KIT" --run "$LEDGE
 If score prints `FAIL`, stop. Do not continue bootstrap. Do not ask Pipeline route. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text.
 ````
 
-Use the real invocation string from the chat when it is a `/start-task` key; if the caller was `/start-issue-task` or `/write-tech-spec`, skip this case (input would not match) — still stop for paste, skip score.
+Use the real invocation string from the chat when it is a `/csp-start-task` key; if the caller was `/csp-start-issue-task` or `/csp-write-tech-spec`, skip this case (input would not match) — still stop for paste, skip score.
 
-In `commands/start-task.md` step 3 (Jira fetch), after **On fetch failure, stop (paste text).** add one sentence: record/score `fetch-failure-stops` per skill `jira-fetch`; skip score if the ledger or kit is missing.
+In `commands/csp-start-task.md` step 3 (Jira fetch), after **On fetch failure, stop (paste text).** add one sentence: record/score `fetch-failure-stops` per skill `jira-fetch`; skip score if the ledger or kit is missing.
 
 In `skills/create-pr/SKILL.md`, insert a new spine step **between current 8 (ask Pipeline finale) and 9 (Jira comment)**. Renumber 9–11 to 10–12. The new step 9:
 
 ````markdown
 9. **Trajectory score** (after Pipeline finale was asked, before applying `ready` / `ready_jira`):
-   - Init a fresh ledger for case `create-pr-draft-never-merge` with `invocation: "skill create-pr"`, `fetch: ok`, `jira_class: feature` (this slice’s contract; do not copy the parent `/start-task` invocation).
+   - Init a fresh ledger for case `create-pr-draft-never-merge` with `invocation: "skill create-pr"`, `fetch: ok`, `jira_class: feature` (this slice’s contract; do not copy the parent `/csp-start-task` invocation).
    - `record stage create-pr`, `record stage pipeline-finale-hitl`.
    - `record artifact --kind github --name draft-pull-request`.
    - `record gate --gate pipeline-finale --tokens` exactly the tokens that were offered (`keep_draft,ready` or the four-token Jira set).
@@ -732,7 +732,7 @@ bash scripts/tests/trajectory-record-test.sh
 bash scripts/tests/trajectory-wiring-test.sh
 ```
 
-In `README.md` trajectory paragraph, add: `/start-task` fetch-fail scores `fetch-failure-stops`; `create-pr` scores `create-pr-draft-never-merge` after Pipeline finale is asked and before `gh pr ready`.
+In `README.md` trajectory paragraph, add: `/csp-start-task` fetch-fail scores `fetch-failure-stops`; `create-pr` scores `create-pr-draft-never-merge` after Pipeline finale is asked and before `gh pr ready`.
 
 - [ ] **Step 4: Run tests**
 
@@ -747,7 +747,7 @@ Expected: `ALL PASS` on each.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/jira-fetch/SKILL.md commands/start-task.md skills/create-pr/SKILL.md \
+git add skills/jira-fetch/SKILL.md commands/csp-start-task.md skills/create-pr/SKILL.md \
   scripts/tests/trajectory-wiring-test.sh \
   docs/superpowers/dogfood/jira-ac-router-finale-checklist.md README.md
 git commit -m "$(cat <<'EOF'
@@ -766,7 +766,7 @@ EOF
 **Files:**
 
 - Modify: `skills/hitl-choice/SKILL.md` (new preset **Trajectory fail**)
-- Modify: `commands/capture-escape.md` (optional path to a `FAIL` log)
+- Modify: `commands/csp-capture-escape.md` (optional path to a `FAIL` log)
 - Modify: `skills/jira-fetch/SKILL.md` and `skills/create-pr/SKILL.md` (on `FAIL`, ask the preset)
 - Modify: `evals/trajectories/README.md` (human confirm before a new case)
 - Modify: `scripts/tests/trajectory-wiring-test.sh` (grep the new preset)
@@ -775,8 +775,8 @@ EOF
 
 - Do **not** add `trajectory-fail` to `HUMAN_GATES` / run JSON. This ask is meta (about the scorer), not a pipeline gate.
 - Tokens: `generalize` | `skip`. Never invent either token.
-- `skip`: offer `/capture-escape` with the `FAIL` lines as the description; do not start `engineer-reviewer`.
-- `generalize`: only if the current git root is a kit checkout (`skills/engineer-review` + `agents/engineer-reviewer.md` exist). Draft a new case (or bump an existing `id`) using the closed vocab; run `validate`; do not commit until the human says the JSON is right. In a consumer app: print the FAIL log and stop — `evals/` is not installed there.
+- `skip`: offer `/csp-capture-escape` with the `FAIL` lines as the description; do not start `csp-engineer-reviewer`.
+- `generalize`: only if the current git root is a kit checkout (`skills/engineer-review` + `agents/csp-engineer-reviewer.md` exist). Draft a new case (or bump an existing `id`) using the closed vocab; run `validate`; do not commit until the human says the JSON is right. In a consumer app: print the FAIL log and stop — `evals/` is not installed there.
 
 - [ ] **Step 1: Extend the wiring test (red)**
 
@@ -788,7 +788,7 @@ assert_grep token_gen "skills/hitl-choice/SKILL.md" '`generalize`'
 assert_grep token_skip "skills/hitl-choice/SKILL.md" '`skip`'
 assert_grep fetch_ask "skills/jira-fetch/SKILL.md" "Trajectory fail"
 assert_grep cpr_ask "skills/create-pr/SKILL.md" "Trajectory fail"
-assert_grep capture_fail "commands/capture-escape.md" "FAIL "
+assert_grep capture_fail "commands/csp-capture-escape.md" "FAIL "
 assert_grep readme_gen "evals/trajectories/README.md" "generalize"
 ````
 
@@ -808,14 +808,14 @@ Ask only after `python3 scripts/trajectory-cases.py score` printed `FAIL` at a w
 | id | label |
 |----|-------|
 | `generalize` | This fail should become (or bump) a golden-set case |
-| `skip` | Do not add a case; optional `/capture-escape` with the FAIL lines |
+| `skip` | Do not add a case; optional `/csp-capture-escape` with the FAIL lines |
 
 Never auto-write `evals/trajectories/cases/`. `generalize` in a consumer app cannot edit the kit — paste the FAIL log for a later kit change. Default if the human abandons the picker: `skip`.
 ````
 
-In `commands/capture-escape.md` Arguments, add: optional path to a score `FAIL` log or pasted `FAIL <id>:` lines. If provided, use that as the miss description (`source: production-escape` unchanged).
+In `commands/csp-capture-escape.md` Arguments, add: optional path to a score `FAIL` log or pasted `FAIL <id>:` lines. If provided, use that as the miss description (`source: production-escape` unchanged).
 
-In both wired skills, after **If score prints `FAIL`, stop.** add: ask `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/capture-escape`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only inside a kit checkout.
+In both wired skills, after **If score prints `FAIL`, stop.** add: ask `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/csp-capture-escape`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only inside a kit checkout.
 
 Append to `evals/trajectories/README.md`:
 
@@ -840,7 +840,7 @@ Expected: `ALL PASS`.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/hitl-choice/SKILL.md commands/capture-escape.md \
+git add skills/hitl-choice/SKILL.md commands/csp-capture-escape.md \
   skills/jira-fetch/SKILL.md skills/create-pr/SKILL.md \
   evals/trajectories/README.md scripts/tests/trajectory-wiring-test.sh
 git commit -m "$(cat <<'EOF'
@@ -859,8 +859,8 @@ EOF
 - Language-model judge for `invent-business-facts` / `archaeology-in-decision-docs` (start only after Tasks 1–2 have been used on a real dogfood run; separate instance from `software-developer`; writes `actions_taken` then re-runs `score`; never replaces hard sensors)
 - Overnight unsupervised agents (level 7)
 - Agent teams without an orchestrator (level 8)
-- Replacing `engineer-reviewer` with the scorer
-- Live `/start-task` inside kit continuous integration
+- Replacing `csp-engineer-reviewer` with the scorer
+- Live `/csp-start-task` inside kit continuous integration
 - Wiring the other 13 cases (wait until the two stops are boring)
 
 ---
@@ -871,8 +871,8 @@ The kit is at level 6 when **all** of these are true:
 
 1. A fetch failure can be scored without a human re-reading the dogfood checklist.
 2. A draft pull request cannot be marked ready before finale **and** the scorer would fail that run even if the skill text drifted (`open-ready-before-finale`).
-3. A score fail does not vanish in chat — `skip` can feed `/capture-escape`, `generalize` can add a case after the human says it generalizes.
-4. `engineer-reviewer` still reviews the diff; the scorer still never reads the product source.
+3. A score fail does not vanish in chat — `skip` can feed `/csp-capture-escape`, `generalize` can add a case after the human says it generalizes.
+4. `csp-engineer-reviewer` still reviews the diff; the scorer still never reads the product source.
 
 Until Tasks 1–2, we have a corpus and a unit-tested scorer (necessary, not sufficient). Until Task 3, compounding is still review-miss-only, not trajectory-fail.
 
@@ -889,4 +889,4 @@ bash scripts/tests/trajectory-record-test.sh
 bash scripts/tests/trajectory-wiring-test.sh
 ```
 
-Manual after Task 2: one `/start-task` with a missing Atlassian connection — confirm paste-stop still happens, score runs when the kit path exists, and Pipeline route is not asked.
+Manual after Task 2: one `/csp-start-task` with a missing Atlassian connection — confirm paste-stop still happens, score runs when the kit path exists, and Pipeline route is not asked.

@@ -102,7 +102,7 @@ Ask only after the human chose `agent` on Tech-spec entry. Do not ask in `human`
 | `no_figma` | No Figma |
 | `have_urls` | I will paste Figma node URLs |
 
-On `no_figma`, treat as typed `no figma`. On `have_urls`, wait for pasted URLs before `review-figma-markup`.
+On `no_figma`, treat as typed `no figma`. On `have_urls`, wait for pasted URLs before `csp-review-figma-markup`.
 
 ### Docs update destination
 
@@ -124,7 +124,7 @@ Build options dynamically:
 | `revise` | Revise the plan |
 | `accept F<id>` | Accept finding F\<id\> (one option per open finding) |
 
-Prefer `allowMultiple: true` when the tool supports it so several `accept F<id>` ids can be chosen in one step. Text fallback remains: `accept F<id>` and/or revise + `/critique-plan` / re-run `approve-plan` / re-run issue critic.
+Prefer `allowMultiple: true` when the tool supports it so several `accept F<id>` ids can be chosen in one step. Text fallback remains: `accept F<id>` and/or revise + `/csp-critique-plan` / re-run `approve-plan` / re-run issue critic.
 
 ### Engineer-review clarify (dynamic, sequential)
 
@@ -200,14 +200,14 @@ Keep the tokens only if an older prompt still surfaces them:
 | id | label |
 |----|-------|
 | `consumer_only` | Keep learning in this project's `.cursor/review-learnings.md` only |
-| `promote` | Do not edit kit git here — tell the human to run `/teach-review` instead |
+| `promote` | Do not edit kit git here — tell the human to run `/csp-teach-review` instead |
 | `skip` | Do not write this learning |
 
 Never auto-edit kit checklists from a leaf app.
 
 ### Teach-review miss
 
-Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (pipeline and manual `/engineer-review` / `/pr-review`). Do not ask on `/teach-review` (the command is already `miss`). Recommended: `miss`.
+Ask **after** a validated `csp-engineer-reviewer` or `csp-pr-reviewer` report is shown (pipeline and manual `/csp-engineer-review` / `/csp-pr-review`). Do not ask on `/csp-teach-review` (the command is already `miss`). Recommended: `miss`.
 
 | id | label |
 |----|-------|
@@ -215,36 +215,36 @@ Ask **after** a validated `engineer-reviewer` or `pr-reviewer` report is shown (
 | `project_secret` | Keep in this project only (internal names that must not enter the kit) |
 | `no_miss` | Nothing to record |
 
-`no_miss` → do not invoke `teach-review`; do not run `review-learn` `mode:capture`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. `project_secret` → if this message has no description, wait for free text, then dispatch `review-learn` `mode:capture` (never **Review-learn promote**, never kit git). Failure of `teach-review` must not retract the report. Do not write both stores on the same miss.
+`no_miss` → do not invoke `teach-review`; do not run `csp-review-learn` `mode:capture`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. `project_secret` → if this message has no description, wait for free text, then dispatch `csp-review-learn` `mode:capture` (never **Review-learn promote**, never kit git). Failure of `teach-review` must not retract the report. Do not write both stores on the same miss.
 
 ### Capture-escape destination
 
-Ask from `/capture-escape` after a non-empty miss description. The command is already a miss, so do not offer `no_miss`. Recommended: `miss`.
+Ask from `/csp-capture-escape` after a non-empty miss description. The command is already a miss, so do not offer `no_miss`. Recommended: `miss`.
 
 | id | label |
 |----|-------|
 | `miss` | Teach the shared kit (strip client names) |
 | `project_secret` | Keep in this project only (internal names that must not enter the kit) |
 
-`miss` → skill `teach-review`. `project_secret` → `review-learn` `mode:capture` `source: production-escape`. Never both. Never **Review-learn promote** on `project_secret`.
+`miss` → skill `teach-review`. `project_secret` → `csp-review-learn` `mode:capture` `source: production-escape`. Never both. Never **Review-learn promote** on `project_secret`.
 
 ### Pipeline route
 
-Ask only from `/start-task` when a Jira issue was fetched and `jira_class` is `unknown` (and the human did **not** pass `--fast`). Never invent `--fast`.
+Ask only from `/csp-start-task` when a Jira issue was fetched and `jira_class` is `unknown` (and the human did **not** pass `--fast`). Never invent `--fast`.
 
 | id | label |
 |----|-------|
 | `full` | Full pipeline (tech-spec → design → implement) |
 | `fast` | Fast pipeline (`--fast`: skip spec) |
-| `issue` | Issue pipeline (`/start-issue-task` / bug-fixer) |
+| `issue` | Issue pipeline (`/csp-start-issue-task` / bug-fixer) |
 
 ### Fast vs issue
 
-Ask only from `/start-task --fast` when `jira_class` is `bug`. The agent never auto-selects `--fast`; this gate only chooses whether to **leave** fast.
+Ask only from `/csp-start-task --fast` when `jira_class` is `bug`. The agent never auto-selects `--fast`; this gate only chooses whether to **leave** fast.
 
 | id | label |
 |----|-------|
-| `issue` | Switch to `/start-issue-task` (root-cause bug path) |
+| `issue` | Switch to `/csp-start-issue-task` (root-cause bug path) |
 | `stay_fast` | Stay on `--fast` |
 
 ### Propose commit
@@ -278,7 +278,7 @@ Ask only after `python3 scripts/trajectory-cases.py score` printed `FAIL` at a w
 | id | label |
 |----|-------|
 | `generalize` | This fail should become (or bump) a golden-set case |
-| `skip` | Do not add a case; optional `/capture-escape` with the FAIL lines |
+| `skip` | Do not add a case; optional `/csp-capture-escape` with the FAIL lines |
 
 Never auto-write `evals/trajectories/cases/`. `generalize` in a consumer app cannot edit the kit — paste the FAIL log for a later kit change. Default if the human abandons the picker: `skip`.
 

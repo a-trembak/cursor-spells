@@ -1,13 +1,13 @@
 {
   "case_id": "tech-spec-no-invented-facts",
   "input": {
-    "invocation": "/write-tech-spec",
+    "invocation": "/csp-write-tech-spec",
     "fetch": "skip",
     "acceptance_criteria": "AC-1: As a customer, I can download a file containing my past orders."
   },
-  "stages_entered": ["tech-spec"],
+  "stages_entered": ["csp-tech-spec"],
   "artifacts_present": [
-    {"kind": "file", "name": "tech-spec", "path": "docs/superpowers/specs/2099-01-01-order-export-tech-spec.md"}
+    {"kind": "file", "name": "csp-tech-spec", "path": "docs/superpowers/specs/2099-01-01-order-export-tech-spec.md"}
   ],
   "actions_taken": [],
   "human_gates_asked": [

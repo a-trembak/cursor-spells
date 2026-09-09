@@ -120,7 +120,7 @@ source: engineer-review
 
 Mechanism: markup review matches the desktop Figma frame; tablet and phone widths (and existing hide-column / stack / row-expander patterns) are never opened, so overlay chrome and nested tables break only on narrower viewports.
 
-Required check: [responsive-layout-checklist.md](responsive-layout-checklist.md) V1–V4. Figma skip does not waive the gate — `review-patterns` still runs it.
+Required check: [responsive-layout-checklist.md](responsive-layout-checklist.md) V1–V4. Figma skip does not waive the gate — `csp-review-patterns` still runs it.
 
 ---
 

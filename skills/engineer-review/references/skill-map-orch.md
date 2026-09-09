@@ -1,6 +1,6 @@
 # Skill map — orchestrator excerpt
 
-Stack detection (+ lint command table) for **`engineer-reviewer`**. Full map (Database skill routing, phase→skills, installer bash fence, Tier-2 protocol): [`skill-map.md`](skill-map.md). Phases and `csp install` load the full map; orchestrator does **not** paste Database/checklist bodies from the full map into its own context.
+Stack detection (+ lint command table) for **`csp-engineer-reviewer`**. Full map (Database skill routing, phase→skills, installer bash fence, Tier-2 protocol): [`skill-map.md`](skill-map.md). Phases and `csp install` load the full map; orchestrator does **not** paste Database/checklist bodies from the full map into its own context.
 
 Recommended installs and Database skill ids stay in [`skill-map.md`](skill-map.md) (source of truth for `scripts/mapped-third-party-skills.sh`).
 
@@ -16,7 +16,7 @@ Recommended installs and Database skill ids stay in [`skill-map.md`](skill-map.m
 
 Pass the stack label into phase inputs. Phases load matching skills (and Database rows when the diff includes a migration) from the [full skill-map](skill-map.md#database-skill-routing).
 
-## Stack detection → lint/typecheck commands (for `review-lint`)
+## Stack detection → lint/typecheck commands (for `csp-review-lint`)
 
 Prefer the project's own `package.json` script over calling the binary directly.
 

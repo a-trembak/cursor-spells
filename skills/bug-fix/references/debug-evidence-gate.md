@@ -1,6 +1,6 @@
 # Debug evidence gate (no assumption fixes)
 
-Mandatory gate for `bug-fix` / `bug-fixer` **before any production code change**.
+Mandatory gate for `bug-fix` / `csp-bug-fixer` **before any production code change**.
 
 A hypothesis is **not** a root cause. A plausible story is **not** verification.
 

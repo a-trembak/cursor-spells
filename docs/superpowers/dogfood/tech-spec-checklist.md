@@ -4,7 +4,7 @@ Manual checklist to verify the tech-spec agent behaves. Do not require CI to exe
 
 ## Setup
 
-Give the agent (via `/write-tech-spec`, `agent` mode) this deliberately underspecified AC:
+Give the agent (via `/csp-write-tech-spec`, `agent` mode) this deliberately underspecified AC:
 
 > AC-1: As a customer, I can download a file containing my past orders.
 

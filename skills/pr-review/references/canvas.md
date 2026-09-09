@@ -1,6 +1,6 @@
 # PR Review Canvas (plugin)
 
-Optional comprehension layer for `/pr-review`. **Do not vendor** the skill body into this kit.
+Optional comprehension layer for `/csp-pr-review`. **Do not vendor** the skill body into this kit.
 
 ## Source
 
@@ -26,6 +26,6 @@ If `pr-review-canvas` (or Canvas) is unavailable: continue the PR review spine u
 
 ## Out of scope
 
-- `/engineer-review` / `/finish-plan` without a GitHub PR — no canvas step.
-- `/multi-review` — per-repo PR canvas is not defined here; skip unless a single PR URL was the entry.
+- `/csp-engineer-review` / `/csp-finish-plan` without a GitHub PR — no canvas step.
+- `/csp-multi-review` — per-repo PR canvas is not defined here; skip unless a single PR URL was the entry.
 - Auto-posting canvas content as a GitHub PR comment.

@@ -88,13 +88,13 @@ ps__layer_for_stage() {
     jira-fetch|jira-transition-in-progress|jira-transition|pipeline-route-hitl|fetch)
       printf '%s' "fetch"
       ;;
-    bootstrap|tech-spec|writing-plans|approve-plan|implementation-critic|plan-gate|critique-gate|clean-decision-docs|issue-fix-plan)
+    bootstrap|csp-tech-spec|writing-plans|approve-plan|csp-implementation-critic|plan-gate|critique-gate|clean-decision-docs|issue-fix-plan)
       printf '%s' "plan"
       ;;
-    start-build|software-developer|bug-fixer|executing-plans)
+    start-build|csp-software-developer|csp-bug-fixer|executing-plans)
       printf '%s' "build"
       ;;
-    review-gate|engineer-review|engineer-reviewer|multi-repo-supervisor)
+    review-gate|engineer-review|csp-engineer-reviewer|csp-multi-repo-supervisor)
       printf '%s' "review"
       ;;
     update-docs|create-pr|docs-gate|pipeline-finale-hitl)
@@ -118,21 +118,21 @@ ps__legal_returns_json() {
   local stage="$1"
   case "$stage" in
     review-gate)
-      printf '%s' '[{"from":"review-gate","to":"Build/software-developer","how":"Answer fixes at the gate"}]'
+      printf '%s' '[{"from":"review-gate","to":"Build/csp-software-developer","how":"Answer fixes at the gate"}]'
       ;;
-    critique-gate|implementation-critic)
+    critique-gate|csp-implementation-critic)
       printf '%s' '[{"from":"critique","to":"Plan/rewrite or same critic ask","how":"Answer revise or accept F<id>"}]'
       ;;
     plan-gate|approve-plan)
       printf '%s' '[{"from":"approve-plan","to":"Plan","how":"Answer revise"}]'
       ;;
     tech-spec)
-      printf '%s' '[{"from":"tech-spec","to":"Plan","how":"Answer revise"}]'
+      printf '%s' '[{"from":"csp-tech-spec","to":"Plan","how":"Answer revise"}]'
       ;;
     docs-gate|update-docs)
       printf '%s' '[{"from":"docs","to":"Docs","how":"Provide path/URL"}]'
       ;;
-    engineer-review|engineer-reviewer)
+    engineer-review|csp-engineer-reviewer)
       printf '%s' '[{"from":"engineer-review","to":"Review","how":"Answer clarify tokens"}]'
       ;;
     *)
@@ -291,9 +291,9 @@ next_map = {
   "docs-gate": "create-pr",
   "critique-gate": "start-build → software-developer",
   "plan-gate": "implementation-critic → start-build",
-  "software-developer": "review-gate → engineer-review",
+  "csp-software-developer": "review-gate → engineer-review",
   "start-build": "software-developer → review-gate",
-  "tech-spec": "writing-plans → approve-plan",
+  "csp-tech-spec": "writing-plans → approve-plan",
   "writing-plans": "approve-plan → implementation-critic",
   "idle": "(none)",
 }

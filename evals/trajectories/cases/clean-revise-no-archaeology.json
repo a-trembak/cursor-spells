@@ -11,10 +11,10 @@
   },
   "required_stages": [
     "clean-decision-docs",
-    "tech-spec"
+    "csp-tech-spec"
   ],
   "required_artifacts": [
-    {"kind": "file", "name": "tech-spec", "pattern": "docs/superpowers/specs/*-tech-spec.md"}
+    {"kind": "file", "name": "csp-tech-spec", "pattern": "docs/superpowers/specs/*-tech-spec.md"}
   ],
   "forbidden": [
     "archaeology-in-decision-docs",

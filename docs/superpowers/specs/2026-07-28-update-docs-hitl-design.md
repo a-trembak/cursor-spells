@@ -6,7 +6,7 @@ After engineer-review the pipeline ended at "reviewed PR" with no structured pla
 
 ## Decision
 
-Add skill **`update-docs`** (+ `/update-docs`) as stage 8 of `/start-task`, immediately after review:
+Add skill **`update-docs`** (+ `/csp-update-docs`) as stage 8 of `/csp-start-task`, immediately after review:
 
 1. Marker `.cursor/docs-gate.pending`
 2. HITL via `hitl-choice` preset **Docs update destination**: `skip` | `docs_md` | `docs_repo` | `confluence`

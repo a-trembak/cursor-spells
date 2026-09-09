@@ -24,17 +24,17 @@ STAGES = frozenset(
         "pipeline-route-hitl",
         "fast-vs-issue-hitl",
         "bootstrap",
-        "tech-spec",
+        "csp-tech-spec",
         "writing-plans",
         "approve-plan",
-        "implementation-critic",
+        "csp-implementation-critic",
         "issue-fix-plan",
         "start-build",
-        "software-developer",
-        "bug-fixer",
+        "csp-software-developer",
+        "csp-bug-fixer",
         "review-gate",
         "engineer-review",
-        "multi-repo-supervisor",
+        "csp-multi-repo-supervisor",
         "update-docs",
         "create-pr",
         "pipeline-finale-hitl",
@@ -122,42 +122,42 @@ END_KEYS = frozenset({"jira_status", "pull_request", "review_report", "notes"})
 
 FULL_REQUIRED = (
     "bootstrap",
-    "tech-spec",
+    "csp-tech-spec",
     "writing-plans",
     "approve-plan",
-    "implementation-critic",
+    "csp-implementation-critic",
     "start-build",
-    "software-developer",
+    "csp-software-developer",
     "review-gate",
     "engineer-review",
     "update-docs",
     "create-pr",
 )
-FAST_REQUIRED = ("bootstrap", "software-developer", "engineer-review", "create-pr")
+FAST_REQUIRED = ("bootstrap", "csp-software-developer", "engineer-review", "create-pr")
 FAST_FORBIDDEN_STAGES = frozenset(
     {
-        "tech-spec",
+        "csp-tech-spec",
         "writing-plans",
         "approve-plan",
-        "implementation-critic",
+        "csp-implementation-critic",
         "start-build",
         "review-gate",
         "update-docs",
-        "bug-fixer",
+        "csp-bug-fixer",
         "issue-fix-plan",
     }
 )
 ISSUE_REQUIRED = (
     "bootstrap",
     "issue-fix-plan",
-    "implementation-critic",
-    "bug-fixer",
+    "csp-implementation-critic",
+    "csp-bug-fixer",
     "engineer-review",
     "create-pr",
 )
 ISSUE_FORBIDDEN_STAGES = frozenset(
     {
-        "tech-spec",
+        "csp-tech-spec",
         "writing-plans",
         "approve-plan",
         "review-gate",

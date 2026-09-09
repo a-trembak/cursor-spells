@@ -39,15 +39,15 @@ assert_no_grep() {
 
 assert_file "skills/finish-plan/references/review-surface.md"
 assert_file "skills/finish-plan/SKILL.md"
-assert_file "commands/finish-plan.md"
+assert_file "commands/csp-finish-plan.md"
 assert_file "skills/create-pr/SKILL.md"
 assert_file "skills/software-developer/references/branch-setup.md"
 
 assert_grep finish_skill_ref "skills/finish-plan/SKILL.md" "review-surface.md"
 assert_grep finish_skill_before_hitl "skills/finish-plan/SKILL.md" "Apply review-surface"
-assert_grep finish_cmd_ref "commands/finish-plan.md" "review-surface.md"
+assert_grep finish_cmd_ref "commands/csp-finish-plan.md" "review-surface.md"
 assert_grep finish_reask "skills/finish-plan/SKILL.md" "re-run review-surface"
-assert_grep finish_then_engineer "skills/finish-plan/SKILL.md" "engineer-reviewer"
+assert_grep finish_then_engineer "skills/finish-plan/SKILL.md" "csp-engineer-reviewer"
 assert_no_grep finish_no_surface_create "skills/finish-plan/SKILL.md" "mode:surface"
 
 assert_grep surface_set_active "skills/finish-plan/references/review-surface.md" "SetActiveBranch"
@@ -73,7 +73,7 @@ assert_no_grep branch_no_draft_pr "skills/software-developer/references/branch-s
 
 assert_grep rule_surface "rules/after-plan-review-gate.mdc" "review-surface|SetActiveBranch"
 assert_grep hook_surface "hooks/post-plan-review-gate.sh" "review-surface|SetActiveBranch"
-assert_grep start_task_surface "commands/start-task.md" "review-surface|SetActiveBranch"
+assert_grep start_task_surface "commands/csp-start-task.md" "review-surface|SetActiveBranch"
 assert_grep readme_surface "README.md" "review-surface|SetActiveBranch"
 assert_grep flow_md_surface "docs/superpowers/pipeline-flow.md" "SetActiveBranch|review-surface"
 assert_grep flow_html_surface "docs/superpowers/pipeline-flow.html" "SetActiveBranch|review-surface"

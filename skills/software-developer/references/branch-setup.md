@@ -1,6 +1,6 @@
 # Implementation branch setup
 
-First action of `software-developer` after entry conditions pass — **before** skill-heavy coding and **before** Task 1. No implementation commits land on `main` / `master` / the repo default branch.
+First action of `csp-software-developer` after entry conditions pass — **before** skill-heavy coding and **before** Task 1. No implementation commits land on `main` / `master` / the repo default branch.
 
 ## 1. Resolve target repos
 

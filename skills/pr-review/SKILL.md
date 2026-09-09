@@ -7,20 +7,20 @@ description: >-
   engineer-reviewer. Feedback must include Context, code snippets, clickable
   file:line links, english-humanizer prose, and structured clarify Options
   with a marked Recommendation. Default report-only; optional apply for the
-  author's own checkout. Use for /pr-review or "review this PR".
+  author's own checkout. Use for /csp-pr-review or "review this PR".
 ---
 
 # PR Review
 
-Thin wrapper around `engineer-review` / `engineer-reviewer` for **pull-request** entry. Same phase agents and skill-map — different input resolution, default fix policy, **stricter user-facing feedback** ([references/feedback-format.md](references/feedback-format.md)), and a **diff-orientation canvas** via Cursor plugin skill `pr-review-canvas` ([references/canvas.md](references/canvas.md)).
+Thin wrapper around `engineer-review` / `csp-engineer-reviewer` for **pull-request** entry. Same phase agents and skill-map — different input resolution, default fix policy, **stricter user-facing feedback** ([references/feedback-format.md](references/feedback-format.md)), and a **diff-orientation canvas** via Cursor plugin skill `pr-review-canvas` ([references/canvas.md](references/canvas.md)).
 
 ## When to Use
 
-- `/pr-review [url|number|branch]` or the user asks to review a PR
+- `/csp-pr-review [url|number|branch]` or the user asks to review a PR
 - Reviewing someone else's open PR (report-only)
 - Reviewing your own PR before merge (`apply` optional)
-- Not a substitute for post-plan `/finish-plan` → engineer-review (that path stays unchanged)
-- Not for plan critique (`/approve-plan` / `/critique-plan`)
+- Not a substitute for post-plan `/csp-finish-plan` → engineer-review (that path stays unchanged)
+- Not for plan critique (`/csp-approve-plan` / `/csp-critique-plan`)
 
 ## Arguments
 
@@ -55,7 +55,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
    - Skip the post-plan HITL gate (user already asked for PR review).
    - Default `mode`: **find only** (report-only). Run apply only if the user passed `apply` (or explicitly asked to fix in-repo).
 4. Early Figma ask on frontend unless `no-figma`.
-5. Dispatch the same phase agents as `engineer-reviewer` (`review-lint` … `review-figma-markup`), including `learned_hints` from kit `learned-misses.md` + consumer `.cursor/review-learnings.md` when present. Phase JSON **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` on every finding; clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`.
+5. Dispatch the same phase agents as `csp-engineer-reviewer` (`csp-review-lint` … `csp-review-figma-markup`), including `learned_hints` from kit `learned-misses.md` + consumer `.cursor/review-learnings.md` when present. Phase JSON **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` on every finding; clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`.
 6. **Assemble feedback** per [references/feedback-format.md](references/feedback-format.md), shared [evidence-gate.md](../engineer-review/references/evidence-gate.md), and [forbidden-formats.md](../engineer-review/references/forbidden-formats.md):
    - Require `path` + lines + `snippet` + `context`; backfill with `extract-review-snippet.sh` + `HEAD_SHA` or **drop** the item.
    - **Context** + full Where block including **required** GitHub `blob/<HEAD_SHA>/…#L…` when PR resolve succeeded; numbered code fence.
@@ -66,9 +66,9 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 8. Write the draft report to a temp file; run `scripts/validate-review-report.sh`. Rebuild until exit 0, then emit. Point at the canvas (if built). Append an optional **PR comment draft** appendix only after Findings. Do not auto-post to GitHub unless the user asks; then use `gh pr comment` only when they confirm.
 9. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK). Each sequential question repeats that item’s File, Lines, Jump, and numbered fence. On answers, re-dispatch affected phases and re-emit with the same evidence bar.
 10. **Teach-review miss:** after the report is settled, ask `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. Never edit kit git here. Do not auto-capture.
-    - `no_miss` → stop (no `teach-review`, no `review-learn` capture).
+    - `no_miss` → stop (no `teach-review`, no `csp-review-learn` capture).
     - `miss` → description then skill `teach-review`. If `teach-review` fails, keep the report.
-    - `project_secret` → description then `review-learn` `mode:capture` with destination `project_secret`. Do not ask **Review-learn promote**. Never edit kit files.
+    - `project_secret` → description then `csp-review-learn` `mode:capture` with destination `project_secret`. Do not ask **Review-learn promote**. Never edit kit files.
     Do not write both stores on the same miss.
 
 ## Fix policy
@@ -79,7 +79,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 
 ## Multi-repo
 
-Single-repo PRs use this path. If the workspace is multi-repo and the PR touches contracts across siblings, after the PR review note that `/multi-review` / `multi-repo-supervisor` may still be needed for cross-repo drift — do not invent a second PR's diff.
+Single-repo PRs use this path. If the workspace is multi-repo and the PR touches contracts across siblings, after the PR review note that `/csp-multi-review` / `csp-multi-repo-supervisor` may still be needed for cross-repo drift — do not invent a second PR's diff.
 
 ## Context budget
 

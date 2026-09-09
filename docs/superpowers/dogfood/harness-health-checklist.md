@@ -18,7 +18,7 @@ Manual checks for kit harness inventory and the full regression bench.
 
    Expect: skill/command/agent/rule counts, a wiring line per **active** trajectory case (`wired` / `unwired` / `retired`), context proxies, context-budget flags, and either a last bench summary or “none”.
 
-2. **Optional slash command:** run `/harness-status` in chat. Expect orientation only — no new files under `.cursor/gates/`.
+2. **Optional slash command:** run `/csp-harness-status` in chat. Expect orientation only — no new files under `.cursor/gates/`.
 
 3. **Full bench** (before merging skill or agent edits; may take a few minutes):
 
@@ -47,6 +47,6 @@ Manual checks for kit harness inventory and the full regression bench.
 
 - [ ] Inventory JSON includes `wiring`, `context_proxies`, `context_budget`
 - [ ] Active cases are classified from `skills/trajectory-score/SKILL.md`
-- [ ] `/harness-status` does not write gates
+- [ ] `/csp-harness-status` does not write gates
 - [ ] Full bench exits 0 and writes a report under `evals/harness/reports/`
 - [ ] Live report `*.json` stays gitignored (`.gitkeep` remains)

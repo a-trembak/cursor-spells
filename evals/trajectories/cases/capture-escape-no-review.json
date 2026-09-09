@@ -1,12 +1,12 @@
 {
   "id": "capture-escape-no-review",
   "title": "capture-escape records a production miss without running engineer-reviewer",
-  "source": "commands/capture-escape.md",
+  "source": "commands/csp-capture-escape.md",
   "pipeline": "slice",
   "end_to_end": false,
   "status": "active",
   "input": {
-    "invocation": "/capture-escape",
+    "invocation": "/csp-capture-escape",
     "fetch": "skip",
     "acceptance_criteria": "Agent skipped review-gate and opened a ready pull request."
   },

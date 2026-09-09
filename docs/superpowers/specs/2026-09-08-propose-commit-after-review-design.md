@@ -16,7 +16,7 @@ Only then may `git commit` run. Push and draft pull request stay in `create-pr`.
 
 ## Problem
 
-Today, `software-developer` / `bug-fixer` leave work on a feature branch, and `create-pr` may **silently commit** remaining changes at the end of the pipeline. The human and engineer-reviewer never explicitly approve a commit proposal. Intermediate commits during implementation also bypass that gate.
+Today, `software-developer` / `csp-bug-fixer` leave work on a feature branch, and `create-pr` may **silently commit** remaining changes at the end of the pipeline. The human and engineer-reviewer never explicitly approve a commit proposal. Intermediate commits during implementation also bypass that gate.
 
 ## Decisions
 
@@ -24,7 +24,7 @@ Today, `software-developer` / `bug-fixer` leave work on a feature branch, and `c
 |----------|--------|
 | Commit gate timing | **After** engineer-review report is settled; **before** `update-docs` / `create-pr` as wired below |
 | Commits during implement | **`no_commits_until_gate`** — zero `git commit` until the gate |
-| Pipelines in scope | **All**: full `/start-task`, `--fast`, and `/start-issue-task` / `bug-fixer` |
+| Pipelines in scope | **All**: full `/csp-start-task`, `--fast`, and `/csp-start-issue-task` / `csp-bug-fixer` |
 | Approval shape | **`human_only_after_both`** — commit only when a review report exists for this run **and** the human answers the agent proposal; no separate reviewer token |
 | Approach | New skill **`propose-commit`** + gate marker; hard forbid commits in implementers; `create-pr` must not quietly commit ungated product changes |
 | Docs on full path | First `propose-commit` (code + review auto-fixes) → `update-docs` → if docs left uncommitted files, a **second light** `propose-commit` for those files only → `create-pr` |
@@ -46,7 +46,7 @@ Today, `software-developer` / `bug-fixer` leave work on a feature branch, and `c
 
 ### Fast and issue
 
-1. Implement via `software-developer` `mode:fast` or `bug-fixer` (no commits).
+1. Implement via `software-developer` `mode:fast` or `csp-bug-fixer` (no commits).
 2. Engineer-review (no `finish-plan` HITL — unchanged).
 3. **`propose-commit`**.
 4. `create-pr` as today (after docs only if that route already inserts docs).
@@ -87,7 +87,7 @@ Repeat propose + commit per changed repo in the map. One human gate may cover th
 | Actor | Rule |
 |-------|------|
 | `software-developer` | Never `git commit` during pipeline implementation / verification handoff |
-| `bug-fixer` | Never `git commit` during pipeline fix work |
+| `csp-bug-fixer` | Never `git commit` during pipeline fix work |
 | Nested implementers / task agents under those skills | Same forbid |
 | Engineer-review phase auto-fix | Allowed; leave changes uncommitted for `propose-commit` |
 | `create-pr` | Must not silently commit ungated product changes. If product commits are still required and `commit-approved` is missing → stop and point at `propose-commit`. Push/draft/finale unchanged once commits exist |
@@ -100,9 +100,9 @@ Repeat propose + commit per changed repo in the map. One human gate may cover th
 | `skills/propose-commit/SKILL.md` | Gate skill spine + hard rules |
 | `skills/hitl-choice/SKILL.md` | Preset **Propose commit**: `approve-commit` / `revise` |
 | `skills/software-developer/SKILL.md` | Explicit no-commit until gate |
-| `skills/bug-fix/SKILL.md` (and/or `bug-fixer` agent) | Explicit no-commit until gate |
+| `skills/bug-fix/SKILL.md` (and/or `csp-bug-fixer` agent) | Explicit no-commit until gate |
 | `skills/create-pr/SKILL.md` | Remove quiet product commit; require gate / already-committed tree |
-| `skills/engineer-review/SKILL.md` + `update-docs` / `commands/start-task.md` / `start-issue-task.md` | Wire `propose-commit` after settled review (and docs residual on full) |
+| `skills/engineer-review/SKILL.md` + `update-docs` / `commands/csp-start-task.md` / `start-issue-task.md` | Wire `propose-commit` after settled review (and docs residual on full) |
 | `scripts/tests/propose-commit-test.sh` (or equivalent) | Contract: skill exists, tokens, no-commit phrases, create-pr does not quiet-commit without gate |
 | Gate dir | `.cursor/gates/commit-approved/<slug>` |
 

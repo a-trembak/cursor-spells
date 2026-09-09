@@ -4,7 +4,7 @@
 
 **Goal:** Add a `code-comments` skill with an explicit keep/remove taxonomy, and replace `engineer-review`'s feel-based "P0/P1 = auto-apply" rule with a hard 4-condition auto-fix eligibility test, applied uniformly across every review phase plus a new spec/diff traceability check.
 
-**Architecture:** Two new shared reference artifacts (`skills/code-comments/SKILL.md`, `skills/engineer-review/references/auto-fix-eligibility.md`) become the single source of truth that existing `engineer-review` files (`review-deadcode`, `review-patterns`, `phase-protocol.md`, the top-level `engineer-review` `SKILL.md`, and the `project-patterns.md` template) reference instead of duplicating inline policy. This is a reinforcement of the existing orchestrator, not a rewrite — no new phases, no new agents.
+**Architecture:** Two new shared reference artifacts (`skills/code-comments/SKILL.md`, `skills/engineer-review/references/auto-fix-eligibility.md`) become the single source of truth that existing `engineer-review` files (`csp-review-deadcode`, `csp-review-patterns`, `phase-protocol.md`, the top-level `engineer-review` `SKILL.md`, and the `project-patterns.md` template) reference instead of duplicating inline policy. This is a reinforcement of the existing orchestrator, not a rewrite — no new phases, no new agents.
 
 **Tech Stack:** Markdown-based Cursor skill/agent/command definitions (this is a prompt-engineering kit, not compiled software) — same format as the `implementation-critic` and `tech-spec` sub-projects already shipped on this branch.
 
@@ -14,7 +14,7 @@
 - The comments keep/remove taxonomy's exact wording must be identical everywhere — one canonical copy in `skills/code-comments/SKILL.md`, `project-patterns.md`'s template inherits it by reference instead of duplicating an inline mini-policy.
 - Severity (`P0`/`P1`/`P2`) still classifies importance; it is necessary but never sufficient for auto-apply — every file that currently implies "P0/P1 = auto-apply" must be corrected to say auto-apply also requires passing the eligibility test.
 - Traceability mismatches (diff vs. tech spec) are always `clarify`, never auto-applied, by construction (they fail the eligibility test's "single correct answer" condition).
-- No new phases or agents — this reinforces `review-deadcode`, `review-patterns`, and the shared reference docs that all phases already read.
+- No new phases or agents — this reinforces `csp-review-deadcode`, `csp-review-patterns`, and the shared reference docs that all phases already read.
 - Frequent, small commits — one per task.
 - Before creating any file with a fenced code example, check whether it needs more than one level of code-fence nesting; if so, use a 4-space-indented presentation block instead of stacking same-length triple-backtick fences (see `docs/superpowers/plans/2026-07-24-implementation-critic.md` Task 6 for the precedent and why).
 - All `grep`-based verification-count expectations in this plan were computed by writing each task's exact draft content to a scratch file and running the real `grep -c` command against it before finalizing the expected numbers (the practice that produced zero miscounted expectations in the `tech-spec-agent` sub-project, vs. 4 miscounts in the first, `implementation-critic`, sub-project).
@@ -23,11 +23,11 @@
 
 ## File Structure
 
-- `skills/code-comments/SKILL.md` (new) — the canonical Keep/Remove comment taxonomy, shared by developer agents and `review-deadcode`
+- `skills/code-comments/SKILL.md` (new) — the canonical Keep/Remove comment taxonomy, shared by developer agents and `csp-review-deadcode`
 - `skills/engineer-review/references/auto-fix-eligibility.md` (new) — the canonical 4-condition auto-fix test + worked examples table
-- `agents/review-deadcode.md` (modified) — adopts the code-comments taxonomy by reference; apply decisions now gated by the eligibility test, not severity alone
+- `agents/csp-review-deadcode.md` (modified) — adopts the code-comments taxonomy by reference; apply decisions now gated by the eligibility test, not severity alone
 - `skills/engineer-review/references/phase-protocol.md` (modified) — Severity section reworded to require passing the eligibility test for auto-apply; new Traceability check subsection; `Apply rules` updated to match
-- `agents/review-patterns.md` (modified) — adds the traceability check (tech spec / AC trace vs. diff mismatch → always `clarify`)
+- `agents/csp-review-patterns.md` (modified) — adds the traceability check (tech spec / AC trace vs. diff mismatch → always `clarify`)
 - `skills/engineer-review/references/patterns-template.md` (modified) — `Comments policy` section now points at `skills/code-comments/SKILL.md` instead of a duplicated inline mini-policy
 - `skills/engineer-review/SKILL.md` (modified) — `Fix policy` section updated to reference the eligibility test, so the top-level skill doesn't contradict `phase-protocol.md`'s more precise rule
 - `README.md` — add a `code-comments` Skills-table row + one sentence describing the new eligibility test
@@ -86,7 +86,7 @@ Rename or simplify the code before reaching for a comment to compensate for an u
 ## Who uses this
 
 - **Developer agents**: apply this taxonomy while writing new code — don't introduce what "Remove" lists in the first place.
-- **`review-deadcode`** (engineer-review phase): apply this taxonomy to classify comment findings in a diff; see `skills/engineer-review/references/auto-fix-eligibility.md` for which of these are safe to auto-apply vs. must go to `clarify`.
+- **`csp-review-deadcode`** (engineer-review phase): apply this taxonomy to classify comment findings in a diff; see `skills/engineer-review/references/auto-fix-eligibility.md` for which of these are safe to auto-apply vs. must go to `clarify`.
 ```
 
 - [ ] **Step 2: Verify frontmatter and structure**
@@ -166,10 +166,10 @@ git commit -m "Add auto-fix eligibility test reference"
 
 ---
 
-### Task 3: Update `review-deadcode` to use the new taxonomy and eligibility test
+### Task 3: Update `csp-review-deadcode` to use the new taxonomy and eligibility test
 
 **Files:**
-- Modify: `agents/review-deadcode.md` (full replacement)
+- Modify: `agents/csp-review-deadcode.md` (full replacement)
 
 **Interfaces:**
 - Consumes: `skills/code-comments/SKILL.md` (Task 1) and `skills/engineer-review/references/auto-fix-eligibility.md` (Task 2).
@@ -208,13 +208,13 @@ Do not delete code that may be used via reflection, DI config, dynamic imports, 
 
 - [ ] **Step 2: Verify cross-references**
 
-Run: `grep -c "^name: review-deadcode$" agents/review-deadcode.md && grep -c "skills/code-comments/SKILL.md" agents/review-deadcode.md && grep -c "auto-fix-eligibility.md" agents/review-deadcode.md`
+Run: `grep -c "^name: review-deadcode$" agents/csp-review-deadcode.md && grep -c "skills/code-comments/SKILL.md" agents/csp-review-deadcode.md && grep -c "auto-fix-eligibility.md" agents/csp-review-deadcode.md`
 Expected: `1`, `2`, `1`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/review-deadcode.md
+git add agents/csp-review-deadcode.md
 git commit -m "Wire review-deadcode to code-comments taxonomy and auto-fix eligibility test"
 ```
 
@@ -289,7 +289,7 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 
 **Apply-conflict order** when phases touch the same lines: `lint → patterns → deadcode → logic → architecture → performance → security → figma`.
 
-**Verify pass:** after the orchestrator applies unambiguous `P0`/`P1` fixes across all phases, re-run `review-lint` once more in `find` mode over the final diff. This catches lint regressions introduced by another phase's fix (e.g. a `deadcode` removal that leaves a now-unused import). Fold any new `lint` findings into the same apply/clarify pass; do not repeat the verify pass more than once per review round.
+**Verify pass:** after the orchestrator applies unambiguous `P0`/`P1` fixes across all phases, re-run `csp-review-lint` once more in `find` mode over the final diff. This catches lint regressions introduced by another phase's fix (e.g. a `deadcode` removal that leaves a now-unused import). Fold any new `lint` findings into the same apply/clarify pass; do not repeat the verify pass more than once per review round.
 
 ## Apply rules
 
@@ -358,10 +358,10 @@ git commit -m "Gate phase-protocol auto-apply on eligibility test; add traceabil
 
 ---
 
-### Task 5: Add the traceability check to `review-patterns`
+### Task 5: Add the traceability check to `csp-review-patterns`
 
 **Files:**
-- Modify: `agents/review-patterns.md` (full replacement)
+- Modify: `agents/csp-review-patterns.md` (full replacement)
 
 **Interfaces:**
 - Consumes: `tech_spec_path` input and the Traceability check concept from Task 4; `skills/engineer-review/references/auto-fix-eligibility.md` (Task 2).
@@ -403,13 +403,13 @@ If a tech spec or AC trace exists for this diff (`tech_spec_path` from the orche
 
 - [ ] **Step 2: Verify structure**
 
-Run: `grep -c "^name: review-patterns$" agents/review-patterns.md && grep -c "^## Traceability check" agents/review-patterns.md && grep -c "auto-fix-eligibility.md" agents/review-patterns.md`
+Run: `grep -c "^name: review-patterns$" agents/csp-review-patterns.md && grep -c "^## Traceability check" agents/csp-review-patterns.md && grep -c "auto-fix-eligibility.md" agents/csp-review-patterns.md`
 Expected: `1`, `1`, `1`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/review-patterns.md
+git add agents/csp-review-patterns.md
 git commit -m "Add traceability check to review-patterns"
 ```
 
@@ -564,7 +564,7 @@ to:
 
 ```markdown
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — Blocker/Decision/Assumption question protocol, English-only file |
-| [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `review-deadcode` |
+| [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `csp-review-deadcode` |
 ```
 
 - [ ] **Step 2: Add a sentence describing the eligibility test**
@@ -574,7 +574,7 @@ In `README.md`, change:
 ```markdown
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
-**Manual review:** `/engineer-review`
+**Manual review:** `/csp-engineer-review`
 ```
 
 to:
@@ -584,7 +584,7 @@ to:
 
 Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity.
 
-**Manual review:** `/engineer-review`
+**Manual review:** `/csp-engineer-review`
 ```
 
 - [ ] **Step 3: Verify all additions landed**
@@ -603,7 +603,7 @@ git commit -m "Document code-comments skill and auto-fix eligibility test in REA
 
 ## Self-Review
 
-**1. Spec coverage:** Every element of design spec §5, §7, and the in-scope part of §8 (`docs/superpowers/specs/2026-07-24-quality-pipeline-design.md`) is covered: the Keep/Remove taxonomy verbatim (Task 1), the 4-condition eligibility test verbatim including the worked-examples table (Task 2), `review-deadcode` adopting the taxonomy and gating applies on the test (Task 3), the traceability check in the `patterns` phase (Tasks 4, 5), and severity no longer being sufficient on its own for auto-apply everywhere it's stated (Tasks 3, 4, 7). The §8 bullet about DB skills being available to `logic`/`architecture` phases is explicitly out of scope for this plan — it depends on the DB skill-map rows from design §4, which is sub-project 2's responsibility, not this one.
+**1. Spec coverage:** Every element of design spec §5, §7, and the in-scope part of §8 (`docs/superpowers/specs/2026-07-24-quality-pipeline-design.md`) is covered: the Keep/Remove taxonomy verbatim (Task 1), the 4-condition eligibility test verbatim including the worked-examples table (Task 2), `csp-review-deadcode` adopting the taxonomy and gating applies on the test (Task 3), the traceability check in the `patterns` phase (Tasks 4, 5), and severity no longer being sufficient on its own for auto-apply everywhere it's stated (Tasks 3, 4, 7). The §8 bullet about DB skills being available to `logic`/`architecture` phases is explicitly out of scope for this plan — it depends on the DB skill-map rows from design §4, which is sub-project 2's responsibility, not this one.
 
 **2. Placeholder scan:** No `TBD`/`TODO`/"implement later" text anywhere in the plan's file contents (the `TODO`/`FIXME` mentions are legitimate content describing what `code-comments` says to keep, not placeholders in this plan itself).
 

@@ -8,11 +8,11 @@ The human looks at the merge-base diff (the pull request tab in Cursor) when com
 
 Skill `finish-plan`, after the review-gate marker is written, **before** skill `hitl-choice` (Finish-plan HITL). **Re-run review-surface** after `fixes` land, before asking the same gate again.
 
-Not for manual `/engineer-review` (no review-gate). Not for `/start-task --fast` or `/start-issue-task` (those skip this HITL).
+Not for manual `/csp-engineer-review` (no review-gate). Not for `/csp-start-task --fast` or `/csp-start-issue-task` (those skip this HITL).
 
 ## Inputs
 
-- `repo_branch_map` from the `software-developer` (or `bug-fixer`) handoff
+- `repo_branch_map` from the `csp-software-developer` (or `csp-bug-fixer`) handoff
 - If the map is missing: the current git root and its current branch, when that branch is not the default (`main` / `master` / `origin/HEAD`)
 
 If the map is empty and the current branch is the default: skip surface, then continue `finish-plan` (later routing may still stop with “no changed repos”).

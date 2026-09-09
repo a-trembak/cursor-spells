@@ -41,4 +41,4 @@ Prefer `efficiency-reviewer.md` when ce-simplify is present.
 | Overly broad loads | Read-all-then-filter when a scoped read exists | `P1` clarify on data layer |
 | Unconditional no-op updates | State/store writes when nothing changed | `P1` |
 
-Hot-path / systemic cost → `review-performance`.
+Hot-path / systemic cost → `csp-review-performance`.

@@ -1,6 +1,6 @@
 # Figma markup checklist (F1–F7)
 
-Canonical gates for `review-figma-markup`. Catch **eyeball skip**: the rendered screen (or JSX) looks “close enough” to Figma, so the phase never checks tokens, auto-layout numbers, DOM vs frame hierarchy, or empty/placeholder treatment.
+Canonical gates for `csp-review-figma-markup`. Catch **eyeball skip**: the rendered screen (or JSX) looks “close enough” to Figma, so the phase never checks tokens, auto-layout numbers, DOM vs frame hierarchy, or empty/placeholder treatment.
 
 Do **not** hardcode product widgets. Apply the rules; examples are illustration only.
 

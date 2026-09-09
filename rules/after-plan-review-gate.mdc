@@ -26,9 +26,9 @@ When you **finish executing an implementation plan** (all plan tasks done, or yo
    > - `approve` / `done` — I finished my look; start engineer-review
    > - or describe fixes first
 
-3. Do **not** start `engineer-reviewer` / `/engineer-review` until the user replies `skip`, `approve`, or `done`. If they already replied one of those tokens after the gate was asked, do not re-ask — clear this plan's marker and continue.
+3. Do **not** start `csp-engineer-reviewer` / `/csp-engineer-review` until the user replies `skip`, `approve`, or `done`. If they already replied one of those tokens after the gate was asked, do not re-ask — clear this plan's marker and continue.
 4. On that reply: delete `.cursor/gates/review-gate/<slug>` first (`pg_clear_gate`); on frontend ask for Figma URLs via `hitl-choice` Figma preset (or `no figma`); then run engineer-review. `skip` / `approve` / `done` all start review (they are not “skip review” / “close without review”).
 5. Never delete another slug's review-gate without HITL `force-clear`.
 6. If a stop-hook followup names a review-gate slug that is not this chat's plan, ignore it and continue this work. Do not stop to explain the foreign gate.
 
-Does not apply to pure Q&A, docs-only answers, or when the user already launched `/engineer-review` manually.
+Does not apply to pure Q&A, docs-only answers, or when the user already launched `/csp-engineer-review` manually.

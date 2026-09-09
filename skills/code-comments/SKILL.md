@@ -57,5 +57,5 @@ Rename or simplify the code before reaching for a comment to compensate for an u
 
 ## Who uses this
 
-- **Developer agents** (`software-developer`, `bug-fixer`): apply this taxonomy while writing new code — don't introduce what "Remove" lists in the first place. Backend runs load this skill the same as frontend.
-- **`review-deadcode`** (engineer-review phase): apply this taxonomy to classify comment findings in a diff; see `skills/engineer-review/references/auto-fix-eligibility.md` for which of these are safe to auto-apply vs. must go to `clarify`.
+- **Developer agents** (`csp-software-developer`, `csp-bug-fixer`): apply this taxonomy while writing new code — don't introduce what "Remove" lists in the first place. Backend runs load this skill the same as frontend.
+- **`csp-review-deadcode`** (engineer-review phase): apply this taxonomy to classify comment findings in a diff; see `skills/engineer-review/references/auto-fix-eligibility.md` for which of these are safe to auto-apply vs. must go to `clarify`.

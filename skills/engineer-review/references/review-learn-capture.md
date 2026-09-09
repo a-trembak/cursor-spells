@@ -1,6 +1,6 @@
 # Review-learn capture (phase / review-learn owned)
 
-Capture shape, stores, and `mode:load` filtering details for agent `review-learn`. Orchestrator does **not** load this file — see thin [`review-learn-protocol.md`](review-learn-protocol.md).
+Capture shape, stores, and `mode:load` filtering details for agent `csp-review-learn`. Orchestrator does **not** load this file — see thin [`review-learn-protocol.md`](review-learn-protocol.md).
 
 ## Reliability rules (capture)
 
@@ -16,8 +16,8 @@ Capture shape, stores, and `mode:load` filtering details for agent `review-learn
 
 | Store | Path | Who writes | Who reads |
 |-------|------|------------|-----------|
-| Consumer ledger | `<project>/.cursor/review-learnings.md` | `review-learn` `mode:capture` **only after** `project_secret` | `review-learn` `mode:load` only |
-| Kit seed | `skills/engineer-review/references/learned-misses.md` | Humans / kit pull requests via `teach-review` | `review-learn` `mode:load` only |
+| Consumer ledger | `<project>/.cursor/review-learnings.md` | `csp-review-learn` `mode:capture` **only after** `project_secret` | `csp-review-learn` `mode:load` only |
+| Kit seed | `skills/engineer-review/references/learned-misses.md` | Humans / kit pull requests via `teach-review` | `csp-review-learn` `mode:load` only |
 | Template | `skills/engineer-review/references/review-learnings-template.md` | — | First create on capture |
 
 Do not delete an existing consumer ledger. Leave it in place even if new rows are rare.
@@ -30,7 +30,7 @@ Optional: `ce-compound` as a separate follow-up — never block review-learn on 
 |---------|------|
 | `project_secret` | Human chose token `project_secret` on **Teach-review miss** or **Capture-escape destination**, and the description is non-empty |
 
-Do not capture from a settled report without `project_secret`. Do not auto-append on highest-severity findings, replay misses, or production escapes. Production escapes use `/capture-escape`, which asks destination first.
+Do not capture from a settled report without `project_secret`. Do not auto-append on highest-severity findings, replay misses, or production escapes. Production escapes use `/csp-capture-escape`, which asks destination first.
 
 Skip otherwise → `review_learn: n/a`.
 
@@ -72,7 +72,7 @@ Body ≤6 lines. Client / internal names allowed. No passwords, tokens, or perso
 
 ### bug-fix escape path
 
-`/capture-escape` asks **Capture-escape destination**. `project_secret` → `mode:capture` with `source: production-escape`. `miss` → skill `teach-review` (not this protocol’s write path).
+`/csp-capture-escape` asks **Capture-escape destination**. `project_secret` → `mode:capture` with `source: production-escape`. `miss` → skill `teach-review` (not this protocol’s write path).
 
 ## Anti-patterns
 
