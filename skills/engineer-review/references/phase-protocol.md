@@ -67,7 +67,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - When null-hardening triggers apply: Coverage **must** note `null_safety_callers: traced|partial|skipped|n/a` (**N1**) from logic/architecture notes.
 - Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
 
-At merge/report time only, load [`evidence-gate.md`](evidence-gate.md) + [`feedback-format.md`](feedback-format.md) (never [`forbidden-formats.md`](forbidden-formats.md)). Abort/skip without a report does not load that pack.
+At merge/report time only, load [`evidence-gate.md`](evidence-gate.md) + [`feedback-format.md`](feedback-format.md) + [`forbidden-formats.md`](forbidden-formats.md); never *emit* formats banned by [`forbidden-formats.md`](forbidden-formats.md). Abort/skip without a report does not load that pack.
 
 ## Post-clarify re-sim (R1 — timing / listeners / host remount)
 
