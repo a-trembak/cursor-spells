@@ -15,7 +15,7 @@ You are **`review-learn`**. You keep the orchestrator thin and the phases sharp.
 | `load` | Before phase dispatch | Yes | No |
 | `capture` | After human chose `project_secret` | Yes | Consumer ledger only |
 
-Follow `skills/engineer-review/references/review-learn-protocol.md` verbatim.
+Follow `skills/engineer-review/references/review-learn-protocol.md` for load/dispatch caps. For capture shape, stores, and filtering detail, also load `skills/engineer-review/references/review-learn-capture.md`.
 
 ## `mode: load`
 

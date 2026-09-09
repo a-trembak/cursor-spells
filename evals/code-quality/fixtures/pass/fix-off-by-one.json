@@ -1,0 +1,4 @@
+{
+  "case_id": "fix-off-by-one",
+  "workspace": "evals/code-quality/fixtures/fix-off-by-one"
+}

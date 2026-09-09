@@ -123,7 +123,7 @@ hooks/       Cursor hooks (templates for consumer projects)
 agents/      Custom agent configs
 scripts/     Install internals + CI helpers
 docs/        Design specs, plans, dogfood checklists
-evals/       Agent-trajectory golden set (kit-only; not installed into apps)
+evals/       Kit-only golden sets (trajectories, harness reports, code-quality) — not installed into apps
 ```
 
 ## Skills
@@ -137,6 +137,8 @@ evals/       Agent-trajectory golden set (kit-only; not installed into apps)
 | [`create-pr`](skills/create-pr/) | Push + **draft** GitHub PR (requires `commit-approved` when commits were needed), then HITL Pipeline finale (`keep_draft` / `ready` / Jira comment). Never merge; Review transition after merge and successful builds |
 | [`trajectory-score`](skills/trajectory-score/) | Record a trajectory ledger and hard-score it at wired pipeline stops; session ledger for full/fast/issue paths |
 | [`trajectory-judge`](skills/trajectory-judge/) | Nested-Task judge for invented business facts and decision-doc archaeology; writes actions then re-scores |
+| [`harness-status`](skills/harness-status/) | Kit harness inventory + last bench summary; orientation only (does not advance gates) |
+| [`code-quality-score`](skills/code-quality-score/) | Hard-score kit code-quality fixtures (files / substrings / tests); no language-model judge |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words — no abbreviations; always-on via rule `plain-language-chat` |
 | [`finish-plan`](skills/finish-plan/) | Plan→HITL handoff: `review-surface` (`SetActiveBranch`) then review-gate; engineer-review still runs after |
@@ -235,7 +237,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 ### Start a task (full pipeline)
 
-**Canvas (layers, sequence, cycles):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md). Run `/pipeline-status` (or `scripts/pipeline-status.sh`) for a where-am-I strip and a canvas link with `?route=&layer=&stage=` highlight. After code the graph names the HITL **`review-gate`** (skill `/finish-plan` writes the marker). `fixes` returns to Build, not to `writing-plans`.
+**Canvas (layers, sequence, cycles):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md). Run `/pipeline-status` (or `scripts/pipeline-status.sh`) for a where-am-I strip and a canvas link with `?route=&layer=&stage=` highlight. After code the graph names the HITL **`review-gate`** (skill `/finish-plan` writes the marker). `fixes` returns to Build, not to `writing-plans`. Kit harness inventory: `/harness-status` (or `python3 scripts/harness-health.py`) — orientation only.
 
 `/start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. When the AC source looks like a Jira ticket (`PROJ-123` or `*.atlassian.net` URL), it **fetches** via Atlassian MCP (`jira-fetch`), moves the ticket to **In Progress** (`jira-transition`), then **routes** (Bug → `/start-issue-task`; unknown type → HITL **Pipeline route**; never auto-selects `--fast`). Ends with skill [`create-pr`](skills/create-pr/) (draft PR, then HITL **Pipeline finale**).
 
@@ -321,6 +323,10 @@ Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/
 **Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md) · Jira fetch / router / PR finale: [`docs/superpowers/dogfood/jira-ac-router-finale-checklist.md`](docs/superpowers/dogfood/jira-ac-router-finale-checklist.md)
 
 **Agent trajectory golden set:** kit-only contracts under [`evals/trajectories/`](evals/trajectories/) — what the agent must do, must not do, and where a human must appear. Validate with `python3 scripts/trajectory-cases.py validate`. Score a recorded run with `python3 scripts/trajectory-cases.py score --run <file>` (hard sensors only). Wired stops follow skill [`trajectory-score`](skills/trajectory-score/): fetch-fail scores `fetch-failure-stops`; `create-pr` scores `create-pr-draft-never-merge` (four-token) or `create-pr-draft-never-merge-no-jira` (two-token) after Pipeline finale is asked and before `gh pr ready`; remaining golden cases score at their natural stops; session ledgers score `full-happy-path` / `fast-skips-plan-layer` / `issue-happy-path` when a draft exists. Invented facts / archaeology go through skill [`trajectory-judge`](skills/trajectory-judge/) then re-score. Tests: `bash scripts/tests/trajectory-cases-test.sh`, `bash scripts/tests/trajectory-score-test.sh`, and `bash scripts/tests/trajectory-wiring-test.sh`. Not copied into consumer apps. Not a live agent runner. Overnight unsupervised loops and agent-to-agent teams without an orchestrator stay out of scope.
+
+**Harness health / bench:** before changing skills or agents, run `bash scripts/harness-bench.sh` (all `scripts/tests/*.sh` plus trajectory validate + fixture score; writes `evals/harness/reports/<timestamp>.json`). Inventory without a full bench: `python3 scripts/harness-health.py` or `/harness-status` (orientation only). See [`evals/harness/README.md`](evals/harness/README.md) and [`docs/superpowers/dogfood/harness-health-checklist.md`](docs/superpowers/dogfood/harness-health-checklist.md).
+
+**Code-quality evals:** kit-only hard sensors under [`evals/code-quality/`](evals/code-quality/) — expected files, forbidden paths, substrings, and shell tests. Validate with `python3 scripts/code-quality-cases.py validate`. Score golden fixtures with `python3 scripts/code-quality-cases.py score --runs-dir evals/code-quality/fixtures/pass`. Skill [`code-quality-score`](skills/code-quality-score/). Dogfood: [`docs/superpowers/dogfood/code-quality-evals-checklist.md`](docs/superpowers/dogfood/code-quality-evals-checklist.md).
 
 Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md`](docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.md)
 

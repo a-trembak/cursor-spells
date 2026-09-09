@@ -1,0 +1,22 @@
+{
+  "id": "fast-no-plan-files",
+  "title": "mode:fast delivers echo helper without inventing plan or tech-spec files",
+  "source": "docs/superpowers/dogfood/code-quality-evals-checklist.md",
+  "status": "active",
+  "mode": "fast",
+  "fixture": "evals/code-quality/fixtures/fast-no-plan-files",
+  "expected_files": ["echo.py", "test_echo.py"],
+  "forbidden_paths": [
+    "docs/superpowers/plans/echo-plan.md",
+    "docs/superpowers/specs/echo-tech-spec.md",
+    "docs/plans/echo.md"
+  ],
+  "required_substrings": {
+    "echo.py": ["def echo("],
+    "test_echo.py": ["echo(\"ping\")"]
+  },
+  "forbidden_substrings": {
+    "echo.py": ["TODO invent plan"]
+  },
+  "test_commands": ["python3 -m unittest test_echo.py"]
+}

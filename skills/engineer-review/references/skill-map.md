@@ -2,6 +2,8 @@
 
 Canonical stack → skill routing for **`software-developer`** (while writing code) and **`engineer-review`** phases (while reviewing). Same table, two consumers.
 
+Orchestrator stack-detect excerpt only: [`skill-map-orch.md`](skill-map-orch.md). Keep this full file for phases, Database skill routing, and `csp install`.
+
 Recommended installs (consumer machine / project). Do not vendor skill bodies into cursor-spells.
 
 `csp install` / `csp update` runs this list via `npx skills add` (human-launched installer, not an agent mid-review). Skip with `--skip-third-party-skills` or `CSP_SKIP_THIRD_PARTY_SKILLS=1`. Network / `npx` failure is non-fatal (`skill_missing`); kit links still install.
@@ -86,14 +88,14 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 |-------|----------|
 | lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
 | logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
-| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); frontend always-on [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped |
+| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); R3 extras [graphify-r3-force-include.md](graphify-r3-force-include.md); frontend always-on [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped |
 | deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent"; prefer graphify callers when available |
-| simplify | **Primary:** compound-engineering `ce-simplify-code` (read SKILL + `references/personas/{code-reuse,code-quality,efficiency}-reviewer.md` verbatim), then **always** [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **Fallback** if skill missing: Lens A–C + Kit extensions + note `skill_missing: ce-simplify-code`. Prefer graphify callers when available |
+| simplify | **Primary:** compound-engineering `ce-simplify-code` (read SKILL + `references/personas/{code-reuse,code-quality,efficiency}-reviewer.md` verbatim), then **always** [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **Fallback** if skill missing: [simplify-lenses-fallback.md](simplify-lenses-fallback.md) Lens A–C + Kit extensions + note `skill_missing: ce-simplify-code`. Prefer graphify callers when available |
 | architecture | `architecture-review` (Sentry Warden) + patterns; prefer graphify call/impact queries when available; add the matching row from Database skill routing above whenever the diff includes a migration |
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native`; prefer graphify impact neighborhood when available |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
 | figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; always [figma-markup-checklist.md](figma-markup-checklist.md) (**F1–F7**); on `react-web` also `ce-test-browser` (rendered UI vs Figma) at **tablet and phone** when the diff touches tables, expandable cards, dialogs, or overlays — not only the desktop frame; always-on kit [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), also loaded by `review-patterns` when figma is skipped |
-| learn | [review-learn-protocol.md](review-learn-protocol.md) + kit [learned-misses.md](learned-misses.md) + consumer `.cursor/review-learnings.md` — no third-party skill |
+| learn | [review-learn-protocol.md](review-learn-protocol.md) + [review-learn-capture.md](review-learn-capture.md) + kit [learned-misses.md](learned-misses.md) + consumer `.cursor/review-learnings.md` — no third-party skill |
 | cross-repo | workspace `graphify-out/`; prefer `graphify-labs/graphify@graphify` when available (optional install) |
 
 Note: do not create `multi-repo.json` when graphify answers successfully. Graphify is never required — absent/unqueryable keeps the git-diff + chunk path.

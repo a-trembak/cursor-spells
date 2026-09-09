@@ -27,7 +27,6 @@ You review **performance** risks in the diff — measurable hot-path and systemi
 `phase`: `"performance"`. Include `severity`. Micro-optimizations without evidence → `P2` residual notes (or leave to `review-simplify` if they are local cleanliness). Clear hot-path bugs → `P0`/`P1` apply or clarify.
 
 
-## Evidence (mandatory)
+## Evidence
 
-Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line`, `snippet`, and `context`. Clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`. Follow `skills/engineer-review/references/phase-protocol.md` and `evidence-gate.md`. Do **not** return path-only findings.
-
+Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context; clarify `options`).

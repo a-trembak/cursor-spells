@@ -1,12 +1,14 @@
-# Graphify protocol (token budget)
+# Graphify protocol (token budget) — detect + impact_hint
 
-Shared detect / query / fallback rules for **single-repo** engineer-review scoping and for callers that need compact architecture context. Multi-repo discovery still follows [`multi-repo-protocol.md`](multi-repo-protocol.md); this file owns the shared “prefer when present, never require” contract.
+Shared detect / query / fallback rules for **single-repo** engineer-review scoping. Multi-repo discovery still follows [`multi-repo-protocol.md`](multi-repo-protocol.md).
+
+**Load routing:** orchestrator loads **this** file (detect + impact + orch hook). R3 force-include neighborhood: [`graphify-r3-force-include.md`](graphify-r3-force-include.md) — phase-owned.
 
 ## Policy
 
 - **Preferred when present.** If a graphify build exists and can answer, use it to narrow deep-reads and answer call/impact questions instead of broad repo walks or pasting large diffs.
 - **Absent = current path.** If artifacts or the CLI are missing, or a query cannot answer, continue with `git diff` + chunking + targeted reads. Do not fail, block, or ask the user to install graphify mid-review.
-- **Never rebuild during review.** Do not run a full `graphify` build/regenerate under review. Only read existing artifacts and run `graphify query` against them. Generating or refreshing a graph remains optional outside this protocol (e.g. patterns phase may offer it; never invent a rebuild).
+- **Never rebuild during review.** Do not run a full `graphify` build/regenerate under review. Only read existing artifacts and run `graphify query` against them.
 
 ## Detect
 
@@ -60,27 +62,12 @@ After computing the changed file list / `--numstat`, **before** chunking:
 
 Caps in [`phase-protocol.md`](phase-protocol.md) (40 files / 2500 LOC for chunks; 200 files / 50k LOC abort) still apply whether or not graphify answered.
 
-## Phase hook
+## Phase hook (summary)
 
-When `graphify_available` is true (or detect succeeds inside the phase):
-
-- Prefer graphify callers/callees / impact before expanding into immediate path neighbors or sampling the whole tree.
-- Prefer `GRAPH_REPORT.md` / query for “what calls what” and layering questions.
+When `graphify_available` is true (or detect succeeds inside the phase): prefer graphify callers/callees / impact before expanding into immediate path neighbors. When auth/session or overlay hosts are in the changed set, also open [`graphify-r3-force-include.md`](graphify-r3-force-include.md).
 
 When false or unqueryable: keep the phase’s existing diff-scoped / patterns-file behavior unchanged.
 
 ## Multi-repo
 
 Workspace-parent discovery and cross-repo impact queries remain documented in [`multi-repo-protocol.md`](multi-repo-protocol.md). That protocol’s detect checks and “absent or unqueryable” language match this file; do not create `multi-repo.json` when graphify answers successfully.
-
-## Interaction impact extras (R3)
-
-When changed paths include `store/auth*`, `*Scope*`, `*Teardown*`, `services/auth*`, API cache reset / invalidate helpers, global loading gates, or equivalent session/token modules:
-
-1. Run the normal impact query on those paths.
-2. **Force-include** navigation/layout shells and global overlays that stay mounted across the trigger route — including files that call membership/org (or equivalent) token hooks — even if unchanged. Diff-only lists are insufficient for global side effects.
-3. Never rely on a graphify path between RTK endpoint symbols alone: query/mutation symbols often collapse in the graph; a path edge ≠ the runtime refetch graph after `resetApiState`.
-
-When the diff also touches filter-in-menu / overlay hosts with nested stateful inputs, include the host component and its Menu/Popover prop construction in the deep-read set (supports **R4**).
-
-Use this neighborhood when logic/architecture walk [`interaction-replay-checklist.md`](interaction-replay-checklist.md) (auth detail: [`auth-rtk-checklist.md`](auth-rtk-checklist.md)).

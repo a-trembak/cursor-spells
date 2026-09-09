@@ -81,6 +81,6 @@ Rules:
 - Only `clarify` and optional `notes` carry findings.
 - On clarification follow-up, re-run with `clarifications` filled; update clarify items or move resolved context to `notes` — still no applies.
 
-## Evidence (mandatory)
+## Evidence
 
-Each `clarify` item that names a file or contract location **must** include `path`, `start_line`, `end_line`, `snippet`, and `context` for at least one side of the drift. **Required** on every `clarify`: structured `options` (`[{ id, label }, …]`). Prefer `recommended` + `recommendation_why` for P0/P1 — never invent when null. Follow `evidence-gate.md`.
+Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context for at least one side of the drift; clarify `options`). Never invent `recommended` when null.

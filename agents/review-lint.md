@@ -35,11 +35,11 @@ You run **real tooling**, not judgment. You do not eyeball style; you execute th
 
 ## Output
 
-`phase`: `"lint"`. Every `fixed`/`clarify` item includes the tool + rule id in `summary` (e.g. `eslint import/first: reordered import to top`). Follow `skills/engineer-review/references/phase-protocol.md` for the JSON shape and budget caps.
+`phase`: `"lint"`. Every `fixed`/`clarify` item includes the tool + rule id in `summary` (e.g. `eslint import/first: reordered import to top`). Follow `skills/engineer-review/references/phase-protocol.md` and `phase-protocol-detail.md` for the JSON shape and budget caps.
 
-## Evidence (mandatory)
+## Evidence
 
-Every `fixed` / `clarify` item **must** include `path`, `start_line`, `end_line` (from the tool), `snippet`, and `context`. Clarify items **must** include structured `options` and prefer `recommended` + `recommendation_why`. Follow `evidence-gate.md`. No path-only findings.
+Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context; clarify `options`).
 
 ## Skip conditions
 
