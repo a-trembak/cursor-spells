@@ -69,6 +69,19 @@ assert_grep flow_teach "docs/superpowers/pipeline-flow.md" "teach-review"
 assert_grep flow_ready_pr "docs/superpowers/pipeline-flow.md" "ready-for-review pull request"
 assert_grep html_ready_pr "docs/superpowers/pipeline-flow.html" "ready-for-review pull request"
 assert_grep dogfood_miss "docs/superpowers/dogfood/engineer-review-checklist.md" "Teach-review miss"
+# Post-miss pipeline continue (positive) — phrases unique to the continue wire (not the Propose commit preset alone)
+# Patterns use single quotes so backticks are literal for grep -E
+assert_grep hitl_miss_continue "skills/hitl-choice/SKILL.md" 'continue to skill `propose-commit`'
+assert_grep er_agent_propose_after_miss "agents/csp-engineer-reviewer.md" "propose-commit"
+assert_grep er_agent_no_end_on_land "agents/csp-engineer-reviewer.md" "Do not end the turn"
+assert_grep skill_return_caller "skills/teach-review/SKILL.md" "return to the caller"
+assert_grep skill_never_terminal "skills/teach-review/SKILL.md" "never a pipeline terminal"
+assert_grep skill_never_invoke_propose "skills/teach-review/SKILL.md" 'Never invoke skill `propose-commit`'
+assert_grep dogfood_pipeline_continue "docs/superpowers/dogfood/engineer-review-checklist.md" "orientation strip"
+# Bare teach / capture must not auto-start propose-commit (negative; avoid false-fail on "never invoke")
+assert_not_grep cmd_no_auto_propose "commands/csp-teach-review.md" "propose-commit"
+assert_not_grep skill_no_handoff_propose "skills/teach-review/SKILL.md" "next_skill: propose-commit"
+assert_not_grep capture_no_propose "commands/csp-capture-escape.md" "propose-commit"
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
