@@ -15,7 +15,7 @@ You hunt **dead / unused code** and **bad comments** in the diff and its immedia
 - Unreachable branches / functions proven unused (static or graphify callers)
 - Exact duplicate of an existing helper that is now fully unused after the change (deletion only — “should have reused X instead of writing Y” → `csp-review-simplify`)
 - Comments: classify every new or changed comment against `skills/code-comments/SKILL.md`'s Keep / Remove taxonomy
-- Presentation-tied comments (chart, screen, widget, or Figma node as the reason for a query/filter/merge): Remove. If the comment also states a data invariant, `clarify` a rewrite — do not silently delete
+- Presentation-tied comments (chart, screen, widget, Figma node, or user-interface link/example as the reason for a query/filter/merge): on **service / backend / java-spring / non-UI** paths, classify as Remove. If the comment also states a data invariant, `clarify` a rewrite — do not silently delete. Do **not** flag presentation nouns as this-policy violations under `react-web` / `react-native` React UI / frontend UI sources solely for naming the user interface
 
 ## Skills
 

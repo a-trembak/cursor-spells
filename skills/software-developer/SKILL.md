@@ -58,7 +58,7 @@ Never implement on the default branch. Never invent repos the plan does not touc
 1. **Stack detection** — mechanical table lookup in [`skill-map.md`](../engineer-review/references/skill-map.md) (same signals as engineer-review). Zero inventing of stack labels. Detect **per target repo** when the run spans multiple.
 2. **Always-on for this run:**
    - matched stack skill(s) from the map
-   - `code-comments` (this kit) while writing — including backend services: no comments tied to charts, screens, widgets, or Figma
+   - `code-comments` (this kit) while writing — services forbid presentation (charts, screens, widgets, Figma, user-interface links/examples); React / frontend UI may reference the user interface
    - `mattpocock/skills@tdd` when the task has observable behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions)
 3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from [Database skill routing](../engineer-review/references/skill-map.md#database-skill-routing)
 4. **JPA Criteria** — when the task touches `Specification`, Criteria fetch/join/subquery code, or org-scoped alert/installation queries: load [jpa-criteria-patterns.md](references/jpa-criteria-patterns.md) and apply before handoff
@@ -78,7 +78,7 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - Do not silently change the data model described in the tech spec (full path)
 - If plan/spec/brief conflicts with the repo: **stop and ask** — do not silently deviate
 - Source-code comments: English only; apply the **Comments** section below and `code-comments` Keep/Remove taxonomy
-- **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this
+- **Services forbid / React allow:** in service / backend / Java / Spring (non-UI) code, never write comments that name a chart, screen, widget, Figma node, or user-interface link/example as the reason for a query, filter, or merge — restate the data invariant, or omit. In React / frontend UI sources, comments may reference screens, widgets, Figma, or layout when that helps the frontend reader. Independent of the react-web Figma visual check
 - Do not write implementation commits on `main` / `master` / the default branch
 - **Never `git commit`** during pipeline implementation, verification, or handoff. Leave all product changes uncommitted for skill `propose-commit` after engineer-review. Nested task agents inherit this forbid. Branch creation/checkout only — no implementation commits on any branch until `approve-commit`
 
@@ -87,7 +87,7 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 Write comments only when the code cannot express the idea on its own:
 
 - **Keep:** non-obvious business invariants, deep technical constraints (JPA bag joins, fetch join + EXISTS correlation, exclusive API bounds, security/perf trade-offs), public API contracts, `TODO`/`FIXME`.
-- **Remove / never write:** narrating what the code does, change-history notes ("previously…", "same pattern as…"), `@Transactional` rationale comments when absence/presence is obvious from the annotation, UI/chart/screen/Figma mentions in backend code.
+- **Remove / never write:** narrating what the code does, change-history notes ("previously…", "same pattern as…"), `@Transactional` rationale comments when absence/presence is obvious from the annotation, chart/screen/Figma/user-interface mentions in service / backend code. React UI sources may keep presentation-oriented comments.
 - **Prefer:** clearer names, smaller methods, and self-explanatory structure over explanatory comments.
 
 When in doubt, omit the comment. Align with repo precedent (e.g. `d25dedc` — code-only fixes, no meta commentary).

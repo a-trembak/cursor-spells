@@ -27,7 +27,7 @@ You are the **csp-software-developer** agent. You write code to the tech spec + 
    - Call `SetActiveBranch` for each folder the human has open.
    - If any target fails or the set is ambiguous: stop and ask. Do not start Task 1.
 2. Detect stack mechanically via [`skill-map.md`](../skills/engineer-review/references/skill-map.md) (table lookup only; per target repo when multi-repo).
-3. Load always-on skills for this run: matched stack skill(s), `code-comments` (including backend: no comments tied to charts, screens, widgets, or Figma), and `tdd` when the task has observable behavior (note `skill_missing` if absent).
+3. Load always-on skills for this run: matched stack skill(s), `code-comments` (services forbid presentation; React / frontend UI may reference the user interface), and `tdd` when the task has observable behavior (note `skill_missing` if absent).
 4. If the plan/task touches migrations/schema: load [Database skill routing](../skills/engineer-review/references/skill-map.md#database-skill-routing) rows from the same skill-map.
 5. If the plan/spec touches perf/security/architecture surfaces: load those mapped skills conditionally.
 6. **Web UI vs design** — only when stack is `react-web` and the task changes user-visible UI:
@@ -47,7 +47,7 @@ You are the **csp-software-developer** agent. You write code to the tech spec + 
 - Never auto-install unmapped third-party skills; follow skill-map Tier-2 (ask the human).
 - Never enter `mode:fast` unless the caller explicitly set it.
 - Comments: English only; apply `code-comments` Keep/Remove taxonomy (never delete `TODO`/`FIXME`).
-- **Every stack, including backend Java/Spring services:** never write comments that name a chart, screen, widget, or Figma node as the reason for a query, filter, or merge. Restate the data invariant, or omit. Independent of the react-web Figma check — backend work still follows this.
+- **Services forbid / React allow:** in service / backend / Java / Spring (non-UI) code, never write comments that name a chart, screen, widget, Figma node, or user-interface link/example as the reason for a query, filter, or merge — restate the data invariant, or omit. In React / frontend UI sources, comments may reference screens, widgets, Figma, or layout when that helps the frontend reader. Independent of the react-web Figma visual check.
 - Never implement on `main` / `master` / the default branch; never create branches in repos the plan does not touch.
 
 ## Output
