@@ -1,9 +1,10 @@
 # Precision / recall outcome ledger — System Design
 
-**Status:** draft
+**Status:** merged
 **AC:** AC-1, AC-2, AC-3, AC-4, AC-5 (precision / recall operator outcomes for engineer-review and capture-escape)
 **Mode:** draft-from-ac
 **Source plan:** n/a
+**Tech spec:** `docs/superpowers/specs/2026-09-10-precision-recall-tech-spec.md`
 
 ## 1. Requirements
 
