@@ -58,7 +58,8 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 ## Orchestrator merge
 
 - **Fixed now**: `fixed` where `applied: true` (P0/P1 only)
-- **Needs clarification**: all `clarify` (renumber ids globally to `C1…`)
+- **Needs clarification**: `clarify` items that still fail [`auto-fix-eligibility.md`](auto-fix-eligibility.md) after merge-time recheck (renumber ids globally to `C1…`)
+- **Rule-answered demote:** if a loaded kit checklist/skill/rule or project rule already mandates the fix, **reclassify** that item to Fixed ("Fix applied" / "Would fix") — **do not** put it in Needs clarification and **do not** open Engineer-review clarify HITL for it. See Rule-mandated answers in [`auto-fix-eligibility.md`](auto-fix-eligibility.md).
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
 - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.
