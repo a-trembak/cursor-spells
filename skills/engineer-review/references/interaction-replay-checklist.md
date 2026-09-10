@@ -1,6 +1,6 @@
 # Interaction replay checklist (R1–R7)
 
-Canonical gates for `review-logic`, `review-architecture`, and orchestrator post-clarify. Catch **side-effect × live actor** misses: a diff changes timing/list re-render, but review never checks what is still mounted and reacts (subscribers writing shared state; host widgets stealing focus).
+Canonical gates for `csp-review-logic`, `csp-review-architecture`, and orchestrator post-clarify. Catch **side-effect × live actor** misses: a diff changes timing/list re-render, but review never checks what is still mounted and reacts (subscribers writing shared state; host widgets stealing focus).
 
 Do **not** hardcode product-specific probes or filter widgets. Apply the rules; use examples only as illustration.
 

@@ -4,7 +4,7 @@ Used only on tech-spec **full** path. The human is not asked to break designer�
 
 ## Roles
 
-- **Designer** (`system-design-designer`): writes/revises `…-system-design.md`
+- **Designer** (`csp-system-design-designer`): writes/revises `…-system-design.md`
 - **Critic** (`system-design-critic`): read-only audit; emits findings + Verdict
 - **Orchestrator** (`tech-spec` skill/agent): runs the loop, merges, owns HITL
 

@@ -93,7 +93,7 @@ fi
 assert_exit init_fetch 0 "${REC[@]}" init \
   --ledger "$LEDGER" \
   --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" \
+  --invocation "/csp-start-task PROJ-1" \
   --fetch fail
 
 python3 - "$LEDGER" <<'PY'
@@ -127,7 +127,7 @@ ACTION="$TMP/action.json"
 assert_exit action_init 0 "${REC[@]}" init \
   --ledger "$ACTION" \
   --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" \
+  --invocation "/csp-start-task PROJ-1" \
   --fetch fail
 assert_exit action_append 0 "${REC[@]}" action --ledger "$ACTION" merge-pull-request
 assert_exit action_duplicate 0 "${REC[@]}" action --ledger "$ACTION" merge-pull-request

@@ -70,7 +70,7 @@ Migrations and schema work are a named weak spot for AI-generated code (blast ra
 | Flyway/Spring | Spring Flyway migration skill (name-only; no installable `npx skills add` id in this map) |
 | Prisma | [`prisma/skills@prisma-cli`](https://github.com/prisma/skills) (`npx skills add prisma/skills@prisma-cli`) + matching dialect skill |
 
-## Stack detection → lint/typecheck commands (for `review-lint`)
+## Stack detection → lint/typecheck commands (for `csp-review-lint`)
 
 Prefer the project's own `package.json` script over calling the binary directly.
 
@@ -88,13 +88,13 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 |-------|----------|
 | lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
 | logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
-| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); R3 extras [graphify-r3-force-include.md](graphify-r3-force-include.md); frontend always-on [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped |
+| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); R3 extras [graphify-r3-force-include.md](graphify-r3-force-include.md); frontend always-on [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped; kit command/agent prefix renames [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) (**P1–P4**) |
 | deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent"; prefer graphify callers when available |
 | simplify | **Primary:** compound-engineering `ce-simplify-code` (read SKILL + `references/personas/{code-reuse,code-quality,efficiency}-reviewer.md` verbatim), then **always** [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **Fallback** if skill missing: [simplify-lenses-fallback.md](simplify-lenses-fallback.md) Lens A–C + Kit extensions + note `skill_missing: ce-simplify-code`. Prefer graphify callers when available |
 | architecture | `architecture-review` (Sentry Warden) + patterns; prefer graphify call/impact queries when available; add the matching row from Database skill routing above whenever the diff includes a migration |
 | performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native`; prefer graphify impact neighborhood when available |
 | security | `security-review` — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks |
-| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; always [figma-markup-checklist.md](figma-markup-checklist.md) (**F1–F7**); on `react-web` also `ce-test-browser` (rendered UI vs Figma) at **tablet and phone** when the diff touches tables, expandable cards, dialogs, or overlays — not only the desktop frame; always-on kit [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), also loaded by `review-patterns` when figma is skipped |
+| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; always [figma-markup-checklist.md](figma-markup-checklist.md) (**F1–F7**); on `react-web` also `ce-test-browser` (rendered UI vs Figma) at **tablet and phone** when the diff touches tables, expandable cards, dialogs, or overlays — not only the desktop frame; always-on kit [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), also loaded by `csp-review-patterns` when figma is skipped |
 | learn | [review-learn-protocol.md](review-learn-protocol.md) + [review-learn-capture.md](review-learn-capture.md) + kit [learned-misses.md](learned-misses.md) + consumer `.cursor/review-learnings.md` — no third-party skill |
 | cross-repo | workspace `graphify-out/`; prefer `graphify-labs/graphify@graphify` when available (optional install) |
 

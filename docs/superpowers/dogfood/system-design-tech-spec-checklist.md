@@ -10,7 +10,7 @@ Shared fixture topic: **order export** (`order-export` in generated filenames).
 
 ### Setup
 
-Start via `/write-tech-spec` or `/start-task`. When asked `human` vs `agent`, choose **`human`**.
+Start via `/csp-write-tech-spec` or `/csp-start-task`. When asked `human` vs `agent`, choose **`human`**.
 
 Provide the same deliberately underspecified AC as [tech-spec-checklist.md](tech-spec-checklist.md):
 
@@ -30,7 +30,7 @@ The AC is still silent on file format beyond what the plan states, large-history
 | No depth question | Does **not** ask `light` vs `full` — human mode is always full |
 | Designer mode | Runs `format-human-plan` (structures/clarifies the human plan; does not replace CSV sync intent) |
 | System-design file | Writes `docs/superpowers/specs/YYYY-MM-DD-order-export-system-design.md` with `**Status:** draft` per `skills/system-design/references/template.md` |
-| Critic runs | `system-design-critic` audits the draft after the first designer pass |
+| Critic runs | `csp-system-design-critic` audits the draft after the first designer pass |
 | No mid-loop HITL for pair disputes | Never asks the human to break a designer↔critic tie; auto-consensus rounds only (≤3) |
 | Blocker / Decision scope | Blocker or Decision-tier asks only when AC + human plan omit a required business fact — not for critic Must-fix / Should-fix |
 | Merge | Orchestrator merges into `docs/superpowers/specs/YYYY-MM-DD-order-export-tech-spec.md` with `**Status:** draft` (7 sections, English only) |
@@ -44,7 +44,7 @@ The AC is still silent on file format beyond what the plan states, large-history
 
 ### Setup
 
-Start via `/write-tech-spec` or `/start-task`. When asked `human` vs `agent`, choose **`agent`**.
+Start via `/csp-write-tech-spec` or `/csp-start-task`. When asked `human` vs `agent`, choose **`agent`**.
 
 When asked tech-spec depth, choose **`full`**.
 
@@ -73,7 +73,7 @@ Same gaps as [tech-spec-checklist.md](tech-spec-checklist.md): format, large-his
 
 ### Setup
 
-Start via `/write-tech-spec` or `/start-task`. When asked `human` vs `agent`, choose **`agent`**.
+Start via `/csp-write-tech-spec` or `/csp-start-task`. When asked `human` vs `agent`, choose **`agent`**.
 
 When asked tech-spec depth, choose **`light`**.
 

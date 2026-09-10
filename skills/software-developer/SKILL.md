@@ -2,7 +2,7 @@
 name: software-developer
 description: >-
   Use when an approved tech spec and a critiqued-clear implementation plan are
-  ready to turn into code, or from /start-task --fast (mode:fast) with a short
+  ready to turn into code, or from /csp-start-task --fast (mode:fast) with a short
   AC brief. Creates feature branch(es), routes stack/DB skills from skill-map,
   applies code-comments, and verifies before handoff. On react-web UI work,
   compares the rendered result to Figma via ce-test-browser when URLs exist.
@@ -14,10 +14,10 @@ Writes code **strictly** to the tech spec + implementation plan (full path), or 
 
 ## When to Use
 
-- `/start-task` execution after `approve-plan` → clear critic → `start-build`
-- `/start-task --fast` with `mode:fast` (no tech-spec / critique-clear required)
-- Human asks to implement a plan that already passed `/approve-plan` (`Verdict: clear`)
-- Not for bug-fix plans from `/start-issue-task` (use `bug-fix` / `bug-fixer`)
+- `/csp-start-task` execution after `approve-plan` → clear critic → `start-build`
+- `/csp-start-task --fast` with `mode:fast` (no tech-spec / critique-clear required)
+- Human asks to implement a plan that already passed `/csp-approve-plan` (`Verdict: clear`)
+- Not for bug-fix plans from `/csp-start-issue-task` (use `bug-fix` / `csp-bug-fixer`)
 - Not for drafting specs/plans, critiquing plans, or running engineer-review
 
 ## Entry conditions
@@ -34,7 +34,7 @@ If any condition fails: **stop** and say which gate is missing. Do not start cod
 
 ### `mode:fast` (explicit)
 
-When the caller passes **`mode:fast`** (only from `/start-task --fast` or an explicit human ask for the lean path):
+When the caller passes **`mode:fast`** (only from `/csp-start-task --fast` or an explicit human ask for the lean path):
 
 1. AC source / short task brief is present in the conversation
 2. Tech-spec Status, implementation-plan file, and `.cursor/gates/plan-critique-clear/<slug>` are **not** required
@@ -102,7 +102,7 @@ Emit this block to the caller (required), then follow the nested-vs-parent rule:
 
 ```
 next_skill: finish-plan          # full path
-next_skill: engineer-reviewer    # mode:fast only
+next_skill: csp-engineer-reviewer    # mode:fast only
 mode: full | fast
 plan_path: <path or none>
 repo_branch_map:
@@ -111,8 +111,8 @@ verification: <lint/test/typecheck evidence>
 ```
 
 - **Full path `next_skill`:** `finish-plan` (do not skip the HITL review gate).
-- **`mode:fast` `next_skill`:** `engineer-reviewer` then the caller runs `create-pr` — do **not** invoke `finish-plan`.
+- **`mode:fast` `next_skill`:** `csp-engineer-reviewer` then the caller runs `create-pr` — do **not** invoke `finish-plan`.
 
-**nested Task** (dispatched by `start-build` / `/start-task` / `/start-task --fast`): after the block, **STOP** and return to the caller. Do **not** invoke `finish-plan`, `engineer-reviewer`, `AskQuestion`, or `hitl-choice` from the nested Task — the parent chat owns that continue.
+**nested Task** (dispatched by `start-build` / `/csp-start-task` / `/csp-start-task --fast`): after the block, **STOP** and return to the caller. Do **not** invoke `finish-plan`, `csp-engineer-reviewer`, `AskQuestion`, or `hitl-choice` from the nested Task — the parent chat owns that continue.
 
-**Parent chat** (user invoked `@software-developer` with no caller waiting): after the block, immediately invoke `next_skill` in this chat.
+**Parent chat** (user invoked `@csp-software-developer` with no caller waiting): after the block, immediately invoke `next_skill` in this chat.

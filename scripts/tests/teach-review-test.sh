@@ -73,7 +73,7 @@ git -C "$KIT" config user.email "t@example.com"
 git -C "$KIT" config user.name "t"
 mkdir -p "$KIT/skills/engineer-review" "$KIT/agents"
 printf '%s\n' '{}' > "$KIT/skills/engineer-review/SKILL.md"
-printf '%s\n' '{}' > "$KIT/agents/engineer-reviewer.md"
+printf '%s\n' '{}' > "$KIT/agents/csp-engineer-reviewer.md"
 git -C "$KIT" add skills agents
 git -C "$KIT" commit -qm init
 tr_is_kit_checkout "$KIT" || { echo "FAIL is_kit" >&2; fail=1; }

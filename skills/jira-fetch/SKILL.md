@@ -2,7 +2,7 @@
 name: jira-fetch
 description: >-
   Fetch a Jira issue via Atlassian MCP and assemble AC text. Use from
-  /start-task, /start-issue-task, or /write-tech-spec when the AC source is a
+  /csp-start-task, /csp-start-issue-task, or /csp-write-tech-spec when the AC source is a
   Jira key or atlassian.net URL. Never invents ticket contents. Stops if MCP
   fails.
 ---
@@ -13,8 +13,8 @@ Load a Jira issue as Acceptance Criteria / bug source of truth. Parsing uses `sc
 
 ## When to Use
 
-- `/start-task` / `--fast` / `/write-tech-spec` when the AC source looks like a Jira issue
-- `/start-issue-task` (always — this is the fetch step)
+- `/csp-start-task` / `--fast` / `/csp-write-tech-spec` when the AC source looks like a Jira issue
+- `/csp-start-issue-task` (always — this is the fetch step)
 - Not for writing AC, Linear, or inventing description text
 
 ## Detect
@@ -44,7 +44,7 @@ fi
 LEDGER=".cursor/gates/trajectory-run/fetch-failure-stops.json"
 python3 "$KIT/scripts/trajectory-cases.py" record init \
   --ledger "$LEDGER" --case-id fetch-failure-stops \
-  --invocation "/start-task PROJ-1" --fetch fail
+  --invocation "/csp-start-task PROJ-1" --fetch fail
 python3 "$KIT/scripts/trajectory-cases.py" record stage --ledger "$LEDGER" jira-fetch
 python3 "$KIT/scripts/trajectory-cases.py" record artifact --ledger "$LEDGER" \
   --kind report --name stop-paste-ticket
@@ -52,9 +52,9 @@ python3 "$KIT/scripts/trajectory-cases.py" record dump --ledger "$LEDGER"
 python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"
 ```
 
-If `record dump` fails, skip score. If score prints `FAIL`, print its `FAIL` lines and stop. At that stop, ask skill `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/capture-escape` with the `FAIL` lines and do not start `engineer-reviewer`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only when the current git root contains both `skills/engineer-review` and `agents/engineer-reviewer.md`; otherwise print the `FAIL` log and stop. After validate, display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Do not continue bootstrap. Do not ask `pipeline-route`, `tech-spec-entry`, or `ready`. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
+If `record dump` fails, skip score. If score prints `FAIL`, print its `FAIL` lines and stop. At that stop, ask skill `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/csp-capture-escape` with the `FAIL` lines and do not start `csp-engineer-reviewer`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only when the current git root contains both `skills/engineer-review` and `agents/csp-engineer-reviewer.md`; otherwise print the `FAIL` log and stop. After validate, display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Do not continue bootstrap. Do not ask `pipeline-route`, `tech-spec-entry`, or `ready`. Do not invent acceptance criteria. If score prints `PASS` or score was skipped, still wait for pasted ticket text. In chat, say in one full sentence when trajectory score was skipped.
 
-For every `/start-task` fetch failure, use the case's fixed `--invocation "/start-task PROJ-1"` input shown above, regardless of the requested ticket key. If the caller was `/start-issue-task` or `/write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
+For every `/csp-start-task` fetch failure, use the case's fixed `--invocation "/csp-start-task PROJ-1"` input shown above, regardless of the requested ticket key. If the caller was `/csp-start-issue-task` or `/csp-write-tech-spec`, skip this case because its input would not match; still stop for pasted ticket text and skip score.
 
 ## Assemble AC text
 
@@ -92,4 +92,4 @@ Pass to the caller (do not start tech-spec or bug-fixer yourself):
 
 Record `jira_key` (and browse URL when known) as the tech-spec **AC references** entry. The assembled `ac_text` is the AC body — not a stub link.
 
-Callers `/start-task` and `/start-issue-task` next invoke skill `jira-transition` target `in_progress`. `/write-tech-spec` does not.
+Callers `/csp-start-task` and `/csp-start-issue-task` next invoke skill `jira-transition` target `in_progress`. `/csp-write-tech-spec` does not.

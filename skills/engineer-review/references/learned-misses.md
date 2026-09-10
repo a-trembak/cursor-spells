@@ -120,7 +120,7 @@ source: engineer-review
 
 Mechanism: markup review matches the desktop Figma frame; tablet and phone widths (and existing hide-column / stack / row-expander patterns) are never opened, so overlay chrome and nested tables break only on narrower viewports.
 
-Required check: [responsive-layout-checklist.md](responsive-layout-checklist.md) V1–V4. Figma skip does not waive the gate — `review-patterns` still runs it.
+Required check: [responsive-layout-checklist.md](responsive-layout-checklist.md) V1–V4. Figma skip does not waive the gate — `csp-review-patterns` still runs it.
 
 ---
 
@@ -270,3 +270,67 @@ source: teach-review
 Mechanism: a fix adds null guards to the reported endpoint but review never opens other callers of the same helper or sibling endpoints that share the mapping pipeline — so production still 500s on the untouched paths.
 
 Required check: [null-safety-checklist.md](null-safety-checklist.md) **N1**.
+
+---
+
+### `miss_asymmetric-empty-collection-fail-close`
+
+```yaml
+id: miss_asymmetric-empty-collection-fail-close
+miss_class: asymmetric-empty-collection-fail-close
+triggers:
+  - Optional.empty | empty list | absent response
+  - empty children | nested collection walk
+  - scoped candidate | fallback candidate | include current context
+  - fail-close | early return empty
+phases: [logic]
+gate: FC1
+rule_one_liner: >-
+  When empty/absent upstream collections fail closed before adding a
+  scoped/fallback candidate, require the same policy for present-but-empty
+  children — both empty shapes must include or exclude candidates consistently.
+anti_pattern: >-
+  Early-returning empty on Optional.empty()/absent wrapper while still
+  adding a scoped/fallback candidate when the collection exists with empty
+  children.
+hits: 1
+last_seen: 2026-09-09
+source: teach-review
+```
+
+Mechanism: review closes after checking the happy path or one empty shape; the other empty shape short-circuits earlier and drops the scoped/fallback candidate, so fail-close is inconsistent.
+
+Required check: [empty-collection-fail-close-checklist.md](empty-collection-fail-close-checklist.md) **FC1**.
+
+---
+
+### `miss_prefixed-agent-unprefixed-skill`
+
+```yaml
+id: miss_prefixed-agent-unprefixed-skill
+miss_class: prefixed-agent-unprefixed-skill
+triggers:
+  - commands/ rename | agents/ rename | shared prefix csp-
+  - pipeline-flow.md | pipeline-flow.html | Mermaid agent label
+  - skills/<name>/SKILL.md | harness-health | skill name:
+  - Skill `/finish-plan` | Skill `/csp-
+phases: [patterns]
+gate: P1
+also: [P2, P3, P4]
+rule_one_liner: >-
+  When slash commands and agents share a prefix, update Mermaid and
+  pipeline-canvas agent labels to the prefixed agent ids; keep skill
+  folders and name fields unprefixed; never write Skill with a slash path;
+  harness opens skills/<name>/ with unprefixed names.
+anti_pattern: >-
+  Prefixing commands/agents while leaving Mermaid or canvas labels on the
+  old agent ids, inventing skills/csp-…/, writing Skill `/csp-…`, or
+  pointing harness health at prefixed skill directories.
+hits: 1
+last_seen: 2026-09-09
+source: teach-review
+```
+
+Mechanism: a shared command/agent prefix rename updates `commands/` and `agents/` but skips pipeline Mermaid/canvas labels, or mistakenly prefixes skill folders and harness paths — collapsing the skill vs slash-command distinction.
+
+Required check: [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) **P1–P4**.

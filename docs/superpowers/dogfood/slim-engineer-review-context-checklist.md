@@ -22,7 +22,7 @@ bash scripts/harness-bench.sh
 ## Checks
 
 1. `skills/engineer-review/SKILL.md` **Context budget** lists Always-on / Phase-only / Merge-only with concrete files.
-2. `agents/engineer-reviewer.md` is a short pointer; spine steps live only in the skill.
+2. `agents/csp-engineer-reviewer.md` is a short pointer; spine steps live only in the skill.
 3. Abort on catastrophic budget does not require loading `feedback-format.md` / humanizers.
 4. Merge/report loads feedback pack; phases still open full checklists when triggers fire (logic, architecture, figma Always load).
 5. `skill-map.md` still has Database skill routing ids for installer; orch uses `skill-map-orch.md`.

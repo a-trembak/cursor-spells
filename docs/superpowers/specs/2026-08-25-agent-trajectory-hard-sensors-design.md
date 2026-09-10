@@ -6,7 +6,7 @@
 
 ## Goal
 
-Given a case from `evals/trajectories/cases/` and a run record, emit `pass` or `fail` with one finding per broken sensor. The scorer must not call a model. It must not execute `/start-task`.
+Given a case from `evals/trajectories/cases/` and a run record, emit `pass` or `fail` with one finding per broken sensor. The scorer must not call a model. It must not execute `/csp-start-task`.
 
 ## Problem
 
@@ -24,7 +24,7 @@ The golden set names the contract. Nothing yet compares an actual path to that c
 | Stage order | `required_stages` must be an ordered subsequence of `stages_entered` |
 | Human tokens | `tokens_offered` must equal the case token set (order-independent). If the case omits `tokens` or uses `["*"]`, any non-empty offer for that gate passes |
 | Forbidden | Fail if the id appears in `actions_taken`, **or** an inferred detector listed below fires |
-| Judge | Nested Task `trajectory-judge` (not `software-developer`) writes `invent-business-facts` / `archaeology-in-decision-docs` into `actions_taken`, then hard `score` runs again. The judge never replaces sensors |
+| Judge | Nested Task `csp-trajectory-judge` (not `software-developer`) writes `invent-business-facts` / `archaeology-in-decision-docs` into `actions_taken`, then hard `score` runs again. The judge never replaces sensors |
 
 ## Run record
 
@@ -82,5 +82,5 @@ Committed passing records live under `evals/trajectories/fixtures/pass/`. Failin
 
 - Language-model-as-judge
 - Executing the kit pipeline to produce a run
-- Auto-writing cases from `/capture-escape`
+- Auto-writing cases from `/csp-capture-escape`
 - Installing fixtures into consumer apps

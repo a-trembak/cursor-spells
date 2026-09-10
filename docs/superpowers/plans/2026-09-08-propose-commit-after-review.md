@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Zero product `git commit` until settled engineer-review **and** human `approve-commit`.
-- Applies to full, `--fast`, and `/start-issue-task` pipelines.
+- Applies to full, `--fast`, and `/csp-start-issue-task` pipelines.
 - No separate engineer-reviewer commit token (`human_only_after_both`).
 - `propose-commit` never pushes and never opens a GitHub pull request.
 - Full path: `propose-commit` → `update-docs` → optional second `propose-commit` for residual docs → `create-pr`.
@@ -38,8 +38,8 @@
 | `skills/create-pr/SKILL.md` | No quiet product commit; require clean tree or stop to `propose-commit` |
 | `skills/engineer-review/SKILL.md` | After settled pipeline review → `propose-commit` before docs/PR |
 | `skills/update-docs/SKILL.md` | After publish, if dirty → residual `propose-commit` |
-| `commands/start-task.md` | Full + fast spines insert `propose-commit` |
-| `commands/start-issue-task.md` | Insert `propose-commit` before `create-pr` |
+| `commands/csp-start-task.md` | Full + fast spines insert `propose-commit` |
+| `commands/csp-start-issue-task.md` | Insert `propose-commit` before `create-pr` |
 | `docs/superpowers/pipeline-flow.md` | Document the new stage |
 | `docs/superpowers/pipeline-flow.html` | Mirror the new stage (enough for contract greps) |
 | `scripts/tests/pipeline-flow-graph-test.sh` | Assert `propose-commit` appears in flow docs |
@@ -106,8 +106,8 @@ assert_file "skills/bug-fix/SKILL.md"
 assert_file "skills/create-pr/SKILL.md"
 assert_file "skills/engineer-review/SKILL.md"
 assert_file "skills/update-docs/SKILL.md"
-assert_file "commands/start-task.md"
-assert_file "commands/start-issue-task.md"
+assert_file "commands/csp-start-task.md"
+assert_file "commands/csp-start-issue-task.md"
 assert_file "skills/finish-plan/references/review-surface.md"
 assert_file "scripts/pipeline-gates.sh"
 
@@ -131,9 +131,9 @@ assert_grep create_pr_no_quiet "skills/create-pr/SKILL.md" "must not silently co
 
 assert_grep er_handoff "skills/engineer-review/SKILL.md" "propose-commit"
 assert_grep docs_residual "skills/update-docs/SKILL.md" "propose-commit"
-assert_grep start_full "commands/start-task.md" "propose-commit"
-assert_grep start_fast "commands/start-task.md" "propose-commit"
-assert_grep start_issue "commands/start-issue-task.md" "propose-commit"
+assert_grep start_full "commands/csp-start-task.md" "propose-commit"
+assert_grep start_fast "commands/csp-start-task.md" "propose-commit"
+assert_grep start_issue "commands/csp-start-issue-task.md" "propose-commit"
 
 assert_grep surface_uncommitted "skills/finish-plan/references/review-surface.md" "git status|git diff|uncommitted"
 assert_grep gates_kind "scripts/pipeline-gates.sh" "commit-approved"
@@ -394,7 +394,7 @@ Keep the existing “Do not write implementation commits on `main` / `master` / 
 In `skills/bug-fix/SKILL.md`, under hard rules or a clear **Hard rules** section, add:
 
 ```markdown
-- **Never `git commit`** during pipeline fix work. Leave changes uncommitted for skill `propose-commit` after engineer-review. Nested `bug-fixer` / task agents inherit this forbid
+- **Never `git commit`** during pipeline fix work. Leave changes uncommitted for skill `propose-commit` after engineer-review. Nested `csp-bug-fixer` / task agents inherit this forbid
 ```
 
 Keep existing anti-pattern text about stacking likely fixes across commits (still valid as a debugging rule; pipeline simply never commits until the gate).
@@ -511,8 +511,8 @@ git commit -m "fix(create-pr): refuse quiet product commits without propose-comm
 **Files:**
 - Modify: `skills/engineer-review/SKILL.md`
 - Modify: `skills/update-docs/SKILL.md`
-- Modify: `commands/start-task.md`
-- Modify: `commands/start-issue-task.md`
+- Modify: `commands/csp-start-task.md`
+- Modify: `commands/csp-start-issue-task.md`
 - Test: `scripts/tests/propose-commit-test.sh`
 
 **Interfaces:**
@@ -524,10 +524,10 @@ git commit -m "fix(create-pr): refuse quiet product commits without propose-comm
 In `skills/engineer-review/SKILL.md`, after the pipeline docs handoff bullet (step 15 / “Pipeline docs handoff via `update-docs`…”), change to:
 
 ```markdown
-15. After a successful **pipeline** review (from `/start-task` / `finish-plan` / `/start-task --fast` / `/start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`propose-commit`** next. Then:
+15. After a successful **pipeline** review (from `/csp-start-task` / `finish-plan` / `/csp-start-task --fast` / `/csp-start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`propose-commit`** next. Then:
     - Full path: `update-docs` (existing destination HITL), then if the tree is still dirty invoke **`propose-commit`** again for residual docs, then `create-pr`.
     - Fast / issue: `create-pr` (no `update-docs` unless the human asked).
-    Manual `/engineer-review` does **not** auto-start `propose-commit` or `update-docs` unless the human asks.
+    Manual `/csp-engineer-review` does **not** auto-start `propose-commit` or `update-docs` unless the human asks.
 ```
 
 Adjust any earlier sentence that says update-docs runs immediately after review without `propose-commit`.
@@ -537,12 +537,12 @@ Adjust any earlier sentence that says update-docs runs immediately after review 
 In `skills/update-docs/SKILL.md` Notes or end of publish step, add:
 
 ```markdown
-- After publish on the **full** `/start-task` path: if intentional files remain uncommitted in the product repo, the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` those files to bypass the gate (leave files on disk; report paths).
+- After publish on the **full** `/csp-start-task` path: if intentional files remain uncommitted in the product repo, the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` those files to bypass the gate (leave files on disk; report paths).
 ```
 
 Remove or soften any line that says “Stage/commit only if the human's workflow…” into: leave uncommitted for `propose-commit`; do not bypass the gate.
 
-- [ ] **Step 3: `commands/start-task.md` full mode**
+- [ ] **Step 3: `commands/csp-start-task.md` full mode**
 
 Between step 7 (Engineer review) and step 8 (Update docs), insert:
 
@@ -569,7 +569,7 @@ After engineer review in fast mode, before Create PR:
 6. **Create PR** — …
 ```
 
-- [ ] **Step 5: `commands/start-issue-task.md`**
+- [ ] **Step 5: `commands/csp-start-issue-task.md`**
 
 After step 6 engineer review, before create-pr:
 
@@ -581,7 +581,7 @@ After step 6 engineer review, before create-pr:
 - [ ] **Step 6: Commit**
 
 ```bash
-git add skills/engineer-review/SKILL.md skills/update-docs/SKILL.md commands/start-task.md commands/start-issue-task.md
+git add skills/engineer-review/SKILL.md skills/update-docs/SKILL.md commands/csp-start-task.md commands/csp-start-issue-task.md
 git commit -m "feat(pipeline): wire propose-commit into full fast and issue"
 ```
 

@@ -226,6 +226,39 @@ want_skill() {
   return 0
 }
 
+# Remove prior unprefixed command/agent symlinks (or refresh copies) that this
+# kit used to own under the old name. Never delete foreign files/links.
+remove_owned_unprefixed_kit_links() {
+  local cursor_root="$1"
+  local kind="$2" # commands | agents
+  local dir="$cursor_root/$kind"
+  local dest base target resolved kit_dir
+  [[ -d "$dir" ]] || return 0
+  kit_dir="$KIT_ROOT/$kind"
+
+  for dest in "$dir"/*.md; do
+    [[ -e "$dest" || -L "$dest" ]] || continue
+    base="$(basename "$dest")"
+    [[ "$base" == csp-* ]] && continue
+    # Only migrate when the prefixed twin exists in this kit
+    [[ -e "$kit_dir/csp-$base" ]] || continue
+
+    if [[ -L "$dest" ]]; then
+      target="$(readlink "$dest")"
+      resolved=""
+      resolved="$(cd "$(dirname "$dest")" && cd "$(dirname "$target")" 2>/dev/null && pwd)/$(basename "$target")" || true
+      # Owned if link target is/was under this kit's commands|agents dir
+      if [[ "$target" == "$kit_dir"/* || "$resolved" == "$kit_dir"/* || "$target" == "$KIT_ROOT/$kind"/* ]]; then
+        rm -f "$dest"
+        echo "removed stale kit link: $dest"
+      fi
+    elif [[ -f "$dest" && "$COPY_MODE" -eq 1 && "$FORCE_REFRESH" -eq 1 ]]; then
+      rm -rf "$dest"
+      echo "removed stale kit copy: $dest"
+    fi
+  done
+}
+
 # Link/copy every kit skill, command, and agent into a Cursor root
 # ($1 = ~/.cursor or <project>/.cursor).
 sync_kit_entries_into() {
@@ -240,12 +273,14 @@ sync_kit_entries_into() {
     link_or_copy "$src" "$cursor_root/skills/$name"
   done
 
+  remove_owned_unprefixed_kit_links "$cursor_root" commands
   for src in "$KIT_ROOT"/commands/*.md; do
     [[ -e "$src" ]] || continue
     name="$(basename "$src")"
     link_or_copy "$src" "$cursor_root/commands/$name"
   done
 
+  remove_owned_unprefixed_kit_links "$cursor_root" agents
   for src in "$KIT_ROOT"/agents/*.md; do
     [[ -e "$src" ]] || continue
     name="$(basename "$src")"
@@ -362,9 +397,9 @@ if [[ -n "$PROJECT" && "$USER_ONLY" -eq 0 ]]; then
 elif [[ "$USER_ONLY" -eq 1 ]]; then
   echo
   echo "NOTE: --user-only only links into ~/.cursor/agents|commands|skills."
-  echo "  • In Cursor IDE: reload the window, then @engineer-reviewer / @pr-reviewer (subagents)."
+  echo "  • In Cursor IDE: reload the window, then @csp-engineer-reviewer / @csp-pr-reviewer (subagents)."
   echo "  • Cursor CLI completions often list only <project>/.cursor/agents — run \`csp install\` from your app (no --user-only) for project-visible agents."
   echo "  • Check: ls -la ~/.cursor/agents"
 fi
-echo "next: open the project in Cursor → /start-task  /approve-plan  /pr-review  /engineer-review"
+echo "next: open the project in Cursor → /csp-start-task  /csp-approve-plan  /csp-pr-review  /csp-engineer-review"
 echo "tip: mapped third-party skills are installed from skill-map.md unless --skip-third-party-skills"

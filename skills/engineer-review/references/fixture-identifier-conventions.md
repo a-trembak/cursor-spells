@@ -1,6 +1,6 @@
 # Fixture identifier conventions (device-family codes)
 
-Canonical gate for `review-logic` when tests bind identifier codes to a device family, platform, or product line. Catch **wrong family on a fixture code**: merge, count, or aggregation assertions look right, but the code would never occur for that family in production.
+Canonical gate for `csp-review-logic` when tests bind identifier codes to a device family, platform, or product line. Catch **wrong family on a fixture code**: merge, count, or aggregation assertions look right, but the code would never occur for that family in production.
 
 Do **not** hardcode product names or ticket ids. Apply the rule; examples are illustration only.
 

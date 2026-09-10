@@ -37,9 +37,9 @@ assert_absent() {
 }
 
 SKILL="skills/engineer-review/SKILL.md"
-ORCH="agents/engineer-reviewer.md"
-LOGIC="agents/review-logic.md"
-ARCH="agents/review-architecture.md"
+ORCH="agents/csp-engineer-reviewer.md"
+LOGIC="agents/csp-review-logic.md"
+ARCH="agents/csp-review-architecture.md"
 
 assert_file "$SKILL"
 assert_file "$ORCH"

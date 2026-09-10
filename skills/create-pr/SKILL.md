@@ -1,8 +1,8 @@
 ---
 name: create-pr
 description: >-
-  Use at the end of a kit pipeline (/start-task, /start-task --fast,
-  /start-issue-task) or when asked to open a draft PR for the current feature
+  Use at the end of a kit pipeline (/csp-start-task, /csp-start-task --fast,
+  /csp-start-issue-task) or when asked to open a draft PR for the current feature
   branch work. Product commits happen only via skill `propose-commit`; this
   skill pushes and opens or updates a draft GitHub PR, then HITL Pipeline finale
   (keep draft / ready / Jira comment). Never merges. On ready / ready_jira with
@@ -16,9 +16,9 @@ Shared **pipeline finale**: ensure work is on a feature branch, committed, pushe
 
 ## When to Use
 
-- End of full `/start-task` (after `update-docs`)
-- End of `/start-task --fast` (after `engineer-reviewer`)
-- End of `/start-issue-task` (after `engineer-reviewer`)
+- End of full `/csp-start-task` (after `update-docs`)
+- End of `/csp-start-task --fast` (after `csp-engineer-reviewer`)
+- End of `/csp-start-issue-task` (after `csp-engineer-reviewer`)
 - Human asks to open/update a draft PR for the current kit-driven branch
 - Not from `finish-plan` review-surface — that step only checks out branches and calls `SetActiveBranch`; it must not open a GitHub pull request
 
@@ -88,7 +88,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
    - **Four-token Jira finale** (`jira_key` known; tokens `keep_draft,ready,keep_draft_jira,ready_jira`):
      - If Jira is already Review-like, skip score because this case requires an observed Jira end state of `In Progress`, then apply the human's already-chosen token.
      - If `jira_status` from fetch is missing or is not `In Progress` (and not already handled as Review-like), skip score. Do not invent `--jira-status "In Progress"`.
-     - Use `LEDGER=".cursor/gates/trajectory-run/create-pr-draft-never-merge.json"`. Init case `create-pr-draft-never-merge` with `invocation: "skill create-pr"`, `fetch: ok`, `jira_class: feature` (this slice's contract; do not copy the parent `/start-task` invocation).
+     - Use `LEDGER=".cursor/gates/trajectory-run/create-pr-draft-never-merge.json"`. Init case `create-pr-draft-never-merge` with `invocation: "skill create-pr"`, `fetch: ok`, `jira_class: feature` (this slice's contract; do not copy the parent `/csp-start-task` invocation).
      - `record stage create-pr`, then `record stage pipeline-finale-hitl`.
      - `record gate --gate pipeline-finale --tokens keep_draft,ready,keep_draft_jira,ready_jira`.
      - Include `--review-report absent --jira-status "In Progress"` only when scoring.
@@ -102,7 +102,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
    - **Session ledger:** if `.cursor/gates/trajectory-run/session-full.json`, `session-fast.json`, or `session-issue.json` exists, append `create-pr`, `pipeline-finale-hitl`, draft artifact, finale gate (the tokens actually offered), and the same observed end, then score that session file too (`full-happy-path` / `fast-skips-plan-layer` / `issue-happy-path`). Missing session file → skip the end-to-end score only.
    - Run `record dump`, then `python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"` (and the session run when present).
    - Skip score when the kit path or scorer is missing, or when the ledger dump fails. In chat, say in one full sentence that trajectory score was skipped.
-   - On `FAIL`: print the `FAIL` lines and stop. At that stop, ask skill `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/capture-escape` with the `FAIL` lines and do not start `engineer-reviewer`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only when the current git root contains both `skills/engineer-review` and `agents/engineer-reviewer.md`; otherwise print the `FAIL` log and stop. After validate, display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Do not run `gh pr ready`. Do not merge.
+   - On `FAIL`: print the `FAIL` lines and stop. At that stop, ask skill `hitl-choice` preset **Trajectory fail**. On `skip`, mention `/csp-capture-escape` with the `FAIL` lines and do not start `csp-engineer-reviewer`. On `generalize`, follow `evals/trajectories/README.md` “Add a case” only when the current git root contains both `skills/engineer-review` and `agents/csp-engineer-reviewer.md`; otherwise print the `FAIL` log and stop. After validate, display the validated case JSON (the file contents) in chat and wait for the human to confirm it is correct before `git commit`. Do not offer `git diff` as a substitute. Do not run `gh pr ready`. Do not merge.
    - On `PASS` or skipped score: apply the human's already-chosen token in the following steps.
 10. **Jira comment** (only for `keep_draft_jira` / `ready_jira`):
    - Discover Atlassian MCP; call `addCommentToJiraIssue` with `cloudId` (`jira_cloud_id`), `issueIdOrKey` (`jira_key`), `commentBody` = PR URL(s) plus a one-line summary.

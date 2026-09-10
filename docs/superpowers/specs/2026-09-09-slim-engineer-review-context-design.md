@@ -2,11 +2,11 @@
 
 ## Status
 
-`approved` — shrink orchestrator prompt load for `engineer-review` / `engineer-reviewer` without deleting phase checklists or regressing review quality.
+`approved` — shrink orchestrator prompt load for `engineer-review` / `csp-engineer-reviewer` without deleting phase checklists or regressing review quality.
 
 ## Goal
 
-Cut bytes the **orchestrator** must load up front so more of the context window stays available for dispatch, budget, and Coverage. Phase agents and `review-learn` keep full checklist quality. Merge/report loads feedback formatting only when a report will be shown.
+Cut bytes the **orchestrator** must load up front so more of the context window stays available for dispatch, budget, and Coverage. Phase agents and `csp-review-learn` keep full checklist quality. Merge/report loads feedback formatting only when a report will be shown.
 
 ## Decisions
 
@@ -15,7 +15,7 @@ Cut bytes the **orchestrator** must load up front so more of the context window 
 | File | Why |
 |------|-----|
 | `skills/engineer-review/SKILL.md` | Canonical spine (HITL, budget, dispatch, teach-review, pipeline handoff) |
-| `agents/engineer-reviewer.md` | Thin pointer + hard rules tests and safety require |
+| `agents/csp-engineer-reviewer.md` | Thin pointer + hard rules tests and safety require |
 | `references/phase-protocol.md` | Inputs, caps, order, merge, Coverage (orch-owned) |
 | `references/review-learn-protocol.md` | Thin load/dispatch: ≤5 hints; never read ledgers |
 | `references/graphify-protocol.md` | Detect + `impact_hint` + orchestrator hook |
@@ -32,7 +32,7 @@ Abort / skip / catastrophic-narrow paths use **only** always-on files. They must
 |------|--------|
 | `references/phase-protocol-detail.md` | JSON schema, process, apply detail, skip conditions |
 | `references/skill-map.md` | Full map (Database ids, phase→skills, installer source of truth) |
-| `references/review-learn-capture.md` | Capture shape + store rules for `review-learn` |
+| `references/review-learn-capture.md` | Capture shape + store rules for `csp-review-learn` |
 | `references/graphify-r3-force-include.md` | R3 force-include neighborhood |
 | `references/interaction-replay-checklist.md` | R1–R7 |
 | `references/auth-rtk-checklist.md` | Auth specialization |
@@ -44,11 +44,11 @@ Abort / skip / catastrophic-narrow paths use **only** always-on files. They must
 | `references/fixture-identifier-conventions.md` | I1 |
 | `references/simplify-checklist.md` | Kit extensions (+ pointer to lenses) |
 | `references/simplify-lenses-fallback.md` | Lens A–C when `ce-simplify-code` missing |
-| `references/learned-misses.md` | Kit seed — `review-learn` `mode:load` only |
+| `references/learned-misses.md` | Kit seed — `csp-review-learn` `mode:load` only |
 | `references/review-learnings-template.md` | Capture create |
 | Phase agent prompts (`agents/review-*.md`) | Trigger → open full checklist |
 
-Orchestrator may **point** phases / `review-learn` at these paths. It must **not** instruct loading their bodies into orchestrator context (except naming them as phase-owned).
+Orchestrator may **point** phases / `csp-review-learn` at these paths. It must **not** instruct loading their bodies into orchestrator context (except naming them as phase-owned).
 
 ### Merge-only (load at report time, not at start)
 
@@ -83,14 +83,14 @@ Never delete or empty these quality bodies (shrink is load-routing only):
 ## Spine ownership
 
 - **One canonical spine** lives in `skills/engineer-review/SKILL.md`.
-- `agents/engineer-reviewer.md` is a short pointer plus hard rules that existing greps and safety require (clarify evidence, teach-review tokens, skill-map link, no mid-run `npx skills add`, Coverage keys, never edit kit git).
+- `agents/csp-engineer-reviewer.md` is a short pointer plus hard rules that existing greps and safety require (clarify evidence, teach-review tokens, skill-map link, no mid-run `npx skills add`, Coverage keys, never edit kit git).
 
 ## Regression tests required
 
 - New: `scripts/tests/engineer-review-context-budget-test.sh` (picked up by `scripts/harness-bench.sh` via `scripts/tests/*.sh`)
   - Context budget section lists always vs phase-only vs merge-only
   - Orchestrator SKILL/agent must **not** instruct loading bodies of the checklist set above (and `learned-misses.md`) into orch context
-  - Phase agents with triggers still require opening the full checklist (`review-logic`, `review-architecture`; figma already has Always-load)
+  - Phase agents with triggers still require opening the full checklist (`csp-review-logic`, `csp-review-architecture`; figma already has Always-load)
 - Existing must stay green: `clarify-question-evidence`, `figma-markup-checklist`, `teach-review-contract`, `mapped-third-party-skills`, `propose-commit`, `plain-language-chat`, `code-comments`, `developer-reviewer-handoff`
 
 ## Non-goals

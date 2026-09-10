@@ -55,7 +55,7 @@ printf '%s\n' "docs/plans/demo.md" >"$REV/.cursor/gates/review-gate/DEMO"
 cat >"$REV/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
 {
   "case_id": "full-happy-path",
-  "stages_entered": ["start-build", "software-developer"],
+  "stages_entered": ["start-build", "csp-software-developer"],
   "artifacts_present": [],
   "actions_taken": [],
   "human_gates_asked": [],
@@ -68,7 +68,7 @@ assert_eq review_layer "review" "$(json_field "$rev_json" 'd["layer"]')"
 assert_eq review_stage "review-gate" "$(json_field "$rev_json" 'd["stage"]')"
 assert_eq review_pending_kind "review-gate" "$(json_field "$rev_json" 'd["pending_gates"][0]["kind"]')"
 assert_eq review_pending_slug "DEMO" "$(json_field "$rev_json" 'd["pending_gates"][0]["slug"]')"
-assert_eq review_legal_to "Build/software-developer" "$(json_field "$rev_json" 'next((x["to"] for x in d["legal_returns"] if "fixes" in x.get("how","") or x["to"].startswith("Build")), "")')"
+assert_eq review_legal_to "Build/csp-software-developer" "$(json_field "$rev_json" 'next((x["to"] for x in d["legal_returns"] if "fixes" in x.get("how","") or x["to"].startswith("Build")), "")')"
 # legal_returns for review-gate includes Build / fixes
 legal_how="$(json_field "$rev_json" '" ".join(x.get("how","") for x in d["legal_returns"])')"
 assert_contains review_legal_fixes "$legal_how" "fixes"
@@ -88,7 +88,7 @@ mkdir -p "$LED/.cursor/gates/trajectory-run"
 cat >"$LED/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
 {
   "case_id": "full-happy-path",
-  "stages_entered": ["tech-spec", "writing-plans", "software-developer"],
+  "stages_entered": ["csp-tech-spec", "writing-plans", "csp-software-developer"],
   "artifacts_present": [],
   "actions_taken": [],
   "human_gates_asked": [],
@@ -97,9 +97,9 @@ cat >"$LED/.cursor/gates/trajectory-run/session-full.json" <<'EOF'
 EOF
 led_json="$("$SCRIPT" --json --root "$LED")"
 assert_eq ledger_route "full" "$(json_field "$led_json" 'd["route"]')"
-assert_eq ledger_stage "software-developer" "$(json_field "$led_json" 'd["stage"]')"
+assert_eq ledger_stage "csp-software-developer" "$(json_field "$led_json" 'd["stage"]')"
 assert_eq ledger_layer "build" "$(json_field "$led_json" 'd["layer"]')"
-assert_eq ledger_entered_last "software-developer" "$(json_field "$led_json" 'd["stages_entered"][-1]')"
+assert_eq ledger_entered_last "csp-software-developer" "$(json_field "$led_json" 'd["stages_entered"][-1]')"
 
 # --- Fixture: plan-critique-clear alone (no pending → active plan unknown) ---
 CLR_ORPHAN="$TMP/clear-orphan"

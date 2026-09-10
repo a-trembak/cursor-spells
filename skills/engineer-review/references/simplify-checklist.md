@@ -36,10 +36,10 @@ Do **not** re-flag what personas already own (bit-identical utility reuse, neste
 
 | Topic | Owner |
 |-------|--------|
-| Missing close/unsubscribe / listener leaks | ce-simplify **efficiency** (memory) — escalate to `review-performance` / `review-security` when systemic |
-| Unused imports/exports, commented-out code | `review-deadcode` |
-| Hot-path N+1, pagination, re-render storms | `review-performance` |
-| Layering / package boundaries | `review-architecture` |
+| Missing close/unsubscribe / listener leaks | ce-simplify **efficiency** (memory) — escalate to `csp-review-performance` / `csp-review-security` when systemic |
+| Unused imports/exports, commented-out code | `csp-review-deadcode` |
+| Hot-path N+1, pagination, re-render storms | `csp-review-performance` |
+| Layering / package boundaries | `csp-review-architecture` |
 
 Lens A–C fallback tables: [`simplify-lenses-fallback.md`](simplify-lenses-fallback.md).
 

@@ -2,7 +2,7 @@
 
 Passes A and B run on every critic invocation — one alone misses a different class of plan defect (a plan can be simple but silently unsafe on migration, or safe but over-engineered).
 
-**Pass C** runs whenever the plan is a **bug-fix plan** (path/topic contains `-fix`, caller is `/start-issue-task`, or the plan states it addresses a defect/regression). Skip Pass C for feature/implementation plans that are not bug fixes; note `pass_c: n/a (not a bug-fix plan)` in Coverage.
+**Pass C** runs whenever the plan is a **bug-fix plan** (path/topic contains `-fix`, caller is `/csp-start-issue-task`, or the plan states it addresses a defect/regression). Skip Pass C for feature/implementation plans that are not bug fixes; note `pass_c: n/a (not a bug-fix plan)` in Coverage.
 
 ## Pass A — Design (skill: `plan-reviewer`, mblode/agent-skills)
 

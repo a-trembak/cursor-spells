@@ -68,12 +68,12 @@ minimal_valid() {
   "end_to_end": false,
   "status": "active",
   "input": {
-    "invocation": "/write-tech-spec",
+    "invocation": "/csp-write-tech-spec",
     "fetch": "skip"
   },
-  "required_stages": ["tech-spec"],
+  "required_stages": ["csp-tech-spec"],
   "required_artifacts": [
-    {"kind": "file", "name": "tech-spec", "pattern": "docs/superpowers/specs/*-tech-spec.md"}
+    {"kind": "file", "name": "csp-tech-spec", "pattern": "docs/superpowers/specs/*-tech-spec.md"}
   ],
   "forbidden": ["invent-business-facts"],
   "human_must_appear": [
@@ -122,11 +122,11 @@ assert_exit duplicate_id 1 "${VALIDATOR[@]}" --dir "$CASES"
 rm -f "$CASES/duplicate-copy.json"
 
 minimal_valid "$CASES/minimal-slice.json"
-python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["pipeline"]="fast"; d["end_to_end"]=True; d["required_stages"]=["tech-spec"]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["pipeline"]="fast"; d["end_to_end"]=True; d["required_stages"]=["csp-tech-spec"]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
 assert_exit fast_end_to_end_rejects_tech_spec 1 "${VALIDATOR[@]}" --dir "$CASES"
 
 minimal_valid "$CASES/minimal-slice.json"
-python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["required_stages"]=["tech-spec","create-pr"]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["required_stages"]=["csp-tech-spec","create-pr"]; json.dump(d, open(p,"w"))' "$CASES/minimal-slice.json"
 assert_exit create_pr_requires_never_merge 1 "${VALIDATOR[@]}" --dir "$CASES"
 
 minimal_valid "$CASES/minimal-slice.json"
@@ -159,7 +159,7 @@ minimal_valid "$CASES/minimal-slice.json"
 cat >"$TMP/wrong-stage-run.json" <<'JSON'
 {
   "case_id": "minimal-slice",
-  "input": {"invocation": "/write-tech-spec", "fetch": "skip"},
+  "input": {"invocation": "/csp-write-tech-spec", "fetch": "skip"},
   "stages_entered": [[]],
   "artifacts_present": [],
   "actions_taken": [],

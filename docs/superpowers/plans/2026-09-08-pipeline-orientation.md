@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Give humans a live “where am I” orientation for the quality pipeline: chat status strip at every human gate, `/pipeline-status` from disk markers + session ledger, and `pipeline-flow.html` highlighting via URL query parameters.
+**Goal:** Give humans a live “where am I” orientation for the quality pipeline: chat status strip at every human gate, `/csp-pipeline-status` from disk markers + session ledger, and `pipeline-flow.html` highlighting via URL query parameters.
 
 **Architecture:** A bash resolver (`scripts/pipeline-status.sh`) derives an orientation record from `.cursor/gates/*` and optional trajectory session ledgers. Skill + slash command print a status strip and a canvas URL with `?route=&layer=&stage=`. The existing HTML canvas reads those params and applies `done` / `here` / `waiting` styles. No new gate kinds; back-navigation stays informational in v1.
 
@@ -32,11 +32,11 @@
 | `docs/superpowers/pipeline-flow.html` | Parse query params; highlight layers/nodes |
 | `scripts/tests/pipeline-flow-graph-test.sh` | Extend for query-param / class contract |
 | `skills/pipeline-status/SKILL.md` | Strip template + when to run resolver |
-| `commands/pipeline-status.md` | Slash command entry |
+| `commands/csp-pipeline-status.md` | Slash command entry |
 | `skills/hitl-choice/SKILL.md` | Require orientation strip before closed-set asks |
-| `commands/start-task.md` | Brief note that orientation strip applies on full/fast/issue human gates |
+| `commands/csp-start-task.md` | Brief note that orientation strip applies on full/fast/issue human gates |
 | `docs/superpowers/pipeline-flow.md` | Orientation section + legend |
-| `README.md` | Mention `/pipeline-status` next to canvas blurb |
+| `README.md` | Mention `/csp-pipeline-status` next to canvas blurb |
 | `docs/superpowers/dogfood/pipeline-orientation-checklist.md` | Manual dogfood steps |
 | `scripts/install-to-project.sh` | Copy `pipeline-status.sh` into consumer `scripts/` like `pipeline-gates.sh` |
 
@@ -145,11 +145,11 @@ git commit -m "Highlight pipeline-flow canvas from URL query params"
 
 ---
 
-### Task 3: Skill + slash command `/pipeline-status`
+### Task 3: Skill + slash command `/csp-pipeline-status`
 
 **Files:**
 - Create: `skills/pipeline-status/SKILL.md`
-- Create: `commands/pipeline-status.md`
+- Create: `commands/csp-pipeline-status.md`
 
 **Interfaces:**
 - Consumes: `scripts/pipeline-status.sh` from kit path (via `.cursor/cursor-spells-kit-path` or `$KIT`) or consumer `scripts/pipeline-status.sh` after install
@@ -157,11 +157,11 @@ git commit -m "Highlight pipeline-flow canvas from URL query params"
 
 - [ ] **Step 1: Write skill**
 
-Skill body: when to use (before every `hitl-choice` closed-set ask; on `/pipeline-status`); run resolver; print strip; never advance gates.
+Skill body: when to use (before every `hitl-choice` closed-set ask; on `/csp-pipeline-status`); run resolver; print strip; never advance gates.
 
 - [ ] **Step 2: Write command**
 
-`commands/pipeline-status.md`: resolve project root = cwd; run script; print output. Optional args: none required.
+`commands/csp-pipeline-status.md`: resolve project root = cwd; run script; print output. Optional args: none required.
 
 - [ ] **Step 3: Smoke**
 
@@ -172,7 +172,7 @@ Expected: non-empty strip, valid `--json`.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/pipeline-status/SKILL.md commands/pipeline-status.md
+git add skills/pipeline-status/SKILL.md commands/csp-pipeline-status.md
 git commit -m "Add pipeline-status skill and slash command"
 ```
 
@@ -182,7 +182,7 @@ git commit -m "Add pipeline-status skill and slash command"
 
 **Files:**
 - Modify: `skills/hitl-choice/SKILL.md`
-- Modify: `commands/start-task.md` (one short orientation note under full-mode / shared notes)
+- Modify: `commands/csp-start-task.md` (one short orientation note under full-mode / shared notes)
 - Optional one-liner in `skills/finish-plan/SKILL.md`, `skills/approve-plan/SKILL.md`, `skills/tech-spec/SKILL.md`: “before ask, skill `pipeline-status` strip” — prefer single choke point in `hitl-choice` to avoid drift
 
 **Interfaces:**
@@ -195,22 +195,22 @@ Insert mandatory step: before the interactive question tool, invoke skill `pipel
 
 - [ ] **Step 2: Add start-task pointer**
 
-In `commands/start-task.md` full-mode notes: human gates use `hitl-choice` orientation strip; humans may run `/pipeline-status` anytime.
+In `commands/csp-start-task.md` full-mode notes: human gates use `hitl-choice` orientation strip; humans may run `/csp-pipeline-status` anytime.
 
 - [ ] **Step 3: Grep contract (lightweight)**
 
 Add asserts to `scripts/tests/pipeline-status-test.sh` or a tiny `scripts/tests/pipeline-status-wiring-test.sh`:
 
 - `hitl-choice/SKILL.md` mentions `pipeline-status`
-- `commands/pipeline-status.md` exists
-- `commands/start-task.md` mentions `/pipeline-status` or orientation strip
+- `commands/csp-pipeline-status.md` exists
+- `commands/csp-start-task.md` mentions `/csp-pipeline-status` or orientation strip
 
 - [ ] **Step 4: Run wiring tests — PASS**
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/hitl-choice/SKILL.md commands/start-task.md scripts/tests/pipeline-status-wiring-test.sh
+git add skills/hitl-choice/SKILL.md commands/csp-start-task.md scripts/tests/pipeline-status-wiring-test.sh
 git commit -m "Require orientation strip before hitl-choice asks"
 ```
 
@@ -228,11 +228,11 @@ git commit -m "Require orientation strip before hitl-choice asks"
 
 - [ ] **Step 1: Add orientation section to `pipeline-flow.md`**
 
-After the legend: how to read `/pipeline-status`, URL params table, legal-returns note (informational).
+After the legend: how to read `/csp-pipeline-status`, URL params table, legal-returns note (informational).
 
 - [ ] **Step 2: README blurb**
 
-Extend the canvas sentence to mention `/pipeline-status` and query-param highlight.
+Extend the canvas sentence to mention `/csp-pipeline-status` and query-param highlight.
 
 - [ ] **Step 3: Dogfood checklist**
 
@@ -257,8 +257,8 @@ bash scripts/tests/pipeline-status-wiring-test.sh
 bash scripts/tests/pipeline-flow-graph-test.sh
 ```
 
-All PASS. Manual: `/pipeline-status` (or script) against a fixture shows strip + openable canvas URL with highlight.
+All PASS. Manual: `/csp-pipeline-status` (or script) against a fixture shows strip + openable canvas URL with highlight.
 
 ## Execution handoff
 
-After `approve-plan` → `implementation-critic` → `Verdict: clear` → `start-build` dispatches nested Task `software-developer` for this plan path; wait; then `finish-plan`.
+After `approve-plan` → `implementation-critic` → `Verdict: clear` → `start-build` dispatches nested Task `csp-software-developer` for this plan path; wait; then `finish-plan`.

@@ -1,10 +1,10 @@
 # Responsive layout checklist (V1–V4)
 
-Canonical gates for `review-figma-markup` and `review-patterns`. Catch **desktop-only layout review**: a dense table, expandable card, or overlay looks fine at desktop width or on the desktop Figma frame, but collides, clips, or overflows from tablet down to phone.
+Canonical gates for `csp-review-figma-markup` and `csp-review-patterns`. Catch **desktop-only layout review**: a dense table, expandable card, or overlay looks fine at desktop width or on the desktop Figma frame, but collides, clips, or overflows from tablet down to phone.
 
 Do **not** hardcode product widgets. Apply the rules; examples are illustration only.
 
-`review-figma-markup` skipped (`no figma`, awaiting URLs, not frontend) does **not** waive these gates. `review-patterns` still runs V1–V4 on frontend diffs.
+`csp-review-figma-markup` skipped (`no figma`, awaiting URLs, not frontend) does **not** waive these gates. `csp-review-patterns` still runs V1–V4 on frontend diffs.
 
 ---
 

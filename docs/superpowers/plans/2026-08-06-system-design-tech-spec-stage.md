@@ -4,9 +4,9 @@
 
 **Goal:** Vendor Anthropic's system-design framework into cursor-spells and wire a designer + critic pair into the `tech-spec` stage so architectural decisions are stress-tested before `writing-plans`, with human-always-full / agent light|full entry and a single `approve-spec` gate after merge.
 
-**Architecture:** New `skills/system-design` plus `system-design-designer` and `system-design-critic` agents produce a temporary `…-system-design.md`. The existing `tech-spec` orchestrator chooses light vs full, runs auto-consensus rounds (≤3) without asking the human to break designer↔critic ties, merges into the standard 7-section tech-spec, and keeps the existing `approve-spec` HITL. Blocker asks remain only when AC/human plan omit a required business fact.
+**Architecture:** New `skills/system-design` plus `csp-system-design-designer` and `system-design-critic` agents produce a temporary `…-system-design.md`. The existing `tech-spec` orchestrator chooses light vs full, runs auto-consensus rounds (≤3) without asking the human to break designer↔critic ties, merges into the standard 7-section tech-spec, and keeps the existing `approve-spec` HITL. Blocker asks remain only when AC/human plan omit a required business fact.
 
-**Tech Stack:** Markdown Cursor skills/agents/commands/rules (prompt kit, not compiled software) — same format as `skills/tech-spec/` and `agents/implementation-critic.md`.
+**Tech Stack:** Markdown Cursor skills/agents/commands/rules (prompt kit, not compiled software) — same format as `skills/tech-spec/` and `agents/csp-implementation-critic.md`.
 
 ## Global Constraints
 
@@ -33,14 +33,14 @@
 | `skills/system-design-critic/SKILL.md` | When to use, lenses, severity, read-only rule |
 | `skills/system-design-critic/references/lenses.md` | Built-in checklists (YAGNI, failure modes, ops risk, patterns fit) |
 | `skills/system-design-critic/references/output-schema.md` | Report shape + Verdict for consensus loop |
-| `agents/system-design-designer.md` | Agent spine for drafting/formatting |
-| `agents/system-design-critic.md` | Agent spine for audit |
+| `agents/csp-system-design-designer.md` | Agent spine for drafting/formatting |
+| `agents/csp-system-design-critic.md` | Agent spine for audit |
 | `skills/tech-spec/SKILL.md` | Entry light/full; full orchestration; merge; context budget |
 | `skills/tech-spec/references/full-path.md` | Full-path orchestration + merge map (new) |
 | `skills/tech-spec/references/question-discipline.md` | Note: full-path pair disputes ≠ Decision HITL |
-| `agents/tech-spec.md` | Updated spine |
+| `agents/csp-tech-spec.md` | Updated spine |
 | `skills/hitl-choice/SKILL.md` | Preset: Tech-spec depth (`light` / `full`) |
-| `commands/write-tech-spec.md`, `commands/start-task.md` | Document new HITL |
+| `commands/csp-write-tech-spec.md`, `commands/csp-start-task.md` | Document new HITL |
 | `docs/superpowers/pipeline-flow.md`, `pipeline-flow.html` | Diagram branch |
 | `README.md` | Skill/agent rows |
 | `docs/superpowers/dogfood/system-design-tech-spec-checklist.md` | Manual fixtures: human full, agent full, agent light |
@@ -212,7 +212,7 @@ Used only on tech-spec **full** path. The human is not asked to break designer�
 
 ## Roles
 
-- **Designer** (`system-design-designer`): writes/revises `…-system-design.md`
+- **Designer** (`csp-system-design-designer`): writes/revises `…-system-design.md`
 - **Critic** (`system-design-critic`): read-only audit; emits findings + Verdict
 - **Orchestrator** (`tech-spec` skill/agent): runs the loop, merges, owns HITL
 
@@ -260,18 +260,18 @@ git commit -m "feat(system-design): add designer-critic consensus protocol"
 
 ---
 
-### Task 3: `system-design-designer` agent
+### Task 3: `csp-system-design-designer` agent
 
 **Files:**
-- Create: `agents/system-design-designer.md`
+- Create: `agents/csp-system-design-designer.md`
 
 **Interfaces:**
 - Consumes: skill `system-design`, modes from Task 1, consensus protocol from Task 2.
-- Produces: agent name `system-design-designer` for tech-spec orchestrator dispatch.
+- Produces: agent name `csp-system-design-designer` for tech-spec orchestrator dispatch.
 
 - [ ] **Step 1: Write the agent file**
 
-Write `agents/system-design-designer.md`:
+Write `agents/csp-system-design-designer.md`:
 
 ````markdown
 ---
@@ -318,7 +318,7 @@ The system-design file path, plus a short note listing any Blocker that needs th
 Run:
 
 ```bash
-test -f agents/system-design-designer.md && rg -n 'system-design-designer|format-human-plan|draft-from-ac' agents/system-design-designer.md
+test -f agents/csp-system-design-designer.md && rg -n 'csp-system-design-designer|format-human-plan|draft-from-ac' agents/csp-system-design-designer.md
 ```
 
 Expected: file exists; mode strings present.
@@ -326,7 +326,7 @@ Expected: file exists; mode strings present.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/system-design-designer.md
+git add agents/csp-system-design-designer.md
 git commit -m "feat(agents): add system-design-designer"
 ```
 
@@ -338,7 +338,7 @@ git commit -m "feat(agents): add system-design-designer"
 - Create: `skills/system-design-critic/SKILL.md`
 - Create: `skills/system-design-critic/references/lenses.md`
 - Create: `skills/system-design-critic/references/output-schema.md`
-- Create: `agents/system-design-critic.md`
+- Create: `agents/csp-system-design-critic.md`
 
 **Interfaces:**
 - Consumes: path to `…-system-design.md`.
@@ -438,7 +438,7 @@ Write `skills/system-design-critic/SKILL.md`:
 
 ````markdown
 ---
-name: system-design-critic
+name: csp-system-design-critic
 description: >-
   Use on the tech-spec full path after a system-design draft exists. Audits the
   draft for YAGNI, failure modes, operational risk, and patterns fit. Read-only;
@@ -451,7 +451,7 @@ Read-only audit of a **system-design draft** before it merges into a tech-spec. 
 
 ## When to Use
 
-- Full tech-spec path after `system-design-designer` wrote `…-system-design.md`
+- Full tech-spec path after `csp-system-design-designer` wrote `…-system-design.md`
 - Consensus re-check rounds
 - Not for light tech-spec; not for implementation plans; not for code review
 
@@ -474,11 +474,11 @@ This skill + both reference files + the draft path under review.
 
 - [ ] **Step 4: Write critic agent**
 
-Write `agents/system-design-critic.md`:
+Write `agents/csp-system-design-critic.md`:
 
 ````markdown
 ---
-name: system-design-critic
+name: csp-system-design-critic
 description: >-
   Audits a system-design draft on the tech-spec full path for YAGNI, failure
   modes, operational risk, and patterns fit. Use inside designer↔critic
@@ -517,7 +517,7 @@ Only the markdown report from the output schema.
 Run:
 
 ```bash
-test -f skills/system-design-critic/SKILL.md && test -f agents/system-design-critic.md && rg -n 'Verdict|must-fix|Never ask the human' skills/system-design-critic/references/output-schema.md agents/system-design-critic.md
+test -f skills/system-design-critic/SKILL.md && test -f agents/csp-system-design-critic.md && rg -n 'Verdict|must-fix|Never ask the human' skills/system-design-critic/references/output-schema.md agents/csp-system-design-critic.md
 ```
 
 Expected: files exist; no-human and Verdict language present.
@@ -525,7 +525,7 @@ Expected: files exist; no-human and Verdict language present.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add skills/system-design-critic agents/system-design-critic.md
+git add skills/system-design-critic agents/csp-system-design-critic.md
 git commit -m "feat(system-design-critic): add skill, lenses, schema, and agent"
 ```
 
@@ -583,7 +583,7 @@ git commit -m "feat(hitl-choice): add tech-spec depth light/full preset"
 - Modify: `skills/tech-spec/references/question-discipline.md` (short clarification only)
 
 **Interfaces:**
-- Consumes: agents `system-design-designer`, `system-design-critic`; consensus protocol; merge map.
+- Consumes: agents `csp-system-design-designer`, `system-design-critic`; consensus protocol; merge map.
 - Produces: orchestrated full path ending in standard tech-spec draft for `approve-spec`.
 
 - [ ] **Step 1: Write full-path reference**
@@ -600,15 +600,15 @@ Write `skills/tech-spec/references/full-path.md`:
 
 ## Brief
 
-Collect once: AC source, optional human plan path/text, `.cursor/project-patterns.md` if present, stack label from `/start-task` bootstrap when available.
+Collect once: AC source, optional human plan path/text, `.cursor/project-patterns.md` if present, stack label from `/csp-start-task` bootstrap when available.
 
 ## Steps
 
-1. Dispatch `system-design-designer`:
+1. Dispatch `csp-system-design-designer`:
    - `human` → mode `format-human-plan`
    - `agent`+`full` → mode `draft-from-ac`
 2. Wait until `…-system-design.md` exists with `Status: draft`.
-3. Run consensus loop per `skills/system-design/references/consensus-protocol.md` (dispatch `system-design-critic`, revise via designer, max 3 rounds).
+3. Run consensus loop per `skills/system-design/references/consensus-protocol.md` (dispatch `csp-system-design-critic`, revise via designer, max 3 rounds).
 4. On Blocker from missing business fact: one `hitl-choice` ask; resume loop with updated brief.
 5. Merge into tech-spec per map below; write `docs/superpowers/specs/YYYY-MM-DD-<topic>-tech-spec.md` with `Status: draft`.
 6. Set system-design file `Status: merged` (keep file).
@@ -694,16 +694,16 @@ git commit -m "feat(tech-spec): orchestrate full system-design path and light de
 
 ---
 
-### Task 7: Update `agents/tech-spec.md` + commands
+### Task 7: Update `agents/csp-tech-spec.md` + commands
 
 **Files:**
-- Modify: `agents/tech-spec.md`
-- Modify: `commands/write-tech-spec.md`
-- Modify: `commands/start-task.md`
+- Modify: `agents/csp-tech-spec.md`
+- Modify: `commands/csp-write-tech-spec.md`
+- Modify: `commands/csp-start-task.md`
 
 - [ ] **Step 1: Rewrite tech-spec agent spine**
 
-Update `agents/tech-spec.md` Spine / Hard rules to match Task 6:
+Update `agents/csp-tech-spec.md` Spine / Hard rules to match Task 6:
 
 - Entry → (agent) depth → light or full-path
 - Human → always full-path with `format-human-plan`
@@ -713,13 +713,13 @@ Update `agents/tech-spec.md` Spine / Hard rules to match Task 6:
 
 Keep preconditions (require AC). Remove the old behavior that human mode only checks a pre-written 7-section file for structural gaps — human mode now supplies a **plan** for formatting via system-design (per approved design). If the human instead provides an already-complete tech-spec file and asks to skip design, they can still use `skip` after a minimal draft or choose agent/light — do not invent a third entry mode in this task.
 
-- [ ] **Step 2: Update `/write-tech-spec`**
+- [ ] **Step 2: Update `/csp-write-tech-spec`**
 
-In `commands/write-tech-spec.md` Steps, after step mentioning entry question, add depth HITL for agent mode and note full path uses system-design pair + merge. Keep gate step unchanged.
+In `commands/csp-write-tech-spec.md` Steps, after step mentioning entry question, add depth HITL for agent mode and note full path uses system-design pair + merge. Keep gate step unchanged.
 
-- [ ] **Step 3: Update `/start-task`**
+- [ ] **Step 3: Update `/csp-start-task`**
 
-In `commands/start-task.md` pipeline step 2 (Tech spec), document:
+In `commands/csp-start-task.md` pipeline step 2 (Tech spec), document:
 
 - HITL entry `human` / `agent`
 - If `agent`: HITL `light` / `full`
@@ -731,7 +731,7 @@ In `commands/start-task.md` pipeline step 2 (Tech spec), document:
 Run:
 
 ```bash
-rg -n 'light|full|system-design|format-human-plan' agents/tech-spec.md commands/write-tech-spec.md commands/start-task.md
+rg -n 'light|full|system-design|format-human-plan' agents/csp-tech-spec.md commands/csp-write-tech-spec.md commands/csp-start-task.md
 ```
 
 Expected: all three files mention the new depth/full path.
@@ -739,7 +739,7 @@ Expected: all three files mention the new depth/full path.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add agents/tech-spec.md commands/write-tech-spec.md commands/start-task.md
+git add agents/csp-tech-spec.md commands/csp-write-tech-spec.md commands/csp-start-task.md
 git commit -m "feat(tech-spec): wire agents and commands to full/light paths"
 ```
 
@@ -778,7 +778,7 @@ Add to Skills table:
 Add to Agents table:
 
 ```markdown
-| `system-design-designer` | Formats/drafts system-design for tech-spec full path |
+| `csp-system-design-designer` | Formats/drafts system-design for tech-spec full path |
 | `system-design-critic` | Critiques system-design drafts; no human asks mid-loop |
 ```
 
@@ -852,12 +852,12 @@ test -f skills/system-design/SKILL.md \
   && test -f skills/system-design-critic/SKILL.md \
   && test -f skills/system-design-critic/references/lenses.md \
   && test -f skills/system-design-critic/references/output-schema.md \
-  && test -f agents/system-design-designer.md \
-  && test -f agents/system-design-critic.md \
+  && test -f agents/csp-system-design-designer.md \
+  && test -f agents/csp-system-design-critic.md \
   && test -f skills/tech-spec/references/full-path.md \
   && test -f docs/superpowers/dogfood/system-design-tech-spec-checklist.md \
   && rg -n 'Tech-spec depth' skills/hitl-choice/SKILL.md \
-  && rg -n 'full-path' skills/tech-spec/SKILL.md agents/tech-spec.md
+  && rg -n 'full-path' skills/tech-spec/SKILL.md agents/csp-tech-spec.md
 ```
 
 Expected: all tests succeed (exit 0).
@@ -868,7 +868,7 @@ Run:
 
 ```bash
 rg -n 'approve-design|MAX_ROUNDS|format-human-plan|never ask the human|Status: merged' \
-  skills/system-design skills/system-design-critic skills/tech-spec agents/system-design-designer.md agents/system-design-critic.md agents/tech-spec.md
+  skills/system-design skills/system-design-critic skills/tech-spec agents/csp-system-design-designer.md agents/csp-system-design-critic.md agents/csp-tech-spec.md
 ```
 
 Expected: `format-human-plan`, `MAX_ROUNDS` or `3`, `merged`, and no-human rules present; **no** `approve-design` gate instructions ( Mentions saying it is forbidden/absent are OK).

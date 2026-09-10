@@ -22,9 +22,9 @@
 ## File Structure
 
 - `skills/engineer-review/references/skill-map.md` (modified, full replacement) — adds "Database skill routing", "Skill resolution protocol", and "Discovered" sections; updates the "Phase → skills" table's `logic`/`architecture` rows
-- `agents/review-logic.md` (modified, targeted edit) — Setup step 1 now also loads the matching DB skill row when relevant, and defers to the Skill resolution protocol for uncovered stacks
-- `agents/review-architecture.md` (modified, targeted edit) — Skills line now also loads the matching DB skill row when relevant
-- `agents/engineer-reviewer.md` (modified, targeted edit) — new Hard rule: never install/invent a skill for an uncovered stack, follow the Skill resolution protocol
+- `agents/csp-review-logic.md` (modified, targeted edit) — Setup step 1 now also loads the matching DB skill row when relevant, and defers to the Skill resolution protocol for uncovered stacks
+- `agents/csp-review-architecture.md` (modified, targeted edit) — Skills line now also loads the matching DB skill row when relevant
+- `agents/csp-engineer-reviewer.md` (modified, targeted edit) — new Hard rule: never install/invent a skill for an uncovered stack, follow the Skill resolution protocol
 - `README.md` (modified, targeted edit) — one paragraph describing DB routing and the skill resolution protocol
 
 Every change is additive to an existing file; no new files are created in this sub-project (all the new logic belongs in `skill-map.md`, the file every phase agent already treats as the single source of truth for skill routing).
@@ -93,7 +93,7 @@ Migrations and schema work are a named weak spot for AI-generated code (blast ra
 | Flyway/Spring | Spring Flyway migration skill |
 | Prisma | `prisma/skills@prisma-cli` + matching dialect skill |
 
-## Stack detection → lint/typecheck commands (for `review-lint`)
+## Stack detection → lint/typecheck commands (for `csp-review-lint`)
 
 Prefer the project's own `package.json` script over calling the binary directly.
 
@@ -160,17 +160,17 @@ git commit -m "Add Database skill routing and Skill resolution protocol to skill
 
 ---
 
-### Task 2: Wire `review-logic` to DB routing and the resolution protocol
+### Task 2: Wire `csp-review-logic` to DB routing and the resolution protocol
 
 **Files:**
-- Modify: `agents/review-logic.md:12` (Setup step 1 only)
+- Modify: `agents/csp-review-logic.md:12` (Setup step 1 only)
 
 **Interfaces:**
 - Consumes: `skill-map.md`'s Database skill routing and Skill resolution protocol sections (Task 1).
 
 - [ ] **Step 1: Replace Setup step 1**
 
-In `agents/review-logic.md`, change:
+In `agents/csp-review-logic.md`, change:
 
 ```markdown
 1. Load the stack skill from engineer-review `skill-map.md` (Vercel React BP, RN, or Java Spring). If missing, use a solid built-in checklist and set `notes` with `skill_missing`.
@@ -184,29 +184,29 @@ to:
 
 - [ ] **Step 2: Verify the edit landed**
 
-Run: `grep -c "Database skill routing trigger" agents/review-logic.md && grep -c "Skill resolution protocol" agents/review-logic.md`
+Run: `grep -c "Database skill routing trigger" agents/csp-review-logic.md && grep -c "Skill resolution protocol" agents/csp-review-logic.md`
 Expected: `1`, `1`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/review-logic.md
+git add agents/csp-review-logic.md
 git commit -m "Wire review-logic to DB skill routing and skill resolution protocol"
 ```
 
 ---
 
-### Task 3: Wire `review-architecture` to DB routing
+### Task 3: Wire `csp-review-architecture` to DB routing
 
 **Files:**
-- Modify: `agents/review-architecture.md:19` (Skills line only)
+- Modify: `agents/csp-review-architecture.md:19` (Skills line only)
 
 **Interfaces:**
 - Consumes: `skill-map.md`'s Database skill routing section (Task 1).
 
 - [ ] **Step 1: Replace the Skills line**
 
-In `agents/review-architecture.md`, change:
+In `agents/csp-review-architecture.md`, change:
 
 ```markdown
 Use `architecture-review` (Sentry Warden) if installed; patterns file; optional graphify queries for “what calls what”.
@@ -220,13 +220,13 @@ Use `architecture-review` (Sentry Warden) if installed; patterns file; optional 
 
 - [ ] **Step 2: Verify the edit landed**
 
-Run: `grep -c "Database skill routing" agents/review-architecture.md`
+Run: `grep -c "Database skill routing" agents/csp-review-architecture.md`
 Expected: `1`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/review-architecture.md
+git add agents/csp-review-architecture.md
 git commit -m "Wire review-architecture to DB skill routing"
 ```
 
@@ -235,35 +235,35 @@ git commit -m "Wire review-architecture to DB skill routing"
 ### Task 4: Add a Hard rule to the orchestrator against inventing skills
 
 **Files:**
-- Modify: `agents/engineer-reviewer.md:52` (Hard rules section only)
+- Modify: `agents/csp-engineer-reviewer.md:52` (Hard rules section only)
 
 **Interfaces:**
 - Consumes: `skill-map.md`'s Skill resolution protocol section (Task 1).
 
 - [ ] **Step 1: Add the new Hard rule**
 
-In `agents/engineer-reviewer.md`, change:
+In `agents/csp-engineer-reviewer.md`, change:
 
 ```markdown
-- Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `review-lint` and its tool's own auto-fixer.
+- Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `csp-review-lint` and its tool's own auto-fixer.
 ```
 
 to:
 
 ```markdown
-- Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `review-lint` and its tool's own auto-fixer.
+- Never let a heuristic phase hand-edit code to satisfy a lint rule — mechanical style/lint findings belong to `csp-review-lint` and its tool's own auto-fixer.
 - Never install a third-party skill for a stack/task not covered by `skill-map.md`, or invent one that doesn't exist, on the orchestrator's own initiative — follow its Skill resolution protocol instead (Tier 1: direct lookup; Tier 2: candidate search via a cheap-model subagent is allowed, but adoption is always human-gated).
 ```
 
 - [ ] **Step 2: Verify the edit landed**
 
-Run: `grep -c "Skill resolution protocol" agents/engineer-reviewer.md`
+Run: `grep -c "Skill resolution protocol" agents/csp-engineer-reviewer.md`
 Expected: `1`
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/engineer-reviewer.md
+git add agents/csp-engineer-reviewer.md
 git commit -m "Add orchestrator hard rule against inventing skills for uncovered stacks"
 ```
 

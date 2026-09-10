@@ -2,18 +2,18 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a `tech-spec` skill/agent and `/write-tech-spec` + `/start-task` commands that produce a developer's technical action plan (services/tables/contracts/rollout — not a PRD) from agreed Acceptance Criteria, asking one question at a time for anything uncertain and never inventing business requirements.
+**Goal:** Add a `tech-spec` skill/agent and `/csp-write-tech-spec` + `/csp-start-task` commands that produce a developer's technical action plan (services/tables/contracts/rollout — not a PRD) from agreed Acceptance Criteria, asking one question at a time for anything uncertain and never inventing business requirements.
 
-**Architecture:** A single agent runs an entry question (human-authored vs. agent-drafted spec), then in agent mode drafts a fixed 7-section template while applying a three-tier uncertainty protocol (Blocker: stop and ask; Decision: present 2-3 options; Assumption: log without asking) reused from the `brainstorming` skill's question-loop mechanics. `/start-task` is a thin, non-drafting bootstrap that loads context and hands off to `/write-tech-spec`.
+**Architecture:** A single agent runs an entry question (human-authored vs. agent-drafted spec), then in agent mode drafts a fixed 7-section template while applying a three-tier uncertainty protocol (Blocker: stop and ask; Decision: present 2-3 options; Assumption: log without asking) reused from the `brainstorming` skill's question-loop mechanics. `/csp-start-task` is a thin, non-drafting bootstrap that loads context and hands off to `/csp-write-tech-spec`.
 
-**Tech Stack:** Markdown-based Cursor skill/agent/command definitions (this is a prompt-engineering kit, not compiled software) — same format as `skills/implementation-critic/` and `agents/implementation-critic.md` from the prior sub-project.
+**Tech Stack:** Markdown-based Cursor skill/agent/command definitions (this is a prompt-engineering kit, not compiled software) — same format as `skills/implementation-critic/` and `agents/csp-implementation-critic.md` from the prior sub-project.
 
 ## Global Constraints
 
 - The agent never invents a Blocker-tier or Decision-tier answer — it always asks, one question per message, multiple-choice preferred.
 - Assumption-tier defaults are written into the spec's own `Assumptions` section, never silently applied without a written trace.
 - The tech spec is always a **separate file**, English only, regardless of the conversation's working language.
-- `/start-task` makes no drafting decisions — it only bootstraps context (patterns, stack) and hands off to `/write-tech-spec`.
+- `/csp-start-task` makes no drafting decisions — it only bootstraps context (patterns, stack) and hands off to `/csp-write-tech-spec`.
 - The agent never sets `Status: approved` itself — only an explicit human `approve-spec` reply does that.
 - Frequent, small commits — one per task.
 - Before creating any file with a fenced code example, check whether it needs more than one level of code-fence nesting. If it does, use a 4-space-indented presentation block (see `docs/superpowers/plans/2026-07-24-implementation-critic.md` Task 6 for the precedent) instead of stacking same-length triple-backtick fences — nested triple-backtick fences of equal length are ambiguous Markdown and also break this kit's `task-brief` extraction tooling.
@@ -25,9 +25,9 @@
 - `skills/tech-spec/SKILL.md` — entry skill: when to use, entry question, three-tier summary, spine, gate
 - `skills/tech-spec/references/question-discipline.md` — full Blocker/Decision/Assumption protocol + question-asking mechanics + a self-check before finalizing
 - `skills/tech-spec/references/template.md` — the 7-section tech-spec template, file placement convention, and status header format
-- `agents/tech-spec.md` — the agent definition (preconditions, spine, hard rules, output contract)
-- `commands/write-tech-spec.md` — `/write-tech-spec [ac-source]` entry point
-- `commands/start-task.md` — `/start-task [ac-source]` thin bootstrap that hands off to `/write-tech-spec`
+- `agents/csp-tech-spec.md` — the agent definition (preconditions, spine, hard rules, output contract)
+- `commands/csp-write-tech-spec.md` — `/csp-write-tech-spec [ac-source]` entry point
+- `commands/csp-start-task.md` — `/csp-start-task [ac-source]` thin bootstrap that hands off to `/csp-write-tech-spec`
 - `docs/superpowers/dogfood/tech-spec-checklist.md` — manual verification fixture with a deliberately underspecified AC
 - `README.md` — add two table rows + a short Usage section
 
@@ -47,12 +47,12 @@ Each file has one responsibility: the skill file is the "what and why", the two 
 
 ```markdown
 ---
-name: tech-spec
+name: csp-tech-spec
 description: >-
   Use once Acceptance Criteria are agreed and before an implementation plan is
   written. Drives a developer's technical action plan (services, tables,
   contracts, rollout order) for a change — not a PRD. Use when the user runs
-  /write-tech-spec, /start-task, or asks to write a technical spec for a
+  /csp-write-tech-spec, /csp-start-task, or asks to write a technical spec for a
   feature. Never invents business requirements.
 ---
 
@@ -63,7 +63,7 @@ Produces a **developer's technical action plan**, not a PRD or user-story prose:
 ## When to Use
 
 - AC are agreed and an implementation plan doesn't exist yet
-- Manual `/write-tech-spec` or `/start-task`, or the user asks for a technical spec / technical design for a change
+- Manual `/csp-write-tech-spec` or `/csp-start-task`, or the user asks for a technical spec / technical design for a change
 - Not for writing AC themselves (assumed already agreed), and not for the implementation plan's task breakdown (that's `writing-plans`, consuming this spec's output)
 
 ## Entry question (always ask first)
@@ -228,26 +228,26 @@ git commit -m "Add tech-spec template reference"
 ### Task 4: Create the `tech-spec` agent
 
 **Files:**
-- Create: `agents/tech-spec.md`
+- Create: `agents/csp-tech-spec.md`
 
 **Interfaces:**
 - Consumes: skill name and reference paths from Tasks 1–3, the 7 section names from Task 3, the three-tier vocabulary from Task 2.
-- Produces: the agent name `tech-spec` that Task 5's `/write-tech-spec` command invokes.
+- Produces: the agent name `tech-spec` that Task 5's `/csp-write-tech-spec` command invokes.
 
 - [ ] **Step 1: Write the agent file**
 
 ```markdown
 ---
-name: tech-spec
+name: csp-tech-spec
 description: >-
   Drafts or structures a developer's technical action plan once Acceptance
   Criteria are agreed, before an implementation plan is written. Use when the
-  user runs /write-tech-spec, /start-task, or asks for a technical spec. Never
+  user runs /csp-write-tech-spec, /csp-start-task, or asks for a technical spec. Never
   invents business requirements; asks one question at a time for anything
   uncertain.
 ---
 
-You are the **tech-spec** agent. You produce a developer's technical action plan, not a PRD, and you never invent business-level facts.
+You are the **csp-tech-spec** agent. You produce a developer's technical action plan, not a PRD, and you never invent business-level facts.
 
 ## Preconditions
 
@@ -281,26 +281,26 @@ The tech-spec file itself, plus a short message pointing to its path and asking 
 
 - [ ] **Step 2: Verify frontmatter and reference wiring**
 
-Run: `grep -c "^name: tech-spec$" agents/tech-spec.md && grep -c "references/question-discipline.md" agents/tech-spec.md && grep -c "references/template.md" agents/tech-spec.md`
+Run: `grep -c "^name: tech-spec$" agents/csp-tech-spec.md && grep -c "references/question-discipline.md" agents/csp-tech-spec.md && grep -c "references/template.md" agents/csp-tech-spec.md`
 Expected: `1`, `1`, `2` (the template file is referenced twice — Spine step 2's Status-header mention and step 3b's section-drafting mention; the question-discipline file is referenced once, in step 3c)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add agents/tech-spec.md
+git add agents/csp-tech-spec.md
 git commit -m "Add tech-spec agent"
 ```
 
 ---
 
-### Task 5: Create the `/write-tech-spec` command
+### Task 5: Create the `/csp-write-tech-spec` command
 
 **Files:**
-- Create: `commands/write-tech-spec.md`
+- Create: `commands/csp-write-tech-spec.md`
 
 **Interfaces:**
 - Consumes: agent name `tech-spec` from Task 4.
-- Produces: the `/write-tech-spec` entry point that Task 6's `/start-task` hands off to.
+- Produces: the `/csp-write-tech-spec` entry point that Task 6's `/csp-start-task` hands off to.
 
 - [ ] **Step 1: Write the command file**
 
@@ -310,7 +310,7 @@ description: Draft or structure a developer's technical action plan from agreed 
 argument-hint: "[ac-source]"
 ---
 
-# /write-tech-spec
+# /csp-write-tech-spec
 
 Run the **tech-spec** agent.
 
@@ -321,7 +321,7 @@ Run the **tech-spec** agent.
 ## Steps
 
 1. Read and follow skill `tech-spec` (`skills/tech-spec/SKILL.md`).
-2. Invoke agent `tech-spec` with the AC source.
+2. Invoke agent `csp-tech-spec` with the AC source.
 3. Follow the entry question (`human` / `agent`) and, in agent mode, the three-tier question protocol from `references/question-discipline.md`.
 4. Stop for `approve-spec` / `revise` / `skip <reason>` before any implementation plan is written.
 
@@ -333,25 +333,25 @@ Run the **tech-spec** agent.
 
 - [ ] **Step 2: Verify the command invokes the right skill and agent**
 
-Run: `grep -c "tech-spec" commands/write-tech-spec.md`
+Run: `grep -c "csp-tech-spec" commands/csp-write-tech-spec.md`
 Expected: `4` (the header, the "Run the tech-spec agent" line, and the two Steps lines naming the skill and the agent)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add commands/write-tech-spec.md
-git commit -m "Add /write-tech-spec command"
+git add commands/csp-write-tech-spec.md
+git commit -m "Add /csp-write-tech-spec command"
 ```
 
 ---
 
-### Task 6: Create the `/start-task` command
+### Task 6: Create the `/csp-start-task` command
 
 **Files:**
-- Create: `commands/start-task.md`
+- Create: `commands/csp-start-task.md`
 
 **Interfaces:**
-- Consumes: the `/write-tech-spec` command name from Task 5.
+- Consumes: the `/csp-write-tech-spec` command name from Task 5.
 
 - [ ] **Step 1: Write the command file**
 
@@ -361,9 +361,9 @@ description: Bootstrap a new task — load Acceptance Criteria, project patterns
 argument-hint: "[ac-source]"
 ---
 
-# /start-task
+# /csp-start-task
 
-Thin entry point for beginning a new task. Bootstraps context, then delegates to `/write-tech-spec` — it makes no drafting decisions itself.
+Thin entry point for beginning a new task. Bootstraps context, then delegates to `/csp-write-tech-spec` — it makes no drafting decisions itself.
 
 ## Arguments
 
@@ -373,24 +373,24 @@ Thin entry point for beginning a new task. Bootstraps context, then delegates to
 
 1. Read `.cursor/project-patterns.md` in the **current project** if present (create it via the `engineer-review` patterns flow on first use of this kit in a project, if entirely absent).
 2. Detect the project's stack mechanically (same signals as `skill-map.md`'s stack-detection table: `package.json`, `pom.xml`, `docker-compose`, dependency names) — no reasoning call, a table lookup.
-3. Hand off to `/write-tech-spec` with the AC source, the patterns file path (if found), and the detected stack label.
+3. Hand off to `/csp-write-tech-spec` with the AC source, the patterns file path (if found), and the detected stack label.
 
 ## Notes
 
-- This command never drafts a tech spec itself — it only prepares context for `/write-tech-spec`.
+- This command never drafts a tech spec itself — it only prepares context for `/csp-write-tech-spec`.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
 ```
 
 - [ ] **Step 2: Verify the hand-off reference is present**
 
-Run: `grep -c "write-tech-spec" commands/start-task.md`
+Run: `grep -c "write-tech-spec" commands/csp-start-task.md`
 Expected: `3` (the body's hand-off sentence, Step 3, and the Notes line)
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add commands/start-task.md
-git commit -m "Add /start-task command"
+git add commands/csp-start-task.md
+git commit -m "Add /csp-start-task command"
 ```
 
 ---
@@ -412,7 +412,7 @@ Manual checklist to verify the tech-spec agent behaves. Do not require CI to exe
 
 ## Setup
 
-Give the agent (via `/write-tech-spec`, `agent` mode) this deliberately underspecified AC:
+Give the agent (via `/csp-write-tech-spec`, `agent` mode) this deliberately underspecified AC:
 
 > AC-1: As a customer, I can download a file containing my past orders.
 
@@ -464,7 +464,7 @@ git commit -m "Add tech-spec dogfood fixture"
 - Modify: `README.md` (Skills table, Agents table, Usage section)
 
 **Interfaces:**
-- Consumes: skill path `skills/tech-spec/`, agent name `tech-spec`, commands `/start-task` and `/write-tech-spec` from Tasks 1, 4, 5, 6.
+- Consumes: skill path `skills/tech-spec/`, agent name `tech-spec`, commands `/csp-start-task` and `/csp-write-tech-spec` from Tasks 1, 4, 5, 6.
 
 - [ ] **Step 1: Add a row to the Skills table**
 
@@ -501,7 +501,7 @@ to:
 In `README.md`, change:
 
 ```markdown
-**Manual review:** `/engineer-review`
+**Manual review:** `/csp-engineer-review`
 
 ### Critique a plan before coding
 ```
@@ -509,12 +509,12 @@ In `README.md`, change:
 to:
 
 ```markdown
-**Manual review:** `/engineer-review`
+**Manual review:** `/csp-engineer-review`
 
 ### Start a task / write a tech spec
 
-- `/start-task [ac-source]` — bootstraps context (project patterns, stack) and hands off to `/write-tech-spec`.
-- `/write-tech-spec [ac-source]` — drafts (or structures a human-written) developer technical action plan from agreed Acceptance Criteria: services/tables/contracts/rollout, not a PRD. Asks one question at a time for anything uncertain (Blocker/Decision), never invents a business fact.
+- `/csp-start-task [ac-source]` — bootstraps context (project patterns, stack) and hands off to `/csp-write-tech-spec`.
+- `/csp-write-tech-spec [ac-source]` — drafts (or structures a human-written) developer technical action plan from agreed Acceptance Criteria: services/tables/contracts/rollout, not a PRD. Asks one question at a time for anything uncertain (Blocker/Decision), never invents a business fact.
 - Does not hand off to `writing-plans` until the spec's `Status` is `approved` or explicitly `skip`ped.
 
 ### Critique a plan before coding
@@ -522,7 +522,7 @@ to:
 
 - [ ] **Step 4: Verify all additions landed**
 
-Run: `grep -c "tech-spec" README.md && grep -c "start-task" README.md`
+Run: `grep -c "csp-tech-spec" README.md && grep -c "start-task" README.md`
 Expected: `4`, `1` (README had zero mentions of either string before this task)
 
 - [ ] **Step 5: Commit**
@@ -536,7 +536,7 @@ git commit -m "Document tech-spec agent and start-task command in README"
 
 ## Self-Review
 
-**1. Spec coverage:** Every element of design spec §1 (`docs/superpowers/specs/2026-07-24-quality-pipeline-design.md`) is covered: the entry question (Task 1), the three-tier protocol (Task 2), the 7-section template with file placement (Task 3), the agent's spine and hard rules including "never sets Status: approved itself" and "never invents Blocker/Decision" (Task 4), and the Gate (Tasks 1, 4, 5). Design spec §6's cross-cutting note (reusing `brainstorming`'s question-loop mechanics as the reference implementation, not brainstorming itself) is stated explicitly in Task 2's file. `/start-task` was named but not behaviorally specified in the design doc's numbered sections — Task 6 implements it as a thin, non-drafting bootstrap (Assumption-tier default per the design's own Assumption-tier definition: a local scope decision with no business impact, since it makes no drafting choices and only delegates).
+**1. Spec coverage:** Every element of design spec §1 (`docs/superpowers/specs/2026-07-24-quality-pipeline-design.md`) is covered: the entry question (Task 1), the three-tier protocol (Task 2), the 7-section template with file placement (Task 3), the agent's spine and hard rules including "never sets Status: approved itself" and "never invents Blocker/Decision" (Task 4), and the Gate (Tasks 1, 4, 5). Design spec §6's cross-cutting note (reusing `brainstorming`'s question-loop mechanics as the reference implementation, not brainstorming itself) is stated explicitly in Task 2's file. `/csp-start-task` was named but not behaviorally specified in the design doc's numbered sections — Task 6 implements it as a thin, non-drafting bootstrap (Assumption-tier default per the design's own Assumption-tier definition: a local scope decision with no business impact, since it makes no drafting choices and only delegates).
 
 **2. Placeholder scan:** No `TBD`/`TODO`/"implement later" text anywhere in the plan's file contents. Every step contains the literal file content to write, not a description of it.
 

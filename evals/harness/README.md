@@ -20,7 +20,7 @@ bash scripts/harness-bench.sh
 
 Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `score --runs-dir evals/trajectories/fixtures/pass`. Writes `evals/harness/reports/<timestamp>.json`. Live report JSON is gitignored (keep `.gitkeep`).
 
-Slash command `/harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
+Slash command `/csp-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
 
 ## Related
 

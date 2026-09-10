@@ -9,7 +9,7 @@ description: >-
 
 # Trajectory judge
 
-A **separate instance** from `software-developer`. Reads named spec/plan files and reports whether forbidden trajectory actions occurred. Writes `actions_taken` on the ledger, then the caller **re-scores** with hard sensors. This judge never replaces `python3 scripts/trajectory-cases.py score`.
+A **separate instance** from `csp-software-developer`. Reads named spec/plan files and reports whether forbidden trajectory actions occurred. Writes `actions_taken` on the ledger, then the caller **re-scores** with hard sensors. This judge never replaces `python3 scripts/trajectory-cases.py score`.
 
 ## When to Use
 
@@ -19,7 +19,7 @@ A **separate instance** from `software-developer`. Reads named spec/plan files a
 
 ## Dispatch
 
-Invoke agent **`trajectory-judge`** as a **nested Task**. Do **not** dispatch `software-developer`, `bug-fixer`, or `engineer-reviewer` for this job. Wait for the Task to return.
+Invoke agent **`csp-trajectory-judge`** as a **nested Task**. Do **not** dispatch `csp-software-developer`, `csp-bug-fixer`, or `csp-engineer-reviewer` for this job. Wait for the Task to return.
 
 Pass: absolute paths of the spec and/or plan files just written, plus the acceptance criteria text (or ticket `ac_text`) actually given this turn.
 

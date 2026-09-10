@@ -28,8 +28,8 @@ assert_grep() {
 
 assert_file "skills/code-comments/SKILL.md"
 assert_file "skills/software-developer/SKILL.md"
-assert_file "agents/software-developer.md"
-assert_file "agents/review-deadcode.md"
+assert_file "agents/csp-software-developer.md"
+assert_file "agents/csp-review-deadcode.md"
 assert_file "skills/engineer-review/references/auto-fix-eligibility.md"
 
 # Taxonomy forbids presentation-tied comments and still keeps real invariants.
@@ -44,13 +44,13 @@ assert_grep taxonomy_keep_why "skills/code-comments/SKILL.md" "Why / invariant"
 assert_grep dev_skill_backend "skills/software-developer/SKILL.md" "backend"
 assert_grep dev_skill_chart_comment "skills/software-developer/SKILL.md" "chart"
 assert_grep dev_skill_loads_comments "skills/software-developer/SKILL.md" "code-comments"
-assert_grep dev_agent_backend "agents/software-developer.md" "backend"
-assert_grep dev_agent_chart_comment "agents/software-developer.md" "chart"
-assert_grep dev_agent_loads_comments "agents/software-developer.md" "code-comments"
+assert_grep dev_agent_backend "agents/csp-software-developer.md" "backend"
+assert_grep dev_agent_chart_comment "agents/csp-software-developer.md" "chart"
+assert_grep dev_agent_loads_comments "agents/csp-software-developer.md" "code-comments"
 
 # Review still classifies these comments; mixed invariant+chart is clarify, not silent delete.
-assert_grep deadcode_taxonomy "agents/review-deadcode.md" "skills/code-comments/SKILL.md"
-assert_grep deadcode_presentation "agents/review-deadcode.md" "chart|screen|widget|Figma"
+assert_grep deadcode_taxonomy "agents/csp-review-deadcode.md" "skills/code-comments/SKILL.md"
+assert_grep deadcode_presentation "agents/csp-review-deadcode.md" "chart|screen|widget|Figma"
 assert_grep eligibility_mixed_clarify "skills/engineer-review/references/auto-fix-eligibility.md" "chart"
 
 if [[ "$fail" -ne 0 ]]; then
