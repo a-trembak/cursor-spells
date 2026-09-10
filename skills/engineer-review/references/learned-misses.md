@@ -334,3 +334,33 @@ source: teach-review
 Mechanism: a shared command/agent prefix rename updates `commands/` and `agents/` but skips pipeline Mermaid/canvas labels, or mistakenly prefixes skill folders and harness paths — collapsing the skill vs slash-command distinction.
 
 Required check: [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) **P1–P4**.
+
+---
+
+### `miss_webview-nested-in-scrollview`
+
+```yaml
+id: miss_webview-nested-in-scrollview
+miss_class: webview-nested-in-scrollview
+triggers:
+  - WebView | react-native-webview
+  - ScrollView wrapping WebView | nestedScrollEnabled
+  - flex: 1 WebView inside ScrollView
+  - full-screen HTML document in-app
+phases: [logic]
+gate: W1
+rule_one_liner: >-
+  On React Native, a full-screen WebView must be the only vertical scroller;
+  do not wrap it in ScrollView. Regression must assert no ScrollView ancestor.
+anti_pattern: >-
+  Nesting WebView inside ScrollView with both flex: 1 so the outer scroller
+  steals the pan gesture and long HTML cannot scroll; treating
+  nestedScrollEnabled as sufficient while the parent scroller remains.
+hits: 1
+last_seen: 2026-09-10
+source: teach-review
+```
+
+Mechanism: review accepts a laid-out WebView inside ScrollView because the page renders. On device the outer scroller owns the pan, so long HTML never moves. Structural tests that only assert a WebView exists miss the ancestor.
+
+Required check: [rn-nested-scroll-checklist.md](rn-nested-scroll-checklist.md) **W1**.
