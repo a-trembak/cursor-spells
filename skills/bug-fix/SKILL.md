@@ -37,7 +37,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 | `systematic-debugging` | No fix without root-cause investigation |
 | `ce-debug` with `mode:pipeline` | Non-interactive diagnosis loop when installed |
 | `verification-before-completion` | Evidence before claiming done |
-| `code-comments` | Keep/Remove taxonomy; English-only comments |
+| `code-comments` | Keep/Remove taxonomy; English-only comments; services forbid presentation; React / frontend UI may reference the user interface |
 | [`skill-map.md`](../engineer-review/references/skill-map.md) stack (+ DB rows if migrations) | Same mechanical lookup as `csp-software-developer` |
 | `tdd` / project test conventions | Failing test that proves the bug **before** the fix |
 
@@ -62,7 +62,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 - Never ship a symptom-only patch when the root cause is known and in-repo.
 - If Jira/MCP facts conflict with repo evidence: **stop and ask** (HITL via `hitl-choice` when a closed choice exists).
 - Never implement on `main` / `master` / the default branch.
-- Source-code comments: English only; apply `code-comments`. Never justify a query or transform by naming a chart, screen, or widget.
+- Source-code comments: English only; apply `code-comments`. Services forbid presentation (chart, screen, widget, Figma, user-interface link/example); React / frontend UI may reference the user interface.
 
 ## Output
 

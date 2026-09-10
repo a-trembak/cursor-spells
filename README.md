@@ -149,7 +149,7 @@ evals/       Kit-only golden sets (trajectories, harness reports, code-quality) 
 | [`tech-spec`](skills/tech-spec/) | Developer technical action plan — human always full system-design path; agent chooses light\|full; Blocker/Decision/Assumption on light path |
 | [`system-design`](skills/system-design/) | Anthropic-style system design draft for tech-spec full path (format human plan or draft-from-ac) |
 | [`system-design-critic`](skills/system-design-critic/) | Read-only audit of system-design drafts inside auto-consensus |
-| [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `csp-review-deadcode`; no comments tied to screens or charts, including backend |
+| [`code-comments`](skills/code-comments/) | Keep/remove taxonomy for comments — shared by developers and `csp-review-deadcode`; services forbid user-interface citations; React / frontend UI may reference screens, charts, or Figma |
 | [`clean-decision-docs`](skills/clean-decision-docs/) | Specs/plans stay final-form decisions — no "fixed/changed to" archaeology after critique or revise |
 | [`start-build`](skills/start-build/) | Thin build handoff — requires critique-clear plan, then `csp-software-developer`, **waits**, then `finish-plan` → `csp-engineer-reviewer` (no critic here) |
 | [`approve-plan`](skills/approve-plan/) | HITL approve/revise the plan, then auto-run `implementation-critic`; on clear → `start-build` |
