@@ -45,10 +45,14 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
    - Inspect `git status` / `git diff`.
    - If the work tree is **dirty** with intentional product/docs changes: **stop**. Tell the human to run skill `propose-commit` (requires settled engineer-review + `approve-commit`). Do **not** silently commit. Do **not** invent a commit message here.
    - If the work tree is clean and the feature branch is ahead of base: continue (commits must already exist from `propose-commit`).
-   - **Pipeline runs** (caller passed `plan_path`, or it is recoverable from the handoff): before push, require the `commit-approved` marker for this run's plan path. Source the consumer copy or kit path:
+   - **Pipeline runs** (caller passed `plan_path`, or it is recoverable from the handoff): before push, require the `commit-approved` marker for this run's plan path. Source the kit helper (never a consumer `scripts/` copy):
 
      ```bash
-     source scripts/pipeline-gates.sh   # pg__find_gate_for_plan, pg_clear_gate
+     KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
+     if [[ -z "$KIT" ]]; then
+       KIT="$(tr -d '\n' < "$HOME/.cursor/cursor-spells-kit-path" 2>/dev/null || true)"
+     fi
+     source "$KIT/scripts/pipeline-gates.sh"   # pg__find_gate_for_plan, pg_clear_gate
      pg__find_gate_for_plan "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
      ```
 
@@ -110,11 +114,11 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
 11. **Jira Review** (only after `ready` / `ready_jira` when `jira_key` and `jira_cloud_id` are known): do **not** invoke `jira-transition` when the pull requests are merely marked ready. Observe every **collected** pull request URL (the list from this run, including already-merged ones) with `gh pr view "$pr_url" --json state,url,headRefName,statusCheckRollup`. Build a JSON **array** of those objects. Source the helper, then pipe:
 
     ```bash
-    source scripts/pr-merge-ci.sh   # consumer copy after csp update, or kit path
+    source "$KIT/scripts/pr-merge-ci.sh"
     printf '%s' "$json_array" | pr_merge_ci_verdict
     ```
 
-    (`bash scripts/pr-merge-ci.sh` with the same stdin also works.)
+    (`bash "$KIT/scripts/pr-merge-ci.sh"` with the same stdin also works.)
     - `all_merged_ci_success` → invoke skill **`jira-transition`** with target `review`. Skip if already Review-like. Report and continue on skip/failure; do not block the finale report.
     - `not_merged` or `pending_ci` → subscribe to each collected pull request with `subscribe_github_pr` (`options.scope=pr`, `options.prUrl=<url>`) and to continuous integration with `subscribe_github_ci` (`options.repo=<owner/name>`, `options.branch=<headRefName>`). After a merge event, re-observe via `gh pr view` (the head branch may be deleted). Report that Review waits until every pull request is merged and every build succeeded. End the turn. On wake, follow **Resume after merge or builds**. If subscribe tools are missing, report the wait and re-check when the human returns — do not busy-loop and do not merge.
     - `ci_failed` → list failed check `name` or `context` from the same JSON; do not transition; do not merge. Still subscribe as above so a later green re-run can reach `all_merged_ci_success`.

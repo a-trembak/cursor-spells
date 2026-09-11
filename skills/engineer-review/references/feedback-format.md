@@ -110,4 +110,4 @@ If **Needs clarification** is non-empty, end with the clarify HITL (skill `hitl-
 - Executive digests: `Verdict:…`, `### Blockers (P0)`, `### Блокери`, `### Also (P1)` without per-finding Where + fences — see [forbidden-formats.md](forbidden-formats.md)
 - Shipping a PR comment draft **instead of** the full Findings section
 
-After drafting, run `scripts/validate-review-report.sh` on the markdown; fix until exit 0.
+After drafting, run `$KIT/scripts/validate-review-report.sh` on the markdown; fix until exit 0.

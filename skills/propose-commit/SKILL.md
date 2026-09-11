@@ -51,7 +51,11 @@ If any fail: **stop** and say which precondition is missing. Do not commit.
 5. Write the gate in the **current project** (consumer root):
 
    ```bash
-   source scripts/pipeline-gates.sh   # consumer copy or kit path
+   KIT="$(tr -d '\n' < .cursor/cursor-spells-kit-path 2>/dev/null || true)"
+   if [[ -z "$KIT" ]]; then
+     KIT="$(tr -d '\n' < "$HOME/.cursor/cursor-spells-kit-path" 2>/dev/null || true)"
+   fi
+   source "$KIT/scripts/pipeline-gates.sh"
    pg_write_gate "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
    ```
 

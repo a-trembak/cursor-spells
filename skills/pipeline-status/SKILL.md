@@ -21,17 +21,15 @@ write gates or invent a new gate kind.
 ## How to run
 
 1. Resolve the consumer project root (cwd of the active workspace folder).
-2. Find the resolver script (first that exists):
-   - `$KIT/scripts/pipeline-status.sh` when kit path is known (`.cursor/cursor-spells-kit-path` or `$KIT`)
-   - `scripts/pipeline-status.sh` in the project (after install)
+2. Find the resolver script at `$KIT/scripts/pipeline-status.sh` (kit path from `.cursor/cursor-spells-kit-path` or `$HOME/.cursor/cursor-spells-kit-path`). Never a copy under the consumer `scripts/` folder.
 3. Run:
 
 ```bash
-bash scripts/pipeline-status.sh --root <project-root>
+bash "$KIT/scripts/pipeline-status.sh" --root <project-root>
 # optional machine record:
-bash scripts/pipeline-status.sh --json --root <project-root>
+bash "$KIT/scripts/pipeline-status.sh" --json --root <project-root>
 # optional canvas path with query + hash:
-bash scripts/pipeline-status.sh --canvas-url --root <project-root> [--kit-root <kit-or-project>]
+bash "$KIT/scripts/pipeline-status.sh" --canvas-url --root <project-root> [--kit-root <kit>]
 ```
 
 4. Print the strip (and canvas link) in the user-facing turn. Do **not** advance, clear, or invent gates.

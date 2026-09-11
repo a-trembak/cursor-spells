@@ -4,7 +4,9 @@
 #
 # Default: symlink kit skills/commands/agents into ~/.cursor;
 #          copy always-on plain-language-chat rule into ~/.cursor/rules;
-#          copy hooks + rules (+ optional patterns helper) into the project.
+#          copy hooks + rules into the project.
+# Pipeline helpers stay in this kit checkout; they are never copied into
+# consumer product scripts/.
 # Kit-only evals/ (agent-trajectory golden set) is never copied into consumer apps.
 
 set -euo pipefail
@@ -320,7 +322,7 @@ install_project_bits() {
 
   # Hook scripts — always refresh from kit (owned by cursor-spells)
   local hook
-  for hook in post-plan-review-gate.sh pre-build-gate.sh; do
+  for hook in post-plan-review-gate.sh pre-build-gate.sh resolve-kit-path.sh; do
     cp "$KIT_ROOT/hooks/$hook" "$PROJECT/.cursor/hooks/$hook"
     chmod +x "$PROJECT/.cursor/hooks/$hook"
     echo "copied: $PROJECT/.cursor/hooks/$hook"
@@ -343,35 +345,23 @@ install_project_bits() {
     echo "copied: $PROJECT/.cursor/rules/$rule"
   done
 
-  # Optional CI helper — create once; refresh on update
-  mkdir -p "$PROJECT/scripts"
-  if [[ ! -f "$PROJECT/scripts/check-project-patterns.sh" || "$FORCE_REFRESH" -eq 1 ]]; then
-    cp "$KIT_ROOT/scripts/check-project-patterns.sh" "$PROJECT/scripts/check-project-patterns.sh"
-    chmod +x "$PROJECT/scripts/check-project-patterns.sh"
-    echo "copied: $PROJECT/scripts/check-project-patterns.sh"
-  else
-    echo "skip (exists): $PROJECT/scripts/check-project-patterns.sh"
-  fi
-  # Snippet helper for review evidence backfill (always refresh — small script)
-  cp "$KIT_ROOT/scripts/extract-review-snippet.sh" "$PROJECT/scripts/extract-review-snippet.sh"
-  chmod +x "$PROJECT/scripts/extract-review-snippet.sh"
-  echo "copied: $PROJECT/scripts/extract-review-snippet.sh"
-  # Report validator — reject Verdict/Blockers digests missing evidence
-  cp "$KIT_ROOT/scripts/validate-review-report.sh" "$PROJECT/scripts/validate-review-report.sh"
-  chmod +x "$PROJECT/scripts/validate-review-report.sh"
-  echo "copied: $PROJECT/scripts/validate-review-report.sh"
-  cp "$KIT_ROOT/scripts/pipeline-gates.sh" "$PROJECT/scripts/pipeline-gates.sh"
-  chmod +x "$PROJECT/scripts/pipeline-gates.sh"
-  echo "copied: $PROJECT/scripts/pipeline-gates.sh"
-  cp "$KIT_ROOT/scripts/pipeline-status.sh" "$PROJECT/scripts/pipeline-status.sh"
-  chmod +x "$PROJECT/scripts/pipeline-status.sh"
-  echo "copied: $PROJECT/scripts/pipeline-status.sh"
-  cp "$KIT_ROOT/scripts/jira-issue.sh" "$PROJECT/scripts/jira-issue.sh"
-  chmod +x "$PROJECT/scripts/jira-issue.sh"
-  echo "copied: $PROJECT/scripts/jira-issue.sh"
-  cp "$KIT_ROOT/scripts/pr-merge-ci.sh" "$PROJECT/scripts/pr-merge-ci.sh"
-  chmod +x "$PROJECT/scripts/pr-merge-ci.sh"
-  echo "copied: $PROJECT/scripts/pr-merge-ci.sh"
+  # Never vendor pipeline helpers into the consumer product scripts/ tree.
+  # Remove leftovers from older installs that copied kit scripts here.
+  local leftover
+  for leftover in \
+    check-project-patterns.sh \
+    extract-review-snippet.sh \
+    validate-review-report.sh \
+    pipeline-gates.sh \
+    pipeline-status.sh \
+    jira-issue.sh \
+    pr-merge-ci.sh
+  do
+    if [[ -e "$PROJECT/scripts/$leftover" ]]; then
+      rm -f "$PROJECT/scripts/$leftover"
+      echo "removed leftover kit dump: $PROJECT/scripts/$leftover"
+    fi
+  done
 }
 
 echo "kit: $KIT_ROOT"

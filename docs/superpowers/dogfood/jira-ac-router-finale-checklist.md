@@ -35,9 +35,10 @@ Install refresh (optional throwaway consumer):
 
 ```bash
 ./scripts/install-to-project.sh /tmp/jira-ac-dogfood
-test -x /tmp/jira-ac-dogfood/scripts/jira-issue.sh
-test -x /tmp/jira-ac-dogfood/scripts/pipeline-gates.sh
-test -x /tmp/jira-ac-dogfood/scripts/pr-merge-ci.sh
+test -f /tmp/jira-ac-dogfood/.cursor/cursor-spells-kit-path
+test ! -e /tmp/jira-ac-dogfood/scripts/jira-issue.sh
+test ! -e /tmp/jira-ac-dogfood/scripts/pipeline-gates.sh
+test ! -e /tmp/jira-ac-dogfood/scripts/pr-merge-ci.sh
 rm -rf /tmp/jira-ac-dogfood
 ```
 

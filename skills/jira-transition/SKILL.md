@@ -10,7 +10,7 @@ description: >-
 
 # Jira Transition
 
-Set a fetched Jira issue to a named workflow column. Matching uses `scripts/jira-issue.sh` (consumer copy after `csp update`, or kit path).
+Set a fetched Jira issue to a named workflow column. Matching uses `$KIT/scripts/jira-issue.sh` (kit checkout from `.cursor/cursor-spells-kit-path`).
 
 ## When to Use
 
@@ -32,7 +32,7 @@ If `jira_key` or `jira_cloud_id` is missing, **return** without MCP calls. The c
 
 ## Match helpers
 
-Source `scripts/jira-issue.sh`:
+Source `"$KIT/scripts/jira-issue.sh"`:
 
 1. If `jira_status` is set and `jira_status_matches_target "<target>" "<jira_status>"` is true → **skip** (already there). Report `skipped: already <status>`.
 2. Match **destination status** (`to.name`), not only the transition button label (e.g. "Start Progress" → In Progress).

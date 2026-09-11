@@ -1,4 +1,6 @@
-# Optional: add to a consumer repo as .github/workflows/project-patterns.yml
+# Optional kit-dogfood only. Do not vendor check-project-patterns.sh into a
+# consumer app's scripts/ folder. Requires KIT (absolute path to the
+# cursor-spells checkout) on the runner.
 name: project-patterns
 
 on:
@@ -15,5 +17,6 @@ jobs:
         env:
           BASE_REF: origin/${{ github.base_ref }}
         run: |
-          chmod +x scripts/check-project-patterns.sh
-          ./scripts/check-project-patterns.sh --strict
+          test -n "$KIT"
+          chmod +x "$KIT/scripts/check-project-patterns.sh"
+          "$KIT/scripts/check-project-patterns.sh" --strict

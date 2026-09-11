@@ -24,8 +24,8 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 2. **Write HITL marker** in the **current project** (not the kit), per-plan only:
 
    ```bash
-   # Prefer (consumer project):
-   #   source scripts/pipeline-gates.sh
+   # KIT from .cursor/cursor-spells-kit-path or ~/.cursor/cursor-spells-kit-path
+   #   source "$KIT/scripts/pipeline-gates.sh"
    #   pg_write_gate "$(pwd)" plan-gate "<plan-path>"
    #   pg_clear_gate "$(pwd)" plan-critique-clear "<plan-path>"
    # Equivalent: .cursor/gates/plan-gate/<slug> line 1 = plan path

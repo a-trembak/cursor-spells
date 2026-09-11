@@ -18,7 +18,7 @@ The **only** valid user-facing **review** (bugs / asks / would-fix) is the full 
 
 **Banned:** compact digests like `Verdict: request changes` + `Блокери (P0)` / `Blockers (P0)` numbered prose that names classes/migrations but has **no** file path, line range, Jump link, or code fence. See `skills/engineer-review/references/forbidden-formats.md`. Mentions of `CustomRoleService` / `V044` are **not** locations.
 
-**Before showing the user:** write the draft to a temp file and run `scripts/validate-review-report.sh`. Non-zero exit → rebuild or drop items; do not show the failed digest.
+**Before showing the user:** write the draft to a temp file and run `$KIT/scripts/validate-review-report.sh`. Non-zero exit → rebuild or drop items; do not show the failed digest.
 
 A **PR comment draft** is an optional appendix **after** Findings — never a replacement.
 

@@ -78,6 +78,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/skills|commands|agents/` | Same kit entries as in `~/.cursor` (so this project’s Cursor UI/CLI sees them) |
 | `<project>/.cursor/hooks/post-plan-review-gate.sh` | Copied from kit (refreshed on every install/update) |
 | `<project>/.cursor/hooks/pre-build-gate.sh` | Copied from kit (refreshed on every install/update) |
+| `<project>/.cursor/hooks/resolve-kit-path.sh` | Copied from kit (refreshed on every install/update) — locates `$KIT/scripts/pipeline-gates.sh` |
 | `<project>/.cursor/hooks.json` | Created if missing; **refreshed on `update`** |
 | `<project>/.cursor/rules/after-plan-review-gate.mdc` | Copied / refreshed |
 | `<project>/.cursor/rules/before-build-critique-gate.mdc` | Copied / refreshed |
@@ -87,13 +88,10 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch coding agents for product code |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
-| `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
-| `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
-| `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
-| `<project>/scripts/pipeline-gates.sh` | Per-plan gate helper — always refreshed |
-| `<project>/scripts/jira-issue.sh` | Jira key / URL / type classifier — always refreshed |
 
-Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
+Pipeline helpers (`pipeline-gates.sh`, `pipeline-status.sh`, `jira-issue.sh`, `pr-merge-ci.sh`, `validate-review-report.sh`, `extract-review-snippet.sh`, `check-project-patterns.sh`) stay in the **kit checkout**. Skills and hooks resolve them via `<project>/.cursor/cursor-spells-kit-path` (or `~/.cursor/cursor-spells-kit-path`) as `$KIT/scripts/…`. `csp install` / `csp update` **removes** leftover copies of those names from the consumer `scripts/` folder if an older install dumped them there.
+
+Also ensures `<project>/.cursor/`, `.cursor/hooks/`, and `.cursor/rules/` exist.
 
 Runtime markers the agents write later (not created by install): `.cursor/gates/<kind>/<slug>` for `plan-gate`, `critique-gate`, `plan-critique-clear`, `review-gate`, `docs-gate` (legacy flat `.cursor/*.pending` / `plan-critique.clear` migrate-on-read), plus `.cursor/project-patterns.md`. Stop hooks follow up only when the current plan path is known; they stay silent if the path is missing so a foreign slug cannot loop another chat.
 
@@ -101,7 +99,7 @@ Runtime markers the agents write later (not created by install): `.cursor/gates/
 
 1. `git pull --ff-only` inside the kit checkout (skips if no upstream).
 2. Re-walks every kit `skills/*`, `commands/*.md`, `agents/*.md` and links/copies any **new** entries into `~/.cursor` (relinks owned symlinks).
-3. If a project is targeted (explicit path or auto-detected cwd): refreshes hook scripts, rules, `hooks.json`, and the patterns helper as in the table above.
+3. If a project is targeted (explicit path or auto-detected cwd): refreshes hook scripts (including `resolve-kit-path.sh`), rules, and `hooks.json`. Removes leftover kit dumps from consumer `scripts/` if present. Does not copy pipeline helpers into the product tree.
 
 ```
 ~/cursor-spells/          ← one clone (source of truth)
@@ -230,7 +228,7 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 3. On frontend, use the Figma picker or paste node URLs / `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
-Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers/Блокери digests without paths and snippets. Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped; draft reports must pass `scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
+Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers/Блокери digests without paths and snippets. Incomplete items are backfilled via `$KIT/scripts/extract-review-snippet.sh` or dropped; draft reports must pass `$KIT/scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
 
 **Manual review:** `/csp-engineer-review` — evidence-gated snippets + file links; validator before emit; `english-humanizer` then `plain-language-chat` on prose.  
 **PR review:** `/csp-pr-review [url|number|branch] [apply] [no-figma] [no-canvas]` — same gate (plus required GitHub blob links); default PR Review Canvas for diff orientation (`no-canvas` to skip); never a Verdict/Блокери digest; report-only unless `apply`.
@@ -317,8 +315,8 @@ Design: [`docs/superpowers/specs/2026-07-22-multi-repo-supervisor-design.md`](do
 
 **First run** writes `.cursor/project-patterns.md` in the consumer repo.
 
-**Patterns CI (optional):** `scripts/check-project-patterns.sh --strict`  
-Workflow template: [`scripts/templates/project-patterns.yml`](scripts/templates/project-patterns.yml)
+**Patterns CI (optional, kit checkout only):** `$KIT/scripts/check-project-patterns.sh --strict`  
+Do not vendor this helper into a consumer app’s `scripts/` folder. Workflow template (kit-dogfood / jobs that already have a kit checkout): [`scripts/templates/project-patterns.yml`](scripts/templates/project-patterns.yml)
 
 **Dogfood checklist:** [`docs/superpowers/dogfood/engineer-review-checklist.md`](docs/superpowers/dogfood/engineer-review-checklist.md) · Jira fetch / router / PR finale: [`docs/superpowers/dogfood/jira-ac-router-finale-checklist.md`](docs/superpowers/dogfood/jira-ac-router-finale-checklist.md)
 

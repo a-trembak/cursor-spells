@@ -87,7 +87,6 @@ Then write the markdown to a temp file and run:
 ```bash
 KIT="$(cat .cursor/cursor-spells-kit-path 2>/dev/null || cat "$HOME/.cursor/cursor-spells-kit-path")"
 "$KIT/scripts/validate-review-report.sh" /tmp/review-report.md
-# or: ./scripts/validate-review-report.sh /tmp/review-report.md
 ```
 
 If the validator exits non-zero → rebuild or drop items; **do not** show the failed markdown to the user.
