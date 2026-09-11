@@ -10,10 +10,10 @@ Read-only orientation from the consumer project’s `.cursor/gates/*` and option
 ## Steps
 
 1. Project root = current workspace cwd (do not guess another repo).
-2. Run the resolver (prefer project `scripts/pipeline-status.sh` after install; else kit `scripts/pipeline-status.sh` via `.cursor/cursor-spells-kit-path` / `$KIT`):
+2. Run the resolver at `$KIT/scripts/pipeline-status.sh` (kit path from `.cursor/cursor-spells-kit-path` / `$HOME/.cursor/cursor-spells-kit-path`). Never a copy under the consumer `scripts/` folder:
 
 ```bash
-bash scripts/pipeline-status.sh --root .
+bash "$KIT/scripts/pipeline-status.sh" --root .
 ```
 
 3. Print the script output to the human. Adapt wording with skill `plain-language-chat` (script text is an English skeleton). Include the canvas link line so they can open `pipeline-flow.html` with highlight query params.

@@ -4,7 +4,7 @@
 #   pipeline-status.sh [--root <dir>]
 #   pipeline-status.sh --json [--root <dir>]
 #   pipeline-status.sh --canvas-url [--root <dir>] [--kit-root <dir>]
-#   source scripts/pipeline-status.sh   # functions only; no record printed
+#   source "$KIT/scripts/pipeline-status.sh"   # functions only; no record printed
 
 ps__script_dir() {
   local src="${BASH_SOURCE[0]}"
@@ -367,7 +367,7 @@ EOF
   PS_ROOT="$(cd "$PS_ROOT" && pwd)"
 
   if [[ -z "$kit_root" ]]; then
-    # Prefer sibling of this script (kit or installed copy under project scripts/)
+    # Sibling of this script is the kit root (helpers are not copied into consumer apps)
     kit_root="$(cd "$(ps__script_dir)/.." && pwd)"
   fi
 

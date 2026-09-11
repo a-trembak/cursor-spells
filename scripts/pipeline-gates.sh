@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Per-plan pipeline gate helpers (sourceable library).
-# Usage: source scripts/pipeline-gates.sh
+# Usage: source "$KIT/scripts/pipeline-gates.sh"
 
 pg__root() {
   if [[ -n "${PG_ROOT:-}" ]]; then

@@ -9,7 +9,7 @@ description: >-
 
 # Jira Fetch
 
-Load a Jira issue as Acceptance Criteria / bug source of truth. Parsing uses `scripts/jira-issue.sh` (consumer copy after `csp update`, or kit path).
+Load a Jira issue as Acceptance Criteria / bug source of truth. Parsing uses `$KIT/scripts/jira-issue.sh` (kit checkout from `.cursor/cursor-spells-kit-path`).
 
 ## When to Use
 
@@ -19,7 +19,7 @@ Load a Jira issue as Acceptance Criteria / bug source of truth. Parsing uses `sc
 
 ## Detect
 
-Source `scripts/jira-issue.sh`, then:
+Source `"$KIT/scripts/jira-issue.sh"`, then:
 
 1. `jira_looks_like_issue "<source>"` must be true (bare `PROJ-123` **or** `*.atlassian.net` URL). A prose paragraph that merely mentions a key is **not** a fetch — use it as pasted AC.
 2. `jira_extract_key` → `ISSUE_KEY`. If that fails, stop (not a Jira source).

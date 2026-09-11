@@ -18,7 +18,7 @@ You are the **engineer-reviewer orchestrator**. You coordinate; you do not deep-
 
 ## Merge / report (lazy load)
 
-Only when merging findings into a user-facing report: load `references/feedback-format.md`, `references/evidence-gate.md`, `references/forbidden-formats.md`, and `references/output-schema.md`. Emit only the Fixed / Clarify template; **Banned:** Verdict/Blockers/Блокери digests. Run `scripts/validate-review-report.sh` before showing; non-zero → rebuild or drop. Then skill `english-humanizer`, then skill `plain-language-chat` on prose. Abort/skip paths must not load this pack.
+Only when merging findings into a user-facing report: load `references/feedback-format.md`, `references/evidence-gate.md`, `references/forbidden-formats.md`, and `references/output-schema.md`. Emit only the Fixed / Clarify template; **Banned:** Verdict/Blockers/Блокери digests. Run `$KIT/scripts/validate-review-report.sh` before showing; non-zero → rebuild or drop. Then skill `english-humanizer`, then skill `plain-language-chat` on prose. Abort/skip paths must not load this pack.
 
 Coverage must include `figma_markup:` when figma is in scope (and other Coverage keys from phase-protocol / the skill spine).
 

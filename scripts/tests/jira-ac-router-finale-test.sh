@@ -67,7 +67,7 @@ assert_grep create_pr_all_merged "skills/create-pr/SKILL.md" "all_merged_ci_succ
 assert_grep create_pr_observe_checks "skills/create-pr/SKILL.md" "statusCheckRollup"
 assert_grep create_pr_subscribe_pr "skills/create-pr/SKILL.md" "subscribe_github_pr"
 assert_grep create_pr_subscribe_ci "skills/create-pr/SKILL.md" "subscribe_github_ci"
-assert_grep create_pr_source_helper "skills/create-pr/SKILL.md" "source scripts/pr-merge-ci.sh"
+assert_grep create_pr_source_helper "skills/create-pr/SKILL.md" 'source "\$KIT/scripts/pr-merge-ci.sh"'
 assert_grep create_pr_resume "skills/create-pr/SKILL.md" "Resume after merge or builds"
 assert_grep create_pr_closed "skills/create-pr/SKILL.md" "closed_unmerged"
 assert_grep create_pr_never_merge "skills/create-pr/SKILL.md" "Never merge"
@@ -89,8 +89,9 @@ assert_grep capture_source "commands/csp-capture-escape.md" "source: production-
 assert_grep capture_dest "commands/csp-capture-escape.md" "Capture-escape destination"
 assert_grep capture_secret "commands/csp-capture-escape.md" "project_secret"
 assert_grep capture_teach "commands/csp-capture-escape.md" "teach-review"
-assert_grep install_jira_helper "scripts/install-to-project.sh" "jira-issue.sh"
-assert_grep install_pr_merge_ci "scripts/install-to-project.sh" "pr-merge-ci.sh"
+assert_grep install_removes_jira "scripts/install-to-project.sh" "removed leftover kit dump"
+assert_no_grep install_no_copy_jira "scripts/install-to-project.sh" 'cp "\$KIT_ROOT/scripts/jira-issue.sh"'
+assert_no_grep install_no_copy_pr_merge "scripts/install-to-project.sh" 'cp "\$KIT_ROOT/scripts/pr-merge-ci.sh"'
 assert_grep readme_create_pr "README.md" "skills/create-pr"
 assert_grep readme_jira_fetch "README.md" "skills/jira-fetch"
 assert_grep readme_jira_transition "README.md" "skills/jira-transition"

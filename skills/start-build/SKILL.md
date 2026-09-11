@@ -24,8 +24,8 @@ Thin handoff into execution **and** the post-code review gate. **Does not** run 
 2. **Require a clear critique for this plan only:**
 
    ```bash
-   # Prefer (consumer project):
-   #   source scripts/pipeline-gates.sh
+   # KIT from .cursor/cursor-spells-kit-path or ~/.cursor/cursor-spells-kit-path
+   #   source "$KIT/scripts/pipeline-gates.sh"
    #   pg_migrate_legacy "$(pwd)" plan-critique-clear "<plan-path>"
    # .cursor/gates/plan-critique-clear/<slug> must exist and line 1 must equal the plan path
    ```

@@ -22,8 +22,8 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 2. **Write marker** in the **current project** (not the kit):
 
    ```bash
-   # Prefer (consumer project):
-   #   source scripts/pipeline-gates.sh
+   # KIT from .cursor/cursor-spells-kit-path or ~/.cursor/cursor-spells-kit-path
+   #   source "$KIT/scripts/pipeline-gates.sh"
    #   pg_write_gate "$(pwd)" review-gate "<plan-path>"
    # Line 1 = plan path (not the word pending)
    ```

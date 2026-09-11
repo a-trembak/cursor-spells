@@ -39,18 +39,13 @@ if [[ "$status" == "aborted" || "$status" == "error" ]]; then
   exit 0
 fi
 
-pg_lib="$root/scripts/pipeline-gates.sh"
-if [[ ! -f "$pg_lib" ]]; then
-  hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  if [[ "$hook_dir" == */.cursor/hooks ]]; then
-    pg_lib="$(cd "$hook_dir/../.." && pwd)/scripts/pipeline-gates.sh"
-  else
-    pg_lib="$(cd "$hook_dir/.." && pwd)/scripts/pipeline-gates.sh"
-  fi
-fi
+hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=resolve-kit-path.sh
+source "$hook_dir/resolve-kit-path.sh"
+pg_lib="$(csp_hook_pipeline_gates "$root" || true)"
 
-if [[ ! -f "$pg_lib" ]]; then
-  emit_followup "pipeline-gates helper missing at $root/scripts/pipeline-gates.sh. Run csp update to refresh kit scripts."
+if [[ -z "$pg_lib" || ! -f "$pg_lib" ]]; then
+  emit_followup "pipeline-gates helper missing. Set .cursor/cursor-spells-kit-path (or ~/.cursor/cursor-spells-kit-path) to the cursor-spells checkout, then run csp install."
   exit 0
 fi
 

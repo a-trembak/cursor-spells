@@ -11,10 +11,14 @@ From kit root, install into a throwaway consumer (or use any git repo that alrea
 ```bash
 chmod +x scripts/*.sh scripts/tests/*.sh
 ./scripts/install-to-project.sh /tmp/pg-dogfood
-cp scripts/pipeline-gates.sh /tmp/pg-dogfood/scripts/pipeline-gates.sh
 ```
 
-In the consumer, `source scripts/pipeline-gates.sh` (or run from kit with `PG_ROOT` unset and first arg = consumer root).
+In the consumer, source the kit helper (never a copy under consumer `scripts/`):
+
+```bash
+KIT="$(tr -d '\n' < /tmp/pg-dogfood/.cursor/cursor-spells-kit-path)"
+source "$KIT/scripts/pipeline-gates.sh"
+```
 
 Fake plans (do not need real plan bodies for marker checks):
 
