@@ -334,3 +334,36 @@ source: teach-review
 Mechanism: a shared command/agent prefix rename updates `commands/` and `agents/` but skips pipeline Mermaid/canvas labels, or mistakenly prefixes skill folders and harness paths — collapsing the skill vs slash-command distinction.
 
 Required check: [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) **P1–P4**.
+
+---
+
+### `miss_iframe-pdf-paging-related-variants`
+
+```yaml
+id: miss_iframe-pdf-paging-related-variants
+miss_class: iframe-pdf-paging-related-variants
+triggers:
+  - WebView | react-native-webview
+  - iframe PDF | embed PDF | paginated document
+  - legal | terms | privacy | help HTML URL
+  - sibling web renderer | HTML vs PDF iframe
+phases: [logic]
+gate: D1
+also: [D2]
+rule_one_liner: >-
+  When a native WebView hosts a page that can embed a PDF in an iframe,
+  review multi-page scroll/paging and iframe height, and chase related
+  repository document variants (HTML vs PDF, short vs long) — not only
+  the diff fixture.
+anti_pattern: >-
+  Approving after a single-page iframe or short HTML fixture while a sibling
+  renderer can serve a multi-page PDF in an iframe whose later pages are
+  clipped or unscrollable.
+hits: 1
+last_seen: 2026-09-11
+source: teach-review
+```
+
+Mechanism: review closes after the native wrapper and one HTML or single-page iframe fixture. The related web renderer still injects a multi-page PDF in an iframe; later pages never enter the WebView viewport.
+
+Required check: [iframe-document-paging-checklist.md](iframe-document-paging-checklist.md) **D1–D2**. Distinct from nested `ScrollView` + `WebView` pan stealing.
