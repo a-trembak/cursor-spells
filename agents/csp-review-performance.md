@@ -24,6 +24,7 @@ You review **performance** risks in the diff — measurable hot-path and systemi
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 `phase`: `"performance"`. Include `severity`. Micro-optimizations without evidence → `P2` residual notes (or leave to `csp-review-simplify` if they are local cleanliness). Clear hot-path bugs → `P0`/`P1` apply or clarify.
 
 

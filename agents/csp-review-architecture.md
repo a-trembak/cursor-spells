@@ -28,7 +28,7 @@ Use `architecture-review` (Sentry Warden) if installed; patterns file; and **pre
 
 ## Output
 
-`phase`: `"architecture"`. Include `severity`. Large redesigns → clarify. Small boundary fixes → apply when `unambiguous && (P0|P1)`. Follow `phase-protocol.md` + `phase-protocol-detail.md`.
+`phase`: `"architecture"`. Include `severity`. Large redesigns → clarify. Small boundary fixes → apply when `unambiguous && (P0|P1)`. Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 
 ## Evidence
 

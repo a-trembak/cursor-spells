@@ -67,7 +67,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
 
 Identical to `csp-engineer-reviewer`: `csp-review-lint`, `csp-review-logic`, `csp-review-patterns`, `csp-review-deadcode`, `csp-review-simplify` (ce-simplify-code), `csp-review-architecture`, `csp-review-performance`, `csp-review-security` (conditional), `csp-review-figma-markup` (frontend).
 
-Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, plus `graphify_available` and optional `impact_hint` when graphify scoping ran. Return phase-protocol JSON only — **required** `path` / `start_line` / `end_line` / `snippet` / `context` on every fixed/clarify item; clarify items also structured `options` and prefer `recommended` + `recommendation_why`.
+Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, plus `graphify_available` and optional `impact_hint` when graphify scoping ran. Every heuristic phase Task prompt must tell the phase to load `phase-protocol-detail.md` (neighbors / call graph / graphify walk). Return phase-protocol JSON only — **required** `path` / `start_line` / `end_line` / `snippet` / `context` on every fixed/clarify item; clarify items also structured `options` and prefer `recommended` + `recommendation_why`.
 
 ## Hard rules
 

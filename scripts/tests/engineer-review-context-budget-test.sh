@@ -118,6 +118,47 @@ for base in interaction-replay-checklist auth-rtk-checklist figma-markup-checkli
 done
 assert_file "skills/engineer-review/references/learned-misses.md"
 
+# Call-graph load routing: every listed phase agent must carry the canonical Follow
+# sentence so models load phase-protocol-detail (neighbors / call graph / graphify walk).
+FOLLOW_SENTENCE='Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.'
+FOLLOW_AGENTS=(
+  agents/csp-review-patterns.md
+  agents/csp-review-deadcode.md
+  agents/csp-review-simplify.md
+  agents/csp-review-performance.md
+  agents/csp-review-security.md
+  agents/csp-review-figma-markup.md
+  agents/csp-review-cross-repo.md
+  agents/csp-review-architecture.md
+)
+for path in "${FOLLOW_AGENTS[@]}"; do
+  if grep -F -q "$FOLLOW_SENTENCE" "$ROOT/$path"; then
+    echo "OK   follow_sentence_${path##*/}"
+  else
+    echo "FAIL follow_sentence_${path##*/}: exact Follow sentence missing" >&2
+    fail=1
+  fi
+done
+
+# Dispatch hardening: parent Task prompts must require loading phase-protocol-detail.
+# engineer-reviewer: need both "Task prompt" and "phase-protocol-detail" (weak
+# parenthetical alone is insufficient — it already contained the detail path).
+assert_grep orch_dispatch_task_prompt "$ORCH" "Task prompt"
+assert_grep orch_dispatch_detail "$ORCH" "phase-protocol-detail"
+if grep -E -q "Task prompt" "$ROOT/$ORCH" && grep -E -q "phase-protocol-detail" "$ROOT/$ORCH"; then
+  echo "OK   orch_dispatch_task_prompt_and_detail"
+else
+  echo "FAIL orch_dispatch_task_prompt_and_detail: need Task prompt + phase-protocol-detail" >&2
+  fail=1
+fi
+
+PR_REV="agents/csp-pr-reviewer.md"
+MULTI="agents/csp-multi-repo-supervisor.md"
+assert_file "$PR_REV"
+assert_file "$MULTI"
+assert_grep pr_dispatch_detail "$PR_REV" "phase-protocol-detail"
+assert_grep multi_cross_repo_detail "$MULTI" "phase-protocol-detail"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1

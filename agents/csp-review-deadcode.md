@@ -29,6 +29,7 @@ Do not delete code that may be used via reflection, DI config, dynamic imports, 
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 `phase`: `"deadcode"`. Tag every finding with `severity` (`P0` rare; unused import/historical comment usually `P1`; style nits `P2`). Before setting `applied: true` on any candidate, check it against `skills/engineer-review/references/auto-fix-eligibility.md` — severity alone does not authorize an apply.
 
 

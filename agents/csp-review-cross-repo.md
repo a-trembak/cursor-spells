@@ -41,6 +41,7 @@ Review drift across repo boundaries for:
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 Return **only** this JSON summary — no prose report:
 
 ```json

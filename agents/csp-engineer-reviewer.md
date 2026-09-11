@@ -26,7 +26,7 @@ Coverage must include `figma_markup:` when figma is in scope (and other Coverage
 
 Dispatch per skill spine: `csp-review-lint`, `csp-review-logic`, `csp-review-patterns`, `csp-review-deadcode`, `csp-review-simplify`, `csp-review-architecture`, `csp-review-performance`, `csp-review-security` (conditional), `csp-review-figma-markup`, `csp-review-learn` (`mode:load` before phases; `mode:capture` only after `project_secret`).
 
-Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, `graphify_available`, optional `impact_hint`, and **only** `learned_hints` rows whose `phases` include that agent. Return phase-protocol JSON (phases also load `phase-protocol-detail.md`).
+Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, `graphify_available`, optional `impact_hint`, and **only** `learned_hints` rows whose `phases` include that agent. Every heuristic phase Task prompt must tell the phase to load `phase-protocol-detail.md` (neighbors / call graph / graphify walk). Return phase-protocol JSON.
 
 ## Hard rules
 
