@@ -31,6 +31,7 @@ Use `security-review` if installed.
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 `phase`: `"security"`. Include `severity` (most real issues are `P0`/`P1`). Prefer clarify for tradeoffs; apply only clear, safe `unambiguous` fixes.
 
 

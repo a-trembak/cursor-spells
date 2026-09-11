@@ -45,6 +45,31 @@ assert_contains html_fixes_to_dev "$HTML" "csp-software-developer"
 assert_contains html_view_id "$HTML" 'id="view-review-gate"'
 assert_contains html_alias "$HTML" '"finish-plan": "review-gate"'
 
+# Every data-go must resolve to an existing view-* id (honor JS aliases).
+# Uses the same alias map the page ships (finish-plan → review-gate, etc.).
+data_go_resolve_ok=1
+alias_block="$(sed -n '/const aliases = {/,/};/p' "$HTML")"
+while IFS= read -r go; do
+  [[ -z "$go" || "$go" == "overview" ]] && continue
+  resolved="$go"
+  if printf '%s\n' "$alias_block" | grep -E -q "\"$go\"[[:space:]]*:"; then
+    resolved="$(printf '%s\n' "$alias_block" | sed -n "s/.*\"$go\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" | head -1)"
+  fi
+  view_id="view-${resolved}"
+  if ! grep -F -q "id=\"${view_id}\"" "$HTML"; then
+    echo "FAIL data_go_resolves: data-go=\"$go\" → id=\"${view_id}\" missing" >&2
+    data_go_resolve_ok=0
+    fail=1
+  fi
+done < <(grep -oE 'data-go="[^"]+"' "$HTML" | sed 's/data-go="//;s/"$//' | sort -u)
+if [[ "$data_go_resolve_ok" -eq 1 ]]; then
+  echo "OK   data_go_resolves_all_views"
+fi
+
+assert_contains html_tech_spec_alias "$HTML" '"csp-tech-spec": "tech-spec"'
+# Alias target must be the live Tech Spec detail section
+assert_contains html_view_tech_spec "$HTML" 'id="view-tech-spec"'
+
 # Overview must not present the post-build HITL as a finish-plan plan step.
 assert_absent html_overview_finish_label "$HTML" '<div class="label">finish-plan</div>'
 

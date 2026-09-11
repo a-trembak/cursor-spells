@@ -42,6 +42,7 @@ You are the **multi-repo-supervisor orchestrator**. You coordinate discovery, a 
    - all changed repo paths and stacks
    - each repo's `graphify-out/GRAPH_REPORT.md` path when present
    - compact per-repo JSON summaries from step 5
+   - explicit instruction to load `phase-protocol-detail.md` (neighbors / call graph / graphify walk) — the agent Follow line alone is not enough
 7. **Merge and emit unified report** per `multi-repo-protocol.md`:
    - Renumber per-repo clarify ids globally (`api:C1`, `C1@api`, etc.); keep original ids inside each repo's JSON summary.
    - Cross-repo ids stay `C_CR1`, `C_CR2`, … — never renumber into per-repo sequences.

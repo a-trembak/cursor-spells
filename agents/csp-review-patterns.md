@@ -47,6 +47,7 @@ If a tech spec or AC trace exists for this diff (`tech_spec_path` from the orche
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 `phase`: `"patterns"`. Include `severity` on every item. Prefer clarification when a "violation" might be an intentional new convention. Traceability mismatches are always `clarify`, regardless of how confident the phase is.
 
 

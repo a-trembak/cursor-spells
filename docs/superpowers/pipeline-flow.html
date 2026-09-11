@@ -532,7 +532,7 @@
             <span class="open-detail">деталі →</span>
           </div>
           <div class="connector"><span class="edge-label">AC є</span></div>
-          <div class="node hitl" tabindex="0" data-go="csp-tech-spec" data-stage="csp-tech-spec" data-layer="plan" role="button">
+          <div class="node hitl" tabindex="0" data-go="tech-spec" data-stage="csp-tech-spec" data-layer="plan" role="button">
             <div class="kind">2 · HITL</div>
             <div class="label">Tech Spec</div>
             <div class="hint">entry → depth → approve-spec</div>
@@ -736,7 +736,7 @@
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" class="primary" data-go="csp-tech-spec">Далі: Tech Spec →</button>
+        <button type="button" class="primary" data-go="tech-spec">Далі: Tech Spec →</button>
       </div>
     </section>
 
@@ -846,7 +846,7 @@
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" data-go="csp-tech-spec">← Tech Spec</button>
+        <button type="button" data-go="tech-spec">← Tech Spec</button>
         <button type="button" class="primary" data-go="approve-plan">Далі: Approve + Critic →</button>
       </div>
     </section>
@@ -1359,7 +1359,7 @@
     const views = document.querySelectorAll(".view");
     const LAYER_ORDER = ["fetch", "plan", "build", "review", "ship"];
 
-    const aliases = { "finish-plan": "review-gate" };
+    const aliases = { "finish-plan": "review-gate", "csp-tech-spec": "tech-spec" };
 
     function orientationUrl(hashId) {
       const q = location.search || "";

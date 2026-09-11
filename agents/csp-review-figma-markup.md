@@ -47,6 +47,7 @@ When stack is **`react-web`** (browser UI — not React Native / non-web):
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 `phase`: `"figma"`. Include `severity`. Unambiguous `P0|P1` mismatches → apply only if they also pass auto-fix eligibility (almost never for visual CSS). Design intent unclear → clarify. Put `figma_markup: …` and, when V1 fired, `narrow_viewport: …` in `notes` so the orchestrator can copy them into Coverage.
 
 

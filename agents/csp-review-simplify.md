@@ -93,6 +93,7 @@ Overlap is fine when you add a **simpler-alternative** angle the other phase mis
 
 ## Output
 
+Follow skills/engineer-review/references/phase-protocol.md and phase-protocol-detail.md.
 `phase`: `"simplify"`. Tag every finding with `severity`:
 
 | Level | Use when |
