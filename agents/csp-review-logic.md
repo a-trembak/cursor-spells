@@ -33,11 +33,11 @@ When triggered: **open the full checklist** `skills/engineer-review/references/i
 
 When triggered: **open the full checklist** `skills/engineer-review/references/fixture-identifier-conventions.md` and apply **I1**.
 
-### JPA Criteria / Specification (J1–J2, N1, when triggered)
+### JPA Criteria / Specification / repository queries (J1–J3, N1, when triggered)
 
-**Triggers (any):** diff touches `Specification`, Criteria `Subquery` / `exists(`, `fetch(` / `join(` on JPA entities, or follow-up null-safety in a file recently fixed for a query/runtime NPE.
+**Triggers (any):** diff touches `Specification`, Criteria `Subquery` / `exists(`, `fetch(` / `join(` on JPA entities; Spring Data `JpaRepository` / `@Query` methods returning scalars, DTOs, or interface projections; or follow-up null-safety in a file recently fixed for a query/runtime NPE or HTTP 500 on a read path.
 
-When triggered: **open the full checklist** `skills/engineer-review/references/jpa-criteria-checklist.md` and apply matching **J1–J2** / **N1** gates.
+When triggered: **open the full checklist** `skills/engineer-review/references/jpa-criteria-checklist.md` and apply matching **J1–J3** / **N1** gates.
 
 ### Partial null safety across callers (N1, when triggered)
 
