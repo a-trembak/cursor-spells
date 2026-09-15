@@ -1,7 +1,7 @@
 ---
 name: engineer-review
 description: >-
-  Use when a plan just finished and human-in-the-loop review gate is next, when
+  Use when a plan just finished and human-in-the-loop review gate is next, , , when
   the user runs /csp-engineer-review or asks for engineer-reviewer, or when
   approving automated post-plan code review across Java/Spring, React,
   TypeScript, or React Native changes. Findings must include Context,
@@ -112,7 +112,7 @@ If the caller is `csp-multi-repo-supervisor`, or discovery finds **2+ changed re
 ### Phase-only (do **not** load bodies into orchestrator)
 
 - [phase-protocol-detail.md](references/phase-protocol-detail.md), [skill-map.md](references/skill-map.md), [review-learn-capture.md](references/review-learn-capture.md), [graphify-r3-force-include.md](references/graphify-r3-force-include.md)
-- Checklists: `interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, `null-safety-checklist.md`, `jpa-criteria-checklist.md`, `styling-checklist.md`, `fixture-identifier-conventions.md`, `simplify-checklist.md`, `simplify-lenses-fallback.md`
+- Checklists: `interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, `null-safety-checklist.md`, `jpa-criteria-checklist.md`, `styling-checklist.md`, `fixture-identifier-conventions.md`, `empty-collection-fail-close-checklist.md`, `ordered-fallback-primary-first-checklist.md`, `simplify-checklist.md`, `simplify-lenses-fallback.md`
 - [learned-misses.md](references/learned-misses.md) (except pointing `csp-review-learn` at it)
 - Phase agent prompts (`agents/csp-review-*.md`)
 
