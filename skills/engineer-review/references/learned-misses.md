@@ -334,3 +334,34 @@ source: teach-review
 Mechanism: a shared command/agent prefix rename updates `commands/` and `agents/` but skips pipeline Mermaid/canvas labels, or mistakenly prefixes skill folders and harness paths — collapsing the skill vs slash-command distinction.
 
 Required check: [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) **P1–P4**.
+
+---
+
+### `miss_security-checklist-skip`
+
+```yaml
+id: miss_security-checklist-skip
+miss_class: security checklist skip
+triggers:
+  - SQL | JPQL | native query | Criteria | Mongo filter
+  - auth | session | token | prepareHeaders | IDOR
+  - dangerouslySetInnerHTML | innerHTML | SSRF | open redirect
+  - multipart | upload | ObjectInputStream | secret | API key
+  - resetApiState | security-review skill missing
+phases: [security]
+gate: S1
+also: [S2, S3, S4, S5, S6, S7, S8, S9, S10]
+rule_one_liner: >-
+  When auth, queries, uploads, secrets, or XSS/SSRF sinks change, open
+  security-hardening-checklist.md and run S1–S10; writers load the same file.
+anti_pattern: >-
+  Skipping the kit checklist because third-party security-review is missing,
+  or treating trigger bullets / a one-liner hint as the full security pass.
+hits: 1
+last_seen: 2026-09-15
+source: teach-review
+```
+
+Mechanism: the security phase (or a writer) notes "no security-review skill" or relies on a one-line injection reminder and never opens S1–S10, so SQL concatenation, IDOR, or secret logging ships.
+
+Required check: [security-hardening-checklist.md](security-hardening-checklist.md) **S1–S10**.

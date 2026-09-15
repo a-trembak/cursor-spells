@@ -41,6 +41,7 @@ Manual checks for kit harness inventory and the full regression bench.
    ```bash
    bash scripts/tests/harness-health-test.sh
    bash scripts/tests/harness-bench-test.sh
+   bash scripts/tests/security-hardening-checklist-test.sh
    ```
 
 ## Pass criteria

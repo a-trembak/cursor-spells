@@ -27,3 +27,4 @@ Slash command `/csp-harness-status` and skill `harness-status` are orientation o
 - Trajectory corpus: [`../trajectories/README.md`](../trajectories/README.md)
 - Code-quality evals: [`../code-quality/`](../code-quality/) (when present)
 - Dogfood: [`../../docs/superpowers/dogfood/harness-health-checklist.md`](../../docs/superpowers/dogfood/harness-health-checklist.md)
+- Security checklist contract (S1–S10 shared by reviewer + writers): `bash scripts/tests/security-hardening-checklist-test.sh`
