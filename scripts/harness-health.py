@@ -283,6 +283,14 @@ def format_human(data: dict[str, Any]) -> str:
                     f"{row.get('name')}={row.get('duration_s')}s" for row in slowest[:3]
                 )
                 lines.append(f"  slowest: {top}")
+        review_q = metrics.get("review_response_quality") or {}
+        if review_q:
+            lines.append(
+                f"  review_response_quality: ok={review_q.get('ok')} "
+                f"fixture_pass_rate={review_q.get('fixture_pass_rate')} "
+                f"evidence_avg={review_q.get('evidence_complete_rate_avg')} "
+                f"clarify_options_avg={review_q.get('clarify_options_rate_avg')}"
+            )
     else:
         lines.append("Bench report: none (run bash scripts/harness-bench.sh)")
     lines.append("")

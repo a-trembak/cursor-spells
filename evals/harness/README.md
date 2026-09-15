@@ -22,6 +22,7 @@ Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `sc
 
 - **quality** — overall and contract pass rates; trajectory validate / fixture-score status
 - **speed** — total duration, p50 / p95 / max step duration, and the slowest steps
+- **review_response_quality** — hard sensors on phase JSON / markdown fixtures (evidence completeness, clarify options, markdown validator); `python3 scripts/review-response-quality.py score-fixtures`
 
 `python3 scripts/harness-health.py` prints those metrics when a bench report is attached or auto-discovered.
 

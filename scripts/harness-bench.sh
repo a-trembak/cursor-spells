@@ -10,7 +10,7 @@ mkdir -p "$REPORTS_DIR"
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 report_path="$REPORTS_DIR/${timestamp}.json"
 tmp_results="$(mktemp)"
-trap 'rm -f "$tmp_results"' EXIT
+trap 'rm -f "$tmp_results" "$tmp_results.review-quality.json"' EXIT
 
 echo "Harness bench starting at $timestamp"
 echo "Reports → $report_path"
@@ -78,11 +78,30 @@ printf '%s\t%s\t%s\t%s\n' "trajectory-score-fixtures" "$traj_score_status" "$tra
 echo "==> trajectory-validate → $traj_validate_status ($traj_validate_code)"
 echo "==> trajectory-score-fixtures → $traj_score_status ($traj_score_code)"
 
+# Review-response quality fixtures (evidence / clarify options / markdown gate)
+rq_start=$(date +%s)
+rq_json="$tmp_results.review-quality.json"
+set +e
+python3 "$ROOT/scripts/review-response-quality.py" score-fixtures \
+  --kit-root "$ROOT" \
+  --fixtures-dir "$ROOT/evals/harness/fixtures/review-quality" \
+  --json >"$rq_json"
+rq_code=$?
+set -e
+rq_end=$(date +%s)
+rq_status="pass"
+if [[ "$rq_code" -ne 0 ]]; then
+  rq_status="fail"
+  failed=$((failed + 1))
+fi
+printf '%s\t%s\t%s\t%s\n' "review-response-quality-fixtures" "$rq_status" "$rq_code" "$((rq_end - rq_start))" >>"$tmp_results"
+echo "==> review-response-quality-fixtures → $rq_status ($rq_code)"
+
 overall_end=$(date +%s)
 
 # Derive test_count / failed_count / ok from recorded rows so they stay consistent.
-# Also emit metrics.quality (pass rates) and metrics.speed (percentiles / slowest).
-python3 - "$report_path" "$tmp_results" "$timestamp" "$overall_start" "$overall_end" <<'PY'
+# Also emit metrics.quality / metrics.speed / metrics.review_response_quality.
+python3 - "$report_path" "$tmp_results" "$timestamp" "$overall_start" "$overall_end" "$rq_json" <<'PY'
 import json, sys
 from pathlib import Path
 
@@ -91,6 +110,7 @@ results_path = Path(sys.argv[2])
 timestamp = sys.argv[3]
 overall_start = int(sys.argv[4])
 overall_end = int(sys.argv[5])
+rq_path = Path(sys.argv[6])
 
 tests = []
 for line in results_path.read_text(encoding="utf-8").splitlines():
@@ -113,8 +133,9 @@ pass_rate = (pass_count / total) if total else 0.0
 
 TRAJ_VALIDATE = "trajectory-validate"
 TRAJ_SCORE = "trajectory-score-fixtures"
-traj_names = {TRAJ_VALIDATE, TRAJ_SCORE}
-contract_tests = [t for t in tests if t["name"] not in traj_names]
+RQ = "review-response-quality-fixtures"
+meta_names = {TRAJ_VALIDATE, TRAJ_SCORE, RQ}
+contract_tests = [t for t in tests if t["name"] not in meta_names]
 contract_fail = sum(1 for t in contract_tests if t["status"] != "pass")
 contract_pass = len(contract_tests) - contract_fail
 contract_rate = (contract_pass / len(contract_tests)) if contract_tests else 0.0
@@ -149,6 +170,7 @@ metrics = {
         "contract_pass_rate": round(contract_rate, 4),
         "trajectory_validate": status_of(TRAJ_VALIDATE),
         "trajectory_score_fixtures": status_of(TRAJ_SCORE),
+        "review_response_quality_fixtures": status_of(RQ),
     },
     "speed": {
         "total_duration_s": overall_end - overall_start,
@@ -159,6 +181,24 @@ metrics = {
         "slowest": slowest_rows,
     },
 }
+
+review_response_quality = None
+if rq_path.is_file():
+    try:
+        rq_payload = json.loads(rq_path.read_text(encoding="utf-8"))
+        review_response_quality = rq_payload.get("metrics", {}).get("review_response_quality")
+        if isinstance(review_response_quality, dict):
+            review_response_quality = {
+                **review_response_quality,
+                "ok": rq_payload.get("ok"),
+                "fixture_count": rq_payload.get("fixture_count"),
+                "fixture_match_count": rq_payload.get("fixture_match_count"),
+            }
+    except (OSError, json.JSONDecodeError):
+        review_response_quality = {"ok": False, "error": "unreadable_review_quality_json"}
+
+if review_response_quality is not None:
+    metrics["review_response_quality"] = review_response_quality
 
 payload = {
     "timestamp": timestamp,
@@ -177,7 +217,8 @@ print(
     f"Metrics quality: pass_rate={q['pass_rate']} "
     f"contract_pass_rate={q['contract_pass_rate']} "
     f"trajectory_validate={q['trajectory_validate']} "
-    f"trajectory_score_fixtures={q['trajectory_score_fixtures']}"
+    f"trajectory_score_fixtures={q['trajectory_score_fixtures']} "
+    f"review_response_quality_fixtures={q['review_response_quality_fixtures']}"
 )
 print(
     f"Metrics speed: total_s={s['total_duration_s']} "
@@ -187,6 +228,14 @@ print(
 if s["slowest"]:
     top = ", ".join(f"{r['name']}={r['duration_s']}s" for r in s["slowest"][:3])
     print(f"Metrics slowest: {top}")
+rqm = metrics.get("review_response_quality") or {}
+if rqm:
+    print(
+        f"Metrics review_response_quality: ok={rqm.get('ok')} "
+        f"fixture_pass_rate={rqm.get('fixture_pass_rate')} "
+        f"evidence_avg={rqm.get('evidence_complete_rate_avg')} "
+        f"clarify_options_avg={rqm.get('clarify_options_rate_avg')}"
+    )
 PY
 
 if [[ "$failed" -ne 0 ]]; then

@@ -1,0 +1,22 @@
+{
+  "phase": "security",
+  "status": "ok",
+  "skipped": false,
+  "fixed": [
+    {
+      "path": "src/api/users.ts",
+      "start_line": 22,
+      "end_line": 25,
+      "snippet": "  const q = \"SELECT * FROM users WHERE id = '\" + id + \"'\";\n  return db.query(q);\n",
+      "context": "User lookup builds SQL with string concatenation from request input.",
+      "summary": "Use parameterized query for user id",
+      "severity": "P0",
+      "unambiguous": true,
+      "applied": false
+    }
+  ],
+  "clarify": [],
+  "notes": [
+    "Ran security-hardening-checklist.md S1–S10; S1 failed on concatenated SQL."
+  ]
+}

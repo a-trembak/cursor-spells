@@ -1,0 +1,16 @@
+{
+  "phase": "logic",
+  "status": "ok",
+  "skipped": false,
+  "fixed": [
+    {
+      "path": "src/auth/session.ts",
+      "summary": "Guard null user before reading id",
+      "severity": "P0",
+      "unambiguous": true,
+      "applied": false
+    }
+  ],
+  "clarify": [],
+  "notes": []
+}

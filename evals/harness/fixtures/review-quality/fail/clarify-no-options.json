@@ -1,0 +1,19 @@
+{
+  "phase": "architecture",
+  "status": "ok",
+  "skipped": false,
+  "fixed": [],
+  "clarify": [
+    {
+      "id": "C1",
+      "question": "Keep the new helper or reuse Y?",
+      "context": "New load path duplicates existing helper Y.",
+      "path": "src/foo.ts",
+      "start_line": 8,
+      "end_line": 12,
+      "snippet": "  return loadThing();\n",
+      "severity": "P1"
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,37 @@
+{
+  "phase": "logic",
+  "status": "ok",
+  "skipped": false,
+  "fixed": [
+    {
+      "path": "src/auth/session.ts",
+      "start_line": 10,
+      "end_line": 14,
+      "snippet": "  const user = await loadUser();\n  return user.id;\n",
+      "context": "Session loader returns the authenticated user id for downstream checks.",
+      "summary": "Guard null user before reading id",
+      "severity": "P0",
+      "unambiguous": true,
+      "applied": false
+    }
+  ],
+  "clarify": [
+    {
+      "id": "C1",
+      "question": "Should expired sessions redirect to login or show a modal?",
+      "context": "Token refresh failure currently clears state with no user-facing path.",
+      "options": [
+        { "id": "A", "label": "Redirect to /login" },
+        { "id": "B", "label": "Show re-auth modal" }
+      ],
+      "recommended": "A",
+      "recommendation_why": "Matches existing deep-link resume pattern.",
+      "path": "src/auth/session.ts",
+      "start_line": 40,
+      "end_line": 46,
+      "snippet": "  if (!token) {\n    clearSession();\n    return;\n  }\n",
+      "severity": "P1"
+    }
+  ],
+  "notes": []
+}

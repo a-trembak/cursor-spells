@@ -91,6 +91,12 @@ cat >"$fake_report" <<'EOF'
       "max_duration_s": 1,
       "min_duration_s": 1,
       "slowest": [{"name": "demo.sh", "duration_s": 1, "status": "pass"}]
+    },
+    "review_response_quality": {
+      "ok": true,
+      "fixture_pass_rate": 1.0,
+      "evidence_complete_rate_avg": 1.0,
+      "clarify_options_rate_avg": 1.0
     }
   }
 }
@@ -104,6 +110,7 @@ assert_eq attached_pass_rate "1.0" "$(json_field "$attached" 'str(d["bench"]["me
 human_metrics="$(python3 "$SCRIPT" --kit-root "$ROOT" --bench-report "$fake_report")"
 assert_contains human_quality "$human_metrics" "quality: pass_rate="
 assert_contains human_speed "$human_metrics" "speed: total_s="
+assert_contains human_review_quality "$human_metrics" "review_response_quality: ok="
 
 # Auto-discover latest under evals/harness/reports when present
 REPORTS="$ROOT/evals/harness/reports"
