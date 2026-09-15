@@ -51,6 +51,7 @@ Pass URLs into clarifications for `csp-review-figma-markup`. Do not block other 
 9. Early Figma ask when frontend (above).
 10. Dispatch phase subagents per phase-protocol (pass `graphify_available` + optional `impact_hint` + per-phase `learned_hints`). Run `csp-review-lint` first; then parallel **find** for remaining heuristic phases (**including** `csp-review-simplify`); serialize **apply** for `unambiguous && (P0|P1)` only (eligibility: [auto-fix-eligibility.md](references/auto-fix-eligibility.md)). Phases own checklist bodies — orchestrator does not load them.
 11. After apply: verify `csp-review-lint` + `csp-review-simplify` once each in `find`; do not loop.
+
 12. **Merge → report (lazy feedback pack):** load [evidence-gate.md](references/evidence-gate.md) → [feedback-format.md](references/feedback-format.md) + [forbidden-formats.md](references/forbidden-formats.md) + [output-schema.md](references/output-schema.md) **only now**; never *emit* formats banned by [forbidden-formats.md](references/forbidden-formats.md). Coverage: `graphify:…`, `review_learnings:…`, when in scope `interaction_replay:…` (**R7**), `figma_markup:…` (**F7**), `narrow_viewport:…` (**V4**), `null_safety_callers:…` (**N1**), and `jpa_result_type:…` (**RT1**). Validate with `scripts/validate-review-report.sh`. When the kit path is known, also append a live quality row: `python3 "$KIT"/scripts/pipeline-metrics.py append-review --kit-root "$KIT" --path <validated-report> [--ticket "<live ticket key>"]` (skip quietly if `pipeline-metrics.py` is missing). Then `english-humanizer` then `plain-language-chat` on prose.
 13. Needs clarification → HITL **Engineer-review clarify**; each sequential question repeats File, Lines, Jump, and numbered fence; re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
 14. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. **Never edit kit git** in this orchestrator. Do not auto-capture.
@@ -112,6 +113,7 @@ If the caller is `csp-multi-repo-supervisor`, or discovery finds **2+ changed re
 ### Phase-only (do **not** load bodies into orchestrator)
 
 - [phase-protocol-detail.md](references/phase-protocol-detail.md), [skill-map.md](references/skill-map.md), [review-learn-capture.md](references/review-learn-capture.md), [graphify-r3-force-include.md](references/graphify-r3-force-include.md)
+
 - Checklists: `interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, `null-safety-checklist.md`, `jpa-criteria-checklist.md`, `jpa-repository-result-checklist.md`, `styling-checklist.md`, `fixture-identifier-conventions.md`, `simplify-checklist.md`, `simplify-lenses-fallback.md`, `security-hardening-checklist.md`
 - [learned-misses.md](references/learned-misses.md) (except pointing `csp-review-learn` at it)
 - Phase agent prompts (`agents/csp-review-*.md`)

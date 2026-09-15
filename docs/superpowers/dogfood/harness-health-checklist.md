@@ -56,3 +56,9 @@ Manual checks for kit harness inventory and the full regression bench.
 - [ ] `bash scripts/tests/pipeline-metrics-test.sh` exits 0 (live JSONL journal for consumer pipeline runs)
 - [ ] `python3 scripts/harness-health.py` shows quality/speed lines when a bench report exists
 - [ ] Live report `*.json` stays gitignored (`.gitkeep` remains)
+- [ ] Diagrams + plain-language guide exist: [`../pipeline-metrics-guide.md`](../pipeline-metrics-guide.md) (images under `docs/superpowers/images/`)
+
+## Related reading
+
+- Ukrainian plain-language guide with architecture pictures: [`../pipeline-metrics-guide.md`](../pipeline-metrics-guide.md)
+- English harness README: [`../../../evals/harness/README.md`](../../../evals/harness/README.md)

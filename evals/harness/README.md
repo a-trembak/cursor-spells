@@ -28,6 +28,26 @@ Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `sc
 
 Slash command `/csp-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
 
+
+## Pictures (what the two systems look like)
+
+Human-oriented guide (Ukrainian, plain names): [`../../docs/superpowers/pipeline-metrics-guide.md`](../../docs/superpowers/pipeline-metrics-guide.md).
+
+**Whole kit vs live ticket (two lanes):**
+
+![Architecture: live ticket pipeline above, kit harness bench below](../../docs/superpowers/images/pipeline-overview.png)
+
+**How a live metrics row is written (“pipeline metrics path”):**
+
+![Detail path: mark-start → record stages → append-score / append-review → history.jsonl → summary/export](../../docs/superpowers/images/pipeline-metrics-path.png)
+
+| Name you may hear | Meaning |
+|-------------------|---------|
+| Live pipeline metrics / journal | Rows in the consumer project’s `.cursor/gates/pipeline-metrics/history.jsonl` from real ticket runs |
+| Pipeline metrics path | The sequence `mark-start` → `append-score` / `append-review` → `summary` / `export` |
+| Harness reports | JSON under `evals/harness/reports/` from `harness-bench` (kit only) |
+| Harness health | Inventory + wiring + last bench summary (`harness-health.py`) — does not run the full bench by itself |
+
 ## Live pipeline metrics (consumer projects)
 
 Bench metrics above are for **kit** changes. For **real ticket runs** in a consumer project, agents append rows to a local JSONL history so you can graph quality and speed over time:
@@ -51,6 +71,7 @@ Default history path (consumer project, gitignored with other gates): `.cursor/g
 
 ## Related
 
+- Plain-language guide + diagrams: [`../../docs/superpowers/pipeline-metrics-guide.md`](../../docs/superpowers/pipeline-metrics-guide.md)
 - Trajectory corpus: [`../trajectories/README.md`](../trajectories/README.md)
 - Code-quality evals: [`../code-quality/`](../code-quality/) (when present)
 - Dogfood: [`../../docs/superpowers/dogfood/harness-health-checklist.md`](../../docs/superpowers/dogfood/harness-health-checklist.md)

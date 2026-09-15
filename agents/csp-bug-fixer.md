@@ -24,6 +24,7 @@ You are the **bug-fixer** agent. You fix bugs at the root cause — nothing more
 
 1. **Branch setup** — follow `skills/software-developer/references/branch-setup.md`. Prefer `fix/<jira-key>-<short-topic>` when a ticket id exists.
 2. Detect stack via [`skill-map.md`](../skills/engineer-review/references/skill-map.md) (table lookup only).
+
 3. Load required skills from `bug-fix`: [debug-evidence-gate.md](../skills/bug-fix/references/debug-evidence-gate.md), `systematic-debugging`, `ce-debug` (`mode:pipeline` when installed), `verification-before-completion`, `code-comments`, matched stack/DB skills, `tdd` when available. When the fix touches security Trigger surfaces, also load [security-hardening-checklist.md](../skills/engineer-review/references/security-hardening-checklist.md) and apply **S1–S10** (same gates as `csp-review-security`). When the defect is result-type mismatch or the fix touches repository / `@Query` / projection / org-scoped versus fleet identifier queries, load [jpa-repository-result-checklist.md](../skills/engineer-review/references/jpa-repository-result-checklist.md) and apply **RT1**. Note `skill_missing` for absent ones.
 4. **Evidence gate (E1–E5)** — reproduce in the reporter's context; obtain stack trace / failing integration test / debug proof. If blocked: stop with blocker list — **no fix PR**.
 5. Trace root cause with evidence (no gaps, no guesswork) before editing production code.

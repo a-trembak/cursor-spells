@@ -118,10 +118,17 @@ assert_grep skill_canonical "$SKILL" "canonical spine"
 assert_grep agent_pointer "$ORCH" "Canonical spine|skill \\*\\*\`engineer-review\`\\*\\*"
 
 # Checklist bodies still exist (do not delete)
-for base in interaction-replay-checklist auth-rtk-checklist figma-markup-checklist \
-  responsive-layout-checklist null-safety-checklist jpa-criteria-checklist \
-  jpa-repository-result-checklist styling-checklist \
-  security-hardening-checklist; do
+for base in \
+  interaction-replay-checklist \
+  auth-rtk-checklist \
+  figma-markup-checklist \
+  responsive-layout-checklist \
+  null-safety-checklist \
+  jpa-criteria-checklist \
+  jpa-repository-result-checklist \
+  styling-checklist \
+  security-hardening-checklist
+do
   assert_file "skills/engineer-review/references/${base}.md"
 done
 assert_file "skills/engineer-review/references/learned-misses.md"
