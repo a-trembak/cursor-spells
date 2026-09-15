@@ -92,6 +92,15 @@ if [[ "$FAIL" -ne 0 ]]; then
   exit 1
 fi
 
+# Narrow Coverage enum: if jpa_result_type appears outside fences, value must be allowed.
+if printf '%s\n' "$BODY" | grep -E -q -- 'jpa_result_type'; then
+  if ! printf '%s\n' "$BODY" | grep -E -q -- 'jpa_result_type:[[:space:]]*(matched|mismatched|skipped|n/a)\b'; then
+    fail "jpa_result_type must be one of matched|mismatched|skipped|n/a when present"
+    echo "Rebuild per skills/engineer-review/references/feedback-format.md and forbidden-formats.md" >&2
+    exit 1
+  fi
+fi
+
 echo "OK: $FINDINGS finding(s) with Context/Where/Jump/File + code fences"
 if [[ "$C_FINDINGS" -gt 0 ]]; then
   echo "OK: $C_FINDINGS C finding(s) with Recommendation/(recommended)"

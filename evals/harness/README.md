@@ -28,6 +28,7 @@ Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `sc
 
 Slash command `/csp-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
 
+
 ## Pictures (what the two systems look like)
 
 Human-oriented guide (Ukrainian, plain names): [`../../docs/superpowers/pipeline-metrics-guide.md`](../../docs/superpowers/pipeline-metrics-guide.md).

@@ -62,12 +62,14 @@ Never implement on the default branch. Never invent repos the plan does not touc
    - `mattpocock/skills@tdd` when the task has observable behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions)
 3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from [Database skill routing](../engineer-review/references/skill-map.md#database-skill-routing)
 4. **JPA Criteria** — when the task touches `Specification`, Criteria fetch/join/subquery code, or org-scoped alert/installation queries: load [jpa-criteria-patterns.md](references/jpa-criteria-patterns.md) and apply before handoff
-5. **Conditional** — only if the plan/spec touches that surface: performance / architecture skills from the map. **Security:** when the plan/task hits Trigger surfaces in [security-hardening-checklist.md](../engineer-review/references/security-hardening-checklist.md) (auth, sessions, crypto, PII, queries, uploads, secrets, SSRF/XSS sinks, deserialization, filesystem paths from input), load that checklist and apply **S1–S10** while coding — same gates `csp-review-security` will run independently. Optional enrichment: mapped `security-review` if installed; never skip the kit checklist when it is missing.
-6. **UI vs design (web):** when stack is `react-web` and the task changes user-visible UI:
+
+5. **JPA repository result type** — when the task touches repository methods, `@Query`, projections, or org-scoped versus fleet identifier queries: load [jpa-repository-result-patterns.md](references/jpa-repository-result-patterns.md) and apply before handoff
+6. **Conditional** — only if the plan/spec touches that surface: performance / architecture skills from the map. **Security:** when the plan/task hits Trigger surfaces in [security-hardening-checklist.md](../engineer-review/references/security-hardening-checklist.md) (auth, sessions, crypto, PII, queries, uploads, secrets, SSRF/XSS sinks, deserialization, filesystem paths from input), load that checklist and apply **S1–S10** while coding — same gates `csp-review-security` will run independently. Optional enrichment: mapped `security-review` if installed; never skip the kit checklist when it is missing.
+7. **UI vs design (web):** when stack is `react-web` and the task changes user-visible UI:
    - If Figma node URLs are available (from the task/spec/clarifications): load Figma skills/MCP while implementing (`figma-use`, `figma-design-to-code` as available)
    - After the UI slice is runnable: follow **`ce-test-browser`** to open affected routes and compare the **rendered** UI to those Figma nodes
    - Missing skill / no browser / no URLs → continue coding; note `skill_missing: ce-test-browser`, `browser_review_unavailable`, or `awaiting_figma_urls` in the handoff — do not invent pixel diffs
-7. **Before handoff:** run `verification-before-completion` (or the project's own lint/test/typecheck) — never claim done without evidence
+8. **Before handoff:** run `verification-before-completion` (or the project's own lint/test/typecheck) — never claim done without evidence
 
 Missing mapped skill → proceed on built-in checklist; report `skill_missing: <id>`. Never auto-install Tier-2 skills; follow skill-map's Skill resolution protocol (ask the human).
 
