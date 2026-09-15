@@ -273,6 +273,38 @@ Required check: [null-safety-checklist.md](null-safety-checklist.md) **N1**.
 
 ---
 
+### `miss_jpa-repository-result-type-mismatch`
+
+```yaml
+id: miss_jpa-repository-result-type-mismatch
+miss_class: jpa-repository-result-type-mismatch
+triggers:
+  - List<String> | Set<UUID> | scalar / id collection return
+  - @Query | derived finder | Criteria selection
+  - org-scoped | fleet | unscoped sibling finder
+  - result type did not match Query selection type
+  - multiple selections: use Tuple or array
+phases: [logic]
+gate: RT1
+checklist: jpa-repository-result-checklist.md
+rule_one_liner: >-
+  When a repository method declares a scalar/id collection, the query
+  selection must match; compare scoped and fleet siblings before closing.
+anti_pattern: >-
+  Approving a scoped finder returning List<String> (or similar) while the
+  query selects an entity or multiple columns, especially when fleet already
+  has a matching scalar @Query.
+hits: 1
+last_seen: 2026-09-15
+source: production-escape
+```
+
+Mechanism: Hibernate rejects a declared scalar/id collection when the query selects an entity type or multiple columns. Review that only opens the ticket-named scoped method misses a fleet sibling that already uses an explicit scalar `@Query`, so the scoped path ships a five-hundred while the unscoped path returns two-hundred.
+
+Required check: [jpa-repository-result-checklist.md](jpa-repository-result-checklist.md) **RT1**.
+
+---
+
 ### `miss_asymmetric-empty-collection-fail-close`
 
 ```yaml

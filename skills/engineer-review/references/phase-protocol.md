@@ -65,6 +65,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 - When the figma phase is in scope (frontend, not `user_said_no_figma`): Coverage **must** note `figma_markup: compared|source-only|skipped|n/a` (**F7**). Optional: `figma_nodes: …`. Detail: [`figma-markup-checklist.md`](figma-markup-checklist.md) (phase-owned — orchestrator does not load the body).
 - When tables, expandable cards, dialogs, or overlays are in scope: Coverage **must** note `narrow_viewport: tablet+phone|source-only|skipped|n/a` (**V4**). Figma skip does not waive this — `csp-review-patterns` still records it. Detail: [`responsive-layout-checklist.md`](responsive-layout-checklist.md) (phase-owned).
 - When null-hardening triggers apply: Coverage **must** note `null_safety_callers: traced|partial|skipped|n/a` (**N1**) from logic/architecture notes.
+- When repository / result-type triggers apply: Coverage **must** note `jpa_result_type: matched|mismatched|skipped|n/a` (**RT1**) from logic notes. Detail: [`jpa-repository-result-checklist.md`](jpa-repository-result-checklist.md) (phase-owned — orchestrator does not load the body).
 - Coverage notes `review_learnings: loaded N|absent` and, after the learn step, `review_learn: appended|deduped|skipped|n/a`.
 
 At merge/report time only, load [`evidence-gate.md`](evidence-gate.md) + [`feedback-format.md`](feedback-format.md) + [`forbidden-formats.md`](forbidden-formats.md); never *emit* formats banned by [`forbidden-formats.md`](forbidden-formats.md). Abort/skip without a report does not load that pack.

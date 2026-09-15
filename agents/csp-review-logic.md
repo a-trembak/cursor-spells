@@ -39,6 +39,12 @@ When triggered: **open the full checklist** `skills/engineer-review/references/f
 
 When triggered: **open the full checklist** `skills/engineer-review/references/jpa-criteria-checklist.md` and apply matching **J1–J2** / **N1** gates.
 
+### JPA repository result type (RT1, when triggered)
+
+**Triggers (any):** diff touches repository methods returning scalar/id collections (for example `List<String>`), `@Query` / derived / Criteria selections that project identifiers or scalars, org-scoped versus fleet (or unscoped) finder forks, or Hibernate wording like `result type did not match Query selection type` / `multiple selections: use Tuple or array`.
+
+When triggered: **open the full checklist** `skills/engineer-review/references/jpa-repository-result-checklist.md` and apply **RT1**. Coverage must note `jpa_result_type: matched|mismatched|skipped|n/a` when this trigger applies.
+
 ### Partial null safety across callers (N1, when triggered)
 
 **Trigger:** the diff fixes or hardens null handling — NPE/500 fixes, null guards, filters on null associations, map lookup changes, or shared helper extraction used by multiple endpoints.

@@ -40,6 +40,7 @@ Abort / skip / catastrophic-narrow paths use **only** always-on files. They must
 | `references/responsive-layout-checklist.md` | V1–V4 |
 | `references/null-safety-checklist.md` | N1 |
 | `references/jpa-criteria-checklist.md` | J1–J2 |
+| `references/jpa-repository-result-checklist.md` | RT1 |
 | `references/styling-checklist.md` | S1–S2 |
 | `references/fixture-identifier-conventions.md` | I1 |
 | `references/simplify-checklist.md` | Kit extensions (+ pointer to lenses) |
@@ -73,6 +74,7 @@ Never delete or empty these quality bodies (shrink is load-routing only):
 - `responsive-layout-checklist.md`
 - `null-safety-checklist.md`
 - `jpa-criteria-checklist.md`
+- `jpa-repository-result-checklist.md`
 - `styling-checklist.md`
 - `simplify-checklist.md` (Kit extensions)
 - `fixture-identifier-conventions.md`
