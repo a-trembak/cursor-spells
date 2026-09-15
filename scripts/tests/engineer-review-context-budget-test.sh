@@ -40,6 +40,7 @@ SKILL="skills/engineer-review/SKILL.md"
 ORCH="agents/csp-engineer-reviewer.md"
 LOGIC="agents/csp-review-logic.md"
 ARCH="agents/csp-review-architecture.md"
+SECURITY="agents/csp-review-security.md"
 
 assert_file "$SKILL"
 assert_file "$ORCH"
@@ -79,6 +80,7 @@ CHECKLISTS=(
   jpa-criteria-checklist
   styling-checklist
   learned-misses
+  security-hardening-checklist
 )
 
 for base in "${CHECKLISTS[@]}"; do
@@ -106,6 +108,8 @@ assert_grep logic_replay_path "$LOGIC" "interaction-replay-checklist\\.md"
 assert_grep logic_open_null "$LOGIC" "null-safety-checklist\\.md"
 assert_grep arch_open_replay "$ARCH" "open the full checklist"
 assert_grep arch_replay_path "$ARCH" "interaction-replay-checklist\\.md"
+assert_grep security_open_checklist "$SECURITY" "open the full checklist"
+assert_grep security_checklist_path "$SECURITY" "security-hardening-checklist\\.md"
 
 # Canonical spine lives in skill; agent points at it
 assert_grep skill_canonical "$SKILL" "canonical spine"
@@ -113,7 +117,8 @@ assert_grep agent_pointer "$ORCH" "Canonical spine|skill \\*\\*\`engineer-review
 
 # Checklist bodies still exist (do not delete)
 for base in interaction-replay-checklist auth-rtk-checklist figma-markup-checklist \
-  responsive-layout-checklist null-safety-checklist jpa-criteria-checklist styling-checklist; do
+  responsive-layout-checklist null-safety-checklist jpa-criteria-checklist styling-checklist \
+  security-hardening-checklist; do
   assert_file "skills/engineer-review/references/${base}.md"
 done
 assert_file "skills/engineer-review/references/learned-misses.md"

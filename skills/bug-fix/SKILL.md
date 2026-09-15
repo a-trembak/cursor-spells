@@ -39,6 +39,7 @@ Load when available; note `skill_missing: <id>` and continue on built-in discipl
 | `verification-before-completion` | Evidence before claiming done |
 | `code-comments` | Keep/Remove taxonomy; English-only comments; services forbid presentation; React / frontend UI may reference the user interface |
 | [`skill-map.md`](../engineer-review/references/skill-map.md) stack (+ DB rows if migrations) | Same mechanical lookup as `csp-software-developer` |
+| [security-hardening-checklist.md](../engineer-review/references/security-hardening-checklist.md) (**S1–S10**) | Load when the fix touches Trigger surfaces (auth, queries, uploads, secrets, SSRF/XSS sinks, etc.) — same gates as `csp-review-security`; optional `security-review` enrichment only |
 | `tdd` / project test conventions | Failing test that proves the bug **before** the fix |
 
 ## Spine

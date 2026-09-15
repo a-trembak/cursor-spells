@@ -29,7 +29,7 @@ You are the **csp-software-developer** agent. You write code to the tech spec + 
 2. Detect stack mechanically via [`skill-map.md`](../skills/engineer-review/references/skill-map.md) (table lookup only; per target repo when multi-repo).
 3. Load always-on skills for this run: matched stack skill(s), `code-comments` (services forbid presentation; React / frontend UI may reference the user interface), and `tdd` when the task has observable behavior (note `skill_missing` if absent).
 4. If the plan/task touches migrations/schema: load [Database skill routing](../skills/engineer-review/references/skill-map.md#database-skill-routing) rows from the same skill-map.
-5. If the plan/spec touches perf/security/architecture surfaces: load those mapped skills conditionally.
+5. If the plan/spec touches perf/architecture surfaces: load those mapped skills conditionally. **Security:** when the plan/task hits Trigger surfaces in `skills/engineer-review/references/security-hardening-checklist.md`, load that checklist and apply **S1–S10** while coding (same gates as `csp-review-security`). Optional mapped `security-review` if installed — never skip the kit checklist when missing.
 6. **Web UI vs design** — only when stack is `react-web` and the task changes user-visible UI:
    a. If Figma node URLs exist: use Figma MCP/skills while implementing.
    b. After the slice is runnable: follow **`ce-test-browser`** and compare rendered routes to those Figma nodes.
