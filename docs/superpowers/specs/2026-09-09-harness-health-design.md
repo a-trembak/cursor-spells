@@ -14,7 +14,7 @@ Give maintainers a fast answer to “is the harness still healthy?” before cha
 |----------|--------|
 | Inventory script | `python3 scripts/harness-health.py` — stdlib only; reports inventory without requiring a full bench |
 | Bench script | `bash scripts/harness-bench.sh` — runs every `scripts/tests/*.sh` sequentially with durations, then `python3 scripts/trajectory-cases.py validate` and `score --runs-dir evals/trajectories/fixtures/pass` |
-| Bench reports | Write JSON under `evals/harness/reports/<timestamp>.json` (kit-only). Live `*.json` gitignored; keep `.gitkeep` (same pattern as `evals/trajectories/runs/`) |
+| Bench reports | Write JSON under `evals/harness/reports/<timestamp>.json` (kit-only) with per-step durations plus a `metrics` object: `quality` (pass rates, trajectory validate/score status) and `speed` (total, p50/p95/max, slowest steps). Live `*.json` gitignored; keep `.gitkeep` (same pattern as `evals/trajectories/runs/`) |
 | Slash command | `/csp-harness-status` — orientation only; does **not** advance gates |
 | Skill | `harness-status` — same contract; prints inventory / last bench; never writes `.cursor/gates/` |
 | Wiring matrix | Each `active` trajectory case → `wired` / `unwired` / `retired` from mention in `skills/trajectory-score/SKILL.md` (retired when the skill marks the case retired; wired when the case id appears; else unwired) |
@@ -34,5 +34,5 @@ Give maintainers a fast answer to “is the harness still healthy?” before cha
 ## Test plan
 
 - `scripts/tests/harness-health-test.sh` — inventory JSON shape, wiring keys for known cases, `--json` exit 0
-- `scripts/tests/harness-bench-test.sh` — bench writes a report JSON with expected fields; fails when a child test fails (isolated fake suite)
+- `scripts/tests/harness-bench-test.sh` — bench writes a report JSON with expected fields including `metrics.quality` / `metrics.speed`; fails when a child test fails (isolated fake suite)
 - Full `bash scripts/harness-bench.sh` green on the kit before merging skill/agent changes

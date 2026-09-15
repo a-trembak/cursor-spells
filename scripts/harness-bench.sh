@@ -81,6 +81,7 @@ echo "==> trajectory-score-fixtures → $traj_score_status ($traj_score_code)"
 overall_end=$(date +%s)
 
 # Derive test_count / failed_count / ok from recorded rows so they stay consistent.
+# Also emit metrics.quality (pass rates) and metrics.speed (percentiles / slowest).
 python3 - "$report_path" "$tmp_results" "$timestamp" "$overall_start" "$overall_end" <<'PY'
 import json, sys
 from pathlib import Path
@@ -106,16 +107,86 @@ for line in results_path.read_text(encoding="utf-8").splitlines():
     )
 
 failed_count = sum(1 for t in tests if t["status"] != "pass")
+pass_count = len(tests) - failed_count
+total = len(tests)
+pass_rate = (pass_count / total) if total else 0.0
+
+TRAJ_VALIDATE = "trajectory-validate"
+TRAJ_SCORE = "trajectory-score-fixtures"
+traj_names = {TRAJ_VALIDATE, TRAJ_SCORE}
+contract_tests = [t for t in tests if t["name"] not in traj_names]
+contract_fail = sum(1 for t in contract_tests if t["status"] != "pass")
+contract_pass = len(contract_tests) - contract_fail
+contract_rate = (contract_pass / len(contract_tests)) if contract_tests else 0.0
+
+def status_of(name: str):
+    for t in tests:
+        if t["name"] == name:
+            return t["status"]
+    return None
+
+def percentile_nearest(sorted_vals, pct: float):
+    if not sorted_vals:
+        return None
+    if len(sorted_vals) == 1:
+        return sorted_vals[0]
+    # Nearest-rank: index = ceil(p/100 * n) - 1
+    import math
+    rank = max(1, math.ceil(pct / 100.0 * len(sorted_vals)))
+    return sorted_vals[rank - 1]
+
+durations = sorted(t["duration_s"] for t in tests)
+slowest = sorted(tests, key=lambda t: t["duration_s"], reverse=True)[:5]
+slowest_rows = [{"name": t["name"], "duration_s": t["duration_s"], "status": t["status"]} for t in slowest]
+
+metrics = {
+    "quality": {
+        "pass_count": pass_count,
+        "fail_count": failed_count,
+        "pass_rate": round(pass_rate, 4),
+        "contract_pass_count": contract_pass,
+        "contract_fail_count": contract_fail,
+        "contract_pass_rate": round(contract_rate, 4),
+        "trajectory_validate": status_of(TRAJ_VALIDATE),
+        "trajectory_score_fixtures": status_of(TRAJ_SCORE),
+    },
+    "speed": {
+        "total_duration_s": overall_end - overall_start,
+        "p50_duration_s": percentile_nearest(durations, 50),
+        "p95_duration_s": percentile_nearest(durations, 95),
+        "max_duration_s": durations[-1] if durations else None,
+        "min_duration_s": durations[0] if durations else None,
+        "slowest": slowest_rows,
+    },
+}
+
 payload = {
     "timestamp": timestamp,
     "ok": failed_count == 0,
-    "test_count": len(tests),
+    "test_count": total,
     "failed_count": failed_count,
     "duration_s": overall_end - overall_start,
     "tests": tests,
+    "metrics": metrics,
 }
 report_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 print(f"Wrote {report_path}")
+q = metrics["quality"]
+s = metrics["speed"]
+print(
+    f"Metrics quality: pass_rate={q['pass_rate']} "
+    f"contract_pass_rate={q['contract_pass_rate']} "
+    f"trajectory_validate={q['trajectory_validate']} "
+    f"trajectory_score_fixtures={q['trajectory_score_fixtures']}"
+)
+print(
+    f"Metrics speed: total_s={s['total_duration_s']} "
+    f"p50_s={s['p50_duration_s']} p95_s={s['p95_duration_s']} "
+    f"max_s={s['max_duration_s']}"
+)
+if s["slowest"]:
+    top = ", ".join(f"{r['name']}={r['duration_s']}s" for r in s["slowest"][:3])
+    print(f"Metrics slowest: {top}")
 PY
 
 if [[ "$failed" -ne 0 ]]; then

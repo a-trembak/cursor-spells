@@ -18,7 +18,12 @@ Shows skill/command/agent/rule inventory, trajectory wiring vs `skills/trajector
 bash scripts/harness-bench.sh
 ```
 
-Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `score --runs-dir evals/trajectories/fixtures/pass`. Writes `evals/harness/reports/<timestamp>.json`. Live report JSON is gitignored (keep `.gitkeep`).
+Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `score --runs-dir evals/trajectories/fixtures/pass`. Writes `evals/harness/reports/<timestamp>.json` including a **`metrics`** block:
+
+- **quality** — overall and contract pass rates; trajectory validate / fixture-score status
+- **speed** — total duration, p50 / p95 / max step duration, and the slowest steps
+
+`python3 scripts/harness-health.py` prints those metrics when a bench report is attached or auto-discovered.
 
 Slash command `/csp-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
 

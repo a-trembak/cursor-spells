@@ -72,12 +72,38 @@ cat >"$fake_report" <<'EOF'
   "test_count": 1,
   "failed_count": 0,
   "duration_s": 1,
-  "tests": [{"name": "demo.sh", "status": "pass", "exit_code": 0, "duration_s": 1}]
+  "tests": [{"name": "demo.sh", "status": "pass", "exit_code": 0, "duration_s": 1}],
+  "metrics": {
+    "quality": {
+      "pass_count": 1,
+      "fail_count": 0,
+      "pass_rate": 1.0,
+      "contract_pass_count": 1,
+      "contract_fail_count": 0,
+      "contract_pass_rate": 1.0,
+      "trajectory_validate": null,
+      "trajectory_score_fixtures": null
+    },
+    "speed": {
+      "total_duration_s": 1,
+      "p50_duration_s": 1,
+      "p95_duration_s": 1,
+      "max_duration_s": 1,
+      "min_duration_s": 1,
+      "slowest": [{"name": "demo.sh", "duration_s": 1, "status": "pass"}]
+    }
+  }
 }
 EOF
 attached="$(python3 "$SCRIPT" --json --kit-root "$ROOT" --bench-report "$fake_report")"
 assert_eq attached_ok "True" "$(json_field "$attached" 'd["bench"]["ok"]')"
 assert_eq attached_count "1" "$(json_field "$attached" 'd["bench"]["test_count"]')"
+assert_eq attached_metrics "True" "$(json_field "$attached" '"metrics" in d["bench"]')"
+assert_eq attached_pass_rate "1.0" "$(json_field "$attached" 'str(d["bench"]["metrics"]["quality"]["pass_rate"])')"
+
+human_metrics="$(python3 "$SCRIPT" --kit-root "$ROOT" --bench-report "$fake_report")"
+assert_contains human_quality "$human_metrics" "quality: pass_rate="
+assert_contains human_speed "$human_metrics" "speed: total_s="
 
 # Auto-discover latest under evals/harness/reports when present
 REPORTS="$ROOT/evals/harness/reports"

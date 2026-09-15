@@ -260,6 +260,29 @@ def format_human(data: dict[str, Any]) -> str:
             f"  ok={bench.get('ok')} tests={bench.get('test_count')} "
             f"failed={bench.get('failed_count')} duration_s={bench.get('duration_s')}"
         )
+        metrics = bench.get("metrics") or {}
+        quality = metrics.get("quality") or {}
+        speed = metrics.get("speed") or {}
+        if quality:
+            lines.append(
+                f"  quality: pass_rate={quality.get('pass_rate')} "
+                f"contract_pass_rate={quality.get('contract_pass_rate')} "
+                f"trajectory_validate={quality.get('trajectory_validate')} "
+                f"trajectory_score_fixtures={quality.get('trajectory_score_fixtures')}"
+            )
+        if speed:
+            lines.append(
+                f"  speed: total_s={speed.get('total_duration_s')} "
+                f"p50_s={speed.get('p50_duration_s')} "
+                f"p95_s={speed.get('p95_duration_s')} "
+                f"max_s={speed.get('max_duration_s')}"
+            )
+            slowest = speed.get("slowest") or []
+            if slowest:
+                top = ", ".join(
+                    f"{row.get('name')}={row.get('duration_s')}s" for row in slowest[:3]
+                )
+                lines.append(f"  slowest: {top}")
     else:
         lines.append("Bench report: none (run bash scripts/harness-bench.sh)")
     lines.append("")

@@ -26,7 +26,7 @@ Manual checks for kit harness inventory and the full regression bench.
    bash scripts/harness-bench.sh
    ```
 
-   Expect: every `scripts/tests/*.sh` runs with a duration line; trajectory validate + fixture score run; a new `evals/harness/reports/<timestamp>.json` with `"ok": true`; process exit 0.
+   Expect: every `scripts/tests/*.sh` runs with a duration line; trajectory validate + fixture score run; a new `evals/harness/reports/<timestamp>.json` with `"ok": true` and a `metrics` object (`quality.pass_rate`, `speed.p50_duration_s` / `p95_duration_s`, `speed.slowest`); process exit 0.
 
 4. **Re-read health with the new report:**
 
@@ -50,4 +50,6 @@ Manual checks for kit harness inventory and the full regression bench.
 - [ ] Active cases are classified from `skills/trajectory-score/SKILL.md`
 - [ ] `/csp-harness-status` does not write gates
 - [ ] Full bench exits 0 and writes a report under `evals/harness/reports/`
+- [ ] Report includes `metrics.quality` (pass rates) and `metrics.speed` (p50/p95/slowest)
+- [ ] `python3 scripts/harness-health.py` shows quality/speed lines when a bench report exists
 - [ ] Live report `*.json` stays gitignored (`.gitkeep` remains)

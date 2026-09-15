@@ -66,6 +66,12 @@ assert_eq pass_count_matches_rows "True" "$(json_field "$pass_json" 'd["test_cou
 assert_contains pass_has_ok_test "$(json_field "$pass_json" '" ".join(t["name"] for t in d["tests"])')" "ok.sh"
 assert_contains pass_has_validate "$(json_field "$pass_json" '" ".join(t["name"] for t in d["tests"])')" "trajectory-validate"
 assert_contains pass_has_score "$(json_field "$pass_json" '" ".join(t["name"] for t in d["tests"])')" "trajectory-score-fixtures"
+assert_eq pass_has_metrics "True" "$(json_field "$pass_json" '"metrics" in d')"
+assert_eq pass_quality_rate "1.0" "$(json_field "$pass_json" 'str(d["metrics"]["quality"]["pass_rate"])')"
+assert_eq pass_speed_total "True" "$(json_field "$pass_json" 'd["metrics"]["speed"]["total_duration_s"] is not None')"
+assert_eq pass_speed_p50 "True" "$(json_field "$pass_json" 'd["metrics"]["speed"]["p50_duration_s"] is not None')"
+assert_contains pass_out_quality "$(cat "$TMP/pass.out")" "Metrics quality:"
+assert_contains pass_out_speed "$(cat "$TMP/pass.out")" "Metrics speed:"
 
 # Fail case: child test fails → non-zero exit + ok=false
 rm -f "$FAKE_REPORTS"/*.json
