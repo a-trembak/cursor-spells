@@ -24,15 +24,21 @@ Give maintainers a fast answer to “is the harness still healthy?” before cha
 | Bench attach | `--bench-report PATH` attaches that JSON; otherwise auto-pick the newest file under `evals/harness/reports/` when present |
 | Install | Skills/commands install via existing glob in `scripts/install-to-project.sh`. Never copy `evals/` into consumer apps |
 
+## Live pipeline metrics (consumer projects)
+
+Separate from kit bench reports: `scripts/pipeline-metrics.py` appends JSONL rows under the consumer project's `.cursor/gates/pipeline-metrics/history.jsonl` at wired score stops (`mark-start` after ledger init, `append-score` wrapping trajectory score, `append-review` after a validated review report). Humans run `summary` / `export --format csv` to graph pass rate and duration over time. Wired from `skills/trajectory-score`, `skills/create-pr`, and `skills/engineer-review`. Contract: `scripts/tests/pipeline-metrics-test.sh`.
+
 ## Non-goals
 
 - Advancing or clearing pipeline gates
 - Replacing dogfood checklists or engineer-review
 - Installing harness reports into consumer repositories
 - Language-model judging of bench output
+- Building a chart UI inside the kit (export CSV/JSONL for external graphing)
 
 ## Test plan
 
 - `scripts/tests/harness-health-test.sh` — inventory JSON shape, wiring keys for known cases, `--json` exit 0
 - `scripts/tests/harness-bench-test.sh` — bench writes a report JSON with expected fields including `metrics.quality` / `metrics.speed`; fails when a child test fails (isolated fake suite)
+- `scripts/tests/pipeline-metrics-test.sh` — live JSONL journal: mark-start, append-score, append-review, summary, export; skills mention the wire-up
 - Full `bash scripts/harness-bench.sh` green on the kit before merging skill/agent changes

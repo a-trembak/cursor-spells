@@ -28,6 +28,27 @@ Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `sc
 
 Slash command `/csp-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
 
+## Live pipeline metrics (consumer projects)
+
+Bench metrics above are for **kit** changes. For **real ticket runs** in a consumer project, agents append rows to a local JSONL history so you can graph quality and speed over time:
+
+```bash
+# After trajectory ledger init (agents do this via skills/trajectory-score):
+python3 "$KIT"/scripts/pipeline-metrics.py mark-start --ledger .cursor/gates/trajectory-run/<case>.json [--ticket PROJ-123]
+
+# At each score stop (preferred over bare trajectory score):
+python3 "$KIT"/scripts/pipeline-metrics.py append-score --kit-root "$KIT" --run .cursor/gates/trajectory-run/<case>.json [--ticket PROJ-123]
+
+# After a validated engineer-review report:
+python3 "$KIT"/scripts/pipeline-metrics.py append-review --kit-root "$KIT" --path /tmp/review-report.md [--ticket PROJ-123]
+
+# Inspect / export for charts:
+python3 "$KIT"/scripts/pipeline-metrics.py summary
+python3 "$KIT"/scripts/pipeline-metrics.py export --format csv --out /tmp/pipeline-metrics.csv
+```
+
+Default history path (consumer project, gitignored with other gates): `.cursor/gates/pipeline-metrics/history.jsonl`. Contract test: `bash scripts/tests/pipeline-metrics-test.sh`.
+
 ## Related
 
 - Trajectory corpus: [`../trajectories/README.md`](../trajectories/README.md)

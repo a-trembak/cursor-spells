@@ -39,12 +39,19 @@ Init a **fresh** slice ledger at the stop (do not reuse a full-path ledger for a
 python3 "$KIT"/scripts/trajectory-cases.py record init \
   --ledger "$LEDGER" --case-id <case_id> \
   --invocation "<exact case invocation>" --fetch <ok|fail|skip> [--jira-class <feature|bug|unknown>]
+# Start the live metrics clock (consumer project history; safe to skip if the script is missing)
+python3 "$KIT"/scripts/pipeline-metrics.py mark-start --ledger "$LEDGER" [--ticket "<live ticket key>"]
 # then record stage / artifact / gate / action / end as the case requires
 python3 "$KIT"/scripts/trajectory-cases.py record dump --ledger "$LEDGER"
-python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"
+# Score and append one history row (quality + duration) for later graphs
+python3 "$KIT"/scripts/pipeline-metrics.py append-score --kit-root "$KIT" --run "$LEDGER" [--ticket "<live ticket key>"]
+# If pipeline-metrics.py is missing, fall back to:
+# python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"
 ```
 
-If `record dump` fails, skip score.
+If `record dump` fails, skip score. Missing `pipeline-metrics.py` → score only; do not invent history rows.
+
+History default path (consumer project, not the kit): `.cursor/gates/pipeline-metrics/history.jsonl`. Summarize later with `python3 "$KIT"/scripts/pipeline-metrics.py summary`. Export for graphing with `export --format csv`.
 
 ## On FAIL
 
