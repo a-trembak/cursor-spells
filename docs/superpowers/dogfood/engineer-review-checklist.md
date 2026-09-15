@@ -15,6 +15,8 @@ bash scripts/tests/code-comments-test.sh                # no design-tied comment
 bash scripts/tests/clarify-question-evidence-test.sh    # clarify questions include file + snippet
 bash scripts/tests/pipeline-flow-graph-test.sh          # canvas layers + review-gate naming
 bash scripts/tests/review-surface-test.sh               # finish-plan surfaces diff before HITL; not create-pr
+bash scripts/tests/security-hardening-checklist-test.sh # S1–S10 shared by security phase + writers
+bash scripts/tests/engineer-review-context-budget-test.sh  # orch must not load checklist bodies; security opens full S1–S10
 ```
 
 2. In the consumer repo, add a deliberate smell file, e.g. `src/smells.ts`:
@@ -52,6 +54,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | User `skip` | Starts engineer-reviewer; deletes marker |
 | Frontend stack | Asks for Figma URLs or `no figma` early |
 | Figma URLs pasted | `csp-review-figma-markup` loads [figma-markup-checklist.md](../../../skills/engineer-review/references/figma-markup-checklist.md) **F1–F7**; Coverage `figma_markup: compared` (or `source-only` if no browser); token/structure/empty-placeholder misses are `P1` clarify, not Residual nits |
+| Diff touches auth / queries / uploads / secrets / XSS–SSRF sinks | `csp-review-security` opens [security-hardening-checklist.md](../../../skills/engineer-review/references/security-hardening-checklist.md) **S1–S10** (triggers alone are not enough); `csp-software-developer` / `csp-bug-fixer` load the same file when writing those surfaces; missing third-party `security-review` is not a skip |
 | First run | Creates `.cursor/project-patterns.md` |
 | `lint` phase (runs first) | Runs the project's real `eslint`/`tsc`; flags `import/first` as `P1` unambiguous and auto-fixes it with `eslint --fix` — this must not depend on any heuristic phase noticing it |
 | deadcode phase | Flags unused import + historical comment as `P1` unambiguous; unused export may clarify if unsure of public API |

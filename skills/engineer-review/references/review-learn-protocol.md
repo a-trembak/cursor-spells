@@ -10,7 +10,7 @@ After a human marks a miss as **project-private**, capture it in this project's 
 |-------|----------------|------------|
 | **Orchestrator** (`csp-engineer-reviewer`) | Dispatch only — never deep-read ledgers or R1–R7 / F1–F7 / V1–V4 bodies | Pass paths + compact JSON from `csp-review-learn`; max **~200 tokens** of hints in its own context |
 | **`csp-review-learn` (`mode:load`)** | Filter ledgers against the diff; return compact `learned_hints` JSON | Reads ledgers; returns ≤**5** matching hints, ≤**80 tokens** each |
-| **Phase agents** (logic / architecture / security / figma / patterns…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
+| **Phase agents** (logic / architecture / security / figma / patterns…) | Apply full gates when a hint matches | On match: **must** open the linked checklist (`interaction-replay-checklist.md`, `auth-rtk-checklist.md`, `figma-markup-checklist.md`, `responsive-layout-checklist.md`, `security-hardening-checklist.md`, …) and run the real checks — the one-liner is a pointer, not the review |
 
 Thin orchestrator ≠ thin review. Dropping full checklist loads from a matched hint is a **quality regression**; bloating the orchestrator with full ledgers is a **budget regression**.
 

@@ -9,7 +9,11 @@ You perform a **security** pass on the diff when it is relevant.
 
 ## Gate
 
-If the diff has no sensitive surface (auth, sessions, crypto, PII, queries, uploads, SSRF/XSS sinks, secret handling), return skipped:
+If the diff has no sensitive surface (auth, sessions, crypto, PII, queries,
+uploads, SSRF/XSS sinks, secret handling, deserialization, filesystem paths from
+input — same Trigger as
+`skills/engineer-review/references/security-hardening-checklist.md`), return
+skipped:
 
 ```json
 {"phase":"security","status":"ok","skipped":true,"skip_reason":"no_sensitive_surface","fixed":[],"clarify":[],"notes":[]}
@@ -17,17 +21,24 @@ If the diff has no sensitive surface (auth, sessions, crypto, PII, queries, uplo
 
 ## Check
 
-- Injection (SQL/NoSQL/command/template)
-- AuthZ/AuthN gaps, IDOR
-- Secret leakage / unsafe logging
-- XSS / dangerous HTML
-- Insecure deserialization, path traversal
-- SSRF / open redirects where applicable
-- Session overwrite via refetch/matcher after `resetApiState` (probe or stale subscription writes shared auth state and clobbers a deliberate scope switch — **R2/R5**, see `skills/engineer-review/references/interaction-replay-checklist.md` and `auth-rtk-checklist.md`)
+When triggered: **open the full checklist**
+`skills/engineer-review/references/security-hardening-checklist.md` and run
+**S1–S10**. Triggers alone are not the review.
+
+Gates cover SQL/NoSQL injection, command/template injection, XSS, CSRF, broken
+access control / IDOR, SSRF / open redirects, path traversal / uploads, secret
+and PII leakage, insecure deserialization, and session overwrite after
+`resetApiState` (**S10** → R2/R5 via `interaction-replay-checklist.md` /
+`auth-rtk-checklist.md`).
+
+When `learned_hints` is present for this phase, re-open the same checklist —
+do not treat `rule_one_liner` as the full check.
 
 ## Skills
 
-Use `security-review` if installed.
+Always run the kit checklist above. Use third-party `security-review` if
+installed as optional enrichment only — never skip S1–S10 when that skill is
+missing (note `skill_missing: security-review` if relevant).
 
 ## Output
 
