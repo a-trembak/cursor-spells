@@ -78,6 +78,7 @@ CHECKLISTS=(
   responsive-layout-checklist
   null-safety-checklist
   jpa-criteria-checklist
+  jpa-repository-result-checklist
   styling-checklist
   learned-misses
   security-hardening-checklist
@@ -106,6 +107,7 @@ assert_grep abort_no_pack "$SKILL" "Abort does \\*\\*not\\*\\* load|abort.*not.*
 assert_grep logic_open_replay "$LOGIC" "open the full checklist"
 assert_grep logic_replay_path "$LOGIC" "interaction-replay-checklist\\.md"
 assert_grep logic_open_null "$LOGIC" "null-safety-checklist\\.md"
+assert_grep logic_open_jpa_result "$LOGIC" "jpa-repository-result-checklist\\.md"
 assert_grep arch_open_replay "$ARCH" "open the full checklist"
 assert_grep arch_replay_path "$ARCH" "interaction-replay-checklist\\.md"
 assert_grep security_open_checklist "$SECURITY" "open the full checklist"
@@ -117,11 +119,21 @@ assert_grep agent_pointer "$ORCH" "Canonical spine|skill \\*\\*\`engineer-review
 
 # Checklist bodies still exist (do not delete)
 for base in interaction-replay-checklist auth-rtk-checklist figma-markup-checklist \
-  responsive-layout-checklist null-safety-checklist jpa-criteria-checklist styling-checklist \
+  responsive-layout-checklist null-safety-checklist jpa-criteria-checklist \
+  jpa-repository-result-checklist styling-checklist \
   security-hardening-checklist; do
   assert_file "skills/engineer-review/references/${base}.md"
 done
 assert_file "skills/engineer-review/references/learned-misses.md"
+
+# JPA repository result-type wiring (RT1 / jpa_result_type)
+assert_file "skills/engineer-review/references/jpa-repository-result-checklist.md"
+assert_grep phase_proto_jpa_result "skills/engineer-review/references/phase-protocol.md" \
+  "jpa_result_type: matched\\|mismatched\\|skipped\\|n/a"
+assert_grep developer_jpa_patterns "skills/software-developer/SKILL.md" \
+  "jpa-repository-result-patterns\\.md"
+assert_grep bugfix_jpa_checklist "skills/bug-fix/SKILL.md" \
+  "jpa-repository-result-checklist\\.md"
 
 # Call-graph load routing: every listed phase agent must carry the canonical Follow
 # sentence so models load phase-protocol-detail (neighbors / call graph / graphify walk).

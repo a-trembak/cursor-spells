@@ -34,7 +34,7 @@ Each heuristic subagent gets: SHAs, stack, patterns path, clarifications, mode, 
 - Never ask a clarify `C#` without repeating that item’s File, Lines, Jump, and numbered code fence in the question prompt (skill `hitl-choice` Engineer-review clarify). Jump path is not enough.
 - Never emit unhumanized / jargon-only / abbreviated feedback or bare `path: summary` one-liners. Chat prose must pass `plain-language-chat`.
 - Always run `validate-review-report.sh` before showing the report; do not show on failure.
-- Never load full third-party skill text, ledger markdown, `learned-misses.md`, or interaction-replay / auth-rtk / figma-markup / responsive-layout / null-safety / jpa-criteria / styling checklist bodies into this orchestrator context — phases and `csp-review-learn` own those reads.
+- Never load full third-party skill text, ledger markdown, `learned-misses.md`, or interaction-replay / auth-rtk / figma-markup / responsive-layout / null-safety / jpa-criteria / jpa-repository-result / styling checklist bodies into this orchestrator context — phases and `csp-review-learn` own those reads.
 - Never skip HITL on post-plan auto path.
 - Never apply clarify-class or `P2` changes without user answers / explicit request.
 - Clear this plan's `.cursor/gates/review-gate/<slug>` when review starts after a gate. Never delete a foreign slug without HITL `force-clear`.
