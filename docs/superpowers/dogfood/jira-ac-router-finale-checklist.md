@@ -77,4 +77,4 @@ After a successful `/csp-start-task` or `/csp-start-issue-task` fetch: `jira-tra
 
 ## Canvas
 
-Open `docs/superpowers/pipeline-flow.html`: overview shows **Jira fetch + router** before bootstrap, **create-pr** as HITL (not automatic-only), layers Plan → Build → Review, and **review-gate** after `csp-software-developer` (not a return to the plan layer).
+Open `docs/superpowers/pipeline-flow.html`: overview shows **Jira fetch + router** before bootstrap, **create-pr** as HITL (not automatic-only), layers Plan → Build → Review, and **review-gate** after `csp-software-developer` (not a return to the plan layer). Full / fast / issue paths show **`local-verify`** immediately before `create-pr`.

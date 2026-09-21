@@ -13,6 +13,7 @@ bash scripts/tests/figma-markup-checklist-test.sh
 bash scripts/tests/teach-review-contract-test.sh
 bash scripts/tests/mapped-third-party-skills-test.sh
 bash scripts/tests/propose-commit-test.sh
+bash scripts/tests/local-verify-contract-test.sh
 bash scripts/tests/plain-language-chat-test.sh
 bash scripts/tests/code-comments-test.sh
 bash scripts/tests/developer-reviewer-handoff-test.sh

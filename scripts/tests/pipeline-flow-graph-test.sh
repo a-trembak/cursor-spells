@@ -75,6 +75,8 @@ assert_absent html_overview_finish_label "$HTML" '<div class="label">finish-plan
 
 assert_contains md_propose_commit "$MD" "propose-commit"
 assert_contains html_propose_commit "$HTML" "propose-commit"
+assert_contains md_local_verify "$MD" "local-verify"
+assert_contains html_local_verify "$HTML" "local-verify"
 
 # Orientation query-param contract (live highlight)
 assert_contains html_url_search_params "$HTML" "URLSearchParams"

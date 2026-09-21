@@ -15,6 +15,8 @@ bash scripts/tests/code-comments-test.sh                # no design-tied comment
 bash scripts/tests/clarify-question-evidence-test.sh    # clarify questions include file + snippet
 bash scripts/tests/pipeline-flow-graph-test.sh          # canvas layers + review-gate naming
 bash scripts/tests/review-surface-test.sh               # finish-plan surfaces diff before HITL; not create-pr
+bash scripts/tests/propose-commit-test.sh               # commit gate after review
+bash scripts/tests/local-verify-contract-test.sh        # local-verify before create-pr; no invent up
 bash scripts/tests/security-hardening-checklist-test.sh # S1–S10 shared by security phase + writers
 bash scripts/tests/engineer-review-context-budget-test.sh  # orch must not load checklist bodies; security opens full S1–S10
 ```
@@ -76,6 +78,7 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | Clarify HITL (`C#`) | Each AskQuestion repeats File, Lines, Jump, and the numbered fence from that item — not title-only |
 | Validated report shown | HITL **Teach-review miss**; `no_miss` writes nothing; `miss` + description runs `teach-review`; `project_secret` writes this project only |
 | Pipeline miss handled (`no_miss` / teach land / `project_secret`) | Next user-visible gate is **Propose commit** with orientation strip — not a silent end after the teach land report |
+| After propose-commit (+ docs residual on full) | Skill **`local-verify`** runs before `create-pr`; missing contract → skip `no_contract`; never invents `up` from `package.json` |
 
 ## Patterns CI helper
 

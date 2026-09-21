@@ -79,6 +79,22 @@ if pg__find_gate_for_plan "$TMP" commit-approved "docs/plans/2026-propose-commit
 fi
 echo "OK   commit-approved gate cleared"
 
+# local-verify kind
+pg_write_gate "$TMP" local-verify "docs/plans/2026-local-verify.md"
+LV_FILE="$(pg__find_gate_for_plan "$TMP" local-verify "docs/plans/2026-local-verify.md")"
+if [[ -f "$LV_FILE" ]]; then
+  echo "OK   local-verify gate written"
+else
+  echo "FAIL local-verify gate missing" >&2
+  exit 1
+fi
+pg_clear_gate "$TMP" local-verify "docs/plans/2026-local-verify.md"
+if pg__find_gate_for_plan "$TMP" local-verify "docs/plans/2026-local-verify.md" >/dev/null; then
+  echo "FAIL local-verify gate still present after clear" >&2
+  exit 1
+fi
+echo "OK   local-verify gate cleared"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
