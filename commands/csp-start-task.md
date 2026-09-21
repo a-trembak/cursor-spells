@@ -66,6 +66,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - **HITL:** `skip` / `docs_md` / `docs_repo` / `confluence` via `hitl-choice` — where product/internal docs should land (current-repo Markdown, a separate docs repo, or Confluence). Never invent the destination.
    - On a non-skip choice, **resolve style first** (required for `docs_repo` / `confluence`): human custom style for user and/or engineer → existing house docs at the destination → kit dual-audience default. Then draft, polish with `english-humanizer` without fighting house voice, and publish.
 9. **Propose commit (residual)** — if `update-docs` left uncommitted intentional files, invoke **`propose-commit`** again.
+9b. **Local verify** (automatic): invoke skill **`local-verify`** (consumer `.cursor/spells-local-verify.yaml`; default skip when no contract). Do not invent start commands.
 10. **Create PR** (automatic): invoke skill **`create-pr`** (push + draft + Pipeline finale). Do not expect `create-pr` to invent product commits. Open or reuse a **draft** GitHub PR per changed repo, then the **Pipeline finale** HITL (`keep_draft` / `ready` / Jira comment when a key is known).
 
 ### Full-mode notes
@@ -93,6 +94,7 @@ For small tasks that do not need tech-spec, plan approval, critic, finish-plan, 
 4. **Execute** — create feature branch(es) per `software-developer` branch-setup; implement with skill **`software-developer`** via nested Task **`csp-software-developer`** using **`mode:fast`** (entry gates for tech-spec Status / critique-clear are skipped — see that skill). Prefer `subagent-driven-development` when available; verify with lint/test/typecheck before handoff. **Wait for** `csp-software-developer` to return. Do not treat dispatch as the end.
 5. **Engineer review** — immediately after that return, run `csp-engineer-reviewer` (or `csp-multi-repo-supervisor` for 2+ repos). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the AC/context. HITL only for **Needs clarification**.
 5b. **Propose commit** — invoke skill **`propose-commit`**.
+5c. **Local verify** — invoke skill **`local-verify`** (skip when no contract).
 6. **Create PR** — invoke skill **`create-pr`** (push + draft + Pipeline finale). Do not expect `create-pr` to invent product commits.
 
 ### Fast-mode notes

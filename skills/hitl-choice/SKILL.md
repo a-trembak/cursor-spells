@@ -16,7 +16,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Propose commit** (`approve-commit` / `revise`), **Pipeline finale**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Propose commit** (`approve-commit` / `revise`), **Local verify blocking fail** (`fix` / `skip_verify` / `retry`), **Pipeline finale**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -259,6 +259,18 @@ Ask from skill `propose-commit` after a settled engineer-review report (and agai
 | `revise` | Revise message or files (describe next) |
 
 On `revise`, wait for free-text changes, then re-propose. On `approve-commit`, the calling skill runs `git commit` only (no push).
+
+### Local verify blocking fail
+
+Ask from skill `local-verify` only when the consumer contract has `blocking: true` and verify failed (health or `secrets_missing`). Do not ask when `blocking: false` or on skip (`no_contract` / `disabled` / `stack_noop` / non-blocking runtime skip). Recommended: `fix`.
+
+| id | label |
+|----|-------|
+| `fix` | Stop — fix the stack, then re-run verify |
+| `skip_verify` | Continue to `create-pr` with fail recorded |
+| `retry` | Retry local-verify now |
+
+On `fix`, the calling skill stops without opening the draft pull request. On `skip_verify`, hand off to `create-pr`. On `retry`, re-run skill `local-verify` spine.
 
 ### Pipeline finale
 

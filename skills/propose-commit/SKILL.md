@@ -55,7 +55,7 @@ If any fail: **stop** and say which precondition is missing. Do not commit.
    pg_write_gate "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
    ```
 
-6. **Do not** `git push`. **Do not** open or update a GitHub pull request. Hand off to the caller (`update-docs` or `create-pr`).
+6. **Do not** `git push`. **Do not** open or update a GitHub pull request. Hand off to the caller (`update-docs`, `local-verify`, or `create-pr` per engineer-review spine — the spine is authoritative).
 
 ## Multi-repo
 
@@ -72,7 +72,7 @@ One human gate may cover the whole proposal set for the run. Skip repos with a c
 ## Output
 
 ```
-next_skill: update-docs | create-pr   # per caller wiring
+next_skill: update-docs | local-verify | create-pr   # per engineer-review spine / caller
 plan_path: <path>
 repo_branch_map:
   - <repo> → <branch>

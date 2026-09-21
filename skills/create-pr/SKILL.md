@@ -16,11 +16,12 @@ Shared **pipeline finale**: ensure work is on a feature branch, committed, pushe
 
 ## When to Use
 
-- End of full `/csp-start-task` (after `update-docs`)
-- End of `/csp-start-task --fast` (after `csp-engineer-reviewer`)
-- End of `/csp-start-issue-task` (after `csp-engineer-reviewer`)
+- End of full `/csp-start-task` (after `update-docs` / residual `propose-commit`, then **`local-verify`** when the pipeline is wired)
+- End of `/csp-start-task --fast` (after `propose-commit` and **`local-verify`**)
+- End of `/csp-start-issue-task` (after `propose-commit` and **`local-verify`**)
 - Human asks to open/update a draft PR for the current kit-driven branch
 - Not from `finish-plan` review-surface — that step only checks out branches and calls `SetActiveBranch`; it must not open a GitHub pull request
+- Does **not** always immediately follow `update-docs`: when the pipeline includes `local-verify`, that stage runs immediately before this skill
 
 ## Defaults (non-interactive until the draft exists)
 

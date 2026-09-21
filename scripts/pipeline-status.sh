@@ -97,14 +97,14 @@ ps__layer_for_stage() {
     review-gate|engineer-review|csp-engineer-reviewer|csp-multi-repo-supervisor)
       printf '%s' "review"
       ;;
-    update-docs|create-pr|docs-gate|pipeline-finale-hitl)
+    update-docs|create-pr|docs-gate|pipeline-finale-hitl|local-verify|csp-local-verify)
       printf '%s' "ship"
       ;;
     *)
       # Heuristic fallbacks for gate-shaped or unknown stage ids
       case "$stage" in
         *review*) printf '%s' "review" ;;
-        *docs*|*pr*) printf '%s' "ship" ;;
+        *docs*|*pr*|*local-verify*|*verify*) printf '%s' "ship" ;;
         *plan*|*spec*|*critic*) printf '%s' "plan" ;;
         *build*|*developer*|*fixer*) printf '%s' "build" ;;
         *fetch*|*route*|*jira*) printf '%s' "fetch" ;;
@@ -287,8 +287,10 @@ link += hash_
 print(f"Route: {route} · Layer: {layer} · Stage: {stage}")
 # Next stages hint from legal + stage family (kept short)
 next_map = {
-  "review-gate": "engineer-review → update-docs → create-pr",
-  "docs-gate": "create-pr",
+  "review-gate": "engineer-review → propose-commit → update-docs → local-verify → create-pr",
+  "docs-gate": "local-verify → create-pr",
+  "local-verify": "create-pr",
+  "csp-local-verify": "create-pr",
   "critique-gate": "start-build → software-developer",
   "plan-gate": "implementation-critic → start-build",
   "csp-software-developer": "review-gate → engineer-review",

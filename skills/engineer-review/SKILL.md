@@ -60,9 +60,9 @@ Pass URLs into clarifications for `csp-review-figma-markup`. Do not block other 
     - `project_secret` → collect description (open-ended if needed), dispatch `csp-review-learn` `mode:capture` with destination `project_secret`. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not ask **Review-learn promote**. Never edit kit files.
     Do not write both stores on the same miss. Production misses **without** a full review use slash command `/csp-capture-escape` (destination `miss` or `project_secret`). Append session ledger per skill `trajectory-score` (stage `engineer-review`, gate `teach-review-miss`, artifact report `engineer-review`, end `review_report: evidence-gated`).
 15. After a successful **pipeline** review (from `/csp-start-task` / `finish-plan` / `/csp-start-task --fast` / `/csp-start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`propose-commit`** next. Then:
-    - Full path: `update-docs` (existing destination HITL), then if the tree is still dirty invoke **`propose-commit`** again for residual docs, then `create-pr`.
-    - Fast / issue: `create-pr` (no `update-docs` unless the human asked).
-    Manual `/csp-engineer-review` does **not** auto-start `propose-commit` or `update-docs` unless the human asks.
+    - Full path: `update-docs` (existing destination HITL), then if the tree is still dirty invoke **`propose-commit`** again for residual docs, then skill **`local-verify`**, then `create-pr`.
+    - Fast / issue: skill **`local-verify`**, then `create-pr` (no `update-docs` unless the human asked).
+    Manual `/csp-engineer-review` does **not** auto-start `propose-commit`, `update-docs`, or `local-verify` unless the human asks.
 
 ## Fix policy
 

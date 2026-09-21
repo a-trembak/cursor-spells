@@ -608,6 +608,13 @@
           </div>
           <div class="cycle-chip">↺ чекати path / URL / Confluence space · residual <code>propose-commit</code> якщо dirty</div>
           <div class="connector"><span class="edge-label">then</span></div>
+          <div class="node auto" tabindex="0" data-go="local-verify" data-stage="local-verify" data-layer="ship" role="button">
+            <div class="kind">8b · optional</div>
+            <div class="label">local-verify</div>
+            <div class="hint">contract or skip · never invent up</div>
+            <span class="open-detail">деталі →</span>
+          </div>
+          <div class="connector"><span class="edge-label">then</span></div>
           <div class="node hitl" tabindex="0" data-go="create-pr" data-stage="create-pr" data-layer="ship" role="button">
             <div class="kind">9 · HITL</div>
             <div class="label">create-pr</div>
@@ -998,7 +1005,7 @@
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>review-surface (зручність, не фінал)</h3>
-            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Коли гілка має <strong>0 commits ahead of base</strong>, вкладка може бути порожньою — покажи <strong>uncommitted</strong> робоче дерево в чаті (<code>git status</code> / <code>git diff</code>). Після відповіді людини стартує engineer-review, далі <code>propose-commit</code>, docs, далі create-pr.</p>
+            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Коли гілка має <strong>0 commits ahead of base</strong>, вкладка може бути порожньою — покажи <strong>uncommitted</strong> робоче дерево в чаті (<code>git status</code> / <code>git diff</code>). Після відповіді людини стартує engineer-review, далі <code>propose-commit</code>, docs, <code>local-verify</code>, далі create-pr.</p>
           </div>
         </div>
         <div class="step">
@@ -1112,7 +1119,7 @@
     <section id="view-propose-commit" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">7b. propose-commit</h2>
-      <p class="view-desc">HITL <em>після</em> settled engineer-review. Пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
+      <p class="view-desc">HITL <em>після</em> settled engineer-review. Пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — другий <code>propose-commit</code>, потім <code>local-verify</code>, потім <code>create-pr</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -1141,7 +1148,7 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Handoff</h3>
-            <p>Full path → <code>update-docs</code>. Fast / issue → <code>create-pr</code>. Residual dirty tree після docs → ще один <code>propose-commit</code>.</p>
+            <p>Full path → <code>update-docs</code>. Fast / issue → <code>local-verify</code> → <code>create-pr</code>. Residual dirty tree після docs → ще один <code>propose-commit</code>, потім <code>local-verify</code>.</p>
           </div>
         </div>
       </div>
@@ -1191,6 +1198,40 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="propose-commit">← propose-commit</button>
+        <button type="button" class="primary" data-go="local-verify">Далі: local-verify →</button>
+      </div>
+    </section>
+
+    <!-- LOCAL-VERIFY -->
+    <section id="view-local-verify" class="view" hidden>
+      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <h2 class="view-title">8b. local-verify</h2>
+      <p class="view-desc">Опційний етап <em>одразу перед</em> <code>create-pr</code>. Читає consumer <code>.cursor/spells-local-verify.yaml</code>; без контракту — <code>skip</code> / <code>no_contract</code>. Ніколи не вигадує <code>up</code> з <code>package.json</code> чи Compose. Пише <code>.cursor/gates/local-verify/&lt;slug&gt;</code> зі статусом <code>pass</code> / <code>fail</code> / <code>skip</code>.</p>
+      <div class="detail-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body auto">
+            <h3>Contract</h3>
+            <p>Лише заявлений <code>up</code> argv. Health-first: якщо вже зелений — не стартувати знову. Default <code>blocking: false</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body hitl">
+            <h3>Blocking fail HITL</h3>
+            <p>Лише коли <code>blocking: true</code> і fail: <code>fix</code> / <code>skip_verify</code> / <code>retry</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body auto">
+            <h3>Handoff</h3>
+            <p>Далі завжди <code>create-pr</code> (окрім <code>fix</code> на blocking fail). Manual <code>/csp-engineer-review</code> не авто-стартує цей етап.</p>
+          </div>
+        </div>
+      </div>
+      <div class="nav-next">
+        <button type="button" data-go="update-docs">← Update Docs</button>
         <button type="button" class="primary" data-go="create-pr">Далі: create-pr →</button>
       </div>
     </section>
@@ -1235,7 +1276,7 @@
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" data-go="update-docs">← Update Docs</button>
+        <button type="button" data-go="local-verify">← local-verify</button>
         <button type="button" class="primary" data-go="standalone">Standalone →</button>
       </div>
     </section>
@@ -1280,6 +1321,11 @@
             <td>update-docs</td>
             <td><code>skip</code> / publish complete</td>
           </tr>
+          <tr>
+            <td><code>gates/local-verify/&lt;slug&gt;</code></td>
+            <td><code>local-verify</code></td>
+            <td><code>pass</code> / <code>fail</code> / <code>skip</code> + reason · далі <code>create-pr</code></td>
+          </tr>
         </tbody>
       </table>
       <div class="nav-next">
@@ -1298,21 +1344,21 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. Потребує <code>commit-approved</code> marker від <code>propose-commit</code>. Викликається після update-docs (+ residual propose-commit) у full <code>/csp-start-task</code>, після <code>propose-commit</code> у <code>--fast</code> та <code>/csp-start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. Потребує <code>commit-approved</code> marker від <code>propose-commit</code>. Викликається після <code>local-verify</code> (який іде після update-docs / residual propose-commit на full path, або після propose-commit на <code>--fast</code> / issue).</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → <code>local-verify</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-issue-task</h3>
-            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
+            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → <code>local-verify</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
           </div>
         </div>
         <div class="step">
