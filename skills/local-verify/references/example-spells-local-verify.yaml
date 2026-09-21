@@ -1,0 +1,25 @@
+# Example consumer contract — copy to `.cursor/spells-local-verify.yaml`
+# in a product repository. Do not enable this at the cursor-spells kit root.
+version: 1
+enabled: true
+blocking: false
+timeout_sec: 180
+secrets:
+  mode: skip_if_missing
+  files: [".env.local"]
+services:
+  - id: api
+    kind: compose
+    cwd: "."
+    up: ["docker", "compose", "up", "-d", "api"]
+    health:
+      type: http
+      url: "http://127.0.0.1:8080/health"
+  - id: web
+    kind: npm
+    cwd: "apps/web"
+    up: ["npm", "run", "dev"]
+    health:
+      type: tcp
+      host: "127.0.0.1"
+      port: 3000

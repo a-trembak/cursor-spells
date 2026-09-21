@@ -7,7 +7,7 @@ description: >-
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
   start-issue-task blocked critic, blocked implementation-critic gates,
   pipeline route / Fast vs issue, create-pr Pipeline finale, Teach-review miss,
-  approve-commit, and Capture-escape destination.
+  approve-commit, Local verify blocking fail, and Capture-escape destination.
 ---
 
 # HITL Choice
