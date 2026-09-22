@@ -59,7 +59,7 @@ Never implement on the default branch. Never invent repos the plan does not touc
 2. **Always-on for this run:**
    - matched stack skill(s) from the map
    - `code-comments` (this kit) while writing — services forbid presentation (charts, screens, widgets, Figma, user-interface links/examples); React / frontend UI may reference the user interface
-   - `mattpocock/skills@tdd` when the task has observable behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions)
+   - `mattpocock/skills@tdd` when the task has **business-logic** behavior to test (if installed; else note `skill_missing: tdd` and still write tests with the project's conventions). Scope tests per [business-logic-tests-checklist.md](../engineer-review/references/business-logic-tests-checklist.md) **T1** — do not unit-test presentation constants (colors, borders, fonts)
 3. **Database-aware routing** — when the plan/task touches migrations/schema, load the matching rows from [Database skill routing](../engineer-review/references/skill-map.md#database-skill-routing)
 4. **JPA Criteria** — when the task touches `Specification`, Criteria fetch/join/subquery code, or org-scoped alert/installation queries: load [jpa-criteria-patterns.md](references/jpa-criteria-patterns.md) and apply before handoff
 
@@ -81,6 +81,7 @@ Missing mapped skill → proceed on built-in checklist; report `skill_missing: <
 - If plan/spec/brief conflicts with the repo: **stop and ask** — do not silently deviate
 - Source-code comments: English only; apply the **Comments** section below and `code-comments` Keep/Remove taxonomy
 - **Services forbid / React allow:** in service / backend / Java / Spring (non-UI) code, never write comments that name a chart, screen, widget, Figma node, or user-interface link/example as the reason for a query, filter, or merge — restate the data invariant, or omit. In React / frontend UI sources, comments may reference screens, widgets, Figma, or layout when that helps the frontend reader. Independent of the react-web Figma visual check
+- **Tests cover business logic only (T1):** write unit/integration tests for domain decisions (gates, transforms, inclusion rules, null/zero semantics). Do **not** add tests that only assert presentation constants (fill hex, border color/style, fonts, opacity) or cosmetic stylesheet XML. Visual chrome is checked manually or against design, not by hex-pinning tests. Checklist: [business-logic-tests-checklist.md](../engineer-review/references/business-logic-tests-checklist.md)
 - Do not write implementation commits on `main` / `master` / the default branch
 - **Never `git commit`** during pipeline implementation, verification, or handoff. Leave all product changes uncommitted for skill `propose-commit` after engineer-review. Nested task agents inherit this forbid. Branch creation/checkout only — no implementation commits on any branch until `approve-commit`
 

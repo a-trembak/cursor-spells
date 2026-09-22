@@ -33,6 +33,12 @@ When triggered: **open the full checklist** `skills/engineer-review/references/i
 
 When triggered: **open the full checklist** `skills/engineer-review/references/fixture-identifier-conventions.md` and apply **I1**.
 
+### Business-logic tests only (T1, when triggered)
+
+**Trigger:** the diff adds or expands unit/integration tests, or a finding would demand more tests for styling/presentation constants (hex colors, borders, fonts, stylesheet cosmetics).
+
+When triggered: **open the full checklist** `skills/engineer-review/references/business-logic-tests-checklist.md` and apply **T1**. Do not ask writers to pin presentation constants in unit tests.
+
 ### JPA Criteria / Specification (J1–J2, N1, when triggered)
 
 **Triggers (any):** diff touches `Specification`, Criteria `Subquery` / `exists(`, `fetch(` / `join(` on JPA entities, or follow-up null-safety in a file recently fixed for a query/runtime NPE.

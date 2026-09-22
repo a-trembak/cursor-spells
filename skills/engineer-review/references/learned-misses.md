@@ -397,3 +397,31 @@ source: teach-review
 Mechanism: the security phase (or a writer) notes "no security-review skill" or relies on a one-line injection reminder and never opens S1–S10, so SQL concatenation, IDOR, or secret logging ships.
 
 Required check: [security-hardening-checklist.md](security-hardening-checklist.md) **S1–S10**.
+
+---
+
+### `miss_tests-business-logic-only`
+
+```yaml
+id: miss_tests-business-logic-only
+miss_class: tests-business-logic-only
+triggers:
+  - unit test | assertEquals hex | fillColor | borderStyle | styles.xml
+  - presentation constant | OFFLINE_ROW_FILL | fontSize | opacity
+  - "add test for" color | border | styling tweak
+phases: [logic, simplify]
+gate: T1
+rule_one_liner: >-
+  Unit tests cover business decisions only; do not add or demand tests that
+  only pin presentation constants (colors, borders, fonts) or cosmetic XML.
+anti_pattern: >-
+  Writer adds fillColorIsF0F0F0 / thinBorder style XML tests, or reviewer
+  asks for more coverage of hex/border after a visual-only styling change.
+hits: 1
+last_seen: 2026-09-22
+source: teach-review
+```
+
+Mechanism: Excel/UI styling fixes (lighter gray, restore grid via borders) invite hex- and stylesheet-pinning tests that churn on every design tweak and do not protect domain rules (when to gray a row, omit a column, treat online=0).
+
+Required check: [business-logic-tests-checklist.md](business-logic-tests-checklist.md) **T1**.

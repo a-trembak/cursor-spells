@@ -27,6 +27,7 @@ Do **not** re-flag what personas already own (bit-identical utility reuse, neste
 | **Magic numbers / unexplained constants** | Literals introduced by the diff with no name, shared constant, or nearby comment of non-obvious WHY | `P1` or `P2` if obvious domain literal |
 | **God-method growth** | A changed function ballooned past local readability without extracting *meaningful* seams | `P1` clarify — **balance:** do not invent abstractions for one-offs |
 | **Test-only complexity** | Production code shaped awkwardly only so a weak/overfitted test passes | `P1` clarify (fix test vs simplify prod) |
+| **Presentation-only unit tests** | Diff adds or keeps tests that only assert fill hex, border color/style, fonts, opacity, or cosmetic stylesheet XML with no domain decision | `P1` clarify — drop; see [business-logic-tests-checklist.md](business-logic-tests-checklist.md) **T1** |
 | **Premature generalization / flag soup** | Boolean/enum flag piles steering divergent behaviors that should be separate paths or are unused by AC | `P1` clarify |
 | **Dead feature flags / constant branches** | Always-true or always-false guards left in the change (control-flow dead, not merely unused symbols) | `P1` — coordinate with deadcode if the whole symbol is unused |
 | **Inconsistent naming with neighbors** | New names fight the module’s existing vocabulary (same concept, different words) | `P2` residual or `P1` if it collides with a documented pattern |
