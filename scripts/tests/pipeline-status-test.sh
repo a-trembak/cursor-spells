@@ -208,13 +208,168 @@ assert_contains strip_stage "$strip" "review-gate"
 
 # --- Required JSON keys ---
 keys="$(json_field "$rev_json" '",".join(sorted(d.keys()))')"
-for k in route layer stage pending_gates critique_clear ledger_path stages_entered legal_returns canvas; do
+for k in route layer stage pending_gates critique_clear ledger_path stages_entered legal_returns canvas run_log_path run_log_tail; do
   assert_contains "json_key_$k" "$keys" "$k"
 done
 canvas_keys="$(json_field "$rev_json" '",".join(sorted(d["canvas"].keys()))')"
 for k in path hash query; do
   assert_contains "canvas_key_$k" "$canvas_keys" "$k"
 done
+
+# --- Run-log enrichment: omit when missing (stage unchanged) ---
+assert_eq omit_run_log_path "None" "$(json_field "$rev_json" 'd.get("run_log_path")')"
+assert_eq omit_run_log_tail "0" "$(json_field "$rev_json" 'len(d.get("run_log_tail") or [])')"
+assert_eq omit_keeps_stage "review-gate" "$(json_field "$rev_json" 'd["stage"]')"
+
+# --- Run-log via --invocation ---
+INV="$TMP/inv-flag"
+mkdir -p "$INV/.cursor/gates/run-log" "$INV/.cursor/gates/review-gate"
+printf '%s\n' "docs/plans/demo.md" >"$INV/.cursor/gates/review-gate/DEMO"
+cat >"$INV/.cursor/gates/run-log/inv-abc123.md" <<'EOF'
+# Pipeline run-log
+invocation: abc123
+route: full
+started: 2026-09-21T12:00:00Z
+
+- 2026-09-21T12:01:00Z | stage=bootstrap | note=started
+- 2026-09-21T12:02:00Z | stage=approve-plan | note=approve
+EOF
+inv_json="$("$SCRIPT" --json --root "$INV" --invocation abc123)"
+assert_eq inv_flag_stage "review-gate" "$(json_field "$inv_json" 'd["stage"]')"
+assert_eq inv_flag_path ".cursor/gates/run-log/inv-abc123.md" "$(json_field "$inv_json" 'd["run_log_path"]')"
+assert_eq inv_flag_tail_len "2" "$(json_field "$inv_json" 'len(d["run_log_tail"])')"
+assert_contains inv_flag_tail_note "$(json_field "$inv_json" 'd["run_log_tail"][-1]')" "note=approve"
+inv_strip="$("$SCRIPT" --root "$INV" --invocation abc123)"
+assert_contains inv_strip_recent "$inv_strip" "Recent: approve"
+
+# --- Run-log via pointer fallback (no --invocation, no pending slug journal) ---
+PTR="$TMP/pointer"
+mkdir -p "$PTR/.cursor/gates/run-log"
+cat >"$PTR/.cursor/gates/run-log/current-invocation" <<'EOF'
+invocation: ptr1
+updated: 2026-09-21T12:00:00Z
+EOF
+cat >"$PTR/.cursor/gates/run-log/inv-ptr1.md" <<'EOF'
+# Pipeline run-log
+invocation: ptr1
+route: fast
+started: 2026-09-21T12:00:00Z
+
+- 2026-09-21T12:01:00Z | stage=bootstrap | note=pointer-hit
+EOF
+ptr_json="$("$SCRIPT" --json --root "$PTR")"
+assert_eq ptr_stage "idle" "$(json_field "$ptr_json" 'd["stage"]')"
+assert_eq ptr_path ".cursor/gates/run-log/inv-ptr1.md" "$(json_field "$ptr_json" 'd["run_log_path"]')"
+assert_contains ptr_tail "$(json_field "$ptr_json" 'd["run_log_tail"][-1]')" "pointer-hit"
+
+# --- Run-log via pending-gate plan slug (beats pointer when both exist) ---
+SLUG="$TMP/slug"
+mkdir -p "$SLUG/.cursor/gates/run-log" "$SLUG/.cursor/gates/review-gate" "$SLUG/docs/plans"
+printf '%s\n' "docs/plans/demo.md" >"$SLUG/.cursor/gates/review-gate/DEMO"
+printf '# plan\n' >"$SLUG/docs/plans/demo.md"
+# Compute slug the same way gates helpers do
+# shellcheck disable=SC1091
+slug_id="$(
+  # shellcheck source=../pipeline-gates.sh
+  source "$ROOT/scripts/pipeline-gates.sh"
+  pg_slug_for_plan "$SLUG" "docs/plans/demo.md"
+)"
+cat >"$SLUG/.cursor/gates/run-log/${slug_id}.md" <<'EOF'
+# Pipeline run-log
+invocation: old
+plan: docs/plans/demo.md
+slug: PLACEHOLDER
+route: full
+started: 2026-09-21T12:00:00Z
+
+- 2026-09-21T12:01:00Z | stage=review-gate | note=slug-journal
+EOF
+# Also plant a pointer to a different inv — pending slug must win when no --invocation
+cat >"$SLUG/.cursor/gates/run-log/current-invocation" <<'EOF'
+invocation: other
+updated: 2026-09-21T12:00:00Z
+EOF
+cat >"$SLUG/.cursor/gates/run-log/inv-other.md" <<'EOF'
+# Pipeline run-log
+invocation: other
+route: full
+started: 2026-09-21T12:00:00Z
+
+- 2026-09-21T12:01:00Z | stage=bootstrap | note=wrong-pointer
+EOF
+slug_json="$("$SCRIPT" --json --root "$SLUG")"
+assert_eq slug_stage "review-gate" "$(json_field "$slug_json" 'd["stage"]')"
+assert_eq slug_path ".cursor/gates/run-log/${slug_id}.md" "$(json_field "$slug_json" 'd["run_log_path"]')"
+assert_contains slug_tail "$(json_field "$slug_json" 'd["run_log_tail"][-1]')" "slug-journal"
+
+# --invocation wins over pending slug
+both_json="$("$SCRIPT" --json --root "$SLUG" --invocation other)"
+assert_eq inv_wins_path ".cursor/gates/run-log/inv-other.md" "$(json_field "$both_json" 'd["run_log_path"]')"
+assert_eq inv_wins_stage "review-gate" "$(json_field "$both_json" 'd["stage"]')"
+
+# --- After promote: --invocation only resolves slug via pointer (status) ---
+PROMO="$TMP/promo-ptr"
+mkdir -p "$PROMO/.cursor/gates/run-log" "$PROMO/docs/plans"
+printf '# plan\n' >"$PROMO/docs/plans/demo.md"
+# shellcheck disable=SC1091
+promo_slug="$(
+  source "$ROOT/scripts/pipeline-gates.sh"
+  pg_slug_for_plan "$PROMO" "docs/plans/demo.md"
+)"
+cat >"$PROMO/.cursor/gates/run-log/${promo_slug}.md" <<EOF
+# Pipeline run-log
+invocation: promo1
+plan: docs/plans/demo.md
+slug: ${promo_slug}
+route: full
+started: 2026-09-21T12:00:00Z
+
+- 2026-09-21T12:01:00Z | stage=approve-plan | note=promoted-recent
+EOF
+cat >"$PROMO/.cursor/gates/run-log/current-invocation" <<EOF
+invocation: promo1
+plan: docs/plans/demo.md
+slug: ${promo_slug}
+journal: ${promo_slug}.md
+updated: 2026-09-21T12:00:00Z
+EOF
+promo_json="$("$SCRIPT" --json --root "$PROMO" --invocation promo1)"
+assert_eq promo_inv_path ".cursor/gates/run-log/${promo_slug}.md" "$(json_field "$promo_json" 'd["run_log_path"]')"
+assert_contains promo_inv_tail "$(json_field "$promo_json" 'd["run_log_tail"][-1]')" "promoted-recent"
+# No --invocation: pointer slug/journal still enriches
+promo_ptr_json="$("$SCRIPT" --json --root "$PROMO")"
+assert_eq promo_ptr_path ".cursor/gates/run-log/${promo_slug}.md" "$(json_field "$promo_ptr_json" 'd["run_log_path"]')"
+
+# --- Invalid --invocation (path traversal / slash): omit enrichment, keep strip ---
+BAD="$TMP/bad-inv"
+mkdir -p "$BAD/.cursor/gates/run-log" "$BAD/.cursor/gates/review-gate"
+printf '%s\n' "docs/plans/demo.md" >"$BAD/.cursor/gates/review-gate/DEMO"
+cat >"$BAD/.cursor/gates/run-log/inv-safe.md" <<'EOF'
+# Pipeline run-log
+invocation: safe
+route: full
+started: 2026-09-21T12:00:00Z
+
+- 2026-09-21T12:01:00Z | stage=bootstrap | note=should-not-hit
+EOF
+rc=0
+bad_json="$("$SCRIPT" --json --root "$BAD" --invocation '../etc/passwd' 2>/dev/null)" || rc=$?
+assert_eq bad_inv_exit "0" "$rc"
+assert_eq bad_inv_omit_path "None" "$(json_field "$bad_json" 'd.get("run_log_path")')"
+assert_eq bad_inv_keeps_stage "review-gate" "$(json_field "$bad_json" 'd["stage"]')"
+rc=0
+bad_slash_json="$("$SCRIPT" --json --root "$BAD" --invocation 'a/b' 2>/dev/null)" || rc=$?
+assert_eq bad_slash_exit "0" "$rc"
+assert_eq bad_slash_omit_path "None" "$(json_field "$bad_slash_json" 'd.get("run_log_path")')"
+assert_eq bad_slash_keeps_stage "review-gate" "$(json_field "$bad_slash_json" 'd["stage"]')"
+# Invalid pointer invocation id: omit enrichment
+cat >"$BAD/.cursor/gates/run-log/current-invocation" <<'EOF'
+invocation: ../evil
+updated: 2026-09-21T12:00:00Z
+EOF
+bad_ptr_json="$("$SCRIPT" --json --root "$BAD")"
+assert_eq bad_ptr_omit_path "None" "$(json_field "$bad_ptr_json" 'd.get("run_log_path")')"
+assert_eq bad_ptr_keeps_stage "review-gate" "$(json_field "$bad_ptr_json" 'd["stage"]')"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

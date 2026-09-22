@@ -21,7 +21,8 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## Protocol (mandatory)
 
-0. **Orientation strip (before the question):** load skill `pipeline-status` (or run `scripts/pipeline-status.sh --root <project>`) and include the adapted status strip in the **same** user-visible turn as the question. Missing or failing script → one-sentence skip (“orientation skipped”), then still ask the gate. Never invent a stage.
+0. **Orientation strip (before the question):** load skill `pipeline-status` (or run `scripts/pipeline-status.sh --root <project> [--invocation <invocation_id>]` when `invocation_id` is known) and include the adapted status strip in the **same** user-visible turn as the question. Missing or failing script → one-sentence skip (“orientation skipped”), then still ask the gate. Never invent a stage.
+0b. **After the closed-set token is recorded** (same stop that appends the session ledger when applicable): dual-write `scripts/pipeline-run-log.sh append --root <project> --invocation <invocation_id> [--plan <path>] --stage <gate-stage> --note "<token>"`. Once the plan path is known, always pass `--plan`. Missing helper or missing `invocation_id` → one-sentence skip. Notes are short tokens only — no chat transcripts or ticket bodies.
 1. **First action of every closed-set HITL gate: call the interactive question tool.** Do not open with a chat-only bullet list. Do not "prefer text". Do not skip the tool because you are unsure it exists — **attempt the call**.
 2. **Resolve tool name** (first that exists in the session tool list / succeeds):
    1. `AskQuestion`

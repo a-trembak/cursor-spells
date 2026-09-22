@@ -63,3 +63,4 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 - Manual `/csp-engineer-review` does not need this skill.
 - If the user describes fixes first, implement/fix, then re-run review-surface, then re-ask the HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
 - Append session ledger per skill `trajectory-score` (stage `review-gate`, artifact gate `review-gate`).
+- **Run-log:** dual-write `scripts/pipeline-run-log.sh append --root <project> --invocation <invocation_id> [--plan <path>] --stage review-gate --note "<token>"` when the session ledger is appended at this gate. Once the plan path is known, always pass `--plan`. Missing helper → skip.

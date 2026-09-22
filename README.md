@@ -91,11 +91,13 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
 | `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
 | `<project>/scripts/pipeline-gates.sh` | Per-plan gate helper — always refreshed |
+| `<project>/scripts/pipeline-status.sh` | Orientation resolver — always refreshed |
+| `<project>/scripts/pipeline-run-log.sh` | Pipeline run journal helper — always refreshed; recommend gitignore `.cursor/gates/run-log/` |
 | `<project>/scripts/jira-issue.sh` | Jira key / URL / type classifier — always refreshed |
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
 
-Runtime markers the agents write later (not created by install): `.cursor/gates/<kind>/<slug>` for `plan-gate`, `critique-gate`, `plan-critique-clear`, `review-gate`, `docs-gate` (legacy flat `.cursor/*.pending` / `plan-critique.clear` migrate-on-read), plus `.cursor/project-patterns.md`. Stop hooks follow up only when the current plan path is known; they stay silent if the path is missing so a foreign slug cannot loop another chat.
+Runtime markers the agents write later (not created by install): `.cursor/gates/<kind>/<slug>` for `plan-gate`, `critique-gate`, `plan-critique-clear`, `review-gate`, `docs-gate` (legacy flat `.cursor/*.pending` / `plan-critique.clear` migrate-on-read), optional `.cursor/gates/run-log/` journals (gitignore recommended), plus `.cursor/project-patterns.md`. Stop hooks follow up only when the current plan path is known; they stay silent if the path is missing so a foreign slug cannot loop another chat.
 
 ### What update does (step by step)
 
@@ -237,7 +239,7 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 
 ### Start a task (full pipeline)
 
-**Canvas (layers, sequence, cycles):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md). Run `/csp-pipeline-status` (or `scripts/pipeline-status.sh`) for a where-am-I strip and a canvas link with `?route=&layer=&stage=` highlight. After code the graph names the HITL **`review-gate`** (skill `finish-plan` / command `/csp-finish-plan` writes the marker). `fixes` returns to Build, not to `writing-plans`. Kit harness inventory: `/csp-harness-status` (or `python3 scripts/harness-health.py`) — orientation only.
+**Canvas (layers, sequence, cycles):** interactive [`pipeline-flow.html`](docs/superpowers/pipeline-flow.html) · Mermaid source [`pipeline-flow.md`](docs/superpowers/pipeline-flow.md). Run `/csp-pipeline-status` (or `scripts/pipeline-status.sh`) for a where-am-I strip and a canvas link with `?route=&layer=&stage=` highlight. Optional consumer run-log journals (`scripts/pipeline-run-log.sh`, see dogfood [`pipeline-run-memory-checklist.md`](docs/superpowers/dogfood/pipeline-run-memory-checklist.md)) enrich the strip — not kit-global chat memory. After code the graph names the HITL **`review-gate`** (skill `finish-plan` / command `/csp-finish-plan` writes the marker). `fixes` returns to Build, not to `writing-plans`. Kit harness inventory: `/csp-harness-status` (or `python3 scripts/harness-health.py`) — orientation only.
 
 `/csp-start-task [ac-source]` orchestrates the whole pipeline end-to-end, stopping only at the human-in-the-loop (HITL) gates that already exist — it never skips or softens any of them. Closed-set HITL asks **must** call Cursor **`AskQuestion`** (or alias) via skill [`hitl-choice`](skills/hitl-choice/) (rule `hitl-askquestion`); typed tokens only after the tool fails or is missing. When the AC source looks like a Jira ticket (`PROJ-123` or `*.atlassian.net` URL), it **fetches** via Atlassian MCP (`jira-fetch`), moves the ticket to **In Progress** (`jira-transition`), then **routes** (Bug → `/csp-start-issue-task`; unknown type → HITL **Pipeline route**; never auto-selects `--fast`). Ends with skill [`create-pr`](skills/create-pr/) (draft PR, then HITL **Pipeline finale**).
 
