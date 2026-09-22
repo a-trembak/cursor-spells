@@ -2,19 +2,33 @@
 
 ## Role
 
-Writers (`software-developer`) and reviewers (`csp-review-logic`, `csp-review-simplify`) use this when the diff **adds or expands unit/integration tests**, or when a review would otherwise ask for more tests.
+Writers (`software-developer`, frontend and backend) and reviewers (`csp-review-logic`, `csp-review-simplify`, `csp-pr-reviewer`) use this when the diff **adds or expands unit/integration tests**, or when a review would otherwise ask for more tests.
+
+**Applies to every stack in scope:** Java/Spring services **and** React / TypeScript frontend (Jest, React Testing Library, hook tests). Same gate — not a backend-only rule.
 
 ## T1 — Prefer business decisions; skip presentation cosmetics
 
-**Trigger (any):** new or changed tests; review finding that demands additional tests; export/report/UI styling diffs paired with test files.
+**Trigger (any):**
+
+- new or changed tests under `src/__tests__/` / `*.test.ts(x)` / `*Test.java`
+- review finding that demands additional tests
+- styling / chart / Excel / theme diffs paired with test files
+- frontend assertions on `sx`, `style`, `className`, theme tokens, palette hex, `toHaveStyle`, Emotion class snapshots, ECharts/Apex option chrome
 
 **Gate:**
 
-1. Keep or require tests that assert **business decisions**: gates, domain transforms, offline/online rules, column inclusion, null/zero semantics, authz outcomes, error contracts with domain meaning.
-2. Do **not** add or demand tests that only pin **presentation constants** or cosmetics: hex/rgb fill colors, border width/style strings, font names/sizes, opacity literals, stylesheet XML wiring for colors/borders, snapshot of visual chrome without a domain rule.
-3. Flag a find as over-testing when the test body is `assertEquals("F0F0F0", CONST)` / `stylesXml.contains(borderColor)` with no decision under test.
-4. Visual correctness of colors/borders is verified by **manual or design review** (screenshot, Figma, export open-in-Excel), not by proliferating unit tests.
+1. Keep or require tests that assert **business decisions**:
+   - **Backend:** gates, domain transforms, offline/online rules, column inclusion, null/zero semantics, authz outcomes, error contracts with domain meaning.
+   - **Frontend:** when bands/filters/params appear or disappear, transform outputs for domain fields, role/route guards, form validation rules, enabled/disabled Generate from selection, tooltip **copy keys** or presence of offline message — not the mask color.
+2. Do **not** add or demand tests that only pin **presentation constants** or cosmetics:
+   - **Backend:** hex/rgb fill colors, border width/style strings, fonts, opacity, stylesheet XML wiring for colors/borders.
+   - **Frontend:** palette hex / `rgba(...)`, `markArea`/`markPoint` colors, MUI `sx` spacing/radius/shadow, typography sizes, CSS module class name strings, Emotion generated class snapshots, `toHaveStyle({ backgroundColor: … })`, chart legend chrome without a domain rule.
+3. Flag over-testing when the body is only `expect(OFFLINE_COLOR).toBe("#D9D9D9")`, `toHaveStyle`, `stylesXml.contains(borderColor)`, or a snapshot of visual chrome with no decision under test.
+4. Visual correctness (colors, spacing, borders, chart chrome) is verified by **manual review, Figma/`ce-test-browser`, or opening the export** — not by proliferating unit tests.
 
-**Anti-pattern:** every styling tweak (lighter gray, thin border so gridlines survive Excel fill) gets its own unit test asserting the hex and `style="thin"` in `xl/styles.xml`.
+**Anti-patterns:**
+
+- Excel: every gray/border tweak gets a unit test asserting hex / `style="thin"` in `xl/styles.xml`.
+- React: every Figma gray or palette pad tweak gets `expect(option.series[0].itemStyle.color).toBe("rgba(217,217,217,0.3)")` or Emotion snapshot churn.
 
 **Severity:** `P1` clarify — drop or refuse the presentation-only test; keep business-behavior coverage.

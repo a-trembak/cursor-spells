@@ -409,19 +409,23 @@ triggers:
   - unit test | assertEquals hex | fillColor | borderStyle | styles.xml
   - presentation constant | OFFLINE_ROW_FILL | fontSize | opacity
   - "add test for" color | border | styling tweak
+  - toHaveStyle | sx= | markArea | rgba( | Emotion snapshot | className string
+  - React Testing Library | *.test.tsx | transformDataForCharts palette
 phases: [logic, simplify]
 gate: T1
 rule_one_liner: >-
-  Unit tests cover business decisions only; do not add or demand tests that
-  only pin presentation constants (colors, borders, fonts) or cosmetic XML.
+  Backend and frontend unit tests cover business decisions only; do not add
+  or demand tests that only pin presentation constants (colors, borders,
+  fonts, sx, chart chrome) or cosmetic XML/snapshots.
 anti_pattern: >-
-  Writer adds fillColorIsF0F0F0 / thinBorder style XML tests, or reviewer
-  asks for more coverage of hex/border after a visual-only styling change.
-hits: 1
+  Writer adds fillColorIsF0F0F0 / thinBorder style XML tests, or frontend
+  expects palette hex / toHaveStyle / Emotion snapshots after a visual-only
+  styling change; reviewer asks for more hex/border/sx coverage.
+hits: 2
 last_seen: 2026-09-22
 source: teach-review
 ```
 
-Mechanism: Excel/UI styling fixes (lighter gray, restore grid via borders) invite hex- and stylesheet-pinning tests that churn on every design tweak and do not protect domain rules (when to gray a row, omit a column, treat online=0).
+Mechanism: Excel and React styling fixes (lighter gray, borders, graph mask opacity, palette pad) invite hex-/stylesheet-/`sx`-pinning tests that churn on every design tweak and do not protect domain rules (when to gray a row or show an offline band, omit a column, treat online=0).
 
-Required check: [business-logic-tests-checklist.md](business-logic-tests-checklist.md) **T1**.
+Required check: [business-logic-tests-checklist.md](business-logic-tests-checklist.md) **T1** (explicitly includes React / Jest / Testing Library).

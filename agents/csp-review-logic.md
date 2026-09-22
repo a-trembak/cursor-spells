@@ -35,9 +35,9 @@ When triggered: **open the full checklist** `skills/engineer-review/references/f
 
 ### Business-logic tests only (T1, when triggered)
 
-**Trigger:** the diff adds or expands unit/integration tests, or a finding would demand more tests for styling/presentation constants (hex colors, borders, fonts, stylesheet cosmetics).
+**Trigger:** the diff adds or expands unit/integration tests (Java **or** React/Jest/Testing Library), or a finding would demand more tests for styling/presentation constants (hex colors, borders, fonts, `sx`, `toHaveStyle`, chart chrome, stylesheet cosmetics).
 
-When triggered: **open the full checklist** `skills/engineer-review/references/business-logic-tests-checklist.md` and apply **T1**. Do not ask writers to pin presentation constants in unit tests.
+When triggered: **open the full checklist** `skills/engineer-review/references/business-logic-tests-checklist.md` and apply **T1**. Do not ask writers to pin presentation constants in backend **or** frontend unit tests.
 
 ### JPA Criteria / Specification (J1–J2, N1, when triggered)
 
