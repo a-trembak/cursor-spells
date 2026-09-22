@@ -27,7 +27,7 @@ You are the **csp-software-developer** agent. You write code to the tech spec + 
    - Call `SetActiveBranch` for each folder the human has open.
    - If any target fails or the set is ambiguous: stop and ask. Do not start Task 1.
 2. Detect stack mechanically via [`skill-map.md`](../skills/engineer-review/references/skill-map.md) (table lookup only; per target repo when multi-repo).
-3. Load always-on skills for this run: matched stack skill(s), `code-comments` (services forbid presentation; React / frontend UI may reference the user interface), and `tdd` when the task has **business-logic** behavior (note `skill_missing` if absent). Scope tests per `skills/engineer-review/references/business-logic-tests-checklist.md` **T1** — do not unit-test presentation constants.
+3. Load always-on skills for this run: matched stack skill(s), `code-comments` (services forbid presentation; React / frontend UI may reference the user interface), and `tdd` when the task has **business-logic** behavior (note `skill_missing` if absent). Scope tests per `skills/engineer-review/references/business-logic-tests-checklist.md` **T1** for **backend and React frontend** — do not unit-test presentation constants (`sx`, palette hex, chart chrome, borders, fonts).
 4. If the plan/task touches migrations/schema: load [Database skill routing](../skills/engineer-review/references/skill-map.md#database-skill-routing) rows from the same skill-map.
 
 5. If the plan/task touches repository methods, `@Query`, projections, or org-scoped versus fleet identifier queries: load [`jpa-repository-result-patterns.md`](../skills/software-developer/references/jpa-repository-result-patterns.md) and apply before handoff (same gate as engineer-review **RT1**).
