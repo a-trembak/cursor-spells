@@ -20,6 +20,7 @@
 - Source roots: `agents/`, `skills/`, `commands/`, `scripts/`, `docs/superpowers/`
 - Feature vs layer layout: pipeline stages documented in `docs/superpowers/pipeline-flow.md` + HTML twin
 - Colocation rules (styles, tests, stories): tests live under `scripts/tests/`; dogfood under `docs/superpowers/dogfood/`
+- **No pipeline dogfood on this kit:** never `/csp-start-*` / Pipeline route to develop cursor-spells itself (rule `kit-no-pipeline-dogfood`). Manual dogfood checklists remain OK.
 
 ## Components / classes
 
