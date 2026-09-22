@@ -1,0 +1,46 @@
+---
+description: >-
+  Kit checkout only — never dogfood the product shipping pipeline on
+  cursor-spells itself. Edit kit files directly; do not run /csp-start-*.
+alwaysApply: true
+---
+
+# No pipeline dogfood on this kit
+
+This rule applies when the **workspace git root is a cursor-spells kit checkout**
+(has `agents/csp-engineer-reviewer.md` and `skills/engineer-review/`, and is the
+repo being edited as the kit — not a consumer app that merely installed the kit).
+
+## Forbidden on this kit repo
+
+Do **not** use the product shipping pipeline to develop the kit:
+
+- Do not run `/csp-start-task`, `/csp-start-task --fast`, or `/csp-start-issue-task`
+- Do not ask **Pipeline route** (`full` / `fast` / `issue`) for kit changes
+- Do not dispatch nested Task `csp-software-developer` or `csp-bug-fixer` as the
+  delivery path for kit work
+- Do not drive kit changes through `approve-plan` → `finish-plan` → `update-docs` →
+  `create-pr` as if this repo were a consumer product
+
+Reason: dogfooding the pipeline on itself recurses (gates, orientation, and
+ship stops fight the work that changes those same mechanisms).
+
+## Required instead
+
+- Edit kit files in the parent chat (or ordinary feature-branch git work)
+- Use normal commits / draft pull requests for kit changes
+- Use Jira only when the human explicitly wants a ticket — kit work may be
+  ticketless
+
+## Still allowed
+
+- Manual **dogfood checklists** under `docs/superpowers/dogfood/` (scripts that
+  verify kit behavior — not `/csp-start-*`)
+- `/csp-harness-status`, `scripts/harness-bench.sh`, contract tests
+- Running the pipeline against a **separate consumer project** that installed
+  this kit
+
+## Consumer projects
+
+This rule must **not** be copied into consumer apps by `install-to-project.sh`.
+Consumers keep `code-via-coding-agents` and run `/csp-start-*` as designed.

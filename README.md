@@ -4,6 +4,10 @@ Personal Cursor workflow kit — skills, slash commands, rules, hooks, and agent
 
 Spells you cast so the model sounds like a human engineer, not a LinkedIn influencer who just discovered the word *delve*.
 
+## Developing this kit (no pipeline dogfood)
+
+When the workspace **is** this repository, do **not** run `/csp-start-task`, `/csp-start-issue-task`, or ask Pipeline route to ship kit changes — that recurses the pipeline onto itself. Edit kit files directly; use ordinary branches and draft pull requests. Rule: [`rules/kit-no-pipeline-dogfood.mdc`](rules/kit-no-pipeline-dogfood.mdc) (kit-only; not copied by `csp install`). Manual checklists under [`docs/superpowers/dogfood/`](docs/superpowers/dogfood/) remain the way to verify kit behavior.
+
 ## Install & update
 
 **Do not clone this repo into every app.** Keep **one** checkout of `cursor-spells`, then point each project at it.
