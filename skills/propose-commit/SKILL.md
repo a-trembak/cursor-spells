@@ -55,6 +55,7 @@ If any fail: **stop** and say which precondition is missing. Do not commit.
    pg_write_gate "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
    ```
 
+   If write exits non-zero: **stop** and report the path — do not hand off as `commit_approved: true`. Helpers may use a writable fallback under `~/.cursor/spells-gates/` when `.cursor/gates` is not writable.
 6. **Do not** `git push`. **Do not** open or update a GitHub pull request. Hand off to the caller (`update-docs` or `create-pr`).
 7. **Run-log:** when `invocation_id` is known and this stop appends the session ledger / commit gate, dual-write `scripts/pipeline-run-log.sh append --root <project> --invocation <invocation_id> [--plan <path>] --stage propose-commit --note "<approve-commit|revise>"`. Once the plan path is known, always pass `--plan`. Missing helper → skip.
 

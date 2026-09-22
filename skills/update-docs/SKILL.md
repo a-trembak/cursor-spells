@@ -54,8 +54,9 @@ Load **`references/writing-guide.md`** before drafting.
 4. Do **not** invent a destination. On picker cancel/skip-without-token, re-ask.
 
 5. **On `skip`:**
-   - `pg_clear_gate "$(pwd)" docs-gate "<plan-path>"`
-   - Report that docs were skipped; end this skill (pipeline may finish).
+   - `pg_clear_gate "$(pwd)" docs-gate "<plan-path>"`. If clear exits non-zero: report the path in one sentence (orientation may stay on docs), then **still** continue the handoff below — do not treat clear failure as end of the pipeline.
+   - Report that docs were skipped.
+   - **Never treat this skill as terminal** on a full `/csp-start-task` run.
 
 6. **On `docs_md` | `docs_repo` | `confluence`:**
    - Keep this plan's docs-gate until the write (or explicit human abort) completes. Never delete another slug's docs-gate; HITL **Force-clear foreign gate** first if the human explicitly asks.
@@ -71,14 +72,29 @@ Load **`references/writing-guide.md`** before drafting.
      - `docs_md` — write/update the Markdown file under `docs/` (never under `docs/superpowers/` for product docs). Leave uncommitted for `propose-commit`; do not bypass the gate. Report the path.
      - `docs_repo` — work in the named docs repo; follow its existing doc style. Write/update files on disk only — **leave uncommitted**. Do **not** `git commit`, do **not** open or update a pull request from this skill. Include that docs repo (and its branch) in the handoff `repo_branch_map` so the caller runs residual skill **`propose-commit`** before `create-pr`.
      - `confluence` — use Atlassian/Confluence MCP tools when authenticated; otherwise present the final Markdown for paste and optionally stage a local draft under `docs/` marked as Confluence staging. Match space/sibling page style. Never overwrite an unrelated page.
-   - `pg_clear_gate "$(pwd)" docs-gate "<plan-path>"` when the publish step finishes or the human aborts after seeing the draft.
+   - `pg_clear_gate "$(pwd)" docs-gate "<plan-path>"` when the publish step finishes or the human aborts after seeing the draft. If clear exits non-zero: report the path; still continue the handoff.
 
-7. **Optional compound learning:** If the run produced a durable debugging/architecture learning worth `docs/solutions/`, briefly offer `ce-compound` as a *separate* follow-up — do not block the product-docs handoff on it.
+7. **Handoff (required on pipeline full path):** emit and return control to the caller with:
+
+   ```
+   next_skill: propose-commit | create-pr
+   plan_path: <path>
+   docs_destination: skip | docs_md | docs_repo | confluence
+   repo_branch_map:   # extend when docs_repo left dirty files
+     - <repo> → <branch>
+   ```
+
+   - If intentional files remain uncommitted in **any** touched repo → `next_skill: propose-commit` (residual), then the caller runs `create-pr`.
+   - If the tree is clean → `next_skill: create-pr`.
+   - Manual `/csp-update-docs` alone may stop after the report when the human did not ask for ship; on `/csp-start-task` the **caller must** invoke residual `propose-commit` (when needed) then **`create-pr` in the same chat** — do not end the turn on this skill.
+
+8. **Optional compound learning:** If the run produced a durable debugging/architecture learning worth `docs/solutions/`, briefly offer `ce-compound` as a *separate* follow-up — do not block the product-docs handoff on it.
 
 ## Notes
 
 - After publish on the **full** `/csp-start-task` path: if intentional files remain uncommitted in **any** repo touched (product repo and/or separate docs repo), the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` in any repo to bypass the gate (leave files on disk; report paths and extend `repo_branch_map`).
 - Manual `/csp-update-docs` may run without a preceding review; still use the same HITL destination gate.
 - This skill never auto-selects Confluence vs repo from heuristics — wrong destination is worse than `skip`.
-- Markers live in the consumer project `.cursor/gates/<kind>/<slug>`, same as other kit gates.
-- Append session ledger per skill `trajectory-score` (stage `update-docs`, gate `docs-update`).
+- Markers live under the consumer gates base (usually `.cursor/gates/<kind>/<slug>`; `pipeline-gates.sh` may use a writable fallback under `~/.cursor/spells-gates/` when the project path is not writable).
+- Append session ledger per skill `trajectory-score` (stage `update-docs`, gate `docs-update`). Prefer `LEDGER="$(pg_gates_base "$(pwd)")/trajectory-run/session-full.json"` when the helper is sourced.
+- **`pg_write_gate` / `pg_clear_gate` failures are hard signals** — print stderr; never pretend the marker updated. Clear failure must not cancel `next_skill: create-pr` on the full path.
