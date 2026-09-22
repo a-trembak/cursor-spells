@@ -16,6 +16,7 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
 1. **Bootstrap** (automatic):
    - Read `.cursor/project-patterns.md` in the current project if present.
    - Detect stack mechanically via `skills/engineer-review/references/skill-map.md`.
+   - **Run-log:** mint `invocation_id`; `scripts/pipeline-run-log.sh init --root <project> --invocation <id> --route issue` (pointer + `inv-<id>.md`). Missing helper → one-sentence skip. No chat transcripts or ticket-body dumps in notes/briefs.
 
 2. **Fetch Jira** (automatic):
    - Invoke skill **`jira-fetch`** (key or browse URL). Reuse an already-fetched payload if `/csp-start-task` routed here.
@@ -27,6 +28,7 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
    - Investigate enough to draft a root-cause-oriented fix plan (read-only exploration + ticket facts). Prefer loading `systematic-debugging` / `ce-debug mode:pipeline` while diagnosing for the plan.
    - Write English plan to `docs/superpowers/plans/YYYY-MM-DD-<jira-key>-fix.md` following `clean-decision-docs` (final-form only).
    - Plan must include: reported failure, reproduction, hypothesized root cause, proposed minimal fix, regression/blast-radius notes, test plan that would catch the bug, rejected alternatives (one line each).
+   - When the plan path is first known: `pipeline-run-log.sh promote --root <project> --invocation <invocation_id> --plan <path> --route issue`. On refuse-on-conflict: one-sentence skip; keep using `--invocation` (pointer is not rewritten). Also `append` at this and later ledger stops — once the plan path is known, always pass `--plan`.
 
 4. **Critic** (automatic — no plan-approve HITL):
    - `pg_write_gate` critique-gate for this plan path; `pg_clear_gate` plan-critique-clear for a prior revision of **this** plan only.
@@ -49,3 +51,4 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
 - Explicit `/csp-start-issue-task` always stays on the issue pipeline even if the Jira type is Story/Task.
 - After fix-plan + critic on an explicit `/csp-start-issue-task` whose `jira_class` is `feature` (Story/Task), score `start-issue-story-stays-issue` per skill `trajectory-score`.
 - When `jira_class` is `bug`, init `.cursor/gates/trajectory-run/session-issue.json` for case `issue-happy-path` (exact invocation `/csp-start-issue-task PROJ-1`) and append stages/gates; `create-pr` scores it. Do not init the issue session ledger for a Story/Task slice.
+- **Run-log:** dual-write `pipeline-run-log.sh append` with the run’s `invocation_id` at the same ledger stops; once the plan path is known, always pass `--plan`; pass `--invocation` into orientation when known.

@@ -47,7 +47,26 @@ At every closed-set human gate, skill `hitl-choice` prints a short **orientation
 
 **Legal returns** in the strip are **informational only** in v1 (for example `fixes` → Build). There is no `/pipeline-back` that mutates gates.
 
-Resolver: `scripts/pipeline-status.sh` (`--json`, `--canvas-url`). Pending-gate precedence for stage/layer: `docs-gate` → `review-gate` → `critique-gate` → `plan-gate`; else last `stages_entered` from the session ledger; else `idle`.
+Resolver: `scripts/pipeline-status.sh` (`--json`, `--canvas-url`, optional `--invocation <id>`). Pending-gate precedence for stage/layer: `docs-gate` → `review-gate` → `critique-gate` → `plan-gate`; else last `stages_entered` from the session ledger; else `idle`.
+
+### Pipeline run-log (consumer orientation journal)
+
+Short append-only journals live under the **consumer** project (not in the Spells kit checkout). There is **no** kit-global chat / vector memory.
+
+| When | Path |
+|------|------|
+| Pre-plan | `.cursor/gates/run-log/inv-<invocation_id>.md` |
+| After successful promote | `.cursor/gates/run-log/<slug>.md` |
+| Pointer (every successful `init`) | `.cursor/gates/run-log/current-invocation` |
+| Optional fast/tiny brief | `.cursor/gates/run-log/briefs/inv-<id>.brief.md` |
+
+Helper: `scripts/pipeline-run-log.sh` (`init` / `append` / `promote` / `read-tail` / `path` / `brief-upsert`). Installer copies it beside `pipeline-status.sh` and recommends gitignoring `.cursor/gates/run-log/`.
+
+**Promote:** target absent → `mv` + header refresh; target already exists → **refuse-on-conflict** (exit non-zero, leave `inv-*.md` intact, no merge). Keep appending with `--invocation`.
+
+**Authority split:** pending gates + trajectory session ledgers own stage/scoring; the run-log only enriches orientation (`run_log_path` / `run_log_tail`, optional `Recent:`). Status resolution: `--invocation` → pending-plan slug journal → pointer → omit.
+
+**Forbidden in journals/briefs:** chat transcripts, full ticket bodies, secrets.
 
 ---
 

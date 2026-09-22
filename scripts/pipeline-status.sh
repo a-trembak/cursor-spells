@@ -145,6 +145,167 @@ ps__json_escape() {
   python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"
 }
 
+# Same invocation id regex as pipeline-run-log.sh (silent — status omits enrichment on mismatch).
+ps__valid_invocation_id() {
+  local id="$1"
+  [[ "$id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]]
+}
+
+# Resolve run-log journal: --invocation → pending plan slug → pointer → omit.
+# Sets nothing / returns 1 when omitted. Prints absolute path on success.
+ps__resolve_run_log() {
+  local first_pending_plan="${1:-}"
+  local run_dir="$PS_ROOT/.cursor/gates/run-log"
+  local candidate="" id="" ptr line key val
+  local ptr_id="" ptr_plan="" ptr_slug="" ptr_journal=""
+
+  if [[ -n "${PS_INVOCATION:-}" ]]; then
+    if ! ps__valid_invocation_id "$PS_INVOCATION"; then
+      : # omit enrichment for invalid --invocation; do not hard-exit
+    else
+      candidate="$run_dir/inv-${PS_INVOCATION}.md"
+      if [[ -f "$candidate" ]]; then
+        printf '%s' "$candidate"
+        return 0
+      fi
+      # inv gone: use pointer slug/journal when same invocation id
+      ptr="$run_dir/current-invocation"
+      if [[ -f "$ptr" ]]; then
+        ptr_id=""
+        ptr_plan=""
+        ptr_slug=""
+        ptr_journal=""
+        while IFS= read -r line || [[ -n "$line" ]]; do
+          [[ "$line" == *:* ]] || continue
+          key="${line%%:*}"
+          val="${line#*:}"
+          val="${val#"${val%%[![:space:]]*}"}"
+          val="${val%"${val##*[![:space:]]}"}"
+          case "$key" in
+            invocation) ptr_id="$val" ;;
+            plan) ptr_plan="$val" ;;
+            slug) ptr_slug="$val" ;;
+            journal) ptr_journal="$val" ;;
+          esac
+        done <"$ptr"
+        if [[ -n "$ptr_id" ]] && ps__valid_invocation_id "$ptr_id" && [[ "$ptr_id" == "$PS_INVOCATION" ]]; then
+          if [[ -n "$ptr_journal" && "$ptr_journal" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}\.md$ ]]; then
+            candidate="$run_dir/$ptr_journal"
+            if [[ -f "$candidate" ]]; then
+              printf '%s' "$candidate"
+              return 0
+            fi
+          fi
+          if [[ -n "$ptr_slug" && "$ptr_slug" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]]; then
+            candidate="$run_dir/${ptr_slug}.md"
+            if [[ -f "$candidate" ]]; then
+              printf '%s' "$candidate"
+              return 0
+            fi
+          fi
+          if [[ -n "$ptr_plan" ]]; then
+            local slug
+            slug="$(pg_slug_for_plan "$PS_ROOT" "$ptr_plan")"
+            candidate="$run_dir/${slug}.md"
+            if [[ -f "$candidate" ]]; then
+              printf '%s' "$candidate"
+              return 0
+            fi
+          fi
+        fi
+      fi
+    fi
+  fi
+
+  if [[ -n "$first_pending_plan" ]]; then
+    local slug
+    slug="$(pg_slug_for_plan "$PS_ROOT" "$first_pending_plan")"
+    candidate="$run_dir/${slug}.md"
+    if [[ -f "$candidate" ]]; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  fi
+
+  ptr="$run_dir/current-invocation"
+  if [[ -f "$ptr" ]]; then
+    id=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" == invocation:* ]]; then
+        id="${line#invocation:}"
+        id="${id#"${id%%[![:space:]]*}"}"
+        id="${id%"${id##*[![:space:]]}"}"
+        break
+      fi
+    done <"$ptr"
+    if [[ -n "$id" ]] && ps__valid_invocation_id "$id"; then
+      candidate="$run_dir/inv-${id}.md"
+      if [[ -f "$candidate" ]]; then
+        printf '%s' "$candidate"
+        return 0
+      fi
+      # Pointer may already list slug/journal after promote (no inv file).
+      ptr_id=""
+      ptr_plan=""
+      ptr_slug=""
+      ptr_journal=""
+      while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ "$line" == *:* ]] || continue
+        key="${line%%:*}"
+        val="${line#*:}"
+        val="${val#"${val%%[![:space:]]*}"}"
+        val="${val%"${val##*[![:space:]]}"}"
+        case "$key" in
+          invocation) ptr_id="$val" ;;
+          plan) ptr_plan="$val" ;;
+          slug) ptr_slug="$val" ;;
+          journal) ptr_journal="$val" ;;
+        esac
+      done <"$ptr"
+      if [[ -n "$ptr_journal" && "$ptr_journal" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}\.md$ ]]; then
+        candidate="$run_dir/$ptr_journal"
+        if [[ -f "$candidate" ]]; then
+          printf '%s' "$candidate"
+          return 0
+        fi
+      fi
+      if [[ -n "$ptr_slug" && "$ptr_slug" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]]; then
+        candidate="$run_dir/${ptr_slug}.md"
+        if [[ -f "$candidate" ]]; then
+          printf '%s' "$candidate"
+          return 0
+        fi
+      fi
+      if [[ -n "$ptr_plan" ]]; then
+        local slug2
+        slug2="$(pg_slug_for_plan "$PS_ROOT" "$ptr_plan")"
+        candidate="$run_dir/${slug2}.md"
+        if [[ -f "$candidate" ]]; then
+          printf '%s' "$candidate"
+          return 0
+        fi
+      fi
+    fi
+  fi
+
+  return 1
+}
+
+ps__run_log_tail_json() {
+  local path="$1" n="${2:-5}"
+  python3 -c '
+import json, sys
+path, n = sys.argv[1], int(sys.argv[2])
+try:
+    lines = open(path, encoding="utf-8").read().splitlines()
+except OSError:
+    print("[]")
+    raise SystemExit(0)
+body = [ln for ln in lines if ln.startswith("- ")]
+print(json.dumps(body[-n:] if n > 0 else body))
+' "$path" "$n"
+}
+
 ps__build_record() {
   local pending_kind="" stage layer route="unknown" ledger_path="" critique_clear="false"
   local stages_json="[]" pending_json="[]" legal_json="[]"
@@ -224,7 +385,17 @@ ps__build_record() {
     ledger_json="$(ps__json_escape "$rel")"
   fi
 
-  python3 - "$route" "$layer" "$stage" "$pending_json" "$critique_clear" "$ledger_json" "$stages_json" "$legal_json" "$canvas_path" "$canvas_hash" "$canvas_query" <<'PY'
+  local run_log_abs="" run_log_rel_json="null" run_log_tail_json="[]"
+  if run_log_abs="$(ps__resolve_run_log "$first_pending_plan")"; then
+    local rel_rl="$run_log_abs"
+    if [[ "$run_log_abs" == "$PS_ROOT/"* ]]; then
+      rel_rl="${run_log_abs#"$PS_ROOT"/}"
+    fi
+    run_log_rel_json="$(ps__json_escape "$rel_rl")"
+    run_log_tail_json="$(ps__run_log_tail_json "$run_log_abs" 5)"
+  fi
+
+  python3 - "$route" "$layer" "$stage" "$pending_json" "$critique_clear" "$ledger_json" "$stages_json" "$legal_json" "$canvas_path" "$canvas_hash" "$canvas_query" "$run_log_rel_json" "$run_log_tail_json" <<'PY'
 import json, sys
 route, layer, stage = sys.argv[1], sys.argv[2], sys.argv[3]
 pending = json.loads(sys.argv[4])
@@ -234,6 +405,9 @@ ledger_path = None if ledger_raw == "null" else json.loads(ledger_raw)
 stages = json.loads(sys.argv[7])
 legal = json.loads(sys.argv[8])
 canvas_path, canvas_hash, canvas_query = sys.argv[9], sys.argv[10], sys.argv[11]
+run_log_raw = sys.argv[12]
+run_log_path = None if run_log_raw == "null" else json.loads(run_log_raw)
+run_log_tail = json.loads(sys.argv[13])
 rec = {
   "route": route,
   "layer": layer,
@@ -248,6 +422,8 @@ rec = {
     "hash": canvas_hash,
     "query": canvas_query,
   },
+  "run_log_path": run_log_path,
+  "run_log_tail": run_log_tail,
 }
 print(json.dumps(rec, ensure_ascii=False))
 PY
@@ -301,6 +477,13 @@ nxt = next_map.get(stage, "(see pipeline-flow)")
 print(f"Next: {nxt}")
 print(f"Legal returns: {legal_s}")
 print(f"Canvas: {link}")
+tail = d.get("run_log_tail") or []
+if tail:
+    import re
+    last = tail[-1]
+    m = re.search(r"note=(.*)$", last)
+    note = m.group(1) if m else last
+    print(f"Recent: {note}")
 PY
 }
 
@@ -325,8 +508,9 @@ PY
 ps__main() {
   local mode="text" kit_root="" record
 
-  # PS_ROOT is intentionally global: helpers (ps__collect_pending, ps__find_ledger, …) read it.
+  # PS_ROOT / PS_INVOCATION are intentionally global: helpers read them.
   PS_ROOT=""
+  PS_INVOCATION=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -342,14 +526,18 @@ ps__main() {
         PS_ROOT="${2:?--root requires a directory}"
         shift 2
         ;;
+      --invocation)
+        PS_INVOCATION="${2:?--invocation requires an id}"
+        shift 2
+        ;;
       --kit-root)
         kit_root="${2:?--kit-root requires a directory}"
         shift 2
         ;;
       -h|--help)
         cat <<'EOF'
-Usage: pipeline-status.sh [--root <dir>] [--kit-root <dir>]
-       pipeline-status.sh --json [--root <dir>]
+Usage: pipeline-status.sh [--root <dir>] [--kit-root <dir>] [--invocation <id>]
+       pipeline-status.sh --json [--root <dir>] [--invocation <id>]
        pipeline-status.sh --canvas-url [--root <dir>] [--kit-root <dir>]
 EOF
         exit 0

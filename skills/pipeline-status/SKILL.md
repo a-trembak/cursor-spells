@@ -32,9 +32,13 @@ bash scripts/pipeline-status.sh --root <project-root>
 bash scripts/pipeline-status.sh --json --root <project-root>
 # optional canvas path with query + hash:
 bash scripts/pipeline-status.sh --canvas-url --root <project-root> [--kit-root <kit-or-project>]
+# optional run-log enrichment for a known invocation:
+bash scripts/pipeline-status.sh --root <project-root> --invocation <id>
+bash scripts/pipeline-status.sh --json --root <project-root> --invocation <id>
 ```
 
 4. Print the strip (and canvas link) in the user-facing turn. Do **not** advance, clear, or invent gates.
+5. When `invocation_id` is known for this chat, pass `--invocation <id>` so the strip can include a `Recent:` line from the run-log. Resolution order when the flag is omitted: pending-gate plan slug journal → `current-invocation` pointer (including post-promote `journal` / `slug`) → omit. Invalid `--invocation` or invalid pointer id omit enrichment only — never hard-exit the strip. Missing journal never changes `stage` / `layer`.
 
 ## Language contract
 
@@ -46,6 +50,7 @@ bash scripts/pipeline-status.sh --canvas-url --root <project-root> [--kit-root <
 - Route · layer · current stage
 - Next stages (one short line, 1–3 names)
 - Legal returns (or “none — happy path only”) — **informational only** in v1; no `/pipeline-back`
+- Optional `Recent: <last note>` when a run-log tail exists
 - Canvas link with `?route=&layer=&stage=` (and hash when present)
 
 ## Failure

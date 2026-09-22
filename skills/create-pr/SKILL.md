@@ -100,6 +100,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
      - `record end` with `--review-report absent --jira-status null` (do not invent In Progress).
      - Always score this no-Jira case when OPEN observations exist. Never merge.
    - **Session ledger:** if `.cursor/gates/trajectory-run/session-full.json`, `session-fast.json`, or `session-issue.json` exists, append `create-pr`, `pipeline-finale-hitl`, draft artifact, finale gate (the tokens actually offered), and the same observed end, then score that session file too (`full-happy-path` / `fast-skips-plan-layer` / `issue-happy-path`). Missing session file → skip the end-to-end score only.
+   - **Run-log:** when `invocation_id` is known, dual-write `scripts/pipeline-run-log.sh append --root <project> --invocation <invocation_id> [--plan <path>] --stage create-pr --note "<finale-token-or-draft>"` at the same finale ledger stop. Once the plan path is known, always pass `--plan`. Missing helper → skip.
    - Run `record dump`, then score via live metrics (preferred) or bare score:
      - Preferred: `python3 "$KIT"/scripts/pipeline-metrics.py append-score --kit-root "$KIT" --run "$LEDGER" [--ticket "$JIRA_KEY"]` (and the same for the session ledger when present). This scores and appends one history row under `.cursor/gates/pipeline-metrics/history.jsonl`.
      - Fallback when `pipeline-metrics.py` is missing: `python3 "$KIT"/scripts/trajectory-cases.py score --kit-root "$KIT" --run "$LEDGER"` (and the session run when present).
