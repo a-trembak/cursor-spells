@@ -73,11 +73,98 @@ pg__base_slug_for_plan() {
   fi
 }
 
+# True when we can mkdir and create a file under dir (probe then remove).
+pg__dir_writable() {
+  local d="$1" probe
+  mkdir -p "$d" 2>/dev/null || return 1
+  probe="$d/.pg_write_probe_$$"
+  if ! printf 'ok\n' >"$probe" 2>/dev/null; then
+    rm -f "$probe" 2>/dev/null || true
+    return 1
+  fi
+  rm -f "$probe" 2>/dev/null || true
+  return 0
+}
+
+pg__abs_root() {
+  local root="$1"
+  if [[ -d "$root" ]]; then
+    (cd "$root" && pwd -P) 2>/dev/null && return 0
+  fi
+  printf '%s' "$root"
+}
+
+# Home (or /tmp) fallback when project .cursor/gates is not writable
+# (e.g. Operation not permitted / com.apple.provenance on agent sandboxes).
+pg__fallback_gates_base() {
+  local root="$1" abs hash home
+  abs="$(pg__abs_root "$root")"
+  hash="$(pg__path_hash12 "$abs")" || return 1
+  home="${HOME:-/tmp}"
+  printf '%s/.cursor/spells-gates/%s/gates' "$home" "$hash"
+}
+
+pg__primary_gates_base() {
+  local root="$1"
+  printf '%s/.cursor/gates' "$root"
+}
+
+pg__redirect_path() {
+  local root="$1"
+  printf '%s/.cursor/gates-redirect' "$root"
+}
+
+# Resolve the gates base directory for writes (and preferred reads).
+# Order: PG_GATES_BASE / CSP_GATES_BASE → gates-redirect → primary if writable → fallback.
+pg_gates_base() {
+  local root base redirect line
+  root="$(pg__root "$1")"
+
+  if [[ -n "${PG_GATES_BASE:-}" ]]; then
+    printf '%s' "${PG_GATES_BASE%/}"
+    return 0
+  fi
+  if [[ -n "${CSP_GATES_BASE:-}" ]]; then
+    printf '%s' "${CSP_GATES_BASE%/}"
+    return 0
+  fi
+
+  redirect="$(pg__redirect_path "$root")"
+  if [[ -f "$redirect" ]]; then
+    line="$(head -n 1 "$redirect" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    if [[ -n "$line" ]] && pg__dir_writable "$line"; then
+      printf '%s' "$line"
+      return 0
+    fi
+  fi
+
+  base="$(pg__primary_gates_base "$root")"
+  if pg__dir_writable "$base"; then
+    printf '%s' "$base"
+    return 0
+  fi
+
+  base="$(pg__fallback_gates_base "$root")" || return 1
+  if ! pg__dir_writable "$base"; then
+    echo "pipeline-gates: cannot write gates under primary or fallback ($base)" >&2
+    return 1
+  fi
+
+  # Best-effort redirect so humans/tools discover the fallback; ignore failure.
+  if mkdir -p "$(dirname "$redirect")" 2>/dev/null; then
+    printf '%s\n' "$base" >"$redirect" 2>/dev/null || true
+  fi
+
+  echo "pipeline-gates: using fallback gates base: $base" >&2
+  printf '%s' "$base"
+}
+
 pg_gate_dir() {
-  local root kind
+  local root kind base
   root="$(pg__root "$1")"
   kind="$2"
-  printf '%s/.cursor/gates/%s' "$root" "$kind"
+  base="$(pg_gates_base "$root")" || return 1
+  printf '%s/%s' "$base" "$kind"
 }
 
 pg_gate_path() {
@@ -144,15 +231,26 @@ pg__write_gate_file() {
   local norm base_slug gate_path gate_dir
   norm="$(pg_normalize_plan_path "$root" "$plan_path")"
   base_slug="$(pg__base_slug_for_plan "$root" "$plan_path")"
-  gate_path="$(pg_gate_path "$root" "$kind" "$slug")"
-  gate_dir="$(pg_gate_dir "$root" "$kind")"
-  mkdir -p "$gate_dir"
-  {
+  gate_path="$(pg_gate_path "$root" "$kind" "$slug")" || return 1
+  gate_dir="$(pg_gate_dir "$root" "$kind")" || return 1
+  if ! mkdir -p "$gate_dir" 2>/dev/null; then
+    echo "pipeline-gates: mkdir failed: $gate_dir" >&2
+    return 1
+  fi
+  if ! {
     printf '%s\n' "$norm"
     if [[ "$slug" == "$base_slug" && ! "$slug" =~ ^[0-9a-f]{12}$ ]]; then
       printf 'ticket: %s\n' "$base_slug"
     fi
-  } >"$gate_path"
+  } >"$gate_path" 2>/dev/null; then
+    echo "pipeline-gates: write failed: $gate_path" >&2
+    return 1
+  fi
+  if [[ ! -f "$gate_path" ]]; then
+    echo "pipeline-gates: write missing after create: $gate_path" >&2
+    return 1
+  fi
+  return 0
 }
 
 pg_migrate_legacy() {
@@ -181,9 +279,12 @@ pg_migrate_legacy() {
 
   slug="$(pg_slug_for_plan "$root" "$line1" "$kind")"
   if [[ ! -f "$(pg_gate_path "$root" "$kind" "$slug")" ]]; then
-    pg__write_gate_file "$root" "$kind" "$line1" "$slug"
+    pg__write_gate_file "$root" "$kind" "$line1" "$slug" || return 1
   fi
-  rm -f "$legacy"
+  if ! rm -f "$legacy" 2>/dev/null; then
+    echo "pipeline-gates: failed to remove legacy gate: $legacy" >&2
+    return 1
+  fi
   return 0
 }
 
@@ -192,60 +293,118 @@ pg_write_gate() {
   root="$(pg__root "$1")"
   kind="$2"
   plan_path="$3"
-  pg_migrate_legacy "$root" "$kind" "$plan_path"
-  slug="$(pg_slug_for_plan "$root" "$plan_path" "$kind")"
+  pg_migrate_legacy "$root" "$kind" "$plan_path" || return 1
+  slug="$(pg_slug_for_plan "$root" "$plan_path" "$kind")" || return 1
   pg__write_gate_file "$root" "$kind" "$plan_path" "$slug"
 }
 
+# Search primary then fallback (and env/redirect base) so sticky primary markers are found.
 pg__find_gate_for_plan() {
-  local root="$1" kind="$2" plan_path="$3" norm dir f line1 existing_norm
+  local root="$1" kind="$2" plan_path="$3" norm dir f line1 existing_norm fb redirect line
+  local -a dirs=()
+  local seen=""
   norm="$(pg_normalize_plan_path "$root" "$plan_path")"
-  dir="$(pg_gate_dir "$root" "$kind")"
 
-  if [[ ! -d "$dir" ]]; then
-    return 1
+  dirs+=("$(pg__primary_gates_base "$root")/$kind")
+  if fb="$(pg__fallback_gates_base "$root")"; then
+    dirs+=("$fb/$kind")
+  fi
+  redirect="$(pg__redirect_path "$root")"
+  if [[ -f "$redirect" ]]; then
+    line="$(head -n 1 "$redirect" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    if [[ -n "$line" ]]; then
+      dirs+=("$line/$kind")
+    fi
+  fi
+  if [[ -n "${PG_GATES_BASE:-}" ]]; then
+    dirs+=("${PG_GATES_BASE%/}/$kind")
+  fi
+  if [[ -n "${CSP_GATES_BASE:-}" ]]; then
+    dirs+=("${CSP_GATES_BASE%/}/$kind")
   fi
 
-  for f in "$dir"/*; do
-    [[ -f "$f" ]] || continue
-    line1="$(head -n 1 "$f" | tr -d '\r')"
-    existing_norm="$(pg_normalize_plan_path "$root" "$line1")"
-    if [[ "$existing_norm" == "$norm" ]]; then
-      printf '%s' "$f"
-      return 0
-    fi
+  for dir in "${dirs[@]}"; do
+    [[ -n "$dir" && -d "$dir" ]] || continue
+    case " $seen " in
+      *" $dir "*) continue ;;
+    esac
+    seen+=" $dir"
+    for f in "$dir"/*; do
+      [[ -f "$f" ]] || continue
+      line1="$(head -n 1 "$f" | tr -d '\r')"
+      existing_norm="$(pg_normalize_plan_path "$root" "$line1")"
+      if [[ "$existing_norm" == "$norm" ]]; then
+        printf '%s' "$f"
+        return 0
+      fi
+    done
   done
 
   return 1
 }
 
 pg_clear_gate() {
-  local root kind plan_path gate_file
+  local root kind plan_path gate_file remaining=0
   root="$(pg__root "$1")"
   kind="$2"
   plan_path="$3"
-  pg_migrate_legacy "$root" "$kind" "$plan_path"
-  if gate_file="$(pg__find_gate_for_plan "$root" "$kind" "$plan_path")"; then
-    rm -f "$gate_file"
-  fi
+  pg_migrate_legacy "$root" "$kind" "$plan_path" || return 1
+
+  # Clear every matching copy (primary + fallback) until none remain.
+  while gate_file="$(pg__find_gate_for_plan "$root" "$kind" "$plan_path")"; do
+    if ! rm -f "$gate_file" 2>/dev/null; then
+      echo "pipeline-gates: clear failed (permission?): $gate_file" >&2
+      return 1
+    fi
+    if [[ -f "$gate_file" ]]; then
+      echo "pipeline-gates: clear failed; file still present: $gate_file" >&2
+      return 1
+    fi
+  done
   return 0
 }
 
 pg_list_gates() {
-  local root kind dir f slug line1
+  local root kind dir f slug line1 fb redirect line
+  local -a dirs=()
+  local seen_dirs="" seen_slugs=""
   root="$(pg__root "$1")"
   kind="$2"
-  pg_migrate_legacy "$root" "$kind"
-  dir="$(pg_gate_dir "$root" "$kind")"
+  pg_migrate_legacy "$root" "$kind" || true
 
-  if [[ ! -d "$dir" ]]; then
-    return 0
+  dirs+=("$(pg__primary_gates_base "$root")/$kind")
+  if fb="$(pg__fallback_gates_base "$root")"; then
+    dirs+=("$fb/$kind")
+  fi
+  redirect="$(pg__redirect_path "$root")"
+  if [[ -f "$redirect" ]]; then
+    line="$(head -n 1 "$redirect" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    if [[ -n "$line" ]]; then
+      dirs+=("$line/$kind")
+    fi
+  fi
+  if [[ -n "${PG_GATES_BASE:-}" ]]; then
+    dirs+=("${PG_GATES_BASE%/}/$kind")
+  fi
+  if [[ -n "${CSP_GATES_BASE:-}" ]]; then
+    dirs+=("${CSP_GATES_BASE%/}/$kind")
   fi
 
-  for f in "$dir"/*; do
-    [[ -f "$f" ]] || continue
-    slug="${f##*/}"
-    line1="$(head -n 1 "$f" | tr -d '\r')"
-    printf '%s\t%s\n' "$slug" "$line1"
+  for dir in "${dirs[@]}"; do
+    [[ -n "$dir" && -d "$dir" ]] || continue
+    case " $seen_dirs " in
+      *" $dir "*) continue ;;
+    esac
+    seen_dirs+=" $dir"
+    for f in "$dir"/*; do
+      [[ -f "$f" ]] || continue
+      slug="${f##*/}"
+      case " $seen_slugs " in
+        *" $slug "*) continue ;;
+      esac
+      seen_slugs+=" $slug"
+      line1="$(head -n 1 "$f" | tr -d '\r')"
+      printf '%s\t%s\n' "$slug" "$line1"
+    done
   done
 }

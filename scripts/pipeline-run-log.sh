@@ -44,7 +44,9 @@ print(text, end="")
 }
 
 prl__run_log_dir() {
-  printf '%s/.cursor/gates/run-log' "$1"
+  local base
+  base="$(pg_gates_base "$1" 2>/dev/null)" || base="$1/.cursor/gates"
+  printf '%s/run-log' "$base"
 }
 
 prl__inv_path() {

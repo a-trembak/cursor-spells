@@ -64,7 +64,7 @@ If this turn is a wake from `subscribe_github_pr` / `subscribe_github_ci` (or th
      pg_clear_gate "$(pwd)" commit-approved "<plan-path-or-runs-branch>"
      ```
 
-     Do not clear before push succeeds. If push fails, leave the marker so `propose-commit` evidence remains.
+     Do not clear before push succeeds. If push fails, leave the marker so `propose-commit` evidence remains. If clear exits non-zero after a successful push: report the path in one sentence and continue (draft PR / finale still run).
 5. Check for an existing open PR: `gh pr list --head <branch> --state open …`. Exit 0 + `[]` → create. Non-zero `gh` → stop and report auth/connectivity (do not assume “no PR”).
 6. Create draft PR if none:
    ```bash

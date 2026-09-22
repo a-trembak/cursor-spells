@@ -79,6 +79,69 @@ if pg__find_gate_for_plan "$TMP" commit-approved "docs/plans/2026-propose-commit
 fi
 echo "OK   commit-approved gate cleared"
 
+# Clear must fail loudly when rm cannot remove the marker
+FAKE_BIN="$(mktemp -d)"
+cat >"$FAKE_BIN/rm" <<'EOF'
+#!/bin/bash
+echo "rm: Operation not permitted" >&2
+exit 1
+EOF
+chmod +x "$FAKE_BIN/rm"
+pg_write_gate "$TMP" docs-gate "docs/plans/2026-clear-fail.md"
+if PATH="$FAKE_BIN:$PATH" pg_clear_gate "$TMP" docs-gate "docs/plans/2026-clear-fail.md" 2>/tmp/pg_clear_err.txt; then
+  echo "FAIL clear_should_fail_when_rm_denied" >&2
+  fail=1
+else
+  echo "OK   clear_fails_when_rm_denied"
+fi
+grep -q "clear failed" /tmp/pg_clear_err.txt || {
+  echo "FAIL clear_stderr_missing" >&2
+  fail=1
+}
+# Real clear still works
+pg_clear_gate "$TMP" docs-gate "docs/plans/2026-clear-fail.md"
+rm -rf "$FAKE_BIN"
+
+# When project .cursor/gates is not writable, write uses home fallback
+FB_PROJ="$(mktemp -d)"
+FB_HOME="$(mktemp -d)"
+mkdir -p "$FB_PROJ"
+chmod a-w "$FB_PROJ"
+if ! HOME="$FB_HOME" pg_write_gate "$FB_PROJ" docs-gate "docs/plans/fallback-docs.md" 2>/tmp/pg_fb_err.txt; then
+  echo "FAIL fallback_write_should_succeed" >&2
+  fail=1
+else
+  echo "OK   fallback_write_when_primary_unwritable"
+fi
+FB_BASE="$(HOME="$FB_HOME" pg__fallback_gates_base "$FB_PROJ")"
+FB_FILE="$(HOME="$FB_HOME" pg__find_gate_for_plan "$FB_PROJ" docs-gate "docs/plans/fallback-docs.md" || true)"
+if [[ -n "${FB_FILE:-}" && -f "$FB_FILE" ]]; then
+  echo "OK   fallback_gate_file_present"
+else
+  echo "FAIL fallback_gate_file_missing under $FB_BASE (found=${FB_FILE:-})" >&2
+  fail=1
+fi
+HOME="$FB_HOME" pg_clear_gate "$FB_PROJ" docs-gate "docs/plans/fallback-docs.md"
+chmod a+w "$FB_PROJ"
+rm -rf "$FB_PROJ" "$FB_HOME"
+
+# Write fails when forced base is not writable
+RO="$(mktemp -d)"
+mkdir -p "$RO/gates"
+chmod a-w "$RO/gates"
+if PG_GATES_BASE="$RO/gates" pg_write_gate "$TMP" docs-gate "docs/plans/ro-base.md" 2>/tmp/pg_ro_err.txt; then
+  echo "FAIL write_should_fail_on_ro_base" >&2
+  fail=1
+else
+  echo "OK   write_fails_on_readonly_gates_base"
+fi
+grep -q "write failed\|mkdir failed" /tmp/pg_ro_err.txt || {
+  echo "FAIL write_ro_stderr_missing" >&2
+  fail=1
+}
+chmod a+w "$RO/gates"
+rm -rf "$RO"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1

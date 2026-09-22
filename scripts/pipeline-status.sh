@@ -52,7 +52,23 @@ ps__pick_pending_kind() {
 }
 
 ps__find_ledger() {
-  local dir="$PS_ROOT/.cursor/gates/trajectory-run"
+  local base dir
+  base="$(pg_gates_base "$PS_ROOT" 2>/dev/null)" || base="$PS_ROOT/.cursor/gates"
+  dir="$base/trajectory-run"
+  if [[ -f "$dir/session-full.json" ]]; then
+    printf '%s' "$dir/session-full.json"
+    return 0
+  fi
+  if [[ -f "$dir/session-fast.json" ]]; then
+    printf '%s' "$dir/session-fast.json"
+    return 0
+  fi
+  if [[ -f "$dir/session-issue.json" ]]; then
+    printf '%s' "$dir/session-issue.json"
+    return 0
+  fi
+  # Sticky primary ledger when writes moved to fallback
+  dir="$PS_ROOT/.cursor/gates/trajectory-run"
   if [[ -f "$dir/session-full.json" ]]; then
     printf '%s' "$dir/session-full.json"
     return 0
@@ -155,7 +171,11 @@ ps__valid_invocation_id() {
 # Sets nothing / returns 1 when omitted. Prints absolute path on success.
 ps__resolve_run_log() {
   local first_pending_plan="${1:-}"
-  local run_dir="$PS_ROOT/.cursor/gates/run-log"
+  local run_dir
+  run_dir="$(pg_gates_base "$PS_ROOT" 2>/dev/null)/run-log"
+  if [[ ! -d "$run_dir" ]]; then
+    run_dir="$PS_ROOT/.cursor/gates/run-log"
+  fi
   local candidate="" id="" ptr line key val
   local ptr_id="" ptr_plan="" ptr_slug="" ptr_journal=""
 
