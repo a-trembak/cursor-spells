@@ -178,7 +178,7 @@ evals/       Kit-only golden sets (trajectories, harness reports, code-quality) 
 | `csp-review-simplify` | Cleanliness / reuse / local efficiency — primary `ce-simplify-code` + kit extensions |
 | `csp-review-architecture` | Architecture gaps |
 | `csp-review-performance` | Performance |
-| `csp-review-security` | Security (conditional); always [security-hardening-checklist.md](skills/engineer-review/references/security-hardening-checklist.md) **S1–S10** when triggered; same checklist loaded by `csp-software-developer` / `csp-bug-fixer` on those surfaces |
+| `csp-review-security` | Security (conditional); always [security-hardening-checklist.md](skills/engineer-review/references/security-hardening-checklist.md) **S1–S11** when triggered; same checklist loaded by `csp-software-developer` / `csp-bug-fixer` on those surfaces |
 | `csp-review-figma-markup` | Markup vs Figma (needs node URLs); always [figma-markup-checklist.md](skills/engineer-review/references/figma-markup-checklist.md) F1–F7; on web also `ce-test-browser` at tablet and phone, not only the desktop frame; [responsive-layout-checklist.md](skills/engineer-review/references/responsive-layout-checklist.md) V1–V4 |
 | `csp-review-learn` | Load hints from kit seed + this project's private ledger; write `.cursor/review-learnings.md` only after `project_secret` |
 | `csp-multi-repo-supervisor` | Supervises engineer-review across 2+ changed repositories |

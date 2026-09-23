@@ -1,10 +1,10 @@
-# Security hardening checklist (S1–S10)
+# Security hardening checklist (S1–S11)
 
 Canonical gates for `csp-review-security`, and for code writers (`csp-software-developer`, `csp-bug-fixer`) when the task touches the same surfaces. Catch popular attack classes (injection, broken access control, secret leaks, and related trust-boundary mistakes) with the **same** rules on both write and review.
 
 Do **not** hardcode product names, ticket ids, or endpoint labels. Apply the rules; examples are illustration only.
 
-Optional enrichment: third-party skill `security-review` if installed. This kit checklist is the source of truth — do not skip S1–S10 because that skill is missing.
+Optional enrichment: third-party skill `security-review` if installed. This kit checklist is the source of truth — do not skip S1–S11 because that skill is missing.
 
 ---
 
@@ -21,6 +21,7 @@ Optional enrichment: third-party skill `security-review` if installed. This kit 
 - secret handling (env, vault, API keys) or logging near secrets
 - HTML / template / markdown rendering sinks (XSS)
 - deserialization of untrusted payloads
+- client auth-token persistence, rehydrate/restore, or migration into platform secure storage
 
 If none of these are in scope, the security phase returns `skipped: true` with `skip_reason: no_sensitive_surface`. Writers skip loading this body when the task has no matching surface.
 
@@ -172,11 +173,25 @@ When a trigger fires, open this full checklist and run every applicable gate bel
 
 ---
 
+## S11 — Auth token migration to platform secure storage
+
+**When:** the diff moves a session / access token (or equivalent durable auth secret) out of plain client persistence (for example AsyncStorage, localStorage, MMKV, redux-persist) into platform secure storage (Keychain, Keystore, SecureStore, credential vault), or changes logout / splash / cold-start restore around that storage.
+
+**Required check:**
+
+1. **Nested secrets, not only top-level keys.** Persist allowlists / denylists that only name root slice keys do **not** remove nested token fields (for example `user.token` inside a whitelisted `user` slice). Require an inbound persist transform (or equivalent strip on rehydrate) that deletes nested auth secrets from the plain store when the durable copy lives in secure storage.
+2. **Separate durable stores.** Session / JWT (or access-token) secure-storage entries must not share identity with Remember-Me / saved username-password credential entries. Clearing or reading one must not imply the other; document distinct service/account keys (or equivalent) in the change.
+3. **Fail-safe logout and restore.** Logout must clear in-memory signed-in state even if secure-storage delete throws. Splash / cold-start restore must leave loading / splash in a terminal state (success or signed-out fallback) even if secure-storage read throws — use try/catch or try/finally so a Keychain/Keystore error cannot leave a stuck splash or an in-memory session after logout.
+
+**Anti-pattern:** Migrating the token to Keychain/Keystore while leaving `user.token` in a redux-persist-whitelisted slice; reusing the Remember-Me Keychain account for the JWT; or logout/restore that awaits secure storage without catching errors so splash never dismisses or Redux still looks signed in.
+
+---
+
 ## Writer vs reviewer
 
 | Role | Duty |
 |------|------|
-| `csp-software-developer` / `csp-bug-fixer` | When the task hits Trigger surfaces, load this file **before** coding and apply S1–S10 so the change does not introduce what the security phase will flag. |
-| `csp-review-security` | When the diff hits Trigger surfaces, open this file and run S1–S10 independently — do not trust that writers already complied. |
+| `csp-software-developer` / `csp-bug-fixer` | When the task hits Trigger surfaces, load this file **before** coding and apply S1–S11 so the change does not introduce what the security phase will flag. |
+| `csp-review-security` | When the diff hits Trigger surfaces, open this file and run S1–S11 independently — do not trust that writers already complied. |
 
 Missing third-party `security-review` → proceed on this checklist; note `skill_missing: security-review` in Coverage when relevant. Never skip the phase solely because that skill is absent.
