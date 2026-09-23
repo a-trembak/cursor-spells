@@ -73,7 +73,8 @@ import { helper } from "./helper"; // eslint: import/first — placed after a st
 | P0 correctness finding settled | Does **not** auto-write `.cursor/review-learnings.md`. HITL **Teach-review miss** still runs |
 | Next review with matching triggers | `csp-review-learn` `mode:load` returns hints from kit seed + local ledger if present; orchestrator stays thin; matching phases **open** linked checklist (not one-liner-only) |
 | Human chose `project_secret` | `csp-review-learn` `mode:capture` appends or dedupes; Coverage `review_learn: appended\|deduped`; no **Review-learn promote** |
-| Clarify HITL (`C#`) | Each AskQuestion repeats File, Lines, Jump, and the numbered fence from that item — not title-only |
+| Clarify HITL (`C#`) | Each AskQuestion repeats Context, What, When it shows up, File, Lines, Jump, and the numbered fence from that item — not title-only; never a batch letter list as the ask |
+| Phase → parent handoff | Each phase Task returns full clarify phase JSON (`context`, `what`, `when_shows`, `question`, `snippet`, options) — not a short private note that stays inside the subagent |
 | Validated report shown | HITL **Teach-review miss**; `no_miss` writes nothing; `miss` + description runs `teach-review`; `project_secret` writes this project only |
 | Pipeline miss handled (`no_miss` / teach land / `project_secret`) | Next user-visible gate is **Propose commit** with orientation strip — not a silent end after the teach land report |
 

@@ -59,6 +59,7 @@ Fold any new findings into the same apply/clarify pass; do not repeat either ver
 
 - **Fixed now**: `fixed` where `applied: true` (P0/P1 only)
 - **Needs clarification**: all `clarify` (renumber ids globally to `C1…`)
+- Copy each clarify item’s `context`, `what`, `when_shows`, `question`, `snippet`, `options`, and `recommendation_why` **verbatim** into the report and into each sequential clarify question. Do not re-summarize, drop fields, or replace a full finding with “C1 needs a choice”. Incomplete phase JSON (missing snippet / context / question / when_shows / options) → backfill or **drop**; never invent a letter-only ask.
 - **Residual notes**: phase `notes` + any `P2` candidates
 - Coverage lists phases, chunks, skips, and `graphify: used|absent|unqueryable`
 - When auth/session **or** interactive overlay/filter is in scope: Coverage **must** note `interaction_replay: auth|overlay-focus|both|skipped|n/a` (**R7**). Optional: `auth_flow_walk: …` for concrete auth flows walked.

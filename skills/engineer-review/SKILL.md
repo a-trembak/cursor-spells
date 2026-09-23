@@ -53,7 +53,7 @@ Pass URLs into clarifications for `csp-review-figma-markup`. Do not block other 
 11. After apply: verify `csp-review-lint` + `csp-review-simplify` once each in `find`; do not loop.
 
 12. **Merge → report (lazy feedback pack):** load [evidence-gate.md](references/evidence-gate.md) → [feedback-format.md](references/feedback-format.md) + [forbidden-formats.md](references/forbidden-formats.md) + [output-schema.md](references/output-schema.md) **only now**; never *emit* formats banned by [forbidden-formats.md](references/forbidden-formats.md). Coverage: `graphify:…`, `review_learnings:…`, when in scope `interaction_replay:…` (**R7**), `figma_markup:…` (**F7**), `narrow_viewport:…` (**V4**), `null_safety_callers:…` (**N1**), and `jpa_result_type:…` (**RT1**). Validate with `scripts/validate-review-report.sh`. When the kit path is known, also append a live quality row: `python3 "$KIT"/scripts/pipeline-metrics.py append-review --kit-root "$KIT" --path <validated-report> [--ticket "<live ticket key>"]` (skip quietly if `pipeline-metrics.py` is missing). Then `english-humanizer` then `plain-language-chat` on prose.
-13. Needs clarification → HITL **Engineer-review clarify**; each sequential question repeats File, Lines, Jump, and numbered fence; re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
+13. Needs clarification → HITL **Engineer-review clarify**; each sequential question repeats Context, What, When it shows up, File, Lines, Jump, and numbered fence (lift phase JSON **verbatim** — do not re-summarize); re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
 14. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. **Never edit kit git** in this orchestrator. Do not auto-capture.
     - `no_miss` → do not invoke `teach-review`; do not dispatch `csp-review-learn` `mode:capture`.
     - `miss` → collect description (open-ended if needed), invoke skill `teach-review`. If `teach-review` fails, keep the report; tell the human to retry with `/csp-teach-review`.
@@ -123,7 +123,7 @@ If the caller is `csp-multi-repo-supervisor`, or discovery finds **2+ changed re
 - [feedback-format.md](references/feedback-format.md), [evidence-gate.md](references/evidence-gate.md), [forbidden-formats.md](references/forbidden-formats.md), [output-schema.md](references/output-schema.md)
 - skills `english-humanizer` then `plain-language-chat`
 
-Pass only compact JSON phase summaries upward. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
+Pass only **structured JSON** phase summaries upward (not chat transcripts or full diffs). **Compact means shape, not truncated evidence:** every `clarify` / `fixed` item must keep full `context`, `what`, `when_shows`, `question`, `snippet`, and option labels — never shorten those fields to save tokens before the parent merge. The orchestrator must merge those fields **verbatim** into the report and into each sequential clarify question. Enforce file/LOC caps via chunking; abort on catastrophic budgets instead of unbounded chunk fan-out.
 
 `learned_hints` in orchestrator context: ≤**~200 tokens** total (≤5 rows). Quality lives in the phase that opens `checklist` on a match.
 

@@ -18,9 +18,14 @@ Also read [forbidden-formats.md](forbidden-formats.md): a “Verdict / Blockers 
 
 | Field | Rule |
 |-------|------|
+| `question` | Full decision text the human must answer — plain sentences, not a one-word title. |
+| `what` | What is wrong (1–2 sentences). Prefer phase-filled; orchestrator may draft once from `context` + `question`. |
+| `when_shows` | When a developer or user hits this problem (concrete scenario, 1–2 sentences). Prefer phase-filled; orchestrator may draft once from `context` + `question`. |
 | `options` | Array of `{ "id": "A"\|"B"\|"C"…, "label": "…" }` — 2–3 choices (escape “other” is added by HITL, not required in JSON) |
 | `recommended` | Option `id` string, or `null` when the phase cannot recommend |
 | `recommendation_why` | One short line when `recommended` is set; omit or empty when null |
+
+**Handoff rule:** phase Task results must return these strings in full. Truncating `context` / `what` / `when_shows` / `question` / `snippet` / option labels before the parent merge is a failed phase return — treat as incomplete evidence.
 
 Items that are only free-text philosophy with no file → do not put them in Fixed/Clarify; at most one Residual note, or drop.
 
@@ -79,8 +84,9 @@ Before sending the report to the user, verify for **every** Fixed / Clarify / Fi
 - [ ] Where block with File + Lines + Jump links
 - [ ] **Context** line present
 - [ ] What / Why / Ask-or-fix prose humanized
-- [ ] Each Clarify has **Options** and **Recommendation** (or explicit none)
+- [ ] Each Clarify has **What**, **When it shows up**, **Options**, and **Recommendation** (or explicit none)
 - [ ] Report is **not** a Verdict/Blockers digest ([forbidden-formats.md](forbidden-formats.md))
+- [ ] Clarify fields were not re-summarized away from phase JSON (verbatim handoff)
 
 Then write the markdown to a temp file and run:
 

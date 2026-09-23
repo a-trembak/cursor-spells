@@ -69,6 +69,14 @@ def _evidence_ok(item: dict[str, Any]) -> bool:
     return True
 
 
+def _clarify_fields_ok(item: dict[str, Any]) -> bool:
+    for key in ("question", "what", "when_shows"):
+        val = item.get(key)
+        if not isinstance(val, str) or not val.strip():
+            return False
+    return True
+
+
 def score_phase_json(data: dict[str, Any]) -> dict[str, Any]:
     failures: list[str] = []
     if data.get("skipped") is True:
@@ -82,6 +90,8 @@ def score_phase_json(data: dict[str, Any]) -> dict[str, Any]:
             "clarify_count": 0,
             "clarify_options_complete_count": 0,
             "clarify_options_rate": 1.0,
+            "clarify_fields_complete_count": 0,
+            "clarify_fields_rate": 1.0,
             "security_checklist_noted": None,
             "failures": [],
         }
@@ -97,15 +107,22 @@ def score_phase_json(data: dict[str, Any]) -> dict[str, Any]:
 
     clarify_items = [item for bucket, item in items if bucket == "clarify"]
     clarify_opts_ok = 0
+    clarify_fields_ok = 0
     for item in clarify_items:
         if _options_ok(item):
             clarify_opts_ok += 1
         else:
             label = item.get("id") or item.get("path") or "?"
             failures.append(f"clarify:{label}: options must be 2–3 id+label choices")
+        if _clarify_fields_ok(item):
+            clarify_fields_ok += 1
+        else:
+            label = item.get("id") or item.get("path") or "?"
+            failures.append(f"clarify:{label}: need full question/what/when_shows for parent handoff")
 
     evidence_rate = (evidence_ok / len(items)) if items else 1.0
     options_rate = (clarify_opts_ok / len(clarify_items)) if clarify_items else 1.0
+    fields_rate = (clarify_fields_ok / len(clarify_items)) if clarify_items else 1.0
 
     security_noted: bool | None = None
     if data.get("phase") == "security":
@@ -130,6 +147,8 @@ def score_phase_json(data: dict[str, Any]) -> dict[str, Any]:
         "clarify_count": len(clarify_items),
         "clarify_options_complete_count": clarify_opts_ok,
         "clarify_options_rate": round(options_rate, 4),
+        "clarify_fields_complete_count": clarify_fields_ok,
+        "clarify_fields_rate": round(fields_rate, 4),
         "security_checklist_noted": security_noted,
         "failures": failures,
     }

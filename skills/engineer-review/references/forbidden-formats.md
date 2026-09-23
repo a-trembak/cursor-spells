@@ -66,3 +66,17 @@ C1 — Use existing helper?
 ```
 
 Why it fails: the person answering cannot see the code or the file. Repeat File, Lines, Jump, and the numbered fence in the question itself. Title + Jump path is not enough.
+
+## Banned: batch letter list as the ask
+
+Never open a clarify round with only:
+
+```markdown
+Waiting for confirmation: C1: A; C2: A; C3: B; C4: A
+```
+
+or a bare “reply `C1: A; C2: B`” with no per-item body. That batch letter list is a **reply shape only**. The ask must go **one `C#` at a time**, each message carrying Context, What is wrong, When it shows up, Where, the numbered fence, Ask, and option buttons (skill `hitl-choice` Engineer-review clarify). Full words — skill `plain-language-chat`.
+
+## Banned: truncated phase clarify handoff
+
+A phase Task that keeps a rich private note and returns only a short `summary` / title / letter options to the parent is a hard failure. Parent merge needs full `context`, `what`, `when_shows`, `question`, `snippet`, and option labels **verbatim**. “Compact JSON upward” means structured JSON without chat transcripts — **not** truncated evidence.

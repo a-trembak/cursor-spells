@@ -138,32 +138,37 @@ Build options dynamically from that item's structured choices:
 | `Ci:X` | Option label (e.g. `C1:A` → “Use existing helper Y”). If this `X` is `recommended`, prefix the label with `Recommended: ` |
 | `Ci:other` | Something else (I will type it) |
 
-Each question is **self-contained**. A fixer answering `C2` must not need the report still on screen.
+Each question is **self-contained**. A fixer answering `C2` must not need the report still on screen. Prose must pass skill **`plain-language-chat`** (full words, no jargon clumps).
 
 Rules:
 
 1. **Prompt recipe (required shape — paste into the question tool):**
    - `C#` id and short title
-   - **Context:** 1–2 sentences from the report
+   - **Context:** 1–2 sentences from the report (what this code does)
+   - **What is wrong:** the problem in plain sentences (from `what` / report **What**)
+   - **When it shows up:** concrete developer or user scenario (from `when_shows`)
    - **Where:** File path (linked), Lines **start–end**, Jump (`path#Lstart`), GitHub blob when known
    - The **numbered code fence** from that finding (same `snippet`, already ≤15 lines)
    - **Ask:** the decision in one or two sentences
-   Option buttons stay in the tool. Do not drop File / Lines / Jump / fence to keep the prompt “short”. If the question tool truncates, repeat File + numbered fence in the same assistant message — still call the tool.
+   Option buttons stay in the tool. Do not drop File / Lines / Jump / fence / What / When it shows up to keep the prompt “short”. If the question tool truncates, repeat File + numbered fence in the same assistant message — still call the tool.
 2. Canonical reply tokens are **`Ci:X`** (no space), e.g. `C1:A`, `C2:B`. Multi-repo uses the same shape with repo prefix already in the id if present (`api:C1:A`).
 3. Mark the recommended option in the **label** only when `recommended` is set; never invent a recommendation.
 4. After `Ci:other`, wait for free text for that item, then continue with the next unanswered `Cj`.
-5. If the user answers in batch chat (`C1: A; C2: B` or `C1:A; C2:B`) at any time, accept those tokens, skip AskQuestion for answered items, and continue only for remaining ones.
-6. Text fallback **only after** failed/missing question tool (see protocol). The fallback message must still include that item’s File, Lines, Jump, and numbered fence — not “see the report above”:
+5. **`C1: A; C2: B` is a reply shape only.** If the user answers in batch chat (`C1: A; C2: B` or `C1:A; C2:B`) at any time, accept those tokens, skip AskQuestion for answered items, and continue only for remaining ones. **Never** use a batch letter list as the ask body (no “Waiting for confirmation: C1: A; C2: A; …” without per-item Context / What / When it shows up / Where / fence).
+6. Text fallback **only after** failed/missing question tool (see protocol). The fallback message must still include that item’s What, When it shows up, File, Lines, Jump, and numbered fence — not “see the report above”:
 
    > Clarifications needed. Prefer answering one `C#` at a time, or reply in one message like `C1: A; C2: B` (or free text). File, line range, and the code snippet for this `C#` are in this message.
 
 7. When every `Ci` is answered, return control to the calling skill to re-dispatch affected phases.
+8. Orchestrator must lift phase JSON fields **verbatim** into this prompt. Do not re-summarize a rich phase finding into a title + letters.
 
 **Example prompt (minimum):**
 
 ````
 C1 — New helper duplicates loadUser
 - **Context:** Profile screen loads the signed-in user on mount.
+- **What is wrong:** A second user-fetch helper duplicates the existing loadUser path.
+- **When it shows up:** Opens when someone lands on Profile after sign-in and the two helpers can disagree on which user record is current.
 - **Where:**
   - File: [`src/bar.ts`](src/bar.ts)
   - Lines: **40–45**
@@ -182,6 +187,8 @@ C1 — New helper duplicates loadUser
 | "The report already has the snippet" | Sequential questions hide the report. Repeat File + fence. |
 | "AskQuestion is too short for a fence" | Evidence-gate already caps snippets at 15 lines. Paste them. |
 | "Jump path is enough" | A fixer cannot judge options from a path alone. |
+| "Batch letters are faster" | Batch is a reply shape only. Ask one `C#` with full body each turn. |
+| "Phase already explained it privately" | Parent only sees Task JSON — phases must return full evidence upward. |
 
 ### Force-clear foreign gate
 

@@ -19,7 +19,7 @@ Run the portable **engineer-review** flow (orchestrator `csp-engineer-reviewer`)
    - `BASE_SHA` / `HEAD_SHA` from git
    - `mode`: find then apply unambiguous fixes
 3. Run `evidence-gate.md` (backfill via `scripts/extract-review-snippet.sh` or drop). Draft the full Findings template with **Context** on every item; Clarify items also **Options** + **Recommendation** — **never** a Verdict/Блокери digest. Validate with `scripts/validate-review-report.sh`; rebuild until exit 0. Then emit; `english-humanizer` then `plain-language-chat` on prose.
-4. If clarifications remain, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` OK). Each question repeats that item’s File, Lines, Jump, and numbered fence. Then re-dispatch affected phases and re-emit with the same evidence bar.
+4. If clarifications remain, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text like `C1: A; C2: B` is a **reply shape only**). Each question repeats that item’s Context, What, When it shows up, File, Lines, Jump, and numbered fence. Then re-dispatch affected phases and re-emit with the same evidence bar.
 5. After the report is settled, ask **Teach-review miss** per skill `engineer-review` (`miss` / `project_secret` / `no_miss`). Do not auto-run `csp-review-learn` `mode:capture`.
 
 ## Notes

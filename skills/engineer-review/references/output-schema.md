@@ -10,6 +10,6 @@ If evidence is incomplete after backfill with `scripts/extract-review-snippet.sh
 
 **Never** emit a Verdict / Blockers / Блокери executive digest. Run `scripts/validate-review-report.sh` on the draft; only show the user when it exits 0.
 
-If **Needs clarification** is non-empty, after the validated report ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential AskQuestion per `C#` required; recommended option labeled). Each sequential `C#` question repeats that item’s **Where** block and numbered code fence. Text only after failed/missing tool:
+If **Needs clarification** is non-empty, after the validated report ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential AskQuestion per `C#` required; recommended option labeled). Each sequential `C#` question repeats that item’s **Context**, **What**, **When it shows up**, **Where** block and numbered code fence. Never open with only a batch letter list — that shape is a reply only. Text only after failed/missing tool:
 
 > Prefer the buttons for each `C#` (one question at a time). Or reply in one message like `C1: A; C2: B` (or free text). I will re-run the affected phases and apply agreed fixes.

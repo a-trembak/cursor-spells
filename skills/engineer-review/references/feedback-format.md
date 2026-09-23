@@ -60,6 +60,7 @@ User-facing output for `engineer-review` / `csp-engineer-reviewer` (and the shar
 ### C1 — `P0|P1` — <short concrete title>
 - **Context:** …
 - **What:** …
+- **When it shows up:** …  <!-- concrete developer/user scenario -->
 - **Where:**
   - File: [`src/bar.ts`](src/bar.ts)
   - Lines: **40–45**
@@ -85,7 +86,7 @@ If a phase left `recommended` null, still list Options, omit `(recommended)` on 
 
 > **Recommendation:** none — pick based on product intent.
 
-If **Needs clarification** is non-empty, end with the clarify HITL (skill `hitl-choice` preset **Engineer-review clarify**): sequential AskQuestion per `C#` required (recommended option labeled); text only after failed/missing tool. Each sequential `C#` question repeats that item’s **Where** block and numbered code fence — do not shorten to title + Jump:
+If **Needs clarification** is non-empty, end with the clarify HITL (skill `hitl-choice` preset **Engineer-review clarify**): sequential AskQuestion per `C#` required (recommended option labeled); text only after failed/missing tool. Each sequential `C#` question repeats that item’s **Context**, **What**, **When it shows up**, **Where** block, and numbered code fence — do not shorten to title + Jump. Never open with only a batch letter list (`C1: A; C2: B`); that shape is a **reply** the human may type, not the ask body:
 
 > Prefer the buttons for each `C#` (one question at a time). Or reply in one message like `C1: A; C2: B` (or free text). I will re-run the affected phases and apply agreed fixes.
 
@@ -96,7 +97,7 @@ If **Needs clarification** is non-empty, end with the clarify HITL (skill `hitl-
 | `severity` | badge on the heading |
 | `path` + `start_line`/`end_line` | Where File / Lines / Jump |
 | `snippet` | fenced body (orchestrator adds `N\|` prefixes if missing) |
-| `context` / `summary` / `question` | Context + What + Why + Ask/Fix after humanizer |
+| `context` / `what` / `when_shows` / `summary` / `question` | Context + What + When it shows up + Why + Ask/Fix after humanizer |
 | `options` + `recommended` + `recommendation_why` | Options list + Recommendation line |
 
 ## Anti-patterns (block emit)

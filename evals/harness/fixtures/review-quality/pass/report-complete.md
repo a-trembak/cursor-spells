@@ -19,6 +19,8 @@
 ### C1 — Expired session UX
 
 - **Context:** Token refresh failure currently clears state with no user-facing path.
+- **What:** Expired sessions clear auth state without a recovery path the user can see.
+- **When it shows up:** Opens when a refresh token fails after the tab was idle and the shell tries to load a protected screen.
 - **Where:**
   - File: [`src/auth/session.ts`](src/auth/session.ts)
   - Lines: **40–46**

@@ -172,7 +172,7 @@ Fixed now / Needs clarification / Residual (standard engineer-review report — 
 ...
 ```
 
-If **Needs clarification** (per-repo or cross-repo) is non-empty, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per item; recommended option labeled). Each sequential question repeats that item’s File, Lines, Jump, and numbered fence. Text fallback tokens:
+If **Needs clarification** (per-repo or cross-repo) is non-empty, ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per item; recommended option labeled). Each sequential question repeats that item’s Context, What, When it shows up, File, Lines, Jump, and numbered fence. Batch letter lists are a **reply shape only**. Text fallback tokens:
 
 > `api:C1:A`, `C_CR1:B`, or batch `api:C1: A; C_CR1: B` (or free text). I will route each answer to the correct repo orchestrator or cross-repo phase and apply agreed per-repo fixes only.
 

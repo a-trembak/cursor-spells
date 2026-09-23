@@ -20,6 +20,8 @@
       "id": "C1",
       "question": "Should expired sessions redirect to login or show a modal?",
       "context": "Token refresh failure currently clears state with no user-facing path.",
+      "what": "Expired sessions clear auth state without a recovery path the user can see.",
+      "when_shows": "Opens when a refresh token fails after the tab was idle and the shell tries to load a protected screen.",
       "options": [
         { "id": "A", "label": "Redirect to /login" },
         { "id": "B", "label": "Show re-auth modal" }
