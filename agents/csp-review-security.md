@@ -23,13 +23,15 @@ skipped:
 
 When triggered: **open the full checklist**
 `skills/engineer-review/references/security-hardening-checklist.md` and run
-**S1–S10**. Triggers alone are not the review.
+**S1–S11**. Triggers alone are not the review.
 
 Gates cover SQL/NoSQL injection, command/template injection, XSS, CSRF, broken
 access control / IDOR, SSRF / open redirects, path traversal / uploads, secret
-and PII leakage, insecure deserialization, and session overwrite after
+and PII leakage, insecure deserialization, session overwrite after
 `resetApiState` (**S10** → R2/R5 via `interaction-replay-checklist.md` /
-`auth-rtk-checklist.md`).
+`auth-rtk-checklist.md`), and auth-token migration to platform secure storage
+(**S11** — nested persist strip, separate token vs Remember-Me stores, fail-safe
+logout/restore).
 
 When `learned_hints` is present for this phase, re-open the same checklist —
 do not treat `rule_one_liner` as the full check.
@@ -37,7 +39,7 @@ do not treat `rule_one_liner` as the full check.
 ## Skills
 
 Always run the kit checklist above. Use third-party `security-review` if
-installed as optional enrichment only — never skip S1–S10 when that skill is
+installed as optional enrichment only — never skip S1–S11 when that skill is
 missing (note `skill_missing: security-review` if relevant).
 
 ## Output

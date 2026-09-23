@@ -382,10 +382,10 @@ triggers:
   - resetApiState | security-review skill missing
 phases: [security]
 gate: S1
-also: [S2, S3, S4, S5, S6, S7, S8, S9, S10]
+also: [S2, S3, S4, S5, S6, S7, S8, S9, S10, S11]
 rule_one_liner: >-
   When auth, queries, uploads, secrets, or XSS/SSRF sinks change, open
-  security-hardening-checklist.md and run S1–S10; writers load the same file.
+  security-hardening-checklist.md and run S1–S11; writers load the same file.
 anti_pattern: >-
   Skipping the kit checklist because third-party security-review is missing,
   or treating trigger bullets / a one-liner hint as the full security pass.
@@ -394,9 +394,40 @@ last_seen: 2026-09-15
 source: teach-review
 ```
 
-Mechanism: the security phase (or a writer) notes "no security-review skill" or relies on a one-line injection reminder and never opens S1–S10, so SQL concatenation, IDOR, or secret logging ships.
+Mechanism: the security phase (or a writer) notes "no security-review skill" or relies on a one-line injection reminder and never opens S1–S11, so SQL concatenation, IDOR, or secret logging ships.
 
-Required check: [security-hardening-checklist.md](security-hardening-checklist.md) **S1–S10**.
+Required check: [security-hardening-checklist.md](security-hardening-checklist.md) **S1–S11**.
+
+---
+
+### `miss_auth-token-secure-storage-migration`
+
+```yaml
+id: miss_auth-token-secure-storage-migration
+miss_class: auth-token-secure-storage-migration
+triggers:
+  - Keychain | Keystore | SecureStore | AsyncStorage | redux-persist
+  - migrate token | secure storage | Remember-Me | splash restore
+  - user.token | inbound transform | whitelist persist
+  - logout Keychain | stuck splash | signed-in after logout
+phases: [security]
+gate: S11
+rule_one_liner: >-
+  When moving an auth token into platform secure storage, strip nested secrets
+  from plain persist (not only top-level keys), keep token storage separate from
+  Remember-Me credentials, and make logout/restore fail-safe around storage errors.
+anti_pattern: >-
+  Whitelisting a user slice while leaving nested token in plain storage; sharing
+  Remember-Me Keychain entries with the JWT; logout/restore that can stick splash
+  or leave in-memory signed-in state when secure storage throws.
+hits: 1
+last_seen: 2026-09-23
+source: teach-review
+```
+
+Mechanism: reviewers treat top-level persist allowlist as enough, or treat secure-storage writes as fire-and-forget, so nested tokens remain on disk and Keychain errors leave a stuck splash or a still-signed-in session after logout.
+
+Required check: [security-hardening-checklist.md](security-hardening-checklist.md) **S11**.
 
 ---
 

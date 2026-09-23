@@ -94,7 +94,7 @@ Fill when the change touches auth, sessions, queries, uploads, secrets, HTML sin
 - Parameterized queries / allowlisted dynamic columns:
 - AuthZ / ownership checks on id-based reads and writes:
 - Secret / PII logging and client-visible errors:
-- Kit: `skills/engineer-review/references/security-hardening-checklist.md` (**S1–S10**). Missing third-party `security-review` is not a skip. Writers (`csp-software-developer` / `csp-bug-fixer`) load the same checklist on these surfaces.
+- Kit: `skills/engineer-review/references/security-hardening-checklist.md` (**S1–S11**). Missing third-party `security-review` is not a skip. Writers (`csp-software-developer` / `csp-bug-fixer`) load the same checklist on these surfaces.
 
 ## Review learnings (project-private)
 

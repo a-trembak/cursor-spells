@@ -17,6 +17,6 @@
   ],
   "clarify": [],
   "notes": [
-    "Ran security-hardening-checklist.md S1–S10; S1 failed on concatenated SQL."
+    "Ran security-hardening-checklist.md S1–S11; S1 failed on concatenated SQL."
   ]
 }

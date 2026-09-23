@@ -129,12 +129,14 @@ def score_phase_json(data: dict[str, Any]) -> dict[str, Any]:
         blob = json.dumps(data, ensure_ascii=False).lower()
         security_noted = (
             "security-hardening-checklist" in blob
+            or "s1–s11" in blob
+            or "s1-s11" in blob
             or "s1–s10" in blob
             or "s1-s10" in blob
             or '"s1"' in blob
         )
         if items and not security_noted:
-            failures.append("security: non-skipped phase with findings must note security-hardening-checklist / S1–S10")
+            failures.append("security: non-skipped phase with findings must note security-hardening-checklist / S1–S11")
 
     ok = len(failures) == 0
     return {

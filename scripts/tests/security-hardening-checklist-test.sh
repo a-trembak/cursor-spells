@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Contract: security phase and code writers share one kit hardening checklist
-# (S1–S10). Third-party security-review is enrichment only — never a skip.
+# (S1–S11). Third-party security-review is enrichment only — never a skip.
 # Part of the kit harness bench (scripts/harness-bench.sh → scripts/tests/*.sh).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -58,7 +58,7 @@ assert_file "$DEV_AGENT"
 assert_file "$BUG_SKILL"
 assert_file "$BUG_AGENT"
 
-# Gates S1–S10 live in the shared checklist (anchor so S1 does not match S10)
+# Gates S1–S11 live in the shared checklist (anchor so S1 does not match S10/S11)
 assert_grep s1_sql "$CHECKLIST" "^## S1[^0-9]"
 assert_grep s2_cmd "$CHECKLIST" "^## S2[^0-9]"
 assert_grep s3_xss "$CHECKLIST" "^## S3[^0-9]"
@@ -69,10 +69,15 @@ assert_grep s7_path "$CHECKLIST" "^## S7[^0-9]"
 assert_grep s8_secret "$CHECKLIST" "^## S8[^0-9]"
 assert_grep s9_deser "$CHECKLIST" "^## S9[^0-9]"
 assert_grep s10_session "$CHECKLIST" "^## S10([^0-9]|$)"
+assert_grep s11_secure_storage "$CHECKLIST" "^## S11([^0-9]|$)"
+assert_grep s11_nested_strip "$CHECKLIST" "inbound persist transform|nested auth secrets"
+assert_grep s11_separate_stores "$CHECKLIST" "Remember-Me"
+assert_grep s11_fail_safe "$CHECKLIST" "Fail-safe logout|stuck splash"
 assert_grep trigger_heading "$CHECKLIST" "## Trigger surfaces"
+assert_grep trigger_secure_storage "$CHECKLIST" "platform secure storage"
 assert_grep writer_vs_reviewer "$CHECKLIST" "## Writer vs reviewer"
 assert_grep kit_source_of_truth "$CHECKLIST" "source of truth"
-assert_grep no_skip_missing_skill "$CHECKLIST" "do not skip S1–S10 because that skill is missing|source of truth"
+assert_grep no_skip_missing_skill "$CHECKLIST" "do not skip S1–S11 because that skill is missing|source of truth"
 assert_grep injection_antipattern "$CHECKLIST" "SELECT"
 assert_grep s10_points_replay "$CHECKLIST" "interaction-replay-checklist"
 assert_grep s10_points_auth "$CHECKLIST" "auth-rtk-checklist"
@@ -80,17 +85,17 @@ assert_grep s10_points_auth "$CHECKLIST" "auth-rtk-checklist"
 # Security phase opens the full checklist — trigger bullets alone are not enough
 assert_grep agent_open_full "$AGENT" "open the full checklist"
 assert_grep agent_path "$AGENT" "security-hardening-checklist\\.md"
-assert_grep agent_s1_s10 "$AGENT" "S1–S10"
+assert_grep agent_s1_s11 "$AGENT" "S1–S11"
 assert_grep agent_enrichment_only "$AGENT" "optional enrichment"
-assert_grep agent_never_skip "$AGENT" "never skip S1–S10"
+assert_grep agent_never_skip "$AGENT" "never skip S1–S11"
 assert_absent agent_skill_only_path "$AGENT" "^Use \`security-review\` if installed\\.\$"
 
 # Writers load the same path on Trigger surfaces
 assert_grep dev_skill_path "$DEV_SKILL" "security-hardening-checklist\\.md"
-assert_grep dev_skill_gates "$DEV_SKILL" "S1–S10"
+assert_grep dev_skill_gates "$DEV_SKILL" "S1–S11"
 assert_grep dev_agent_path "$DEV_AGENT" "security-hardening-checklist\\.md"
 assert_grep bug_skill_path "$BUG_SKILL" "security-hardening-checklist\\.md"
-assert_grep bug_skill_gates "$BUG_SKILL" "S1–S10"
+assert_grep bug_skill_gates "$BUG_SKILL" "S1–S11"
 assert_grep bug_agent_path "$BUG_AGENT" "security-hardening-checklist\\.md"
 
 # Shared path string is identical across reviewer + both writers (one source of truth)
@@ -104,16 +109,17 @@ for path in "$AGENT" "$DEV_SKILL" "$DEV_AGENT" "$BUG_SKILL" "$BUG_AGENT"; do
   fi
 done
 # Relative vs absolute kit path both OK; basename must match SHARED basename
-assert_grep shared_basename_check "$CHECKLIST" "S1–S10"
+assert_grep shared_basename_check "$CHECKLIST" "S1–S11"
 
 # skill-map + orchestrator phase-only inventory
 assert_grep skillmap_kit_checklist "$SKILLMAP" "security-hardening-checklist\\.md"
-assert_grep skillmap_s1_s10 "$SKILLMAP" "S1–S10"
+assert_grep skillmap_s1_s11 "$SKILLMAP" "S1–S11"
 assert_grep skillmap_optional_enrichment "$SKILLMAP" "optional enrichment"
 assert_grep er_skill_phase_only "$ER_SKILL" "security-hardening-checklist\\.md"
 
 # Learn / patterns / dogfood / harness docs
 assert_grep miss_id "$LEARN" "miss_security-checklist-skip"
+assert_grep miss_secure_storage "$LEARN" "miss_auth-token-secure-storage-migration"
 assert_grep miss_checklist "$LEARN" "security-hardening-checklist\\.md"
 assert_grep miss_phases "$LEARN" "security"
 assert_grep learn_proto_open "$LEARN_PROTO" "security-hardening-checklist"
