@@ -56,6 +56,8 @@ Return **only** this JSON summary — no prose report:
       "id": "C_CR1",
       "severity": "P0",
       "context": "Profile settings screen loads user prefs on mount.",
+      "what": "Web client still calls an API route the api package removed.",
+      "when_shows": "Opens when a signed-in user opens Profile settings and the client requests the deleted settings route.",
       "question": "api removed GET /users/{id}/settings; web ProfileScreen.tsx still calls it.",
       "options": [
         { "id": "A", "label": "Restore endpoint" },
@@ -84,4 +86,4 @@ Rules:
 
 ## Evidence
 
-Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context for at least one side of the drift; clarify `options`). Never invent `recommended` when null.
+Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context for at least one side of the drift; clarify `question`, `what`, `when_shows`, `options`). Return full evidence in the Task JSON — never truncate or keep the real write-up only inside the subagent. Never invent `recommended` when null.

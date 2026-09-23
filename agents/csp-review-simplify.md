@@ -106,4 +106,4 @@ Before setting `applied: true`, check `skills/engineer-review/references/auto-fi
 
 ## Evidence
 
-Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context; clarify `options`).
+Mandatory fields per `phase-protocol.md` + `evidence-gate.md` (path, lines, snippet, context; clarify `question`, `what`, `when_shows`, `options`). Return full evidence in the Task JSON — never truncate or keep the real write-up only inside the subagent.

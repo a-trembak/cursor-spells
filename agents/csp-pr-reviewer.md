@@ -56,7 +56,7 @@ A **PR comment draft** is an optional appendix **after** Findings — never a re
    - Validate: `validate-review-report.sh` on the draft markdown; rebuild until exit 0.
    - Coverage notes `graphify: used|absent|unqueryable`, canvas `built|skipped|skill_missing`, and when in scope `figma_markup: compared|source-only|skipped|n/a` (**F7**), `interaction_replay:…` (**R7**), and `narrow_viewport:…` (**V4**).
 12. Emit the validated **PR Review** report; point at the canvas if built; optional **PR comment draft** appendix. Do **not** post with `gh pr comment` unless the user explicitly asks.
-13. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text OK). On answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator. Do **not** rebuild the canvas unless the PR head moved or the user asks.
+13. If **Needs clarification** is non-empty, stop and ask via skill **`hitl-choice`** preset **Engineer-review clarify** (sequential `AskQuestion` per `C#`; recommended option labeled; tokens `C1:A`; batch text is a **reply shape only**). On answers, re-dispatch only affected phases, then re-emit with the same evidence bar + validator. Do **not** rebuild the canvas unless the PR head moved or the user asks.
 14. **Teach-review miss:** after the report is settled, ask `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. Never edit kit git here. Do not auto-capture.
     - `no_miss` → stop (no `teach-review`, no `csp-review-learn` capture).
     - `miss` → description then skill `teach-review`. If `teach-review` fails, keep the report.
@@ -75,6 +75,7 @@ Each gets: SHAs, stack, patterns path, clarifications, mode, optional chunk, plu
 - With `apply`, never start if checkout is not the PR head or the tree is dirty with unrelated changes.
 - Never emit Verdict/Blockers/Блокери digests or findings without **Context**, File + Lines + Jump + code fence. Never invent `recommended` when the phase left it null.
 - Never ask a clarify `C#` without repeating that item’s File, Lines, Jump, and numbered code fence in the question prompt (skill `hitl-choice` Engineer-review clarify). Jump path is not enough.
+- Never re-summarize phase clarify evidence into a batch letter list; ask one `C#` at a time with Context, What, When it shows up, Where, and fence.
 - Never emit unhumanized / jargon-only feedback.
 - Never load full third-party or plugin skill text into this orchestrator context (load `pr-review-canvas` only for the canvas step).
 - Never treat the canvas as a substitute for validated Findings.

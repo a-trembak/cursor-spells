@@ -26,8 +26,8 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 4. Review **changed code** against checklist; use patterns file for local conventions. When `learned_hints` is present, apply any hint whose `triggers` match the diff **before** closing related items (link `gate` / R# — do not ignore loaded learnings). On match **open** the linked checklist body and run those gates.
 5. Classify each issue into `fixed` (candidate or applied) or `clarify`, with severity.
 6. **Evidence (mandatory):** every `fixed`/`clarify` item that names a file **must** include `path`, `start_line`, `end_line`, `snippet` (exact 3–15 lines of the problem), and `context` (1–2 sentences). No path-only findings. See [evidence-gate.md](evidence-gate.md) (orchestrator runs the gate at merge).
-7. **Clarify choices (mandatory):** every `clarify` item **must** include structured `options` (`[{ "id", "label" }, …]`, 2–3 choices). Prefer `recommended` (option id) + `recommendation_why` for P0/P1 — safest / closest to patterns or AC. Use `recommended: null` only when product intent is genuinely unknown; never invent a fake recommendation.
-8. Return **only** the JSON summary below.
+7. **Clarify choices (mandatory):** every `clarify` item **must** include structured `options` (`[{ "id", "label" }, …]`, 2–3 choices), a full `question` (the decision in plain sentences), `what` (what is wrong), and `when_shows` (when a developer or user hits this). Prefer `recommended` (option id) + `recommendation_why` for P0/P1 — safest / closest to patterns or AC. Use `recommended: null` only when product intent is genuinely unknown; never invent a fake recommendation.
+8. Return **only** the JSON summary below — **full evidence fields required**. “JSON only” means no chat transcript alongside the payload; it does **not** mean shorten `context` / `what` / `when_shows` / `question` / `snippet` / option labels. **Never truncate** those strings to fit a token budget. A one-line internal note that never reaches the parent Task result is a hard failure: the parent must receive every field needed to ask a self-contained clarify question.
 
 ## Apply rules
 
@@ -61,15 +61,17 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
   "clarify": [
     {
       "id": "C1",
-      "question": "Should X use existing helper Y?",
-      "context": "New load path duplicates existing user fetch used by the auth middleware.",
+      "question": "Should this screen call the existing loadUser helper, or keep the new fetchUser helper?",
+      "context": "Profile screen loads the signed-in user on mount through a new local helper.",
+      "what": "A second user-fetch helper duplicates the existing loadUser path used by auth middleware.",
+      "when_shows": "Opens when someone lands on Profile after sign-in and both helpers can disagree on which user record is current.",
       "options": [
-        { "id": "A", "label": "Use existing helper Y" },
-        { "id": "B", "label": "Keep the new helper" },
+        { "id": "A", "label": "Use existing helper loadUser" },
+        { "id": "B", "label": "Keep the new helper fetchUser" },
         { "id": "C", "label": "Need more product context" }
       ],
       "recommended": "A",
-      "recommendation_why": "Matches patterns Do not reinvent; same semantics as Y.",
+      "recommendation_why": "Matches patterns Do not reinvent; same semantics as loadUser.",
       "path": "src/foo.ts",
       "start_line": 40,
       "end_line": 48,
@@ -81,7 +83,7 @@ When `tech_spec_path` is provided (or a tech spec is discoverable under `docs/**
 }
 ```
 
-**Required** on every `fixed`/`clarify` with code: `path`, `start_line`, `end_line`, `snippet`, `context`. **Required** on every `clarify`: `options` (id+label objects). Prefer `recommended` + `recommendation_why`; `recommended` may be `null`. Orchestrators must run the [evidence gate](evidence-gate.md) before user-facing output — backfill via `scripts/extract-review-snippet.sh` or drop the item. Never emit a bare `path: summary` line. Legacy string-array `options` must be normalized to `{ id, label }` (A/B/C…) before emit.
+**Required** on every `fixed`/`clarify` with code: `path`, `start_line`, `end_line`, `snippet`, `context`. **Required** on every `clarify`: `question`, `what`, `when_shows`, `options` (id+label objects). Prefer `recommended` + `recommendation_why`; `recommended` may be `null`. Orchestrators must run the [evidence gate](evidence-gate.md) before user-facing output — backfill via `scripts/extract-review-snippet.sh` or drop the item. Never emit a bare `path: summary` line. Legacy string-array `options` must be normalized to `{ id, label }` (A/B/C…) before emit. If `what` / `when_shows` are missing, the orchestrator may draft them once from `context` + `question` for the report — phases should still fill them.
 
 ## Skip conditions
 

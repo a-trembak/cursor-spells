@@ -48,6 +48,7 @@ WHERE="$(count_re '\*\*Where:\*\*')"
 JUMP="$(count_re 'Jump:')"
 FILE_LINK="$(count_re 'File:')"
 CONTEXT="$(count_re '\*\*Context:\*\*')"
+WHEN_SHOWS="$(count_re '\*\*When it shows up:\*\*')"
 RECOMMENDATION="$(count_re '\*\*Recommendation:\*\*')"
 RECOMMENDED_MARK="$(count_re '\(recommended\)')"
 FENCES="$(grep -E -c -- '^```' "$FILE" || true)"
@@ -81,6 +82,9 @@ else
     fail "each finding needs a code fence snippet (found $FENCE_BLOCKS fences for $FINDINGS findings)"
   fi
   if [[ "$C_FINDINGS" -gt 0 ]]; then
+    if [[ "$WHEN_SHOWS" -lt "$C_FINDINGS" ]]; then
+      fail "each C# clarify needs **When it shows up:** (found $WHEN_SHOWS When it shows up for $C_FINDINGS C findings)"
+    fi
     if [[ "$RECOMMENDATION" -lt "$C_FINDINGS" ]] && [[ "$RECOMMENDED_MARK" -lt "$C_FINDINGS" ]]; then
       fail "each C# clarify needs **Recommendation:** or (recommended) (found $RECOMMENDATION Recommendation / $RECOMMENDED_MARK (recommended) for $C_FINDINGS C findings)"
     fi
@@ -103,6 +107,6 @@ fi
 
 echo "OK: $FINDINGS finding(s) with Context/Where/Jump/File + code fences"
 if [[ "$C_FINDINGS" -gt 0 ]]; then
-  echo "OK: $C_FINDINGS C finding(s) with Recommendation/(recommended)"
+  echo "OK: $C_FINDINGS C finding(s) with When it shows up + Recommendation/(recommended)"
 fi
 exit 0
