@@ -1,0 +1,68 @@
+---
+name: local-diff-review-gate
+description: >-
+  Pipeline-only HITL before propose-commit: show Local Diff Review canvas for
+  dirty working-tree / staged changes, apply human comments, never commit or
+  open a pull request. Use from engineer-review step 15 after teach-review
+  miss; also before residual propose-commit when the tree is dirty again.
+---
+
+# Local Diff Review Gate
+
+Thin kit gate around the **Local Diff Review** Cursor plugin. Canvas protocol stays in the plugin skill `review-local-diff` — **do not vendor** that skill body into this kit.
+
+## When to Use
+
+- **Pipeline path only**, after engineer-review (or multi-repo supervisor) report is settled and Teach-review miss is handled, **before** the next skill `propose-commit`.
+- Callers: `/csp-start-task` (full), `finish-plan` → engineer-review, `/csp-start-task --fast`, `/csp-start-issue-task`.
+- Full path residual: after `update-docs`, if the tree is dirty again, run this gate **once more** before residual `propose-commit`.
+- **Not** for manual `/csp-engineer-review` / `/csp-pr-review` / bare `/csp-multi-review` unless the human explicitly asks.
+
+## Preconditions
+
+- Plugin skill file resolvable as `review-local-diff` (typical install: `~/.cursor/plugins/local/local-diff-review/skills/review-local-diff/SKILL.md`). Payload contract: plugin `skills/review-local-diff/references/payload.md`.
+- Canvas file the plugin writes: `~/.cursor/projects/<workspace>/canvases/local-diff-review.canvas.tsx` with sidecar `local-diff-review.canvas.data.json` (`outbound` key).
+
+## Steps (per dirty repo)
+
+Inputs: `repo_branch_map` (ordered). If missing, use the current git root only.
+
+For **each** repo in map order:
+
+1. **Focus that repo only.** Prefer session tool `move_agent_to_root` (or equivalent) into that repo's absolute root. The canvas filename is shared — **never** open two Local Diff Review canvases at once.
+
+2. **Plugin missing:** if skill `review-local-diff` cannot be loaded / skill file missing → one sentence to the human, run-log note `skipped-missing-plugin`, continue to the next repo (or to `propose-commit` when done). Do not invent a canvas.
+
+3. **Clean tree:** if both `git diff HEAD` and `git diff --cached` are empty → skip quietly, run-log note `skipped-clean`, next repo.
+
+4. **Ask HITL** via skill **`hitl-choice`** preset **Local Diff Review gate** (AskQuestion required):
+
+   | id | meaning |
+   |----|---------|
+   | `approve-diff` | Diff is fine; leave this repo and continue |
+   | `comment` | Open the canvas and wait for Send |
+
+5. On **`approve-diff`:** run-log note `approve-diff`; next repo (or continue to `propose-commit`).
+
+6. On **`comment`:**
+   1. Record `reviewStartedAt` (ISO time now).
+   2. In **this same thread**, read and follow plugin skill `review-local-diff` (write/update `local-diff-review.canvas.tsx`). Tell the human to leave **Current thread** selected and press **Send**. Do **not** open a new chat unless they pick New chat.
+   3. Wait until canvas sidecar `outbound` has `kind: local-diff-review/comments`, `version: 1`, and `sentAt` **newer** than `reviewStartedAt` — or the human pastes the same JSON into this chat.
+   4. Apply **only** those comments (edit the working tree). Do **not** `git commit`. Do **not** push. Do **not** open or update a pull request.
+   5. Ask the same two tokens **once more** (`approve-diff` / `comment`).
+   6. If the second answer is `comment` again: open/refresh canvas, wait for a newer `sentAt`, apply once more, then **continue** (do not loop further). Run-log note `comment`.
+   7. If the second answer is `approve-diff`: run-log note `approve-diff`; continue.
+
+7. After all repos: return to the caller so it can invoke `propose-commit`.
+
+## Run-log
+
+When `invocation_id` is known: `scripts/pipeline-run-log.sh append --root <project> --invocation <invocation_id> [--plan <path>] --stage local-diff-review --note "<approve-diff|comment|skipped-missing-plugin|skipped-clean>"`. Once the plan path is known, always pass `--plan`. Missing helper or missing `invocation_id` → one-sentence skip.
+
+## Hard rules
+
+- Never commit, push, or create/update a GitHub pull request inside this gate.
+- Never replace engineer-review Findings, `finish-plan` review-gate, or `propose-commit`.
+- Never render the review in Source Control or on GitHub as a substitute for this canvas.
+- Never vendor the plugin skill body into this repository.
+- Manual engineer-review does not auto-start this gate.

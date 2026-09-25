@@ -38,6 +38,7 @@ ALLOWLIST=(
   "skills/approve-plan/SKILL.md"
   "skills/finish-plan/SKILL.md"
   "skills/hitl-choice/SKILL.md"
+  "skills/local-diff-review-gate/SKILL.md"
   "skills/propose-commit/SKILL.md"
   "skills/create-pr/SKILL.md"
 )

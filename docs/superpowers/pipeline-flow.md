@@ -106,12 +106,16 @@ flowchart TB
 
   subgraph shipLayer [Docs and PR]
     direction TB
+    localDiff["local-diff-review-gate"]
     commit["propose-commit"]
     docs["update-docs"]
+    localDiff2["local-diff-review-gate residual"]
     commit2["propose-commit residual"]
     pr["create-pr"]
+    localDiff ==> commit
     commit ==> docs
-    docs ==> commit2
+    docs ==> localDiff2
+    localDiff2 ==> commit2
     commit2 ==> pr
   end
 
@@ -119,7 +123,7 @@ flowchart TB
   critic ==>|"Verdict: clear"| startB
   code ==>|"tasks verified"| gate
   gate -.->|"fixes — back to Build, not Plan"| code
-  review ==> commit
+  review ==> localDiff
 ```
 
 | Cycle | Returns to | Does not return to |
@@ -156,8 +160,10 @@ flowchart TD
   softwareDev[["csp-software-developer"]]
   reviewGate[/"review-gate"/]
   engReview[["csp-engineer-reviewer or csp-multi-repo-supervisor"]]
+  localDiffGate[["local-diff-review-gate HITL approve-diff / comment"]]
   proposeCommit[["propose-commit HITL approve-commit"]]
   updateDocs[["update-docs"]]
+  localDiffGate2[["local-diff-review-gate residual if dirty"]]
   proposeCommit2[["propose-commit residual if dirty"]]
   createPr[["create-pr draft then HITL finale"]]
   doneNode(["PR URL + docs path"])
@@ -188,10 +194,12 @@ flowchart TD
   reviewGate -.->|"fixes"| softwareDev
   reviewGate ==>|"skip / approve / done"| engReview
   engReview -.->|"Needs clarification"| engReview
-  engReview ==> proposeCommit
+  engReview ==> localDiffGate
+  localDiffGate ==>|"approve-diff / comment cycle"| proposeCommit
   proposeCommit ==>|"approve-commit"| updateDocs
   proposeCommit -.->|"revise"| proposeCommit
-  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| proposeCommit2
+  updateDocs ==>|"skip / docs_md / docs_repo / confluence"| localDiffGate2
+  localDiffGate2 ==> proposeCommit2
   proposeCommit2 ==>|"if dirty"| createPr
   proposeCommit2 -.->|"clean tree"| createPr
   createPr ==>|"keep_draft / ready / *_jira"| doneNode
@@ -338,13 +346,13 @@ flowchart TD
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/csp-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` still surfaces the **uncommitted working tree** in chat (`git status` / `git diff` summaries). `fixes` returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/csp-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` prefers the **Local Diff Review** canvas (plugin skill `review-local-diff`; outbound `local-diff-review/comments` v1 on **Current thread**) and falls back to chat (`git status` / `git diff` summaries) when the plugin is missing. `fixes` (or canvas Send with `intent: apply-fixes`) returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
 
 ```mermaid
 flowchart TD
   planDone(["Build complete — plan already executed"])
   writeReview{{".cursor/gates/review-gate/slug"}}
-  surface["review-surface: checkout + SetActiveBranch"]
+  surface["review-surface: checkout + SetActiveBranch + local-diff-review"]
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
   doFixes["csp-software-developer implements fixes"]
   delReview["Clear this slug review-gate"]
@@ -455,7 +463,7 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch and a ready-for-review pull request when `land` is `draft_merge`; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
 
-Pipeline handoff (full / `--fast` / issue): invoke skill **`propose-commit`** next — HITL `approve-commit` / `revise`, then `git commit` only (never push). Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`propose-commit`** again for residual files, then `create-pr`. Manual `/csp-engineer-review` does not auto-start `propose-commit`.
+Pipeline handoff (full / `--fast` / issue): invoke skill **`local-diff-review-gate`** next (HITL `approve-diff` / `comment`; skip if clean / missing plugin), then skill **`propose-commit`** — HITL `approve-commit` / `revise`, then `git commit` only (never push). Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`local-diff-review-gate`** once more, then **`propose-commit`** again for residual files, then `create-pr`. Manual `/csp-engineer-review` does not auto-start `local-diff-review-gate` or `propose-commit`.
 
 ---
 
@@ -464,6 +472,8 @@ Pipeline handoff (full / `--fast` / issue): invoke skill **`propose-commit`** ne
 ```mermaid
 flowchart TD
   reviewDone(["Review settled + teach-review handled"])
+  localDiff[["local-diff-review-gate"]]
+  hitlDiff[/"HITL: approve-diff / comment"/]
   propose[["propose-commit"]]
   hitlCommit[/"HITL: approve-commit / revise"/]
   revise["Re-propose message + file list"]
@@ -471,7 +481,9 @@ flowchart TD
   writeCommit{{".cursor/gates/commit-approved/slug"}}
   toDocs(["update-docs or create-pr"])
 
-  reviewDone ==> propose
+  reviewDone ==> localDiff
+  localDiff ==> hitlDiff
+  hitlDiff -->|"approve-diff or comment cycle done"| propose
   propose ==> hitlCommit
   hitlCommit -->|"revise"| revise
   revise --> propose
@@ -482,7 +494,8 @@ flowchart TD
 
 | Rule | Detail |
 |------|--------|
-| When | After engineer-review (or `csp-multi-repo-supervisor`) settles; again on full path if docs left uncommitted files |
+| When | After engineer-review (or `csp-multi-repo-supervisor`) settles and Teach-review miss is handled; again on full path if docs left uncommitted files (local-diff-review-gate then propose-commit) |
+| Local Diff Review | Skill `local-diff-review-gate` — HITL `approve-diff` / `comment`; plugin canvas; never commit/push/PR inside that gate |
 | HITL | `approve-commit` / `revise` via skill `hitl-choice` preset **Propose commit** |
 | Marker | `.cursor/gates/commit-approved/<slug>` written on `approve-commit` |
 | Never | `git push`, `gh pr create`, `git add -A`, commits on default branch |
@@ -509,8 +522,10 @@ stateDiagram-v2
   ReviewGate --> Building: fixes then csp-software-developer
   Building --> ReviewGate: re-ask review-gate
   Reviewing --> Reviewing: Needs clarification
-  Reviewing --> CommitGate: propose-commit writes commit-approved/slug
+  Reviewing --> LocalDiffGate: local-diff-review-gate
+  LocalDiffGate --> CommitGate: propose-commit writes commit-approved/slug
   CommitGate --> DocsGate: update-docs writes docs-gate/slug
+  DocsGate --> LocalDiffGate: residual local-diff-review-gate if dirty
   DocsGate --> CommitGate: residual propose-commit if dirty
   DocsGate --> [*]: skip / publish complete
   DocsGate --> DocsGate: waiting location follow-up
@@ -571,6 +586,7 @@ flowchart TD
   brief["Short AC brief in chat"]
   exec["csp-software-developer mode:fast"]
   review["csp-engineer-reviewer no review-gate HITL"]
+  localDiff[["local-diff-review-gate"]]
   commitNode[["propose-commit HITL approve-commit"]]
   prNode[["create-pr draft then HITL finale"]]
   doneFast(["PR URL"])
@@ -578,7 +594,7 @@ flowchart TD
   startFast ==> looksJira
   looksJira -->|"yes"| fetch --> inProgress --> fastVsIssue --> boot
   looksJira -->|"no"| boot
-  boot ==> brief ==> exec ==> review ==> commitNode ==> prNode ==> doneFast
+  boot ==> brief ==> exec ==> review ==> localDiff ==> commitNode ==> prNode ==> doneFast
 ```
 
 No tech-spec, writing-plans, approve-plan, critic, review-gate, or update-docs. Clarify HITL only if engineer-review needs it. `--fast` is explicit only.
@@ -601,6 +617,7 @@ flowchart TD
   hitlCrit[/"HITL: revise or accept F-id"/]
   fixer["csp-bug-fixer"]
   review["csp-engineer-reviewer"]
+  localDiff[["local-diff-review-gate"]]
   commitNode[["propose-commit HITL approve-commit"]]
   prNode[["create-pr draft then HITL finale"]]
   doneIssue(["PR URL"])
@@ -610,7 +627,7 @@ flowchart TD
   jiraFail -->|"yes"| inProgress ==> planFix ==> critic ==> verdict
   verdict -->|"blocked or pending accept"| hitlCrit
   hitlCrit --> planFix
-  verdict -->|"clear"| fixer ==> review ==> commitNode ==> prNode ==> doneIssue
+  verdict -->|"clear"| fixer ==> review ==> localDiff ==> commitNode ==> prNode ==> doneIssue
 ```
 
 Always this path when `/csp-start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` run `jira-transition` target `review` only after every opened pull request is merged and continuous integration succeeded. Never `gh pr merge`.

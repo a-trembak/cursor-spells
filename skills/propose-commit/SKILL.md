@@ -15,8 +15,8 @@ Human-gated product commit after engineer-review. Implements the design in
 
 ## When to Use
 
-- After engineer-review (or multi-repo-supervisor) has produced a **settled** report for this pipeline run
-- Again on the full path after `update-docs` if intentional files remain uncommitted
+- After engineer-review (or multi-repo-supervisor) has produced a **settled** report for this pipeline run, and skill **`local-diff-review-gate`** has finished (or skipped clean / missing-plugin)
+- Again on the full path after `update-docs` if intentional files remain uncommitted (after a residual `local-diff-review-gate` when the tree is dirty)
 - Not from `finish-plan` review-surface
 - Not as a substitute for Pipeline finale
 - Not for kit self-edits outside a consumer product pipeline unless the human is running this skill on purpose

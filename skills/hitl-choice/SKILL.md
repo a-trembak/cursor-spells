@@ -7,7 +7,8 @@ description: >-
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
   start-issue-task blocked critic, blocked implementation-critic gates,
   pipeline route / Fast vs issue, create-pr Pipeline finale, Teach-review miss,
-  approve-commit, and Capture-escape destination.
+  Local Diff Review gate (`approve-diff` / `comment`), approve-commit, and
+  Capture-escape destination.
 ---
 
 # HITL Choice
@@ -16,7 +17,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Propose commit** (`approve-commit` / `revise`), **Pipeline finale**)
+- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Local Diff Review gate** (`approve-diff` / `comment`), **Propose commit** (`approve-commit` / `revise`), **Pipeline finale**)
 - Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
@@ -40,6 +41,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
    - `revise` → wait for change description (or file edit), then continue the calling skill
    - `skip` on tech-spec → wait for `<reason>` if not already provided
    - `fixes` (finish-plan) → wait for the fix description, implement/fix, re-ask the gate
+   - `comment` (Local Diff Review gate) → follow skill `local-diff-review-gate` / plugin `review-local-diff` in this thread; wait for outbound Send or pasted JSON
    - `have_urls` (Figma) → wait for pasted node URLs
    - `docs_repo` → wait for docs repo path or clone URL (optional branch / folder)
    - `confluence` → wait for space/parent or page URL
@@ -94,7 +96,7 @@ Ask only after the human chose `agent` on Tech-spec entry. Do not ask in `human`
 | `done` | Done reviewing — start review |
 | `fixes` | Describe fixes first |
 
-`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not invoke `create-pr` here.
+`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. On the finish-plan path, a new Local Diff Review canvas outbound (`kind: local-diff-review/comments`, `intent: apply-fixes`) is the same fix cycle — see `skills/finish-plan/references/local-diff-review.md`. When a Local Diff Review canvas was built, the question prompt must tell the human to keep **Current thread** and press **Send** (or use `approve` / `done` / `skip`). Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not invoke `create-pr` here.
 
 ### Figma ask (frontend)
 
@@ -225,7 +227,18 @@ Ask **after** a validated `csp-engineer-reviewer` or `csp-pr-reviewer` report is
 
 `no_miss` → do not invoke `teach-review`; do not run `csp-review-learn` `mode:capture`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. `project_secret` → if this message has no description, wait for free text, then dispatch `csp-review-learn` `mode:capture` (never **Review-learn promote**, never kit git). Failure of `teach-review` must not retract the report. Do not write both stores on the same miss.
 
-After `no_miss`, after skill `teach-review` returns (success or failure), or after `project_secret` capture settles: on a **pipeline** review the **calling** pipeline skill must continue to skill `propose-commit` per engineer-review step 15. Do **not** ask Propose commit from inside this miss preset — the calling skill owns that gate. Manual `/csp-engineer-review` / `/csp-pr-review` do **not** auto-start `propose-commit` unless the human asks.
+After `no_miss`, after skill `teach-review` returns (success or failure), or after `project_secret` capture settles: on a **pipeline** review the **calling** pipeline skill must continue to skill `local-diff-review-gate` then skill `propose-commit` per engineer-review step 15. Do **not** ask Local Diff Review gate or Propose commit from inside this miss preset — the calling skill owns those gates. Manual `/csp-engineer-review` / `/csp-pr-review` do **not** auto-start `local-diff-review-gate` or `propose-commit` unless the human asks.
+
+### Local Diff Review gate
+
+Ask from skill `local-diff-review-gate` on the **pipeline** path only, after Teach-review miss is handled and **before** each `propose-commit` while `git diff HEAD` or `git diff --cached` is non-empty (and again before residual propose-commit if docs left the tree dirty). Never ask from manual `/csp-engineer-review` unless the human requested it. Never treat this as Pipeline finale or as `approve-commit`.
+
+| id | label |
+|----|-------|
+| `approve-diff` | Diff is fine — continue to propose-commit |
+| `comment` | Open Local Diff Review canvas and wait for Send |
+
+On `comment`, the calling skill follows plugin `review-local-diff` in **this thread**, waits for a newer `outbound.sentAt` (or pasted JSON), applies comments without committing, then asks these two tokens **once more**. A second `comment` applies once more, then continues — do not loop further. On `approve-diff`, continue toward `propose-commit`.
 
 ### Capture-escape destination
 
@@ -259,7 +272,7 @@ Ask only from `/csp-start-task --fast` when `jira_class` is `bug`. The agent nev
 
 ### Propose commit
 
-Ask from skill `propose-commit` after a settled engineer-review report (and again after `update-docs` when residual files remain). Never ask before engineer-review. Never treat this as Pipeline finale.
+Ask from skill `propose-commit` after a settled engineer-review report and after skill `local-diff-review-gate` when that gate ran (and again after `update-docs` when residual files remain). Never ask before engineer-review. Never treat this as Pipeline finale.
 
 | id | label |
 |----|-------|
