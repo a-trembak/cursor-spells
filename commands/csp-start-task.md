@@ -62,12 +62,13 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
    - If `finish-plan` already started in this chat after the developer returned, do not re-ask — continue from its remaining steps.
 7. **Engineer review** (automatic once the HITL gate clears): run `csp-engineer-reviewer` (or `csp-multi-repo-supervisor` for 2+ changed repos).
    - **HITL:** only for `Needs clarification` items the review surfaces.
-7b. **Propose commit** (automatic after review settles): invoke skill **`propose-commit`** (HITL `approve-commit` / `revise`). Zero product commits before this step.
+7b. **Local Diff Review gate** (automatic after review settles, pipeline only): invoke skill **`local-diff-review-gate`** (HITL `approve-diff` / `comment`). Skip quietly when the tree is clean; one sentence + continue when the plugin is missing.
+7c. **Propose commit** (automatic after the local-diff gate): invoke skill **`propose-commit`** (HITL `approve-commit` / `revise`). Zero product commits before this step.
 8. **Update docs** (automatic invocation after propose-commit): invoke skill `update-docs`:
    - **HITL:** `skip` / `docs_md` / `docs_repo` / `confluence` via `hitl-choice` — where product/internal docs should land (current-repo Markdown, a separate docs repo, or Confluence). Never invent the destination.
    - On a non-skip choice, **resolve style first** (required for `docs_repo` / `confluence`): human custom style for user and/or engineer → existing house docs at the destination → kit dual-audience default. Then draft, polish with `english-humanizer` without fighting house voice, and publish.
    - **Do not end the turn here.** Honor `next_skill` from the skill handoff (`propose-commit` residual and/or `create-pr`).
-9. **Propose commit (residual)** — if `update-docs` left uncommitted intentional files (or returned `next_skill: propose-commit`), invoke **`propose-commit`** again.
+9. **Propose commit (residual)** — if `update-docs` left uncommitted intentional files (or returned `next_skill: propose-commit`), invoke **`local-diff-review-gate`** once more, then **`propose-commit`** again.
 10. **Create PR** (automatic): invoke skill **`create-pr`** (push + draft + Pipeline finale) **immediately** after residual propose-commit (or directly after `update-docs` when the tree is clean). Do not expect `create-pr` to invent product commits. Open or reuse a **draft** GitHub PR per changed repo, then the **Pipeline finale** HITL (`keep_draft` / `ready` / Jira comment when a key is known). Gate-marker clear failures at docs must not skip this step.
 
 ### Full-mode notes
@@ -75,7 +76,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 - This command never invents an answer at any HITL gate above — it always stops and waits for the human's reply at exactly those points, and only those points.
 - **Orientation:** every closed-set human gate uses skill `hitl-choice`, which prints a `pipeline-status` orientation strip before the question. Humans may run `/csp-pipeline-status` anytime for the same strip + canvas link (does not advance gates). Applies on full, `--fast`, and issue human gates alike.
 - **Do not treat dispatch as the end** of the pipeline: after `csp-software-developer` returns, `finish-plan` then `csp-engineer-reviewer` must run in this chat.
-- **Do not treat `update-docs` as the end** of the full path: after it returns, residual `propose-commit` (when needed) then `create-pr` must run in this chat.
+- **Do not treat `update-docs` as the end** of the full path: after it returns, residual `local-diff-review-gate` (when dirty) then `propose-commit` (when needed) then `create-pr` must run in this chat.
 - If AC do not exist yet, stop and say so — writing AC themselves is out of scope for this kit.
 - Pass `jira_key` / `jira_cloud_id` / `jira_status` through to `create-pr` when fetch succeeded (finale may wait for every pull request to merge and continuous integration to succeed, then transition to Review; trajectory score needs the observed status).
 - **Session ledger:** after routing to **full** mode, init `.cursor/gates/trajectory-run/session-full.json` for case `full-happy-path` per skill `trajectory-score` (exact invocation `/csp-start-task PROJ-1`). Append stages and gates along the path. `create-pr` scores it when a draft exists and Pipeline finale was asked.
@@ -96,7 +97,8 @@ For small tasks that do not need tech-spec, plan approval, critic, finish-plan, 
 3. **Short task brief** (automatic, in chat only — not a tech-spec file): 3–6 bullets covering goal, touched areas if obvious, and done criteria from the AC. Do not run `tech-spec`, `writing-plans`, `approve-plan`, or `implementation-critic`. Optionally `pipeline-run-log.sh brief-upsert --root <project> --invocation <invocation_id> --route fast --goal "<one line>" --next "csp-software-developer"` (short brief under `.cursor/gates/run-log/briefs/` — not a fake plan under `docs/`). Do **not** require promote on fast/tiny runs.
 4. **Execute** — create feature branch(es) per `software-developer` branch-setup; implement with skill **`software-developer`** via nested Task **`csp-software-developer`** using **`mode:fast`** (entry gates for tech-spec Status / critique-clear are skipped — see that skill). Prefer `subagent-driven-development` when available; verify with lint/test/typecheck before handoff. **Wait for** `csp-software-developer` to return. Do not treat dispatch as the end.
 5. **Engineer review** — immediately after that return, run `csp-engineer-reviewer` (or `csp-multi-repo-supervisor` for 2+ repos). Skip `finish-plan` HITL. Skip Figma ask unless node URLs were already in the AC/context. HITL only for **Needs clarification**.
-5b. **Propose commit** — invoke skill **`propose-commit`**.
+5b. **Local Diff Review gate** — invoke skill **`local-diff-review-gate`**.
+5c. **Propose commit** — invoke skill **`propose-commit`**.
 6. **Create PR** — invoke skill **`create-pr`** (push + draft + Pipeline finale). Do not expect `create-pr` to invent product commits.
 
 ### Fast-mode notes

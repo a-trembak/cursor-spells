@@ -148,6 +148,7 @@ evals/       Kit-only golden sets (trajectories, harness reports, code-quality) 
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
 | [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words — no abbreviations; always-on via rule `plain-language-chat` |
 | [`finish-plan`](skills/finish-plan/) | Plan→HITL handoff: `review-surface` (`SetActiveBranch` + Local Diff Review when installed) then review-gate; engineer-review still runs after |
+| [`local-diff-review-gate`](skills/local-diff-review-gate/) | Pipeline-only HITL before `propose-commit` — Local Diff Review canvas (`approve-diff` / `comment`); applies comments; never commits or opens a pull request |
 | [`propose-commit`](skills/propose-commit/) | Post-review HITL — propose commit message + file list; `approve-commit` / `revise`; `git commit` only (never push); writes `commit-approved` gate |
 | [`update-docs`](skills/update-docs/) | Post-review HITL — product docs destination (`docs/` / docs repo / Confluence) + dual-audience writing |
 | [`engineer-review`](skills/engineer-review/) | Multi-phase review orchestrator — snippets + file links + humanizer prose; P0–P2, chunking |
@@ -259,6 +260,7 @@ On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skill
 5. Executes via `csp-software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `review-gate` via `/csp-finish-plan` — surface the diff (`SetActiveBranch` + Local Diff Review when installed) then **HITL** `skip`/`approve`/`done` (or `fixes` / canvas `apply-fixes` back to `csp-software-developer`). Pipeline continues.
 7. `engineer-review` — **HITL** only for clarifications it raises
+7b. [`local-diff-review-gate`](skills/local-diff-review-gate/) — **HITL** `approve-diff` / `comment` (plugin Local Diff Review; skip if clean / missing plugin)
 8. [`propose-commit`](skills/propose-commit/) — **HITL** `approve-commit` / `revise`; stages listed paths and `git commit` only (never push); writes `.cursor/gates/commit-approved/<slug>`
 9. `/csp-update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write); residual **`propose-commit`** if docs left uncommitted files
 10. `/create-pr` skill — **always draft first**, then HITL **Pipeline finale**: `keep_draft` / `ready` (`gh pr ready`), and `keep_draft_jira` / `ready_jira` when a Jira key is known (comment PR URL on the ticket). `ready` / `ready_jira` move the Jira issue to **Review** only after every opened pull request is merged and every continuous-integration build succeeded. Never merge.
@@ -269,11 +271,11 @@ Prefer `/csp-write-tech-spec [ac-source]` directly if you only want the tech spe
 
 ### Start a task (fast — no planning HITL)
 
-`/csp-start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `csp-software-developer` `mode:fast` → `csp-engineer-reviewer` (no review-gate HITL) → `propose-commit` → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
+`/csp-start-task --fast [ac-source]` for small work: bootstrap → fetch (if ticket-shaped) → short AC brief → `csp-software-developer` `mode:fast` → `csp-engineer-reviewer` (no review-gate HITL) → `local-diff-review-gate` → `propose-commit` → `create-pr` (Pipeline finale HITL). No tech-spec, plan approval, critic, or update-docs. **You** must pass `--fast`; the agent never chooses it. If the fetched type is Bug, HITL **Fast vs issue** asks `issue` vs `stay_fast`.
 
 ### Start an issue task (Jira bug fix)
 
-`/csp-start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `csp-bug-fixer` → `csp-engineer-reviewer` → `propose-commit` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review** only after every opened pull request is merged and every continuous-integration build succeeded). Always this path when invoked explicitly, even if the type is Story.
+`/csp-start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `csp-bug-fixer` → `csp-engineer-reviewer` → `local-diff-review-gate` → `propose-commit` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review** only after every opened pull request is merged and every continuous-integration build succeeded). Always this path when invoked explicitly, even if the type is Story.
 
 ### Capture a production escape
 

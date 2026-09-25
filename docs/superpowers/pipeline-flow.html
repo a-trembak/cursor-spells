@@ -1112,7 +1112,7 @@
     <section id="view-propose-commit" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">7b. propose-commit</h2>
-      <p class="view-desc">HITL <em>після</em> settled engineer-review. Пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
+      <p class="view-desc">HITL <em>після</em> settled engineer-review і Teach-review miss. Спочатку skill <code>local-diff-review-gate</code> (<code>approve-diff</code> / <code>comment</code>), потім пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — ще раз <code>local-diff-review-gate</code>, потім другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -1141,7 +1141,7 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Handoff</h3>
-            <p>Full path → <code>update-docs</code>. Fast / issue → <code>create-pr</code>. Residual dirty tree після docs → ще один <code>propose-commit</code>.</p>
+            <p>Full path → <code>update-docs</code>. Fast / issue → <code>create-pr</code>. Residual dirty tree після docs → <code>local-diff-review-gate</code> + ще один <code>propose-commit</code>.</p>
           </div>
         </div>
       </div>
@@ -1305,14 +1305,14 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-issue-task</h3>
-            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
+            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
           </div>
         </div>
         <div class="step">
