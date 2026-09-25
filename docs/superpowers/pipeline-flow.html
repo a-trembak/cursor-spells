@@ -998,7 +998,7 @@
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>review-surface (зручність, не фінал)</h3>
-            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Коли гілка має <strong>0 commits ahead of base</strong>, вкладка може бути порожньою — покажи <strong>uncommitted</strong> робоче дерево в чаті (<code>git status</code> / <code>git diff</code>). Після відповіді людини стартує engineer-review, далі <code>propose-commit</code>, docs, далі create-pr.</p>
+            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Коли гілка має <strong>0 commits ahead of base</strong>, вкладка може бути порожньою — спочатку Local Diff Review canvas (плагін <code>local-diff-review</code> / skill <code>review-local-diff</code>; Send на <strong>Current thread</strong> пише outbound <code>local-diff-review/comments</code>). Якщо плагіна немає — покажи <strong>uncommitted</strong> робоче дерево в чаті (<code>git status</code> / <code>git diff</code>). Після відповіді людини стартує engineer-review, далі <code>propose-commit</code>, docs, далі create-pr.</p>
           </div>
         </div>
         <div class="step">
@@ -1016,7 +1016,7 @@
               </div>
               <div class="branch">
                 <span class="token">fixes</span>
-                <div class="then">Описати фікси → <code>csp-software-developer</code> (Build) → знову review-surface → цей самий gate<small>не writing-plans · marker лишається</small></div>
+                <div class="then">Описати фікси / canvas Send <code>apply-fixes</code> → <code>csp-software-developer</code> (Build) → знову review-surface → цей самий gate<small>не writing-plans · marker лишається</small></div>
               </div>
             </div>
           </div>

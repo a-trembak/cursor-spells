@@ -338,13 +338,13 @@ flowchart TD
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/csp-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` still surfaces the **uncommitted working tree** in chat (`git status` / `git diff` summaries). `fixes` returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/csp-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` prefers the **Local Diff Review** canvas (plugin skill `review-local-diff`; outbound `local-diff-review/comments` v1 on **Current thread**) and falls back to chat (`git status` / `git diff` summaries) when the plugin is missing. `fixes` (or canvas Send with `intent: apply-fixes`) returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
 
 ```mermaid
 flowchart TD
   planDone(["Build complete — plan already executed"])
   writeReview{{".cursor/gates/review-gate/slug"}}
-  surface["review-surface: checkout + SetActiveBranch"]
+  surface["review-surface: checkout + SetActiveBranch + local-diff-review"]
   hitlFinish[/"HITL: skip / approve / done / fixes"/]
   doFixes["csp-software-developer implements fixes"]
   delReview["Clear this slug review-gate"]

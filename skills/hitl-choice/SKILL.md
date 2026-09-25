@@ -94,7 +94,7 @@ Ask only after the human chose `agent` on Tech-spec entry. Do not ask in `human`
 | `done` | Done reviewing — start review |
 | `fixes` | Describe fixes first |
 
-`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not invoke `create-pr` here.
+`approve` and `done` are equivalent. `fixes` is the structured stand-in for “or describe fixes first”; after selection, wait for the description. On the finish-plan path, a new Local Diff Review canvas outbound (`kind: local-diff-review/comments`, `intent: apply-fixes`) is the same fix cycle — see `skills/finish-plan/references/local-diff-review.md`. When a Local Diff Review canvas was built, the question prompt must tell the human to keep **Current thread** and press **Send** (or use `approve` / `done` / `skip`). Asking this gate does **not** end the pipeline: after `skip` / `approve` / `done`, engineer-review starts. Do not invoke `create-pr` here.
 
 ### Figma ask (frontend)
 
