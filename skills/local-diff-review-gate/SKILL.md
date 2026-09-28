@@ -14,6 +14,7 @@ Thin kit gate around the **Local Diff Review** Cursor plugin. Canvas protocol st
 ## When to Use
 
 - **Pipeline path only**, after engineer-review (or multi-repo supervisor) report is settled and Teach-review miss is handled, **before** the next skill `propose-commit`.
+- **Required next step after Teach-review miss** on a pipeline run — whether the answer was `no_miss`, `miss` (after `teach-review` returns), or `project_secret` (after capture settles). Do **not** open Propose commit / `approve-commit` first.
 - Callers: `/csp-start-task` (full), `finish-plan` → engineer-review, `/csp-start-task --fast`, `/csp-start-issue-task`.
 - Full path residual: after `update-docs`, if the tree is dirty again, run this gate **once more** before residual `propose-commit`.
 - **Not** for manual `/csp-engineer-review` / `/csp-pr-review` / bare `/csp-multi-review` unless the human explicitly asks.
@@ -63,6 +64,7 @@ When `invocation_id` is known: `scripts/pipeline-run-log.sh append --root <proje
 
 - Never commit, push, or create/update a GitHub pull request inside this gate.
 - Never replace engineer-review Findings, `finish-plan` review-gate, or `propose-commit`.
+- Never skip this gate on a dirty pipeline tree by jumping to skill `propose-commit` (file list + `approve-commit` is not a substitute for `approve-diff` / canvas comments).
 - Never render the review in Source Control or on GitHub as a substitute for this canvas.
 - Never vendor the plugin skill body into this repository.
 - Manual engineer-review does not auto-start this gate.

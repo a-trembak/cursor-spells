@@ -53,6 +53,8 @@ assert_grep skill_marker "skills/propose-commit/SKILL.md" "commit-approved"
 assert_grep skill_no_push "skills/propose-commit/SKILL.md" "Do not.*git push|never.*git push|Do \\*\\*not\\*\\* \`git push\`"
 assert_grep skill_no_pr "skills/propose-commit/SKILL.md" "pull request"
 assert_grep skill_review_pre "skills/propose-commit/SKILL.md" "engineer-review"
+assert_grep skill_local_diff_pre "skills/propose-commit/SKILL.md" "local-diff-review-gate"
+assert_grep skill_no_no_miss_jump "skills/propose-commit/SKILL.md" "no_miss"
 assert_grep skill_no_add_all "skills/propose-commit/SKILL.md" "git add -A|git add \\."
 
 assert_grep hitl_preset "skills/hitl-choice/SKILL.md" "Propose commit"
