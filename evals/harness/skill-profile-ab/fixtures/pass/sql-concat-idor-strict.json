@@ -1,0 +1,23 @@
+{
+  "case_id": "sql-concat-idor",
+  "profile": "strict",
+  "l2_loaded": false,
+  "l2_skill_ids": [],
+  "checklists_opened": ["security-hardening-checklist.md"],
+  "gates_fired": ["S1", "S5"],
+  "findings": [
+    {
+      "severity": "P0",
+      "summary": "get_user builds SQL by string concatenation of user_id; use a parameterized query instead of concatenating untrusted input into the statement.",
+      "path": "src/api/users.py",
+      "gates": ["S1"]
+    },
+    {
+      "severity": "P0",
+      "summary": "get_user_profile accepts requester_id but never checks ownership; any requester can fetch any user_id (IDOR / broken access control).",
+      "path": "src/api/users.py",
+      "gates": ["S5"]
+    }
+  ],
+  "notes": "skill_missing: security-review; kit S1–S11 applied. S1 and S5 fire; remaining gates no matching surface in fixture."
+}

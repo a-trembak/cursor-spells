@@ -1,0 +1,11 @@
+{
+  "id": "jpa-result-type",
+  "miss_id": "miss_jpa-repository-result-type-mismatch",
+  "title": "Scoped finder List<String> selects two columns",
+  "fixture": "evals/harness/skill-profile-ab/fixtures/jpa-result-type",
+  "phase": "logic",
+  "expected_gates": ["RT1"],
+  "expected_checklist": "jpa-repository-result-checklist.md",
+  "must_mention": ["result type", "selection", "List<String>", "RT1", "fleet"],
+  "diff_hint": "InstallationRepository.findUuidsByOrg selects uuid and name into List<String> while fleet sibling selects only uuid"
+}

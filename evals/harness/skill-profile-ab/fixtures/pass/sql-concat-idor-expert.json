@@ -1,0 +1,23 @@
+{
+  "case_id": "sql-concat-idor",
+  "profile": "expert",
+  "l2_loaded": false,
+  "l2_skill_ids": [],
+  "checklists_opened": ["security-hardening-checklist.md"],
+  "gates_fired": ["S1", "S5"],
+  "findings": [
+    {
+      "severity": "P0",
+      "summary": "get_user builds SQL by string concatenation of user_id; switch to parameterized queries so request input cannot alter the statement.",
+      "path": "src/api/users.py",
+      "gates": ["S1"]
+    },
+    {
+      "severity": "P0",
+      "summary": "get_user_profile takes requester_id but never enforces ownership; any requester can fetch any user_id (IDOR).",
+      "path": "src/api/users.py",
+      "gates": ["S5"]
+    }
+  ],
+  "notes": "Opened security-hardening-checklist.md; ran S1–S11. Injection and broken access control only. Fixture comment labels IDOR as S2; checklist maps IDOR to S5."
+}

@@ -1,0 +1,23 @@
+{
+  "case_id": "jpa-result-type",
+  "profile": "expert",
+  "l2_loaded": false,
+  "checklists_opened": [
+    "jpa-repository-result-checklist.md"
+  ],
+  "gates_fired": [
+    "RT1"
+  ],
+  "findings": [
+    {
+      "gate": "RT1",
+      "severity": "high",
+      "where": "InstallationRepository.findUuidsByOrg",
+      "summary": "Declared return type List<String> does not match query selection: select projects both i.uuid and i.name (multi-column) into a scalar collection.",
+      "detail": "RT1 requires the repository method return type to match what the query selects. findUuidsByOrg uses @Query(\"select i.uuid, i.name from Installation i where i.orgUuid = ?1\") with List<String>, which is a result type versus selection mismatch (multi-column selection into a scalar list).",
+      "sibling": "Fleet sibling findAllUuids selects only i.uuid into List<String> and matches; scoped and fleet forks of the same finder family diverge.",
+      "coverage": "jpa_result_type: mismatched"
+    }
+  ],
+  "notes": "Opened kit L1 jpa-repository-result-checklist.md only; l2_loaded=false. Compared scoped findUuidsByOrg against fleet findAllUuids per RT1. Scoped path fails result type / selection alignment; fleet path is correct. Prefer scalar @Query selecting only uuid, or a projection/DTO/Tuple when multiple columns are needed."
+}

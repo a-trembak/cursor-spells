@@ -1,0 +1,28 @@
+{
+  "case_id": "partial-null-callers",
+  "profile": "expert",
+  "l2_loaded": false,
+  "l2_skill_ids": [],
+  "checklists_opened": [
+    "null-safety-checklist.md"
+  ],
+  "gates_fired": [
+    "N1"
+  ],
+  "findings": [
+    {
+      "gate": "N1",
+      "severity": "high",
+      "title": "Partial null hardening across sibling callers of map_device",
+      "where": "src/service/devices.py",
+      "summary": "list_org_devices_safe filters null devices returned by map_device before use, but sibling caller list_fleet_devices_unsafe still indexes device['org_id'] without a null guard and groups by nullable keys. N1 requires equivalent null hardening on every caller and sibling endpoint that shares the same mapping helper; this path still risks NPE/500 when device is None.",
+      "evidence": [
+        "map_device returns row.get('device') which may be None",
+        "list_org_devices_safe drops None before returning",
+        "list_fleet_devices_unsafe does out[device['org_id']] without filtering None"
+      ],
+      "recommendation": "Apply the same null filter (or explicit guard before key access/grouping) in list_fleet_devices_unsafe, and cover both callers with tests for null device rows."
+    }
+  ],
+  "notes": "Opened null-safety-checklist.md and applied N1 only. Did not load third-party L2 skill bodies (l2_loaded=false). Caught partial null hardening: safe org list caller vs unsafe fleet sibling."
+}

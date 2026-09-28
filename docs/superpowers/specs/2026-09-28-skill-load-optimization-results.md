@@ -60,3 +60,8 @@ python3 scripts/skill-load-budget.py --label snapshot
 bash scripts/harness-bench.sh
 python3 scripts/harness-health.py
 ```
+
+## Follow-up: skill profile A/B
+
+Live catch-rate experiment (`strict` vs `expert`) on four miss-class fixtures: **both arms 4/4 (100%)**, verdict `expert_ok`. See [`2026-09-28-skill-profile-ab-results.md`](2026-09-28-skill-profile-ab-results.md).
+

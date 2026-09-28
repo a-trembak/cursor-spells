@@ -1,0 +1,11 @@
+{
+  "id": "sync-reset-api",
+  "miss_id": "miss_side-effect-live-actor",
+  "title": "Sync resetApiState with live membership probe",
+  "fixture": "evals/harness/skill-profile-ab/fixtures/sync-reset-api",
+  "phase": "logic",
+  "expected_gates": ["R1"],
+  "expected_checklist": "interaction-replay-checklist.md",
+  "must_mention": ["resetApiState", "probe", "subscriber", "R1", "timing"],
+  "diff_hint": "logout.js calls resetApiState synchronously while ShellMenu keeps useGetMembershipQuery live"
+}

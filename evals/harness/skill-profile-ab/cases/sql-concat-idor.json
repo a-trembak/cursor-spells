@@ -1,0 +1,11 @@
+{
+  "id": "sql-concat-idor",
+  "miss_id": "miss_security-checklist-skip",
+  "title": "SQL concatenation plus missing ownership check",
+  "fixture": "evals/harness/skill-profile-ab/fixtures/sql-concat-idor",
+  "phase": "security",
+  "expected_gates": ["S1", "S5"],
+  "expected_checklist": "security-hardening-checklist.md",
+  "must_mention": ["concatenat", "parameter", "IDOR", "ownership", "S1"],
+  "diff_hint": "src/api/users.py adds string-built SQL and a profile fetch without requester ownership check"
+}

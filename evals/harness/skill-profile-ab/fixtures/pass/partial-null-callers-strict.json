@@ -1,0 +1,28 @@
+{
+  "case_id": "partial-null-callers",
+  "profile": "strict",
+  "l2_loaded": false,
+  "l2_skill_ids": [],
+  "checklists_opened": [
+    "null-safety-checklist.md"
+  ],
+  "gates_fired": [
+    "N1"
+  ],
+  "findings": [
+    {
+      "gate": "N1",
+      "severity": "P0",
+      "title": "Partial null hardening leaves sibling caller unsafe",
+      "path": "src/service/devices.py",
+      "start_line": 14,
+      "end_line": 22,
+      "snippet": "def list_fleet_devices_unsafe(rows):\n    # Sibling endpoint still groups nullable keys → NPE / 500 risk remains.\n    from collections import defaultdict\n\n    out = defaultdict(list)\n    for row in rows:\n        device = map_device(row)\n        out[device[\"org_id\"]].append(device)  # crashes when device is None\n    return out",
+      "context": "Diff hardens list_org_devices_safe by filtering null devices from map_device, but sibling caller list_fleet_devices_unsafe still indexes into the nullable device.",
+      "what": "Shared helper map_device can return None. One caller filters that null; the sibling caller still uses device[\"org_id\"] without a null guard, so the NPE/500 path remains.",
+      "why": "N1 requires tracing every caller and sibling endpoint after a null fix. Approving only the hardened path leaves production crash risk on the unfixed sibling.",
+      "fix_hint": "Apply the same null filter before grouping in list_fleet_devices_unsafe (or harden map_device / a shared grouping helper used by both callers), and add a regression that covers both sibling callers with a null device row."
+    }
+  ],
+  "notes": "null_safety_callers: traced. Callers of map_device: list_org_devices_safe (hardened), list_fleet_devices_unsafe (unsafe sibling). No mapped L2 stack skill installed for this Python fixture under strict profile."
+}

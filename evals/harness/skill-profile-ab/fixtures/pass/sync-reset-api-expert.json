@@ -1,0 +1,42 @@
+{
+  "case_id": "sync-reset-api",
+  "profile": "expert",
+  "l2_loaded": false,
+  "gates_fired": ["R1", "R2", "R3", "R5", "R6", "R7"],
+  "checklists_opened": [
+    "skills/engineer-review/references/interaction-replay-checklist.md"
+  ],
+  "findings": [
+    {
+      "severity": "P0",
+      "gate": "R1",
+      "title": "Sync resetApiState races live shell membership probe",
+      "detail": "onLogout dispatches shellApi.util.resetApiState() synchronously, then auth/clear, while ShellMenu remains mounted with an active useGetMembershipQuery subscriber. Interaction replay: trigger=logout → route/shell still mounted (ShellMenu) → active subscription (membership probe) → shared writer risk (probe fulfill can rewrite auth after clear) → user-visible outcome (stale org/session or re-auth flicker). Timing change is sync reset without unmount/unsubscribe of the live actor."
+    },
+    {
+      "severity": "P1",
+      "gate": "R2",
+      "title": "Membership probe must not share session-writer fulfill path",
+      "detail": "useGetMembershipQuery is a probe (menu/capability style) kept live across logout. After resetApiState, the subscriber refetches; if its fulfill matcher writes token/user/org, it competes with intentional auth/clear. Separate session writers (logout/login) from probes."
+    },
+    {
+      "severity": "P1",
+      "gate": "R3",
+      "title": "Unchanged ShellMenu must be in impact set",
+      "detail": "Diff touches only logout timing of resetApiState, but ShellMenu (unchanged) stays mounted and holds the competing probe. Diff-only file lists miss this live actor."
+    },
+    {
+      "severity": "P1",
+      "gate": "R5",
+      "title": "Auth slice vs RTK cache diverge after sync reset",
+      "detail": "resetApiState clears API cache while auth/clear empties the slice; the still-subscribed membership probe can refill cache and, if wired as a writer, leave headers/selectors reading a different auth than the intended logged-out state."
+    },
+    {
+      "severity": "P1",
+      "gate": "R6",
+      "title": "Need competing-actor regression",
+      "detail": "Unit tests of resetApiState alone are insufficient. Require a regression with ShellMenu subscribed (live membership probe) during sync logout reset, asserting auth is not rewritten by the probe after clear."
+    }
+  ],
+  "notes": "R1 brief recorded. interaction_replay: auth. auth_flow_walk: logout. R4 n/a (no overlay-focus host). Expert arm: kit L1 only, no third-party L2 bodies."
+}
