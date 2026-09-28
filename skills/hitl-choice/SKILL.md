@@ -227,7 +227,7 @@ Ask **after** a validated `csp-engineer-reviewer` or `csp-pr-reviewer` report is
 
 `no_miss` → do not invoke `teach-review`; do not run `csp-review-learn` `mode:capture`. `miss` → if this message has no description, wait for free text (open-ended), then invoke skill `teach-review`. `project_secret` → if this message has no description, wait for free text, then dispatch `csp-review-learn` `mode:capture` (never **Review-learn promote**, never kit git). Failure of `teach-review` must not retract the report. Do not write both stores on the same miss.
 
-After `no_miss`, after skill `teach-review` returns (success or failure), or after `project_secret` capture settles: on a **pipeline** review the **calling** pipeline skill must continue to skill `local-diff-review-gate` then skill `propose-commit` per engineer-review step 15. Do **not** ask Local Diff Review gate or Propose commit from inside this miss preset — the calling skill owns those gates. Manual `/csp-engineer-review` / `/csp-pr-review` do **not** auto-start `local-diff-review-gate` or `propose-commit` unless the human asks.
+After `no_miss`, after skill `teach-review` returns (success or failure), or after `project_secret` capture settles: on a **pipeline** review the **calling** pipeline skill must continue to skill `local-diff-review-gate` then skill `propose-commit` per engineer-review step 15. **`no_miss` is not permission to propose a commit** — Local Diff Review gate (`approve-diff` / `comment`) still comes next. Do **not** ask Local Diff Review gate or Propose commit from inside this miss preset — the calling skill owns those gates. Manual `/csp-engineer-review` / `/csp-pr-review` do **not** auto-start `local-diff-review-gate` or `propose-commit` unless the human asks.
 
 ### Local Diff Review gate
 
@@ -272,7 +272,7 @@ Ask only from `/csp-start-task --fast` when `jira_class` is `bug`. The agent nev
 
 ### Propose commit
 
-Ask from skill `propose-commit` after a settled engineer-review report and after skill `local-diff-review-gate` when that gate ran (and again after `update-docs` when residual files remain). Never ask before engineer-review. Never treat this as Pipeline finale.
+Ask from skill `propose-commit` after a settled engineer-review report and after skill `local-diff-review-gate` when that gate ran (and again after `update-docs` when residual files remain). Never ask before engineer-review. Never ask immediately after Teach-review miss `no_miss` without a settled Local Diff Review gate when the tree is dirty. Never treat this as Pipeline finale.
 
 | id | label |
 |----|-------|

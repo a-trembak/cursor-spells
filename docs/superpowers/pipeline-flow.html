@@ -1112,13 +1112,13 @@
     <section id="view-propose-commit" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Огляд</button>
       <h2 class="view-title">7b. propose-commit</h2>
-      <p class="view-desc">HITL <em>після</em> settled engineer-review і Teach-review miss. Спочатку skill <code>local-diff-review-gate</code> (<code>approve-diff</code> / <code>comment</code>), потім пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — ще раз <code>local-diff-review-gate</code>, потім другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
+      <p class="view-desc">HITL <em>після</em> settled engineer-review і Teach-review miss. Спочатку skill <code>local-diff-review-gate</code> (<code>approve-diff</code> / <code>comment</code>), потім пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. <code>no_miss</code> <strong>не</strong> пропускає Local Diff Review. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — ще раз <code>local-diff-review-gate</code>, потім другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>Preconditions</h3>
-            <p>Feature branch (не default). Settled engineer-review report. Intentional file list — ніколи <code>git add -A</code>.</p>
+            <p>Feature branch (не default). Settled engineer-review report. Settled <code>local-diff-review-gate</code> для dirty tree. Intentional file list — ніколи <code>git add -A</code>. Ніколи стрибок з <code>no_miss</code> одразу на <code>approve-commit</code>.</p>
           </div>
         </div>
         <div class="step">

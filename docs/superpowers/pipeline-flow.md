@@ -463,7 +463,7 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch and a ready-for-review pull request when `land` is `draft_merge`; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
 
-Pipeline handoff (full / `--fast` / issue): invoke skill **`local-diff-review-gate`** next (HITL `approve-diff` / `comment`; skip if clean / missing plugin), then skill **`propose-commit`** — HITL `approve-commit` / `revise`, then `git commit` only (never push). Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`local-diff-review-gate`** once more, then **`propose-commit`** again for residual files, then `create-pr`. Manual `/csp-engineer-review` does not auto-start `local-diff-review-gate` or `propose-commit`.
+Pipeline handoff (full / `--fast` / issue): invoke skill **`local-diff-review-gate`** next (HITL `approve-diff` / `comment`; skip if clean / missing plugin), then skill **`propose-commit`** — HITL `approve-commit` / `revise`, then `git commit` only (never push). **`no_miss` does not skip Local Diff Review** — order is miss answer → `local-diff-review-gate` → `propose-commit`. Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`local-diff-review-gate`** once more, then **`propose-commit`** again for residual files, then `create-pr`. Manual `/csp-engineer-review` does not auto-start `local-diff-review-gate` or `propose-commit`.
 
 ---
 
@@ -495,10 +495,10 @@ flowchart TD
 | Rule | Detail |
 |------|--------|
 | When | After engineer-review (or `csp-multi-repo-supervisor`) settles and Teach-review miss is handled; again on full path if docs left uncommitted files (local-diff-review-gate then propose-commit) |
-| Local Diff Review | Skill `local-diff-review-gate` — HITL `approve-diff` / `comment`; plugin canvas; never commit/push/PR inside that gate |
+| Local Diff Review | Skill `local-diff-review-gate` — HITL `approve-diff` / `comment`; plugin canvas; never commit/push/PR inside that gate; required before propose-commit even after `no_miss` |
 | HITL | `approve-commit` / `revise` via skill `hitl-choice` preset **Propose commit** |
 | Marker | `.cursor/gates/commit-approved/<slug>` written on `approve-commit` |
-| Never | `git push`, `gh pr create`, `git add -A`, commits on default branch |
+| Never | `git push`, `gh pr create`, `git add -A`, commits on default branch, jump from `no_miss` straight to `approve-commit` |
 | Zero commits until gate | `csp-software-developer` / `csp-bug-fixer` must not product-commit; branch may be 0 commits ahead of base until this gate |
 
 ---
