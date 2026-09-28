@@ -40,17 +40,17 @@ assert_file "commands/csp-capture-escape.md"
 assert_file "scripts/jira-issue.sh"
 assert_file "scripts/pr-merge-ci.sh"
 
-assert_grep hitl_pipeline_route "skills/hitl-choice/SKILL.md" "### Pipeline route"
-assert_grep hitl_fast_vs_issue "skills/hitl-choice/SKILL.md" "### Fast vs issue"
-assert_grep hitl_finale "skills/hitl-choice/SKILL.md" "### Pipeline finale"
-assert_grep token_full "skills/hitl-choice/SKILL.md" '`full`'
-assert_grep token_fast "skills/hitl-choice/SKILL.md" '`fast`'
-assert_grep token_issue "skills/hitl-choice/SKILL.md" '`issue`'
-assert_grep token_stay_fast "skills/hitl-choice/SKILL.md" '`stay_fast`'
-assert_grep token_keep_draft "skills/hitl-choice/SKILL.md" '`keep_draft`'
-assert_grep token_ready "skills/hitl-choice/SKILL.md" '`ready`'
-assert_grep token_keep_draft_jira "skills/hitl-choice/SKILL.md" '`keep_draft_jira`'
-assert_grep token_ready_jira "skills/hitl-choice/SKILL.md" '`ready_jira`'
+assert_grep hitl_pipeline_route "skills/hitl-choice/references/presets.md" "### Pipeline route"
+assert_grep hitl_fast_vs_issue "skills/hitl-choice/references/presets.md" "### Fast vs issue"
+assert_grep hitl_finale "skills/hitl-choice/references/presets.md" "### Pipeline finale"
+assert_grep token_full "skills/hitl-choice/references/presets.md" '`full`'
+assert_grep token_fast "skills/hitl-choice/references/presets.md" '`fast`'
+assert_grep token_issue "skills/hitl-choice/references/presets.md" '`issue`'
+assert_grep token_stay_fast "skills/hitl-choice/references/presets.md" '`stay_fast`'
+assert_grep token_keep_draft "skills/hitl-choice/references/presets.md" '`keep_draft`'
+assert_grep token_ready "skills/hitl-choice/references/presets.md" '`ready`'
+assert_grep token_keep_draft_jira "skills/hitl-choice/references/presets.md" '`keep_draft_jira`'
+assert_grep token_ready_jira "skills/hitl-choice/references/presets.md" '`ready_jira`'
 
 assert_grep start_task_fetch "commands/csp-start-task.md" "jira-fetch"
 assert_grep start_task_never_auto_fast "commands/csp-start-task.md" "never auto-select"
@@ -75,9 +75,9 @@ assert_no_grep create_pr_no_ready_column "skills/create-pr/SKILL.md" "while the 
 assert_grep start_task_in_progress "commands/csp-start-task.md" "jira-transition"
 assert_grep start_task_in_progress_target "commands/csp-start-task.md" "in_progress"
 assert_grep start_issue_in_progress "commands/csp-start-issue-task.md" "jira-transition"
-assert_grep hitl_ready_review "skills/hitl-choice/SKILL.md" "jira-transition"
-assert_grep hitl_review_after_merge "skills/hitl-choice/SKILL.md" "all_merged_ci_success"
-assert_no_grep hitl_no_immediate_review "skills/hitl-choice/SKILL.md" "On \`ready\` / \`ready_jira\` when \`jira_key\` is known: skill"
+assert_grep hitl_ready_review "skills/hitl-choice/references/presets.md" "jira-transition"
+assert_grep hitl_review_after_merge "skills/hitl-choice/references/presets.md" "all_merged_ci_success"
+assert_no_grep hitl_no_immediate_review "skills/hitl-choice/references/presets.md" "On \`ready\` / \`ready_jira\` when \`jira_key\` is known: skill"
 assert_grep jira_transition_get "skills/jira-transition/SKILL.md" "getTransitionsForJiraIssue"
 assert_grep jira_transition_do "skills/jira-transition/SKILL.md" "transitionJiraIssue"
 assert_grep jira_transition_in_progress "skills/jira-transition/SKILL.md" "in_progress"

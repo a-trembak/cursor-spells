@@ -47,9 +47,9 @@ assert_grep cpr_progress_only_when_scoring "skills/create-pr/SKILL.md" '--jira-s
 assert_grep start_pass_status "commands/csp-start-task.md" "jira_status"
 assert_grep dogfood "docs/superpowers/dogfood/jira-ac-router-finale-checklist.md" "trajectory-wiring-test.sh"
 assert_grep readme "README.md" "fetch-failure-stops"
-assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Trajectory fail"
-assert_grep token_gen "skills/hitl-choice/SKILL.md" '`generalize`'
-assert_grep token_skip "skills/hitl-choice/SKILL.md" '`skip`'
+assert_grep hitl_heading "skills/hitl-choice/references/presets.md" "### Trajectory fail"
+assert_grep token_gen "skills/hitl-choice/references/presets.md" '`generalize`'
+assert_grep token_skip "skills/hitl-choice/references/presets.md" '`skip`'
 assert_grep fetch_ask "skills/jira-fetch/SKILL.md" "Trajectory fail"
 assert_grep cpr_ask "skills/create-pr/SKILL.md" "Trajectory fail"
 assert_grep capture_fail "commands/csp-capture-escape.md" "FAIL "

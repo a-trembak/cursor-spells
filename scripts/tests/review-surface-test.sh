@@ -96,7 +96,7 @@ assert_grep hook_surface "hooks/post-plan-review-gate.sh" "review-surface|SetAct
 assert_grep hook_local_diff "hooks/post-plan-review-gate.sh" "review-local-diff|local-diff-review"
 assert_grep start_task_surface "commands/csp-start-task.md" "review-surface|SetActiveBranch"
 assert_grep start_task_local_diff "commands/csp-start-task.md" "local-diff-review|review-local-diff"
-assert_grep hitl_local_diff "skills/hitl-choice/SKILL.md" "local-diff-review|Current thread"
+assert_grep hitl_local_diff "skills/hitl-choice/references/presets.md" "local-diff-review|Current thread"
 assert_grep readme_surface "README.md" "review-surface|SetActiveBranch"
 assert_grep readme_local_diff "README.md" "Local Diff Review|review-local-diff|local-diff-review"
 assert_grep flow_md_surface "docs/superpowers/pipeline-flow.md" "SetActiveBranch|review-surface"

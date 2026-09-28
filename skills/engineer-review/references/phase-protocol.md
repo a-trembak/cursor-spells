@@ -41,9 +41,21 @@ Orchestrator computes `git diff --numstat` / file list **before** dispatch, appl
 
 Orchestrator apply pass: only `unambiguous: true` AND (`P0` OR `P1`) AND passing [`auto-fix-eligibility.md`](auto-fix-eligibility.md). Severity meanings live in [`phase-protocol-detail.md`](phase-protocol-detail.md).
 
+## Tiny-diff heuristic phase skip
+
+When **all** of the following hold, the orchestrator may skip heuristic phases `deadcode`, `simplify`, `architecture`, and `performance` in `find` (Coverage **must** list `phase_skip: tiny-diff (deadcode,simplify,architecture,performance)`):
+
+| Condition | Default |
+|-----------|---------|
+| Changed files in review range | ≤ **3** |
+| Changed LOC (insertions+deletions) | ≤ **40** |
+| Non-risky paths | Diff does **not** touch auth/session/crypto/PII/upload/secret sinks, migrations/`*.sql`/ORM schema, JPA Criteria/repository result surfaces, or interactive overlay/side-effect hosts that would trigger interaction-replay |
+
+Always still run: `lint`, `logic`, `patterns`. `security` / `figma` still follow their own triggers (usually absent on tiny non-risky diffs). Never use tiny-diff skip to waive kit **L1** checklists when a trigger actually matches. Do not skip on multi-repo supervisor child reviews unless each child independently qualifies.
+
 ## Phase order
 
-`lint` runs **first**, before every heuristic phase, and does not depend on `patterns` or a stack skill — it just executes the project's own linter/typechecker/build. Its findings are deterministic (a tool said so, not an LLM guess), so they are cheap to trust and apply. Heuristic phases (`patterns`, `deadcode`, `simplify`, `logic`, `architecture`, `performance`, `security`, `figma`) run after, in parallel for `find`.
+`lint` runs **first**, before every heuristic phase, and does not depend on `patterns` or a stack skill — it just executes the project's own linter/typechecker/build. Its findings are deterministic (a tool said so, not an LLM guess), so they are cheap to trust and apply. Heuristic phases (`patterns`, `deadcode`, `simplify`, `logic`, `architecture`, `performance`, `security`, `figma`) run after, in parallel for `find` — except phases omitted by **Tiny-diff heuristic phase skip** above.
 
 **Apply-conflict order** when phases touch the same lines: `lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma`.
 

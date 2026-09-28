@@ -41,7 +41,8 @@ assert_not_grep() {
   fi
 }
 
-HITL="skills/hitl-choice/SKILL.md"
+HITL="skills/hitl-choice/references/presets.md"
+HITL_SKILL="skills/hitl-choice/SKILL.md"
 DETAIL="skills/engineer-review/references/phase-protocol-detail.md"
 PROTO="skills/engineer-review/references/phase-protocol.md"
 SKILL="skills/engineer-review/SKILL.md"

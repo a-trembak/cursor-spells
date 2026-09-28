@@ -19,7 +19,7 @@ You hunt **dead / unused code** and **bad comments** in the diff and its immedia
 
 ## Skills
 
-Use `dead-code-eliminator` if installed; otherwise built-in static reading + search. Always use `skills/code-comments/SKILL.md` for comment classification — it is this kit's own skill, always available.
+Use `dead-code-eliminator` as **L2** if installed and Skill profile allows; otherwise built-in static reading + search (`skill_missing` / `skill_skipped_by_profile`). Always use `skills/code-comments/SKILL.md` for comment classification — it is this kit's own skill, always available.
 
 When graphify is available (`graphify_available` or detect per `skills/engineer-review/references/graphify-protocol.md`), **prefer** callers/callees queries before walking path-adjacent “immediate neighbors.” When absent/unqueryable, keep the existing neighbor heuristics.
 

@@ -41,11 +41,11 @@ assert_grep skill_auto_push "skills/teach-review/SKILL.md" "auto_push"
 assert_grep skill_refuse "skills/teach-review/SKILL.md" "not generalizable"
 assert_grep skill_worktree "skills/teach-review/SKILL.md" "worktree"
 assert_grep cmd_invoke "commands/csp-teach-review.md" "teach-review"
-assert_grep hitl_heading "skills/hitl-choice/SKILL.md" "### Teach-review miss"
-assert_grep token_miss "skills/hitl-choice/SKILL.md" '`miss`'
-assert_grep token_no_miss "skills/hitl-choice/SKILL.md" '`no_miss`'
-assert_grep token_project_secret "skills/hitl-choice/SKILL.md" '`project_secret`'
-assert_grep dest_heading "skills/hitl-choice/SKILL.md" "### Capture-escape destination"
+assert_grep hitl_heading "skills/hitl-choice/references/presets.md" "### Teach-review miss"
+assert_grep token_miss "skills/hitl-choice/references/presets.md" '`miss`'
+assert_grep token_no_miss "skills/hitl-choice/references/presets.md" '`no_miss`'
+assert_grep token_project_secret "skills/hitl-choice/references/presets.md" '`project_secret`'
+assert_grep dest_heading "skills/hitl-choice/references/presets.md" "### Capture-escape destination"
 assert_grep protocol_secret_only "skills/engineer-review/references/review-learn-protocol.md" "project_secret"
 assert_grep protocol_no_auto "skills/engineer-review/references/review-learn-protocol.md" "Do not capture from a settled report without"
 assert_grep er_secret "agents/csp-engineer-reviewer.md" "project_secret"
@@ -71,7 +71,7 @@ assert_grep html_ready_pr "docs/superpowers/pipeline-flow.html" "ready-for-revie
 assert_grep dogfood_miss "docs/superpowers/dogfood/engineer-review-checklist.md" "Teach-review miss"
 # Post-miss pipeline continue (positive) — phrases unique to the continue wire (not the Propose commit preset alone)
 # Patterns use single quotes so backticks are literal for grep -E
-assert_grep hitl_miss_continue "skills/hitl-choice/SKILL.md" 'continue to skill `propose-commit`'
+assert_grep hitl_miss_continue "skills/hitl-choice/references/presets.md" 'continue to skill `local-diff-review-gate` then skill `propose-commit`'
 assert_grep er_agent_propose_after_miss "agents/csp-engineer-reviewer.md" "propose-commit"
 assert_grep er_agent_no_end_on_land "agents/csp-engineer-reviewer.md" "Do not end the turn"
 assert_grep skill_return_caller "skills/teach-review/SKILL.md" "return to the caller"

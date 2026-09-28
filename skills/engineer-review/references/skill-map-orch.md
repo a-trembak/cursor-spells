@@ -2,7 +2,7 @@
 
 Stack detection (+ lint command table) for **`csp-engineer-reviewer`**. Full map (Database skill routing, phase→skills, installer bash fence, Tier-2 protocol): [`skill-map.md`](skill-map.md). Phases and `csp install` load the full map; orchestrator does **not** paste Database/checklist bodies from the full map into its own context.
 
-Recommended installs and Database skill ids stay in [`skill-map.md`](skill-map.md) (source of truth for `scripts/mapped-third-party-skills.sh`).
+Recommended installs and Database skill ids stay in [`skill-map.md`](skill-map.md) (source of truth for `scripts/mapped-third-party-skills.sh`). Skill classes, Load levels (L0→L1→L2), and Skill profile (`strict` / `balanced` / `expert`) also live there — orchestrator only needs the stack label; phases honor L1/L2 depth.
 
 ## Stack detection → skills
 
