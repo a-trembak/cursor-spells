@@ -30,7 +30,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
    2. `AskUserQuestion`
    3. `ask_question`
    4. `ask_user` / `request_user_input`
-3. Set each option's **`id` to the canonical reply token** the calling skill already documents (`approve-plan`, `revise`, `skip`, `C1:A`, …). Labels may be short human-friendly prose; ids must stay the tokens.
+3. Set each option's **`id` to the canonical reply token** the calling skill already documents (`approve-plan`, `revise`, `skip`, `C1:A`, …). Labels may be **brief full sentences** (or a short clause with a verb); ids must stay the tokens. Fragment stacks and slash-joined jargon are forbidden — skill `plain-language-chat` proposal shape.
 4. Treat a selected option `id` exactly as if the user typed that token.
 5. **On tool error or cancel: retry once** with the same prompt and options. Only after a second failure (or a hard `unknown tool` / not-found error on the first attempt with no alias left) use the **text fallback**: ask with the calling skill's exact wording and accept the same typed tokens. State briefly that buttons failed / were unavailable.
 6. **Forbidden voluntary skips:**
@@ -308,6 +308,12 @@ Never auto-write `evals/trajectories/cases/`. `generalize` in a consumer app can
 ### Decision-tier / Blocker questions
 
 Use the question tool with 2–3 options. Option `id`s must be stable slugs you can record into the spec (e.g. `opt_a_outbox`, `opt_b_sync`). Prompt includes the recommendation. One question per message (see `tech-spec` question-discipline).
+
+**Prose bar (same spirit as Engineer-review clarify):** prompt and option labels must pass skill **`plain-language-chat`** — full words **and** full sentences. Each option: what it does + what you gain or give up (one or two short sentences). Do not emit telegram fragments.
+
+**Bad label:** `cookie-on-API + CSRF / BFF same-origin proxy`
+
+**Good label:** `Recommended: put a same-origin backend-for-frontend in front of the page so cookies stay host-local and cross-site forgery protection stays simple.`
 
 ## Notes
 

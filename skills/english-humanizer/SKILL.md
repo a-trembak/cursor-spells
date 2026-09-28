@@ -105,7 +105,7 @@ After: Same pattern as the gateway timeout handling in #4821 — or drop the cla
 Before: CI failed on the PR after HITL; SHA abc is P0.
 After: Continuous integration failed on the pull request after the human-in-the-loop step; commit hash abc is highest severity.
 
-For Cursor chat with the kit owner, also load skill **`plain-language-chat`**. This humanizer removes AI filler; it does not satisfy the full-words contract.
+For Cursor chat with the kit owner, also load skill **`plain-language-chat`**. This humanizer removes AI filler; it does not satisfy the full-words or full-sentence proposal-shape contract.
 
 ## Output format
 
