@@ -67,7 +67,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/skills/<name>` | Symlink → `<kit>/skills/<name>` for every skill in the kit (`english-humanizer` only with `--humanizer` or if already present) |
 | `~/.cursor/commands/<file>.md` | Symlink → `<kit>/commands/…` (all slash commands) |
 | `~/.cursor/agents/<file>.md` | Symlink → `<kit>/agents/…` (all agents, including `review-*`) |
-| `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words chat (pipeline gate rules stay project-only) |
+| `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words, full-sentence chat (pipeline gate rules stay project-only) |
 | `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `csp-software-developer` / `csp-bug-fixer` for product code |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
@@ -87,7 +87,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/before-build-critique-gate.mdc` | Copied / refreshed |
 | `<project>/.cursor/rules/clean-decision-docs.mdc` | Copied / refreshed — specs/plans stay final-form (no revision archaeology) |
 | `<project>/.cursor/rules/hitl-askquestion.mdc` | Copied / refreshed — closed-set HITL must call AskQuestion first |
-| `<project>/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — chat with the human uses full words, never abbreviations |
+| `<project>/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — chat with the human uses full words and full sentences, never abbreviations or fragment stacks |
 | `<project>/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch coding agents for product code |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
@@ -146,7 +146,7 @@ evals/       Kit-only golden sets (trajectories, harness reports, code-quality) 
 | [`harness-status`](skills/harness-status/) | Kit harness inventory + last bench summary; orientation only (does not advance gates) |
 | [`code-quality-score`](skills/code-quality-score/) | Hard-score kit code-quality fixtures (files / substrings / tests); no language-model judge |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
-| [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words — no abbreviations; always-on via rule `plain-language-chat` |
+| [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words and full sentences — no abbreviations or telegram fragment stacks; always-on via rule `plain-language-chat` |
 | [`finish-plan`](skills/finish-plan/) | Plan→HITL handoff: `review-surface` (`SetActiveBranch` + Local Diff Review when installed) then review-gate; engineer-review still runs after |
 | [`local-diff-review-gate`](skills/local-diff-review-gate/) | Pipeline-only HITL before `propose-commit` — Local Diff Review canvas (`approve-diff` / `comment`); applies comments; never commits or opens a pull request |
 | [`propose-commit`](skills/propose-commit/) | Post-review HITL — propose commit message + file list; `approve-commit` / `revise`; `git commit` only (never push); writes `commit-approved` gate |

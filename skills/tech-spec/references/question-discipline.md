@@ -17,7 +17,7 @@ Full protocol for agent-assisted tech-spec drafting. This reuses the question-lo
 - One question per message. Do not batch multiple Blocker/Decision items into a single wall of text.
 - Prefer multiple-choice framing over open-ended prompts.
 - Use skill **`hitl-choice`**: present Blocker/Decision options via `hitl-choice` (AskQuestion required; stable option `id`s; typed tokens only after failed/missing tool).
-- For a Decision-tier fork, always show 2-3 named options with a one-line trade-off each, plus your recommendation and why.
+- For a Decision-tier fork, always show 2-3 named options with **one or two full sentences of trade-off each** (what the option does + what you gain or give up), plus your recommendation and why. Option labels and chat prose must pass skill `plain-language-chat` proposal shape — no noun-phrase stacks or slash-joined jargon.
 - Never proceed past an open Blocker or Decision by assuming an answer "for now" — wait for the reply.
 
 ## Self-check before finalizing a draft
