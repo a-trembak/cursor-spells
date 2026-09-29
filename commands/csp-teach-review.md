@@ -1,24 +1,15 @@
 ---
-description: Publish a review miss into cursor-spells kit instructions (learn/ branch + land config).
+description: Deprecated alias — use /lgt-teach-review
 argument-hint: "[what the reviewer missed]"
 ---
 
-# /csp-teach-review
+# /csp-teach-review (deprecated)
 
-Turn a human remark into generalized **kit** instructions. Does **not** write `.cursor/review-learnings.md`. Does **not** run `engineer-review`.
+**Deprecated.** Prefer **`/lgt-teach-review`**.
 
-## Arguments
+This file remains for backward compatibility with older installs and muscle memory.
+If you were invoked as `/csp-teach-review`, **immediately load and execute** `commands/lgt-teach-review.md` with the same arguments. Do not stop to ask about the rename.
 
-- Optional miss description (symptom + the check that should have caught it). If omitted, ask in chat (open-ended — not Teach-review miss).
+Primary command: `/lgt-teach-review`
 
-## Steps
-
-1. Read skill `teach-review` (`skills/teach-review/SKILL.md`).
-2. If the argument is empty, ask for the description. Empty still → stop.
-3. Follow `teach-review` verbatim (generalize → route → kit git → land).
-4. Skip the closed-set Teach-review miss gate — invoking this command **is** `miss` (kit). For a miss that must stay in this project, use `/csp-capture-escape` and choose `project_secret` instead.
-
-## Notes
-
-- Do not start `csp-engineer-reviewer` or `/csp-capture-escape` unless the human asks.
-- One miss class per invocation.
+Internal agent ids such as `csp-software-developer` and `csp-bug-fixer` are unchanged in this pass.
