@@ -731,7 +731,7 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Stack detect</h3>
-            <p>Табличний lookup сигналів (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) з <code>skill-map.md</code>. Без LLM-міркувань.</p>
+            <p>Табличний lookup сигналів (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) з <code>skill-map.md</code>. Без LLM-міркувань. Та сама карта задає <strong>Skill classes</strong>, рівні <strong>L0→L1→L2</strong> і <strong>Skill profile</strong> (<code>strict</code> / <code>balanced</code> / <code>expert</code> з <code>.cursor/csp-skill-profile</code>, типово <code>strict</code>) — профіль ріже лише стороннє збагачення L2, не правила й не kit-чеклісти.</p>
           </div>
         </div>
       </div>
@@ -955,7 +955,7 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Skill routing</h3>
-            <p>Stack skills + code-comments + TDD (якщо є behavior) + DB rows при міграціях + conditional perf/security/architecture. Tier-2 skills — лише після HITL install decision.</p>
+            <p>Stack skills + <code>code-comments</code> + TDD (якщо є behavior) + DB rows при міграціях + conditional perf/security/architecture. <strong>L1</strong> = kit miss-class checklists (завжди на тригері). <strong>L2</strong> = сторонні mapped skills — лише якщо Skill profile дозволяє (<code>strict</code> за замовчуванням; <code>balanced</code>/<code>expert</code> можуть пропустити L2 з <code>skill_skipped_by_profile</code>). Tier-2 unmapped skills — лише після HITL install decision.</p>
           </div>
         </div>
         <div class="step">
@@ -1075,7 +1075,7 @@
           <div class="step-num">2</div>
           <div class="step-body auto">
             <h3>Phase order</h3>
-            <p><code>csp-review-lint</code> першим (deterministic). Далі parallel <strong>find</strong> для heuristic phases (вкл. <code>csp-review-simplify</code> / <code>ce-simplify-code</code>). Apply serialize: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma. Потім verify lint + simplify quality pass. Evidence gate + <code>validate-review-report.sh</code> перед показом.</p>
+            <p><code>csp-review-lint</code> першим (deterministic). Далі parallel <strong>find</strong> для heuristic phases (вкл. <code>csp-review-simplify</code>; сторонній <code>ce-simplify-code</code> — L2 за профілем). <strong>Tiny-diff skip:</strong> якщо ≤3 файли, ≤40 LOC і шляхи non-risky — можна пропустити <code>deadcode</code> / <code>simplify</code> / <code>architecture</code> / <code>performance</code> (Coverage: <code>phase_skip: tiny-diff (…)</code>); завжди лишаються <code>lint</code> + <code>logic</code> + <code>patterns</code>. Apply serialize: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma. Потім verify lint + simplify quality pass. Evidence gate + <code>validate-review-report.sh</code> перед показом.</p>
           </div>
         </div>
         <div class="step">

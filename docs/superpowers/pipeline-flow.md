@@ -317,7 +317,7 @@ flowchart TD
   entryOk{Entry: spec + plan + critic clear?}
   stopEntry[/"Stop: missing gate"/]
   branchSetup["Create feature branch in every target repo"]
-  skillRoute["skill-map: stack + DB + code-comments"]
+  skillRoute["skill-map: stack + DB + code-comments + skill profile"]
   execMode{User asked executing-plans?}
   sdd[["subagent-driven-development"]]
   ep[["executing-plans separate session"]]
@@ -339,6 +339,8 @@ flowchart TD
   ep ==> verify
   verify ==> toReviewGate
 ```
+
+**Skill load (Build):** [`skill-map.md`](../../skills/engineer-review/references/skill-map.md) Skill classes / Load levels / Skill profile. Kit miss-class checklists stay **L1** (trigger-gated, never skipped by model IQ). Mapped third-party stack skills are **L2** enrichment. Profile from `.cursor/csp-skill-profile` (`strict` / `balanced` / `expert`, default `strict`) modulates L2 only — writers may skip L2 under `balanced` / `expert` and note `skill_skipped_by_profile`. Rules under `rules/*.mdc` stay always-on.
 
 `start-build` **must Wait for** the `csp-software-developer` Task to return, then invoke skill `finish-plan` (slash command `/csp-finish-plan`) in the parent chat. That handoff **is** the `review-gate` HITL; after `skip` / `approve` / `done` it starts `csp-engineer-reviewer`. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
 
@@ -433,7 +435,8 @@ Writing shape: skill `update-docs` + `references/writing-guide.md`. For `docs_re
 flowchart TD
   orch(["csp-engineer-reviewer"])
   lint[["csp-review-lint first"]]
-  parallelFind["Parallel find: logic / patterns / deadcode / simplify / architecture / performance / security? / figma?"]
+  tinyDiff{"Tiny-diff skip? ≤3 files, ≤40 LOC, non-risky"}
+  parallelFind["Parallel find: logic / patterns (+ deadcode / simplify / architecture / performance unless tiny-diff) / security? / figma?"]
   autofix{Auto-fix eligible?}
   apply["Serialize apply: lint then patterns deadcode logic arch perf security figma"]
   clarifyItem[/"clarify — never silent apply"/]
@@ -445,7 +448,9 @@ flowchart TD
   report(["User-facing report"])
 
   orch ==> lint
-  lint ==> parallelFind
+  lint ==> tinyDiff
+  tinyDiff -->|"yes: Coverage phase_skip: tiny-diff"| parallelFind
+  tinyDiff -->|"no: all heuristic phases"| parallelFind
   parallelFind ==> autofix
   autofix -->|"all 4 tests pass + P0/P1 unambiguous"| apply
   autofix -->|"any test fails or P2"| clarifyItem
@@ -458,6 +463,8 @@ flowchart TD
   redispatch --> merge
   needsClarify -->|"no"| report
 ```
+
+**Skill load (Review):** same Skill profile as Build. Phase agents load kit **L1** checklists on triggers; third-party stack / simplify / architecture bodies are **L2** when the profile allows. **Tiny-diff heuristic phase skip** (see [`phase-protocol.md`](../../skills/engineer-review/references/phase-protocol.md)): when ≤3 files, ≤40 changed lines, and paths are non-risky, orchestrator may skip `deadcode` / `simplify` / `architecture` / `performance` — always keep `lint` + `logic` + `patterns`; Coverage must list `phase_skip: tiny-diff (…)`. Never skip L1 checklist opens when a trigger matches.
 
 Auto-fix requires all four: deterministic check, single correct answer, no information loss, zero blast radius on data/UX. Traceability drift and migrations are always `clarify`.
 
