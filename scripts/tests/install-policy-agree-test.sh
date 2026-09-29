@@ -164,6 +164,138 @@ else
   FAIL=1
 fi
 
+# --- update path (same gate; no sync without agree) ---
+
+assert_grep cli_policy_before_pull "bin/lgt" 'policy-check-only'
+assert_grep installer_policy_check_only "scripts/install-to-project.sh" 'POLICY_CHECK_ONLY'
+
+UPD_HOME="$TMP/home_upd"
+UPD_PROJ="$TMP/proj_upd"
+mkdir -p "$UPD_HOME" "$UPD_PROJ/.git"
+git -C "$UPD_PROJ" init -q
+# Sentinel file: update must not create project install artifacts without agree
+SENTINEL_BEFORE="$(find "$UPD_PROJ" -type f 2>/dev/null | sort | cksum)"
+
+set +e
+OUT_UPD="$(HOME="$UPD_HOME" "$ROOT/scripts/install-to-project.sh" --update "$UPD_PROJ" --skip-third-party-skills 2>&1)"
+RC_UPD=$?
+set -e
+if [[ "$RC_UPD" -ne 0 ]] && echo "$OUT_UPD" | grep -q "agree-policy"; then
+  echo "OK   update_refuse_without_agree"
+else
+  echo "FAIL update_refuse_without_agree rc=$RC_UPD out=$OUT_UPD" >&2
+  FAIL=1
+fi
+if [[ -f "$UPD_PROJ/.cursor/lgt-policy-accepted" || -f "$UPD_HOME/.cursor/lgt-policy-accepted" ]]; then
+  echo "FAIL update_marker_should_not_exist" >&2
+  FAIL=1
+else
+  echo "OK   update_no_marker_without_agree"
+fi
+# No project hooks/rules/agents from a refused update
+if [[ -d "$UPD_PROJ/.cursor/hooks" || -d "$UPD_PROJ/.cursor/agents" || -d "$UPD_HOME/.cursor/skills" ]]; then
+  echo "FAIL update_mutated_without_agree" >&2
+  FAIL=1
+else
+  echo "OK   update_no_file_changes_without_agree"
+fi
+SENTINEL_AFTER="$(find "$UPD_PROJ" -type f 2>/dev/null | sort | cksum)"
+assert_eq update_project_unchanged "$SENTINEL_BEFORE" "$SENTINEL_AFTER"
+
+# policy-check-only alone also refuses without agree (CLI pre-pull gate)
+set +e
+OUT_CHK="$(HOME="$UPD_HOME" "$ROOT/scripts/install-to-project.sh" --update --policy-check-only "$UPD_PROJ" --skip-third-party-skills 2>&1)"
+RC_CHK=$?
+set -e
+if [[ "$RC_CHK" -ne 0 ]] && echo "$OUT_CHK" | grep -q "agree-policy"; then
+  echo "OK   policy_check_only_refuse"
+else
+  echo "FAIL policy_check_only_refuse rc=$RC_CHK out=$OUT_CHK" >&2
+  FAIL=1
+fi
+
+# update with --agree-policy succeeds
+if HOME="$UPD_HOME" "$ROOT/scripts/install-to-project.sh" --update "$UPD_PROJ" --agree-policy --skip-third-party-skills >/dev/null; then
+  echo "OK   update_with_agree"
+else
+  echo "FAIL update_with_agree" >&2
+  FAIL=1
+fi
+assert_file update_project_marker "$UPD_PROJ/.cursor/lgt-policy-accepted"
+assert_file update_user_marker "$UPD_HOME/.cursor/lgt-policy-accepted"
+
+# Matching marker: update without flag proceeds
+if HOME="$UPD_HOME" "$ROOT/scripts/install-to-project.sh" --update "$UPD_PROJ" --skip-third-party-skills >/dev/null; then
+  echo "OK   update_skips_prompt_with_marker"
+else
+  echo "FAIL update_skips_prompt_with_marker" >&2
+  FAIL=1
+fi
+
+# Stale hash on update → refuse
+echo "policy_hash=deadbeef" >"$UPD_PROJ/.cursor/lgt-policy-accepted"
+echo "policy_hash=deadbeef" >"$UPD_PROJ/.cursor/csp-policy-accepted"
+echo "policy_hash=deadbeef" >"$UPD_HOME/.cursor/lgt-policy-accepted"
+echo "policy_hash=deadbeef" >"$UPD_HOME/.cursor/csp-policy-accepted"
+set +e
+OUT_STALE_UPD="$(HOME="$UPD_HOME" "$ROOT/scripts/install-to-project.sh" --update "$UPD_PROJ" --skip-third-party-skills 2>&1)"
+RC_STALE_UPD=$?
+set -e
+if [[ "$RC_STALE_UPD" -ne 0 ]] && echo "$OUT_STALE_UPD" | grep -q "agree-policy"; then
+  echo "OK   update_stale_hash_refuses"
+else
+  echo "FAIL update_stale_hash_refuses rc=$RC_STALE_UPD out=$OUT_STALE_UPD" >&2
+  FAIL=1
+fi
+
+# CLI: bin/lgt update refuses without agree before pull (fake HOME, no upstream → skip pull after gate)
+CLI_HOME="$TMP/home_cli"
+CLI_PROJ="$TMP/proj_cli"
+mkdir -p "$CLI_HOME" "$CLI_PROJ/.git"
+git -C "$CLI_PROJ" init -q
+set +e
+OUT_CLI="$(HOME="$CLI_HOME" "$ROOT/bin/lgt" update "$CLI_PROJ" --skip-third-party-skills 2>&1)"
+RC_CLI=$?
+set -e
+if [[ "$RC_CLI" -ne 0 ]] && echo "$OUT_CLI" | grep -q "agree-policy"; then
+  echo "OK   lgt_update_refuse_without_agree"
+else
+  echo "FAIL lgt_update_refuse_without_agree rc=$RC_CLI out=$OUT_CLI" >&2
+  FAIL=1
+fi
+# Must not have reached "Updating kit" if gate failed first
+if echo "$OUT_CLI" | grep -q "Updating kit"; then
+  echo "FAIL lgt_update_pulled_before_agree" >&2
+  FAIL=1
+else
+  echo "OK   lgt_update_no_pull_before_agree"
+fi
+
+# CLI update with agree proceeds (no upstream on this kit branch is fine)
+if HOME="$CLI_HOME" "$ROOT/bin/lgt" update "$CLI_PROJ" --agree-policy --skip-third-party-skills >/dev/null; then
+  echo "OK   lgt_update_with_agree"
+else
+  echo "FAIL lgt_update_with_agree" >&2
+  FAIL=1
+fi
+assert_file cli_update_marker "$CLI_PROJ/.cursor/lgt-policy-accepted"
+
+# Deprecated csp wrapper forwards the same gate
+CSP_HOME="$TMP/home_csp2"
+CSP_PROJ="$TMP/proj_csp"
+mkdir -p "$CSP_HOME" "$CSP_PROJ/.git"
+git -C "$CSP_PROJ" init -q
+set +e
+OUT_CSP="$(HOME="$CSP_HOME" "$ROOT/bin/csp" update "$CSP_PROJ" --skip-third-party-skills 2>&1)"
+RC_CSP=$?
+set -e
+if [[ "$RC_CSP" -ne 0 ]] && echo "$OUT_CSP" | grep -q "agree-policy"; then
+  echo "OK   csp_update_refuse_without_agree"
+else
+  echo "FAIL csp_update_refuse_without_agree rc=$RC_CSP out=$OUT_CSP" >&2
+  FAIL=1
+fi
+
 if [[ "$FAIL" -ne 0 ]]; then
   echo "FAILED" >&2
   exit 1

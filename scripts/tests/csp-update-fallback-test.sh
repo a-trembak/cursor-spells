@@ -115,9 +115,10 @@ else
   echo "OK   update did not target kit as consumer project"
 fi
 
-# CLI: lgt update wires --update into the installer
+# CLI: lgt update wires --update into the installer and gates policy before pull
 if [[ -x "$ROOT/bin/csp" ]]; then
   assert_grep cli_update_passes_flag "bin/lgt" 'INSTALLER.*--update'
+  assert_grep cli_policy_before_pull "bin/lgt" 'policy-check-only'
 fi
 
 if [[ "$fail" -ne 0 ]]; then

@@ -17,7 +17,7 @@ Formal English policy documents for this pipeline kit authored by **Andrey Tremb
 
 ## Install agreement
 
-`lgt install` / `lgt update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `LGT_AGREE_POLICY=1`; alias `CSP_AGREE_POLICY=1`). A successful agreement writes `.cursor/lgt-policy-accepted` and legacy `.cursor/csp-policy-accepted` (or under `~/.cursor/` for `--user-only`) with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, and `kit_commit`.
+`lgt install` / `lgt update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `LGT_AGREE_POLICY=1`; alias `CSP_AGREE_POLICY=1`). `lgt update` checks agreement **before** `git pull` so the kit is not mutated without acceptance. A successful agreement writes `.cursor/lgt-policy-accepted` and legacy `.cursor/csp-policy-accepted` (or under `~/.cursor/` for `--user-only`) with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, and `kit_commit`.
 
 Deprecated CLI `csp` still forwards to `lgt` with a warning.
 

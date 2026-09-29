@@ -23,12 +23,13 @@ SKIP_THIRD_PARTY_SKILLS=0
 # Prefer LGT_*; accept legacy CSP_* for existing installs / continuous integration.
 PIPELINE_LANGUAGE="${LGT_PIPELINE_LANGUAGE:-${CSP_PIPELINE_LANGUAGE:-}}"
 AGREE_POLICY=0
+POLICY_CHECK_ONLY=0
 # Non-interactive CI: LGT_AGREE_POLICY=1 or CSP_AGREE_POLICY=1 ≡ --agree-policy
 _agree_env="${LGT_AGREE_POLICY:-${CSP_AGREE_POLICY:-}}"
 if [[ "$_agree_env" == "1" || "$_agree_env" == "true" || "$_agree_env" == "yes" ]]; then
   AGREE_POLICY=1
 fi
-# Core public policy docs that must be accepted at install (order matches scripts/csp-policy-hash.sh).
+# Core public policy docs that must be accepted at install/update (order matches scripts/csp-policy-hash.sh).
 POLICY_DOC_NAMES=(PRIVACY.md TERMS.md DISCLAIMER.md NOTICE.md)
 
 usage() {
@@ -50,8 +51,11 @@ Flags:
   --copy           Copy into ~/.cursor instead of symlink
   --agree-policy, --i-agree
                    Accept Privacy, Terms, Disclaimer, and NOTICE (docs/legal/).
-                   Required for install. Same as LGT_AGREE_POLICY=1 (alias CSP_AGREE_POLICY=1).
+                   Required for install and update. Same as LGT_AGREE_POLICY=1 (alias CSP_AGREE_POLICY=1).
                    Interactive [y/N] prompt when flag omitted and stdin is a terminal.
+  --policy-check-only
+                   Run the public-policy gate only (no ~/.cursor or project sync).
+                   Used by `lgt update` before git pull so the kit is not mutated without agreement.
   --language <code>, --lang <code>
                    Set pipeline chat language (writes .cursor/lgt-pipeline-language and legacy .cursor/csp-pipeline-language).
                    Same as LGT_PIPELINE_LANGUAGE (alias CSP_PIPELINE_LANGUAGE). Default when omitted: leave unset
@@ -78,6 +82,10 @@ while [[ $# -gt 0 ]]; do
     --copy) COPY_MODE=1; shift ;;
     --agree-policy|--i-agree)
       AGREE_POLICY=1
+      shift
+      ;;
+    --policy-check-only)
+      POLICY_CHECK_ONLY=1
       shift
       ;;
     --language|--lang)
@@ -542,7 +550,7 @@ require_policy_agreement() {
   fi
   # Empty SHA-256 of zero bytes — must never accept (guards against empty doc set bugs).
   if [[ "$hash" == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" ]]; then
-    echo "error: policy hash is empty-document digest — refusing install" >&2
+    echo "error: policy hash is empty-document digest — refusing install/update" >&2
     exit 1
   fi
 
@@ -602,7 +610,7 @@ require_policy_agreement() {
         ;;
     esac
   else
-    echo "error: non-interactive install requires --agree-policy (or --i-agree / LGT_AGREE_POLICY=1 / CSP_AGREE_POLICY=1)" >&2
+    echo "error: non-interactive install/update requires --agree-policy (or --i-agree / LGT_AGREE_POLICY=1 / CSP_AGREE_POLICY=1)" >&2
     echo "       after you have read docs/legal/ (Privacy, Terms, Disclaimer, NOTICE)." >&2
     exit 1
   fi
@@ -617,6 +625,11 @@ echo "kit: $KIT_ROOT"
 echo "mode: $MODE"
 
 require_policy_agreement
+
+if [[ "$POLICY_CHECK_ONLY" -eq 1 ]]; then
+  echo "policy check ok (no install/update sync)"
+  exit 0
+fi
 
 install_user_bits
 

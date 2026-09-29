@@ -34,7 +34,7 @@ lgt install /path/to/your-app --agree-policy --language uk  # chat language (--l
 cd /path/to/multi-repo-workspace && lgt update --agree-policy
 ```
 
-**Public policy at install:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `LGT_AGREE_POLICY=1 (alias CSP_AGREE_POLICY=1)`). Acceptance is recorded in `~/.cursor/lgt-policy-accepted` and, for project installs, also `<project>/.cursor/lgt-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. A valid user-level acceptance can seed a project marker. Chosen product name **Loregate** / **LGT** (GitHub may still be `cursor-spells`): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
+**Public policy at install and update:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `LGT_AGREE_POLICY=1 (alias CSP_AGREE_POLICY=1)`). Acceptance is recorded in `~/.cursor/lgt-policy-accepted` and, for project installs, also `<project>/.cursor/lgt-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. A valid user-level acceptance can seed a project marker. `lgt update` runs this gate **before** `git pull` so the kit checkout is not mutated without agreement. Chosen product name **Loregate** / **LGT** (GitHub may still be `cursor-spells`): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
 
 Useful flags: `--agree-policy` / `--i-agree` (accept public policy), `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `LGT_SKIP_THIRD_PARTY_SKILLS=1 (alias CSP_SKIP_THIRD_PARTY_SKILLS=1)` on air-gapped machines).
 
@@ -47,13 +47,15 @@ Check: `ls -la ~/.cursor/agents` and (after full install) `ls -la .cursor/agents
 ### Update (kit + links)
 
 ```bash
-lgt update /path/to/your-app   # git pull the kit, then re-sync ~/.cursor + project files
-cd /path/to/your-app && lgt update   # path optional — current repo / workspace
-lgt update                     # git pull + refresh ~/.cursor only (when cwd is not a project)
+# Same public-policy gate as install: --agree-policy, env, matching marker, or interactive yes
+lgt update /path/to/your-app --agree-policy   # policy check → git pull kit → re-sync ~/.cursor + project
+cd /path/to/your-app && lgt update --agree-policy   # path optional — current repo / workspace
+lgt update --agree-policy                     # git pull + refresh ~/.cursor only (when cwd is not a project)
 lgt install --user-only --agree-policy   # ~/.cursor only (also: lgt update --user-only --agree-policy)
 lgt status                     # kit path, commit, what is linked
 ```
 
+Update refuses to run (no kit pull, no re-sync) until the public policy is accepted. A prior matching `.cursor/lgt-policy-accepted` hash skips the prompt; a changed policy requires a fresh agreement.
 **Default project when path is omitted**
 
 1. Git toplevel of the current directory (works inside a leaf repo of a multi-repo)

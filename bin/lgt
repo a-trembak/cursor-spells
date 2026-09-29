@@ -119,6 +119,9 @@ case "$cmd" in
   update)
     shift
     ensure_installer
+    # Public policy must be accepted before git pull or re-sync mutates anything.
+    # Same gate as install (flag / env / matching-hash marker / interactive yes).
+    "$INSTALLER" --update --policy-check-only "$@"
     echo "Updating kit at $KIT_ROOT …"
     if git -C "$KIT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
       # Prefer pulling the current branch; fall back quietly if no upstream
