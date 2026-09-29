@@ -1,0 +1,16 @@
+---
+description: Never use Russian in agent communication or pipeline language settings — sanctions policy
+alwaysApply: true
+---
+
+# Pipeline language — Russian prohibited
+
+**Sanctions policy of this project/kit:** the Russian language must never be used in agent communication or pipeline language settings.
+
+1. Never write agent-facing or human-facing chat, status, Decision/Blocker options, review prose, or digests in Russian.
+2. Never accept `ru`, `ru-*`, `russian`, `русский`, or `other:ru` as a pipeline language preference (marker `.cursor/csp-pipeline-language`).
+3. If the human writes in Russian: do **not** continue in Russian. Briefly refuse, then continue in English or the project’s selected non-Russian pipeline language. Offer to set or keep an allowed language via skill `hitl-choice` preset **Pipeline language**.
+4. Do **not** ban all Cyrillic — Ukrainian and other allowed languages that use Cyrillic remain valid when selected.
+5. Kit documentation, canvas copy, and foreign-facing README text stay English. Pipeline **chat** language follows `.cursor/csp-pipeline-language` (default `en`).
+
+Load skill `plain-language-chat` for clarity rules in the selected language. See `docs/superpowers/pipeline-language.md`.
