@@ -6,9 +6,9 @@ description: >-
   are fallback only after the tool fails or is missing. Use from approve-plan,
   finish-plan, update-docs, tech-spec, engineer-review, multi-repo-supervisor,
   start-issue-task blocked critic, blocked implementation-critic gates,
-  pipeline route / Fast vs issue, create-pr Pipeline finale, Teach-review miss,
-  Local Diff Review gate (`approve-diff` / `comment`), approve-commit, and
-  Capture-escape destination.
+  pipeline route / Fast vs issue, Pipeline language, create-pr Pipeline finale,
+  Teach-review miss, Local Diff Review gate (`approve-diff` / `comment`),
+  approve-commit, and Capture-escape destination.
 ---
 
 # HITL Choice
@@ -17,8 +17,8 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
 
 ## When to Use
 
-- Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline route**, **Fast vs issue**, **Local Diff Review gate** (`approve-diff` / `comment`), **Propose commit** (`approve-commit` / `revise`), **Pipeline finale**)
-- Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste) — those stay chat text after the closed choice, if any
+  - Any kit HITL gate with a fixed option set (`approve-plan` / `revise`, `skip` / `approve` / `done`, `docs_md` / `docs_repo` / `confluence`, `human` / `agent`, `light` / `full`, Decision-tier forks, blocked-critic next steps, **engineer-review / pr-review Needs clarification**, **force-clear / leave** for a foreign pipeline gate, **Review-learn promote**, **Teach-review miss** (`miss` / `project_secret` / `no_miss`), **Capture-escape destination** (`miss` / `project_secret`), **Pipeline language**, **Pipeline route**, **Fast vs issue**, **Local Diff Review gate** (`approve-diff` / `comment`), **Propose commit** (`approve-commit` / `revise`), **Pipeline finale**)
+- Not for open-ended answers alone (Figma URL paste, docs-repo path, Confluence space/URL, long revise notes, free-form clarification replies after `Ci:other`, missing Jira paste, typed language code after Pipeline language `other`) — those stay chat text after the closed choice, if any
 
 ## Protocol (mandatory)
 
@@ -47,6 +47,7 @@ Canonical UX for closed-set HITL questions. **Always attempt interactive buttons
    - `confluence` → wait for space/parent or page URL
    - `accept F<id>` may be chosen via buttons; extra notes stay optional chat text
    - `Ci:other` (engineer-review clarify) → wait for free-text answer for that `Ci`, then continue the sequence
+   - `other` (Pipeline language) → wait for typed ISO-ish code or `other:<tag>`; reject Russian per sanctions policy
 8. If the user types a canonical token while buttons are showing, honor the typed token.
 9. Never invent a HITL answer when the picker is skipped/cancelled — re-ask via retry or text fallback, or wait.
 10. **Do not re-ask** when a canonical token for this gate is already present in a later user message (e.g. user sent `approve` while a stop-hook followup re-prompted). Honor that token and continue the calling skill.

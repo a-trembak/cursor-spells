@@ -113,8 +113,65 @@ assert_eq empty_marker_en "en" "$got"
 printf 'ru\n' > "$PROJ/.cursor/csp-pipeline-language"
 assert_fail get_rejects_ru_file "$HELPER" get --root "$PROJ"
 
-# Wiring / docs presence (may be added in later commits — soft-check files that must exist by end)
-assert_grep hitl_preset_or_plan "docs/superpowers/plans/2026-09-29-pipeline-language-policy.md" "Pipeline language"
+# Wiring / docs presence
+assert_grep hitl_preset "skills/hitl-choice/references/presets.md" "### Pipeline language"
+assert_grep start_task "commands/csp-start-task.md" "Pipeline language"
+assert_grep start_issue "commands/csp-start-issue-task.md" "Pipeline language"
+assert_grep flow_doc "docs/superpowers/pipeline-flow.md" "csp-pipeline-language"
+assert_grep readme "README.md" "csp-pipeline-language"
+assert_grep no_ru_in_preset_ids "skills/hitl-choice/references/presets.md" '`en`'
+# Ensure ru is not offered as an option id in the Pipeline language table
+if awk '/### Pipeline language/,/^### /' "$ROOT/skills/hitl-choice/references/presets.md" | grep -E -q '\| `ru` \|'; then
+  echo "FAIL Pipeline language preset must not offer ru" >&2
+  fail=1
+else
+  echo "OK   preset_omits_ru"
+fi
+
+# Validator rejects Russian-only letters in review prose; allows Ukrainian digests only as shape fail
+VAL="$ROOT/scripts/validate-review-report.sh"
+RU_REPORT="$TMP/ru-report.md"
+cat > "$RU_REPORT" <<'EOF'
+### F1 — `P0` — Что-то сломалось
+- **Context:** Пример
+- **What:** Здесь есть буква ы в русском тексте
+- **Where:**
+  - File: [`x.java`](x.java)
+  - Lines: **1–2**
+  - Jump: [`x.java:1`](x.java#L1)
+- **Why it matters:** test
+- **Ask / fix:** fix
+
+```java
+1| class X {}
+```
+EOF
+assert_fail validator_rejects_russian_letters "$VAL" "$RU_REPORT"
+
+UK_DIGEST="$TMP/uk-digest.md"
+cat > "$UK_DIGEST" <<'EOF'
+### Блокери
+1. Something without evidence
+EOF
+assert_fail validator_rejects_uk_digest_shape "$VAL" "$UK_DIGEST"
+
+EN_OK="$TMP/en-ok.md"
+cat > "$EN_OK" <<'EOF'
+### F1 — `P0` — Missing org uuid on seed
+- **Context:** Migration seeds default roles.
+- **What:** Inserts NULL organization_uuid.
+- **Where:**
+  - File: [`V044.sql`](V044.sql)
+  - Lines: **12–20**
+  - Jump: [`V044.sql:12`](V044.sql#L12)
+- **Why it matters:** Orgs never see seeded roles.
+- **Ask / fix:** Seed a real uuid.
+
+```sql
+12| INSERT INTO custom_role ...
+```
+EOF
+assert_ok validator_accepts_english_findings "$VAL" "$EN_OK"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

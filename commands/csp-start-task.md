@@ -42,6 +42,7 @@ Chains every stage automatically except the established human-in-the-loop (HITL)
 1. **Bootstrap** (automatic):
    - Read `.cursor/project-patterns.md` in the current project if present (create it via the `engineer-review` patterns flow on first use of this kit in a project, if entirely absent).
    - Detect the project's stack mechanically (same signals as `skill-map.md`'s stack-detection table: `package.json`, `pom.xml`, `docker-compose`, dependency names) — no reasoning call, a table lookup.
+   - **Pipeline language (HITL):** read `.cursor/csp-pipeline-language` via `scripts/csp-pipeline-language.sh get --root <project>` (default `en`). Ask via skill `hitl-choice` preset **Pipeline language** (AskQuestion required; include `keep` when a valid marker exists). Persist with `set --root <project> --lang <code>`. Never accept Russian (`ru`) — sanctions policy; see `docs/superpowers/pipeline-language.md`. User-facing chat for this run follows the chosen language (skill `plain-language-chat`). Kit docs stay English.
    - **Run-log:** mint a new `invocation_id` (`[A-Za-z0-9][A-Za-z0-9._-]{0,63}`, e.g. timestamp + short random). Prefer project `scripts/pipeline-run-log.sh` (else kit copy). Run `init --root <project> --invocation <id> --route <full|fast|unknown>` (writes `inv-<id>.md` + `current-invocation` pointer). Missing helper → one-sentence skip. Never dump chat transcripts or full ticket bodies into notes/briefs.
 2. **Tech spec** — invoke skill `tech-spec` (agent `csp-tech-spec`) with the AC text (fetched `ac_text` or pasted/file source), the patterns file path (if found), and the detected stack label:
    - **HITL:** the entry question (`human` / `agent`) via skill `hitl-choice` (AskQuestion required; text only after failed/missing tool).
@@ -92,7 +93,7 @@ For small tasks that do not need tech-spec, plan approval, critic, finish-plan, 
 
 ### Pipeline (in order)
 
-1. **Bootstrap** — same as full mode (patterns + stack detect).
+1. **Bootstrap** — same as full mode (patterns + stack detect + **Pipeline language** HITL).
 2. **AC required** — fetched `ac_text` or pasted/file source. If still empty, stop.
 3. **Short task brief** (automatic, in chat only — not a tech-spec file): 3–6 bullets covering goal, touched areas if obvious, and done criteria from the AC. Do not run `tech-spec`, `writing-plans`, `approve-plan`, or `implementation-critic`. Optionally `pipeline-run-log.sh brief-upsert --root <project> --invocation <invocation_id> --route fast --goal "<one line>" --next "csp-software-developer"` (short brief under `.cursor/gates/run-log/briefs/` — not a fake plan under `docs/`). Do **not** require promote on fast/tiny runs.
 4. **Execute** — create feature branch(es) per `software-developer` branch-setup; implement with skill **`software-developer`** via nested Task **`csp-software-developer`** using **`mode:fast`** (entry gates for tech-spec Status / critique-clear are skipped — see that skill). Prefer `subagent-driven-development` when available; verify with lint/test/typecheck before handoff. **Wait for** `csp-software-developer` to return. Do not treat dispatch as the end.

@@ -47,10 +47,10 @@
 - Create: `docs/superpowers/pipeline-language.md`
 - Create: `scripts/tests/pipeline-language-test.sh` (failing then green)
 
-- [ ] Write failing contract tests (default `en`, reject `ru`, accept `uk`/`de`/`other:sw`, parse file)
-- [ ] Implement helper (get/set/validate)
-- [ ] Add always-on rule + policy doc
-- [ ] Run tests; commit
+- [x] Write failing contract tests (default `en`, reject `ru`, accept `uk`/`de`/`other:sw`, parse file)
+- [x] Implement helper (get/set/validate)
+- [x] Add always-on rule + policy doc
+- [x] Run tests; commit
 
 ### Task 2: HITL preset + pipeline entry wiring
 
@@ -59,10 +59,10 @@
 - Modify: `commands/csp-start-task.md`, `commands/csp-start-issue-task.md`
 - Modify: installer + README + pipeline-flow
 
-- [ ] Add **Pipeline language** preset (closed-set codes + `other`; never `ru`)
-- [ ] Bootstrap: ask when unset (or offer keep/change when set); persist via helper
-- [ ] Document in README / pipeline-flow / install rule list
-- [ ] Commit
+- [x] Add **Pipeline language** preset (closed-set codes + `other`; never `ru`)
+- [x] Bootstrap: ask when unset (or offer keep/change when set); persist via helper
+- [x] Document in README / pipeline-flow / install rule list
+- [x] Commit
 
 ### Task 3: Redesign plain-language-chat + validators
 
@@ -72,7 +72,7 @@
 - Modify: `scripts/validate-review-report.sh`, `skills/engineer-review/references/forbidden-formats.md`
 - Modify: `scripts/tests/plain-language-chat-test.sh`
 
-- [ ] Language-agnostic clarity; read preference; Ukrainian table when `uk`
-- [ ] Human writes Russian → refuse; continue in English or selected non-Russian language
-- [ ] Validator: reject Russian-only letters / Russian digest headings; keep Ukrainian `Блокери` as banned-digest example only
-- [ ] Tests green; commit; push; open draft pull request
+- [x] Language-agnostic clarity; read preference; Ukrainian table when `uk`
+- [x] Human writes Russian → refuse; continue in English or selected non-Russian language
+- [x] Validator: reject Russian-only letters / Russian digest headings; keep Ukrainian `Блокери` as banned-digest example only
+- [x] Tests green; commit; push; open draft pull request

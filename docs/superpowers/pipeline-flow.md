@@ -26,6 +26,10 @@ Source of truth: [`commands/csp-start-task.md`](../../commands/csp-start-task.md
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
+### Pipeline language
+
+At bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task`, skill `hitl-choice` preset **Pipeline language** asks how the agent should talk to the human. Preference is stored in `.cursor/csp-pipeline-language` (default `en` when unset). Kit documentation and this canvas stay English. **Russian is never allowed** (sanctions policy of this project/kit) — rule `pipeline-language-no-russian`, helper `scripts/csp-pipeline-language.sh`. See [`pipeline-language.md`](pipeline-language.md).
+
 ### Orientation strip and live canvas
 
 At every closed-set human gate, skill `hitl-choice` prints a short **orientation strip** (via skill `pipeline-status` / `scripts/pipeline-status.sh`) before the question. Humans may run `/csp-pipeline-status` anytime — read-only; it does not advance gates.
@@ -152,7 +156,7 @@ flowchart TD
   hitlRoute[/"HITL Pipeline route: full / fast / issue"/]
   noAc{AC exist?}
   stopNoAc[/"Stop: writing AC out of scope"/]
-  bootstrap["Bootstrap: patterns + stack detect"]
+  bootstrap["Bootstrap: patterns + stack + pipeline language"]
   techSpec[["csp-tech-spec"]]
   planWrite["writing-plans"]
   approvePlan[["approve-plan + critic"]]
@@ -340,7 +344,7 @@ flowchart TD
   verify ==> toReviewGate
 ```
 
-**Skill load (Build):** [`skill-map.md`](../../skills/engineer-review/references/skill-map.md) Skill classes / Load levels / Skill profile. Kit miss-class checklists stay **L1** (trigger-gated, never skipped by model IQ). Mapped third-party stack skills are **L2** enrichment. Profile from `.cursor/csp-skill-profile` (`strict` / `balanced` / `expert`, default `strict`) modulates L2 only — writers may skip L2 under `balanced` / `expert` and note `skill_skipped_by_profile`. Rules under `rules/*.mdc` stay always-on.
+**Skill load (Build):** [`skill-map.md`](../../skills/engineer-review/references/skill-map.md) Skill classes / Load levels / Skill profile. Kit miss-class checklists stay **L1** (trigger-gated, never skipped by model IQ). Mapped third-party stack skills are **L2** enrichment. Profile from `.cursor/csp-skill-profile` (`strict` / `balanced` / `expert`, default `strict`) modulates L2 only — writers may skip L2 under `balanced` / `expert` and note `skill_skipped_by_profile`. Rules under `rules/*.mdc` stay always-on. Pipeline chat language from `.cursor/csp-pipeline-language` (default `en`; Russian forbidden — see [`pipeline-language.md`](pipeline-language.md)).
 
 `start-build` **must Wait for** the `csp-software-developer` Task to return, then invoke skill `finish-plan` (slash command `/csp-finish-plan`) in the parent chat. That handoff **is** the `review-gate` HITL; after `skip` / `approve` / `done` it starts `csp-engineer-reviewer`. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
 

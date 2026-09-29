@@ -95,10 +95,14 @@ assert_contains md_skill_profile "$MD" "Skill profile"
 assert_contains md_l1_l2 "$MD" "L1"
 assert_contains md_tiny_diff "$MD" "Tiny-diff"
 assert_contains md_csp_skill_profile "$MD" "csp-skill-profile"
+assert_contains md_pipeline_language "$MD" "csp-pipeline-language"
+assert_contains md_pipeline_language_section "$MD" "Pipeline language"
 assert_contains html_skill_profile "$HTML" "Skill profile"
 assert_contains html_tiny_diff "$HTML" "Tiny-diff"
 assert_contains html_l2_enrichment "$HTML" "L2"
 assert_contains readme_skill_profile "$ROOT/README.md" "csp-skill-profile"
+assert_contains readme_pipeline_language "$ROOT/README.md" "csp-pipeline-language"
+assert_contains readme_no_russian "$ROOT/README.md" "pipeline-language-no-russian"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

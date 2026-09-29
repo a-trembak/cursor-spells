@@ -3,7 +3,7 @@
 # Prefer: bin/csp install <project>   |   bin/csp update <project>
 #
 # Default: symlink kit skills/commands/agents into ~/.cursor;
-#          copy always-on plain-language-chat rule into ~/.cursor/rules;
+#          copy always-on plain-language-chat and pipeline-language-no-russian rules into ~/.cursor/rules;
 #          copy hooks + rules (+ optional patterns helper) into the project.
 # Kit-only evals/ (agent-trajectory golden set) is never copied into consumer apps.
 
@@ -34,7 +34,7 @@ In --update mode with no resolvable project: refreshes ~/.cursor only.
 
 Flags:
   --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
-  --user-only      Only ~/.cursor (no project files); still copies plain-language-chat and code-via-coding-agents rules
+  --user-only      Only ~/.cursor (no project files); still copies plain-language-chat, pipeline-language-no-russian, and code-via-coding-agents rules
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
   --skip-third-party-skills
@@ -298,10 +298,12 @@ install_user_bits() {
     "$KIT_ROOT/skills/teach-review/references/cursor-spells-learn.json"
   echo "learn-config: $HOME/.cursor/cursor-spells-learn.json"
   sync_kit_entries_into "$HOME/.cursor"
-  # Always-on chat language. Pipeline gate rules stay project-only.
+  # Always-on chat language + Russian sanctions ban. Pipeline gate rules stay project-only.
   mkdir -p "$HOME/.cursor/rules"
   cp "$KIT_ROOT/rules/plain-language-chat.mdc" "$HOME/.cursor/rules/plain-language-chat.mdc"
   echo "copied: $HOME/.cursor/rules/plain-language-chat.mdc"
+  cp "$KIT_ROOT/rules/pipeline-language-no-russian.mdc" "$HOME/.cursor/rules/pipeline-language-no-russian.mdc"
+  echo "copied: $HOME/.cursor/rules/pipeline-language-no-russian.mdc"
   cp "$KIT_ROOT/rules/code-via-coding-agents.mdc" "$HOME/.cursor/rules/code-via-coding-agents.mdc"
   echo "copied: $HOME/.cursor/rules/code-via-coding-agents.mdc"
 }
@@ -338,7 +340,7 @@ install_project_bits() {
 
   # Rules — always refresh from kit
   local rule
-  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc hitl-askquestion.mdc plain-language-chat.mdc code-via-coding-agents.mdc; do
+  for rule in after-plan-review-gate.mdc before-build-critique-gate.mdc clean-decision-docs.mdc hitl-askquestion.mdc plain-language-chat.mdc pipeline-language-no-russian.mdc code-via-coding-agents.mdc; do
     cp "$KIT_ROOT/rules/$rule" "$PROJECT/.cursor/rules/$rule"
     echo "copied: $PROJECT/.cursor/rules/$rule"
   done
@@ -370,6 +372,9 @@ install_project_bits() {
   chmod +x "$PROJECT/scripts/pipeline-run-log.sh"
   echo "copied: $PROJECT/scripts/pipeline-run-log.sh"
   echo "recommend: add .cursor/gates/run-log/ to .gitignore (pipeline run journals stay local)"
+  cp "$KIT_ROOT/scripts/csp-pipeline-language.sh" "$PROJECT/scripts/csp-pipeline-language.sh"
+  chmod +x "$PROJECT/scripts/csp-pipeline-language.sh"
+  echo "copied: $PROJECT/scripts/csp-pipeline-language.sh"
   cp "$KIT_ROOT/scripts/jira-issue.sh" "$PROJECT/scripts/jira-issue.sh"
   chmod +x "$PROJECT/scripts/jira-issue.sh"
   echo "copied: $PROJECT/scripts/jira-issue.sh"

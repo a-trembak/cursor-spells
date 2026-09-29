@@ -6,6 +6,33 @@ Load **one** `###` section per ask (see skill `hitl-choice` lazy-load rules). Do
 
 Use these option ids (labels are suggestions). Calling skills may add context in the question prompt.
 
+### Pipeline language
+
+Ask at bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task`, before tech-spec / fix-plan work. Persists to `.cursor/csp-pipeline-language` via `scripts/csp-pipeline-language.sh set`. Controls agent↔human chat language for the run. Kit docs stay English. **Never** offer or accept Russian (`ru`) — sanctions policy; see `docs/superpowers/pipeline-language.md`.
+
+When a valid marker already exists, include `keep` as the first option (recommended). When unset, omit `keep` and recommend `en`.
+
+| id | label |
+|----|-------|
+| `keep` | Keep the current pipeline language on disk (only when marker is set) |
+| `en` | English |
+| `uk` | Ukrainian |
+| `de` | German |
+| `fr` | French |
+| `es` | Spanish |
+| `pt` | Portuguese |
+| `pl` | Polish |
+| `it` | Italian |
+| `nl` | Dutch |
+| `sv` | Swedish |
+| `ja` | Japanese |
+| `ko` | Korean |
+| `zh` | Chinese |
+| `ar` | Arabic |
+| `other` | Another allowed language (type an ISO-ish code or `other:<tag>` next) |
+
+On `other`: wait for a typed code; run `csp-pipeline-language.sh validate` / `set`. On any listed id except `keep` / `other`: `set --lang <id>`. On `keep`: leave the marker unchanged. If validate rejects (including any Russian alias): refuse, explain the sanctions ban in one or two sentences, and re-ask this preset. Never invent `ru`.
+
 ### Tech-spec entry
 
 | id | label |

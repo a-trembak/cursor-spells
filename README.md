@@ -67,7 +67,8 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/skills/<name>` | Symlink → `<kit>/skills/<name>` for every skill in the kit (`english-humanizer` only with `--humanizer` or if already present) |
 | `~/.cursor/commands/<file>.md` | Symlink → `<kit>/commands/…` (all slash commands) |
 | `~/.cursor/agents/<file>.md` | Symlink → `<kit>/agents/…` (all agents, including `review-*`) |
-| `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words, full-sentence chat (pipeline gate rules stay project-only) |
+| `~/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — always-on full-words, full-sentence chat in the selected pipeline language (pipeline gate rules stay project-only) |
+| `~/.cursor/rules/pipeline-language-no-russian.mdc` | Copied / refreshed — sanctions policy: never use Russian in agent chat or language settings |
 | `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `csp-software-developer` / `csp-bug-fixer` for product code |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
@@ -87,7 +88,8 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/before-build-critique-gate.mdc` | Copied / refreshed |
 | `<project>/.cursor/rules/clean-decision-docs.mdc` | Copied / refreshed — specs/plans stay final-form (no revision archaeology) |
 | `<project>/.cursor/rules/hitl-askquestion.mdc` | Copied / refreshed — closed-set HITL must call AskQuestion first |
-| `<project>/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — chat with the human uses full words and full sentences, never abbreviations or fragment stacks |
+| `<project>/.cursor/rules/plain-language-chat.mdc` | Copied / refreshed — chat with the human uses full words and full sentences in the selected pipeline language |
+| `<project>/.cursor/rules/pipeline-language-no-russian.mdc` | Copied / refreshed — sanctions policy: Russian language never allowed in agent communication or pipeline language settings |
 | `<project>/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch coding agents for product code |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
@@ -97,6 +99,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/scripts/pipeline-gates.sh` | Per-plan gate helper — always refreshed |
 | `<project>/scripts/pipeline-status.sh` | Orientation resolver — always refreshed |
 | `<project>/scripts/pipeline-run-log.sh` | Pipeline run journal helper — always refreshed; recommend gitignore `.cursor/gates/run-log/` |
+| `<project>/scripts/csp-pipeline-language.sh` | Pipeline chat language get/set/validate — always refreshed; marker `.cursor/csp-pipeline-language` |
 | `<project>/scripts/jira-issue.sh` | Jira key / URL / type classifier — always refreshed |
 
 Also ensures `<project>/.cursor/`, `.cursor/hooks/`, `.cursor/rules/`, and `scripts/` exist.
@@ -146,7 +149,7 @@ evals/       Kit-only golden sets (trajectories, harness reports, code-quality) 
 | [`harness-status`](skills/harness-status/) | Kit harness inventory + last bench summary; orientation only (does not advance gates) |
 | [`code-quality-score`](skills/code-quality-score/) | Hard-score kit code-quality fixtures (files / substrings / tests); no language-model judge |
 | [`english-humanizer`](skills/english-humanizer/) | Strip AI tells from English bug reports, colleague messages, and PR comments |
-| [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words and full sentences — no abbreviations or telegram fragment stacks; always-on via rule `plain-language-chat` |
+| [`plain-language-chat`](skills/plain-language-chat/) | User-facing chat uses full words and full sentences in the **selected pipeline language** — no abbreviations or telegram fragment stacks; always-on via rule `plain-language-chat` |
 | [`finish-plan`](skills/finish-plan/) | Plan→HITL handoff: `review-surface` (`SetActiveBranch` + Local Diff Review when installed) then review-gate; engineer-review still runs after |
 | [`local-diff-review-gate`](skills/local-diff-review-gate/) | Pipeline-only HITL before `propose-commit` — Local Diff Review canvas (`approve-diff` / `comment`); applies comments; never commits or opens a pull request |
 | [`propose-commit`](skills/propose-commit/) | Post-review HITL — propose commit message + file list; `approve-commit` / `revise`; `git commit` only (never push); writes `commit-approved` gate |
@@ -226,6 +229,8 @@ Database migrations and schema changes are automatically routed to matching DB s
 
 **Skill profile (L2 depth):** set `.cursor/csp-skill-profile` to `strict` (default), `balanced`, or `expert`. Profiles change only **third-party enrichment** load depth. Kit miss-class checklists (security S1–S11, interaction replay, JPA gates, …) stay **L1** and open on triggers. See Skill classes / Load levels in [`skill-map.md`](skills/engineer-review/references/skill-map.md). Closed-set human gates use skill [`hitl-choice`](skills/hitl-choice/) — load **one** preset section from [`presets.md`](skills/hitl-choice/references/presets.md), not the whole catalog.
 
+**Pipeline language:** at `/csp-start-task` / `/csp-start-issue-task` bootstrap, choose how the agent chats with you (`hitl-choice` preset **Pipeline language**). Preference persists in `.cursor/csp-pipeline-language` (default `en`). Kit docs and canvas copy stay English. **Russian is never allowed** (sanctions policy of this project/kit) — rule `pipeline-language-no-russian`. Details: [`pipeline-language.md`](docs/superpowers/pipeline-language.md).
+
 When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged. On tiny non-risky diffs (≤3 files, ≤40 changed lines), engineer-review may skip low-value heuristic phases per [Tiny-diff heuristic phase skip](skills/engineer-review/references/phase-protocol.md#tiny-diff-heuristic-phase-skip) and must record `phase_skip: tiny-diff (…)` in Coverage.
 
 ## Usage
@@ -242,10 +247,10 @@ When `graphify-out/` exists (or `graphify query` answers), engineer-review **pre
 3. On frontend, use the Figma picker or paste node URLs / `no figma`
 4. Orchestrator runs phases; applies **P0/P1** unambiguous fixes; lists clarifications separately
 
-Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers/Блокери digests without paths and snippets. Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped; draft reports must pass `scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
+Comment cleanup and apply-vs-clarify decisions across all review phases now follow a strict [auto-fix eligibility test](skills/engineer-review/references/auto-fix-eligibility.md): a finding is only auto-applied if it's deterministic, has a single correct answer, loses no information, and has zero blast radius on data or user-facing behavior — otherwise it's always `clarify`, regardless of severity. User-facing findings **must** pass the hard [evidence gate](skills/engineer-review/references/evidence-gate.md) before emit: `path` + line range + real code fence + File/Lines/Jump links (GitHub `#L` on PR). [Forbidden](skills/engineer-review/references/forbidden-formats.md): Verdict/Blockers digests (and the same compact shape in other languages, including Ukrainian `Блокери`) without paths and snippets. Incomplete items are backfilled via `scripts/extract-review-snippet.sh` or dropped; draft reports must pass `scripts/validate-review-report.sh`. Shape: [feedback-format.md](skills/engineer-review/references/feedback-format.md).
 
 **Manual review:** `/csp-engineer-review` — evidence-gated snippets + file links; validator before emit; `english-humanizer` then `plain-language-chat` on prose.  
-**PR review:** `/csp-pr-review [url|number|branch] [apply] [no-figma] [no-canvas]` — same gate (plus required GitHub blob links); default PR Review Canvas for diff orientation (`no-canvas` to skip); never a Verdict/Блокери digest; report-only unless `apply`.
+**PR review:** `/csp-pr-review [url|number|branch] [apply] [no-figma] [no-canvas]` — same gate (plus required GitHub blob links); default PR Review Canvas for diff orientation (`no-canvas` to skip); never a Verdict/Blockers compact digest; report-only unless `apply`.
 
 ### Start a task (full pipeline)
 
