@@ -4,7 +4,7 @@ description: >-
   Use once Acceptance Criteria are agreed and before an implementation plan is
   written. Drives a developer's technical action plan (services, tables,
   contracts, rollout order) for a change — not a PRD. Use when the user runs
-  /csp-write-tech-spec, /csp-start-task, or asks to write a technical spec for a
+  /lgt-write-tech-spec, /lgt-start-task, or asks to write a technical spec for a
   feature. Never invents business requirements.
 ---
 
@@ -15,7 +15,7 @@ Produces a **developer's technical action plan**, not a PRD or user-story prose:
 ## When to Use
 
 - AC are agreed and an implementation plan doesn't exist yet
-- Manual `/csp-write-tech-spec` or `/csp-start-task`, or the user asks for a technical spec / technical design for a change
+- Manual `/lgt-write-tech-spec` or `/lgt-start-task`, or the user asks for a technical spec / technical design for a change
 - Not for writing AC themselves (assumed already agreed), and not for the implementation plan's task breakdown (that's `writing-plans`, consuming this spec's output)
 
 ## Entry question (always ask first)

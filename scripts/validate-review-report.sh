@@ -30,12 +30,22 @@ count_re() {
   echo "$n"
 }
 
-# Banned digest headings / patterns (EN + common UA labels from bad runs)
-if printf '%s\n' "$BODY" | grep -E -iq -- '^#{1,3}[[:space:]]*(blockers|блокери|also \(p1\)|також \(p1\)|verdict)([[:space:]]|$)'; then
-  fail "forbidden digest heading (Verdict/Blockers/Блокери) — use Findings with Where + snippet"
+# Banned digest headings / patterns (EN + common non-English compact labels from bad runs).
+# Keep language-aware: detect forbidden *shapes*, not "all Cyrillic".
+# Ukrainian «Блокери» / «Також» remain banned as compact digests (not as a language ban).
+# Russian digest headings (Блокеры / Также) are also banned shapes; Russian prose is a policy violation (see below).
+if printf '%s\n' "$BODY" | grep -E -iq -- '^#{1,3}[[:space:]]*(blockers|блокери|блокеры|also \(p1\)|також \(p1\)|также \(p1\)|verdict)([[:space:]]|$)'; then
+  fail "forbidden digest heading (Verdict/Blockers compact digest) — use Findings with Where + snippet"
 fi
 if printf '%s\n' "$BODY" | grep -E -iq -- '^Verdict:'; then
   fail "leading Verdict: digest line is forbidden as the report body"
+fi
+
+# Sanctions policy: reject agent review prose that looks like Russian (not Ukrainian).
+# Heuristic: Russian-only letters ы/э/ъ (Ukrainian uses і/ї/є/ґ instead). Code fences already stripped.
+# This does NOT ban Ukrainian. False positives on mixed quotes are possible — prefer Findings rebuild.
+if printf '%s\n' "$BODY" | grep -Eq -- '[ыэъЫЭЪ]'; then
+  fail "Russian-script markers (ы/э/ъ) in review prose — sanctions policy forbids Russian; rewrite in the selected non-Russian pipeline language"
 fi
 
 # F1 / C1 / C_CR1 / api:C1 / C1@api

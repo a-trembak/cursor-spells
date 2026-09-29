@@ -33,7 +33,7 @@ assert_contains md_review_layer "$MD" "Review layer"
 assert_contains md_review_gate_node "$MD" 'reviewGate[/"review-gate"/]'
 assert_contains md_fixes_to_build "$MD" 'reviewGate -.->|"fixes"| softwareDev'
 assert_contains md_fixes_not_plan "$MD" "back to Build, not Plan"
-assert_contains md_command_alias "$MD" "/csp-finish-plan"
+assert_contains md_command_alias "$MD" "/lgt-finish-plan"
 assert_contains md_review_surface "$MD" "review-surface: checkout + SetActiveBranch"
 assert_contains html_review_surface "$HTML" "SetActiveBranch"
 
@@ -89,6 +89,20 @@ assert_contains html_css_waiting "$HTML" ".waiting"
 # Document orientation param names (route, layer, stage)
 assert_contains html_param_docs_route "$HTML" "route"
 assert_contains html_param_docs_layer "$HTML" 'data-orientation-params="route,layer,stage"'
+
+# Skill load optimization (profile + tiny-diff) must stay visible on the canvas docs
+assert_contains md_skill_profile "$MD" "Skill profile"
+assert_contains md_l1_l2 "$MD" "L1"
+assert_contains md_tiny_diff "$MD" "Tiny-diff"
+assert_contains md_csp_skill_profile "$MD" "csp-skill-profile"
+assert_contains md_pipeline_language "$MD" "csp-pipeline-language"
+assert_contains md_pipeline_language_section "$MD" "Pipeline language"
+assert_contains html_skill_profile "$HTML" "Skill profile"
+assert_contains html_tiny_diff "$HTML" "Tiny-diff"
+assert_contains html_l2_enrichment "$HTML" "L2"
+assert_contains readme_skill_profile "$ROOT/README.md" "csp-skill-profile"
+assert_contains readme_pipeline_language "$ROOT/README.md" "csp-pipeline-language"
+assert_contains readme_no_russian "$ROOT/README.md" "pipeline-language-no-russian"
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

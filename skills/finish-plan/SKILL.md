@@ -60,7 +60,7 @@ Reliable handoff into the engineer-review HITL gate. Prefer this over hoping a g
 
 ## Notes
 
-- Manual `/csp-engineer-review` does not need this skill.
+- Manual `/lgt-engineer-review` does not need this skill.
 - If the user describes fixes first (chat or Local Diff Review outbound `apply-fixes`), implement/fix, then re-run review-surface, then re-ask the HITL question (keep or rewrite this plan's `review-gate/<slug>` until review starts).
 - Escape `no-local-diff-review` skips the canvas for this gate turn (chat fallback only).
 - Append session ledger per skill `trajectory-score` (stage `review-gate`, artifact gate `review-gate`).

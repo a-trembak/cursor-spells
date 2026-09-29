@@ -1,25 +1,15 @@
 ---
-description: Audit an implementation plan for complexity, risk, scope drift, and (for bug-fix plans) root-cause / regression quality before coding starts
+description: Deprecated alias — use /lgt-critique-plan
 argument-hint: "[path/to/plan.md]"
 ---
 
-# /csp-critique-plan
+# /csp-critique-plan (deprecated)
 
-Run the **implementation-critic** agent against an existing plan.
+**Deprecated.** Prefer **`/lgt-critique-plan`**.
 
-## Arguments
+This file remains for backward compatibility with older installs and muscle memory.
+If you were invoked as `/csp-critique-plan`, **immediately load and execute** `commands/lgt-critique-plan.md` with the same arguments. Do not stop to ask about the rename.
 
-- Optional plan path. If omitted, use the most recently modified file under `docs/**/plans/` and confirm it with the user before proceeding.
+Primary command: `/lgt-critique-plan`
 
-## Steps
-
-1. Read and follow skill `implementation-critic` (`skills/implementation-critic/SKILL.md`).
-2. Invoke agent `csp-implementation-critic` with the plan path (and tech spec path, if discoverable).
-3. Emit the report per `references/output-schema.md`.
-4. If `Verdict` is `blocked` or `clear pending accept`, stop and ask via skill `hitl-choice` (AskQuestion required) for `revise` / `accept F<id>`, or wait for the user to revise the plan and re-run this command. Then score `critic-blocks-flawed-plan` per skill `trajectory-score` when the plan is the fixture notification-plugin file.
-
-## Notes
-
-- This command never edits the plan or any source file — it only reports.
-- Do not proceed to implementation while `Verdict` is `blocked`. If `Verdict` is `clear pending accept`, the human must reply `accept F<id>` for each remaining accept-risk finding (or revise the plan) before implementation starts. Only a `clear` verdict means nothing is outstanding.
-- In the `/csp-start-task` pipeline, prefer `/csp-approve-plan` so the human approves the plan before this critic runs automatically.
+Internal agent ids such as `csp-software-developer` and `csp-bug-fixer` are unchanged in this pass.

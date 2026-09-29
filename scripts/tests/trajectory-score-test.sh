@@ -56,7 +56,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/csp-start-task PROJ-1",
+    "invocation": "/lgt-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -87,7 +87,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/csp-start-task PROJ-1",
+    "invocation": "/lgt-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -163,7 +163,7 @@ write_json "$fixes_run" <<'JSON'
 {
   "case_id": "review-gate-fixes-to-build",
   "input": {
-    "invocation": "/csp-finish-plan",
+    "invocation": "/lgt-finish-plan",
     "fetch": "skip"
   },
   "stages_entered": ["review-gate", "writing-plans", "csp-software-developer"],
@@ -188,7 +188,7 @@ write_json "$fetch_run" <<'JSON'
 {
   "case_id": "fetch-failure-stops",
   "input": {
-    "invocation": "/csp-start-task PROJ-1",
+    "invocation": "/lgt-start-task PROJ-1",
     "fetch": "fail"
   },
   "stages_entered": ["jira-fetch", "bootstrap", "csp-tech-spec"],
@@ -211,7 +211,7 @@ write_json "$full_run" <<'JSON'
 {
   "case_id": "full-happy-path",
   "input": {
-    "invocation": "/csp-start-task PROJ-1",
+    "invocation": "/lgt-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "feature"
   },
@@ -264,7 +264,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/csp-start-task PROJ-1",
+    "invocation": "/lgt-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -289,7 +289,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/csp-start-task --fast PROJ-1",
+    "invocation": "/lgt-start-task --fast PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -314,7 +314,7 @@ write_json "$route_pass" <<'JSON'
 {
   "case_id": "route-unknown-asks-human",
   "input": {
-    "invocation": "/csp-start-task PROJ-1",
+    "invocation": "/lgt-start-task PROJ-1",
     "fetch": "ok",
     "jira_class": "unknown"
   },
@@ -341,7 +341,7 @@ write_json "$any_token_case" <<'JSON'
   "pipeline": "slice",
   "end_to_end": false,
   "status": "active",
-  "input": {"invocation": "/csp-critique-plan", "fetch": "skip"},
+  "input": {"invocation": "/lgt-critique-plan", "fetch": "skip"},
   "required_stages": ["csp-implementation-critic"],
   "required_artifacts": [{"kind": "report", "name": "critic-verdict-blocked"}],
   "forbidden": ["edit-plan-during-critic"],
@@ -358,7 +358,7 @@ any_token_run="$TMP/any-token-run.json"
 write_json "$any_token_run" <<'JSON'
 {
   "case_id": "any-token-slice",
-  "input": {"invocation": "/csp-critique-plan", "fetch": "skip"},
+  "input": {"invocation": "/lgt-critique-plan", "fetch": "skip"},
   "stages_entered": ["csp-implementation-critic"],
   "artifacts_present": [{"kind": "report", "name": "critic-verdict-blocked"}],
   "actions_taken": [],
@@ -378,7 +378,7 @@ assert_grep_out pass_any_tokens_line "PASS any-token-slice" "${SCORE[@]}" --case
 write_json "$any_token_run" <<'JSON'
 {
   "case_id": "any-token-slice",
-  "input": {"invocation": "/csp-critique-plan", "fetch": "skip"},
+  "input": {"invocation": "/lgt-critique-plan", "fetch": "skip"},
   "stages_entered": ["csp-implementation-critic"],
   "artifacts_present": [{"kind": "report", "name": "critic-verdict-blocked"}],
   "actions_taken": [],

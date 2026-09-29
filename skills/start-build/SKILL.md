@@ -13,9 +13,9 @@ Thin handoff into execution **and** the post-code review gate. **Does not** run 
 
 ## When to Use
 
-- `/csp-start-task` after `approve-plan` yields `Verdict: clear`
-- Manual `/csp-start-build` when this plan's `.cursor/gates/plan-critique-clear/<slug>` already matches the plan
-- Not for first-time plan review — use `/csp-approve-plan` instead
+- `/lgt-start-task` after `approve-plan` yields `Verdict: clear`
+- Manual `/lgt-start-build` when this plan's `.cursor/gates/plan-critique-clear/<slug>` already matches the plan
+- Not for first-time plan review — use `/lgt-approve-plan` instead
 
 ## Steps (mandatory order)
 
@@ -30,7 +30,7 @@ Thin handoff into execution **and** the post-code review gate. **Does not** run 
    # .cursor/gates/plan-critique-clear/<slug> must exist and line 1 must equal the plan path
    ```
 
-   If missing or mismatched: **stop** and tell the user to run `/csp-approve-plan <plan-path>` first (HITL approve → auto critic). Do not re-run the critic from this skill unless the human explicitly asks for `/csp-critique-plan` alone.
+   If missing or mismatched: **stop** and tell the user to run `/lgt-approve-plan <plan-path>` first (HITL approve → auto critic). Do not re-run the critic from this skill unless the human explicitly asks for `/lgt-critique-plan` alone.
 
 3. Stop only if **this slug** still has `plan-gate/<slug>` or `critique-gate/<slug>`. If either exists: **stop** — approval or critique is still open for this plan.
 
@@ -38,7 +38,7 @@ Thin handoff into execution **and** the post-code review gate. **Does not** run 
 
 4. **Dispatch** agent `csp-software-developer` / skill `software-developer` for the plan as a **nested Task** (creates feature branch(es) in every repo the plan will touch, routes stack/DB/`code-comments` skills, then drives `subagent-driven-development` by default) unless the user already specified `executing-plans` for a separate session.
 
-5. **Wait for** that Task to return with verification evidence and the `repo → branch` map. **Fire-and-forget is a hard failure** — do not stop after dispatch, do not ask the human to run `/csp-finish-plan` or `/csp-engineer-review` by hand. If the Task errors, stop and report; do not skip review.
+5. **Wait for** that Task to return with verification evidence and the `repo → branch` map. **Fire-and-forget is a hard failure** — do not stop after dispatch, do not ask the human to run `/lgt-finish-plan` or `/lgt-engineer-review` by hand. If the Task errors, stop and report; do not skip review.
 
 6. **Continue in this parent chat:** invoke skill `finish-plan` for the same plan path (it writes the review-gate, asks HITL via `hitl-choice`, then launches `csp-engineer-reviewer` or `csp-multi-repo-supervisor`). Use the returned `next_skill: finish-plan` block if present. Do not re-dispatch `csp-software-developer`.
 
@@ -46,7 +46,7 @@ Thin handoff into execution **and** the post-code review gate. **Does not** run 
 
 ## Notes
 
-- Plan edits invalidate this plan's `plan-critique-clear/<slug>` when going back through `/csp-approve-plan`.
-- Manual `/csp-critique-plan` remains for ad-hoc audits; wiring a clear result into build still goes through writing `.cursor/gates/plan-critique-clear/<slug>` (prefer `/csp-approve-plan` so HITL plan approval is not skipped).
+- Plan edits invalidate this plan's `plan-critique-clear/<slug>` when going back through `/lgt-approve-plan`.
+- Manual `/lgt-critique-plan` remains for ad-hoc audits; wiring a clear result into build still goes through writing `.cursor/gates/plan-critique-clear/<slug>` (prefer `/lgt-approve-plan` so HITL plan approval is not skipped).
 - `csp-software-developer` running as a nested Task must **not** call `AskQuestion` / `finish-plan` itself — that HITL belongs here after it returns.
 - Append session ledger per skill `trajectory-score` (stages `start-build`, `csp-software-developer`; artifact `git` `feature-branch`).

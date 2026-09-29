@@ -2,7 +2,7 @@
 name: engineer-review
 description: >-
   Use when a plan just finished and human-in-the-loop review gate is next, when
-  the user runs /csp-engineer-review or asks for engineer-reviewer, or when
+  the user runs /lgt-engineer-review or asks for engineer-reviewer, or when
   approving automated post-plan code review across Java/Spring, React,
   TypeScript, or React Native changes. Findings must include Context,
   code snippets, clickable file:line links, english-humanizer prose, and
@@ -17,7 +17,7 @@ Thin orchestrator for multi-phase code review. **This file is the canonical spin
 ## When to Use
 
 - After plan execution, once the user answers the HITL gate (`skip` / `approve` / `done`) — usually via skill `finish-plan`
-- Manual `/csp-engineer-review` or `@csp-engineer-reviewer`
+- Manual `/lgt-engineer-review` or `@csp-engineer-reviewer`
 - Not for drive-by questions that are not a review of a diff/branch
 
 ## HITL gate (required before auto-review)
@@ -30,7 +30,7 @@ If this run was triggered because a **plan finished**, do **not** start phases u
 
 Prefer skill/command `finish-plan` to set `.cursor/gates/review-gate/<slug>` reliably. If `skip` / `approve` / `done` already appear in chat after the gate was asked, clear this plan's marker and start — do not re-prompt.
 
-Manual `/csp-engineer-review` skips this gate.
+Manual `/lgt-engineer-review` skips this gate.
 
 ## Early Figma ask (frontend)
 
@@ -56,13 +56,13 @@ Pass URLs into clarifications for `csp-review-figma-markup`. Do not block other 
 13. Needs clarification → HITL **Engineer-review clarify**; each sequential question repeats Context, What, When it shows up, File, Lines, Jump, and numbered fence (lift phase JSON **verbatim** — do not re-summarize); re-dispatch affected phases. R1 timing/host answers also re-dispatch logic + architecture with `interaction_replay` (phases load checklists — orchestrator does not).
 14. **Teach-review miss:** after the validated report is shown, ask via skill `hitl-choice` preset **Teach-review miss** (`miss` / `project_secret` / `no_miss`). Recommended: `miss`. **Never edit kit git** in this orchestrator. Do not auto-capture.
     - `no_miss` → do not invoke `teach-review`; do not dispatch `csp-review-learn` `mode:capture`.
-    - `miss` → collect description (open-ended if needed), invoke skill `teach-review`. If `teach-review` fails, keep the report; tell the human to retry with `/csp-teach-review`.
+    - `miss` → collect description (open-ended if needed), invoke skill `teach-review`. If `teach-review` fails, keep the report; tell the human to retry with `/lgt-teach-review`.
     - `project_secret` → collect description (open-ended if needed), dispatch `csp-review-learn` `mode:capture` with destination `project_secret`. Coverage: `review_learn: appended|deduped|skipped|n/a`. Do not ask **Review-learn promote**. Never edit kit files.
-    Do not write both stores on the same miss. Production misses **without** a full review use slash command `/csp-capture-escape` (destination `miss` or `project_secret`). Append session ledger per skill `trajectory-score` (stage `engineer-review`, gate `teach-review-miss`, artifact report `engineer-review`, end `review_report: evidence-gated`).
-15. After a successful **pipeline** review (from `/csp-start-task` / `finish-plan` / `/csp-start-task --fast` / `/csp-start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`local-diff-review-gate`** next (dirty working-tree / staged Local Diff Review; HITL `approve-diff` / `comment`). **Order is mandatory:** miss answer (`no_miss` / teach land / project capture) → `local-diff-review-gate` → only then `propose-commit`. Never ask `approve-commit` right after `no_miss`. Then invoke skill **`propose-commit`**. Then:
+    Do not write both stores on the same miss. Production misses **without** a full review use slash command `/lgt-capture-escape` (destination `miss` or `project_secret`). Append session ledger per skill `trajectory-score` (stage `engineer-review`, gate `teach-review-miss`, artifact report `engineer-review`, end `review_report: evidence-gated`).
+15. After a successful **pipeline** review (from `/lgt-start-task` / `finish-plan` / `/lgt-start-task --fast` / `/lgt-start-issue-task`), once the report is settled and teach-review-miss is handled: invoke skill **`local-diff-review-gate`** next (dirty working-tree / staged Local Diff Review; HITL `approve-diff` / `comment`). **Order is mandatory:** miss answer (`no_miss` / teach land / project capture) → `local-diff-review-gate` → only then `propose-commit`. Never ask `approve-commit` right after `no_miss`. Then invoke skill **`propose-commit`**. Then:
     - Full path: `update-docs` (existing destination HITL), then if the tree is still dirty invoke **`local-diff-review-gate`** once more, then **`propose-commit`** again for residual docs, then `create-pr`. Honor `next_skill` from `update-docs`; never end the pipeline turn on docs alone.
     - Fast / issue: `create-pr` (no `update-docs` unless the human asked).
-    Manual `/csp-engineer-review` does **not** auto-start `local-diff-review-gate`, `propose-commit`, or `update-docs` unless the human asks.
+    Manual `/lgt-engineer-review` does **not** auto-start `local-diff-review-gate`, `propose-commit`, or `update-docs` unless the human asks.
 
 ## Fix policy
 

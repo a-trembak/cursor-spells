@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-# Short alias for bin/cursor-spells
-exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/cursor-spells" "$@"
+# Deprecated short alias for bin/lgt (Loregate). Prefer: lgt
+echo "warning: 'csp' is deprecated; use 'lgt' (Loregate). Forwarding…" >&2
+exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lgt" "$@"

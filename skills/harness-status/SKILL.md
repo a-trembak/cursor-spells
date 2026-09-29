@@ -1,7 +1,7 @@
 ---
 name: harness-status
 description: >-
-  Use when the human runs /csp-harness-status, or before changing kit skills/agents
+  Use when the human runs /lgt-harness-status, or before changing kit skills/agents
   and needs an inventory + last bench summary. Orientation only — never advances
   gates.
 ---
@@ -15,7 +15,7 @@ and the newest bench report under `evals/harness/reports/` when present. Does
 
 ## When to Use
 
-- When the human runs `/csp-harness-status`
+- When the human runs `/lgt-harness-status`
 - Before editing skills or agents — confirm wiring and last bench
 - Anytime an orchestrator needs harness inventory without advancing the pipeline
 
@@ -63,5 +63,5 @@ If the script is missing or exits non-zero: say in **one sentence** that harness
 ## Hard rules
 
 - Never mutate `.cursor/gates/`
-- Never treat `/csp-harness-status` as a gate that unlocks `start-build` or review
+- Never treat `/lgt-harness-status` as a gate that unlocks `start-build` or review
 - Never copy `evals/` into consumer apps

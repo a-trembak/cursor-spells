@@ -2,7 +2,7 @@
 name: jira-transition
 description: >-
   Move a Jira issue to In Progress or Review via Atlassian MCP. Use from
-  /csp-start-task and /csp-start-issue-task (in_progress after fetch) and from
+  /lgt-start-task and /lgt-start-issue-task (in_progress after fetch) and from
   create-pr (review after every opened pull request is merged and
   continuous integration succeeded). Never merges GitHub PRs.
   Never invents transition ids.
@@ -10,14 +10,14 @@ description: >-
 
 # Jira Transition
 
-Set a fetched Jira issue to a named workflow column. Matching uses `scripts/jira-issue.sh` (consumer copy after `csp update`, or kit path).
+Set a fetched Jira issue to a named workflow column. Matching uses `scripts/jira-issue.sh` (consumer copy after `lgt update`, or kit path).
 
 ## When to Use
 
-- `/csp-start-task` (full or `--fast`) after `jira-fetch` succeeds → target `in_progress`
-- `/csp-start-issue-task` after `jira-fetch` succeeds (or reuse of an already-fetched issue) → target `in_progress`
+- `/lgt-start-task` (full or `--fast`) after `jira-fetch` succeeds → target `in_progress`
+- `/lgt-start-issue-task` after `jira-fetch` succeeds (or reuse of an already-fetched issue) → target `in_progress`
 - `create-pr` after HITL `ready` or `ready_jira` **and** `pr_merge_ci_verdict` is `all_merged_ci_success` when `jira_key` is known → target `review`
-- Not from `/csp-write-tech-spec`. Not on `keep_draft` / `keep_draft_jira`. Not as a substitute for `addCommentToJiraIssue`.
+- Not from `/lgt-write-tech-spec`. Not on `keep_draft` / `keep_draft_jira`. Not as a substitute for `addCommentToJiraIssue`.
 
 ## Required inputs
 
@@ -50,14 +50,14 @@ Use `jira_pick_transition_id "<target>"` on `id<TAB>to.name` lines.
 3. Build `id<TAB>to.name` lines and run `jira_pick_transition_id "<target>"`. If empty, retry matching `transition.name` the same way.
 4. If no id: report available destination names and **return without blocking**. Do not guess an id. Do not create a workflow.
 5. Call `transitionJiraIssue` with `cloudId`, `issueIdOrKey`, `transition: { id }`. Do not invent extra `fields`. If Jira requires a transition screen with unknown values, report and return.
-6. On MCP/auth/error: report and **return**. Callers must not stop `/csp-start-task` or `create-pr` for a failed transition. Do not retry a failed transition as a Jira comment.
+6. On MCP/auth/error: report and **return**. Callers must not stop `/lgt-start-task` or `create-pr` for a failed transition. Do not retry a failed transition as a Jira comment.
 
 ## Hard rules
 
 - Never invent transition ids or status names that `getTransitionsForJiraIssue` did not return.
 - Never call `transitionJiraIssue` for any target other than `in_progress` or `review` from this kit.
 - Never `gh pr merge`. Never approve GitHub reviews.
-- Never transition from `/csp-write-tech-spec`.
+- Never transition from `/lgt-write-tech-spec`.
 - Idempotent: already-matching current status is a skip, not an error.
 - After a successful `in_progress` move, append session ledger per skill `trajectory-score` (stage `jira-transition-in-progress`, artifact `jira` `in-progress`).
 

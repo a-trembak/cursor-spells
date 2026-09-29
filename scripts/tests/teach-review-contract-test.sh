@@ -30,7 +30,7 @@ assert_not_grep() {
   fi
 }
 assert_file "skills/teach-review/SKILL.md"
-assert_file "commands/csp-teach-review.md"
+assert_file "commands/lgt-teach-review.md"
 assert_grep skill_source "skills/teach-review/SKILL.md" "teach-review.sh"
 assert_grep skill_one_class "skills/teach-review/SKILL.md" "One miss class"
 assert_grep skill_no_local_merge "skills/teach-review/SKILL.md" "Do not merge"
@@ -40,7 +40,7 @@ assert_grep skill_ready_pr "skills/teach-review/SKILL.md" "not a draft"
 assert_grep skill_auto_push "skills/teach-review/SKILL.md" "auto_push"
 assert_grep skill_refuse "skills/teach-review/SKILL.md" "not generalizable"
 assert_grep skill_worktree "skills/teach-review/SKILL.md" "worktree"
-assert_grep cmd_invoke "commands/csp-teach-review.md" "teach-review"
+assert_grep cmd_invoke "commands/lgt-teach-review.md" "teach-review"
 assert_grep hitl_heading "skills/hitl-choice/references/presets.md" "### Teach-review miss"
 assert_grep token_miss "skills/hitl-choice/references/presets.md" '`miss`'
 assert_grep token_no_miss "skills/hitl-choice/references/presets.md" '`no_miss`'
@@ -53,9 +53,9 @@ assert_grep er_no_auto "agents/csp-engineer-reviewer.md" "Do not auto-capture"
 assert_grep er_skill_secret "skills/engineer-review/SKILL.md" "project_secret"
 assert_grep pr_secret "agents/csp-pr-reviewer.md" "project_secret"
 assert_grep pr_skill_secret "skills/pr-review/SKILL.md" "project_secret"
-assert_grep capture_dest "commands/csp-capture-escape.md" "Capture-escape destination"
-assert_grep capture_teach "commands/csp-capture-escape.md" "teach-review"
-assert_grep capture_secret "commands/csp-capture-escape.md" "project_secret"
+assert_grep capture_dest "commands/lgt-capture-escape.md" "Capture-escape destination"
+assert_grep capture_teach "commands/lgt-capture-escape.md" "teach-review"
+assert_grep capture_secret "commands/lgt-capture-escape.md" "project_secret"
 assert_grep template_private "skills/engineer-review/references/review-learnings-template.md" "must not enter the shared kit"
 assert_grep er_agent_gate "agents/csp-engineer-reviewer.md" "Teach-review miss"
 assert_grep er_skill_gate "skills/engineer-review/SKILL.md" "Teach-review miss"
@@ -64,7 +64,7 @@ assert_grep pr_skill_gate "skills/pr-review/SKILL.md" "Teach-review miss"
 assert_grep er_no_kit_git "agents/csp-engineer-reviewer.md" "never edit kit git"
 assert_grep pr_invoke "agents/csp-pr-reviewer.md" "teach-review"
 assert_grep readme_skill "README.md" "teach-review"
-assert_grep readme_cmd "README.md" "/csp-teach-review"
+assert_grep readme_cmd "README.md" "/lgt-teach-review"
 assert_grep flow_teach "docs/superpowers/pipeline-flow.md" "teach-review"
 assert_grep flow_ready_pr "docs/superpowers/pipeline-flow.md" "ready-for-review pull request"
 assert_grep html_ready_pr "docs/superpowers/pipeline-flow.html" "ready-for-review pull request"
@@ -79,9 +79,9 @@ assert_grep skill_never_terminal "skills/teach-review/SKILL.md" "never a pipelin
 assert_grep skill_never_invoke_propose "skills/teach-review/SKILL.md" 'Never invoke skill `propose-commit`'
 assert_grep dogfood_pipeline_continue "docs/superpowers/dogfood/engineer-review-checklist.md" "orientation strip"
 # Bare teach / capture must not auto-start propose-commit (negative; avoid false-fail on "never invoke")
-assert_not_grep cmd_no_auto_propose "commands/csp-teach-review.md" "propose-commit"
+assert_not_grep cmd_no_auto_propose "commands/lgt-teach-review.md" "propose-commit"
 assert_not_grep skill_no_handoff_propose "skills/teach-review/SKILL.md" "next_skill: propose-commit"
-assert_not_grep capture_no_propose "commands/csp-capture-escape.md" "propose-commit"
+assert_not_grep capture_no_propose "commands/lgt-capture-escape.md" "propose-commit"
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1

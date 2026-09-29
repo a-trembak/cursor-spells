@@ -68,9 +68,9 @@ assert_grep hitl_approve_diff "skills/hitl-choice/references/presets.md" "approv
 assert_grep hitl_comment_token "skills/hitl-choice/references/presets.md" "Open Local Diff Review canvas"
 assert_grep rule_tokens "rules/hitl-askquestion.mdc" "approve-diff"
 
-assert_grep start_full "commands/csp-start-task.md" "local-diff-review-gate"
-assert_grep start_fast "commands/csp-start-task.md" "local-diff-review-gate"
-assert_grep start_issue "commands/csp-start-issue-task.md" "local-diff-review-gate"
+assert_grep start_full "commands/lgt-start-task.md" "local-diff-review-gate"
+assert_grep start_fast "commands/lgt-start-task.md" "local-diff-review-gate"
+assert_grep start_issue "commands/lgt-start-issue-task.md" "local-diff-review-gate"
 assert_grep propose_when "skills/propose-commit/SKILL.md" "local-diff-review-gate"
 assert_grep propose_precondition "skills/propose-commit/SKILL.md" "Local Diff Review gate settled|precondition 5|invoke skill \`local-diff-review-gate\` first"
 assert_grep propose_no_jump "skills/propose-commit/SKILL.md" "no_miss.*propose|Jumping from \`no_miss\`|right after Teach-review miss \`no_miss\`"

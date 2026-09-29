@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression: `csp update` / install --update with no project path must refresh
+# Regression: `lgt update` / install --update with no project path must refresh
 # ~/.cursor (user-only) when cwd is not a git repo or multi-repo workspace.
 # Before a4c66ea this was the documented default; auto-detect must not remove it.
 set -euo pipefail
@@ -20,7 +20,7 @@ assert_grep() {
 assert_grep update_fallback_comment "scripts/install-to-project.sh" \
   'update.*no (resolvable )?project|refresh ~/.cursor only|USER_ONLY=1'
 assert_grep readme_update_no_path "README.md" \
-  'csp update[[:space:]]+#.*~/.cursor|refresh ~/.cursor only'
+  'lgt update[[:space:]]+#.*~/.cursor|refresh ~/.cursor only'
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -32,7 +32,7 @@ mkdir -p "$FAKE_HOME" "$EMPTY_DIR"
 set +e
 OUT="$(
   cd "$EMPTY_DIR"
-  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --update --skip-third-party-skills 2>&1
+  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy --update --skip-third-party-skills 2>&1
 )"
 RC=$?
 set -e
@@ -79,7 +79,7 @@ fi
 set +e
 INSTALL_OUT="$(
   cd "$EMPTY_DIR"
-  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --skip-third-party-skills 2>&1
+  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy --skip-third-party-skills 2>&1
 )"
 INSTALL_RC=$?
 set -e
@@ -97,7 +97,7 @@ mkdir -p "$FAKE_HOME2"
 set +e
 KIT_OUT="$(
   cd "$ROOT"
-  HOME="$FAKE_HOME2" "$ROOT/scripts/install-to-project.sh" --update --skip-third-party-skills 2>&1
+  HOME="$FAKE_HOME2" "$ROOT/scripts/install-to-project.sh" --agree-policy --update --skip-third-party-skills 2>&1
 )"
 KIT_RC=$?
 set -e
@@ -115,9 +115,9 @@ else
   echo "OK   update did not target kit as consumer project"
 fi
 
-# CLI: csp update wires --update into the installer
+# CLI: lgt update wires --update into the installer
 if [[ -x "$ROOT/bin/csp" ]]; then
-  assert_grep cli_update_passes_flag "bin/cursor-spells" 'INSTALLER.*--update'
+  assert_grep cli_update_passes_flag "bin/lgt" 'INSTALLER.*--update'
 fi
 
 if [[ "$fail" -ne 0 ]]; then

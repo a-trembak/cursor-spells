@@ -7,7 +7,7 @@
 
 ## Brief
 
-Collect once: AC source, optional human plan path/text, `.cursor/project-patterns.md` if present, stack label from `/csp-start-task` bootstrap when available.
+Collect once: AC source, optional human plan path/text, `.cursor/project-patterns.md` if present, stack label from `/lgt-start-task` bootstrap when available.
 
 ## Steps
 

@@ -345,7 +345,7 @@ triggers:
   - commands/ rename | agents/ rename | shared prefix csp-
   - pipeline-flow.md | pipeline-flow.html | Mermaid agent label
   - skills/<name>/SKILL.md | harness-health | skill name:
-  - Skill `/finish-plan` | Skill `/csp-
+  - Skill `/finish-plan` | Skill `/lgt-
 phases: [patterns]
 gate: P1
 also: [P2, P3, P4]
@@ -356,7 +356,7 @@ rule_one_liner: >-
   harness opens skills/<name>/ with unprefixed names.
 anti_pattern: >-
   Prefixing commands/agents while leaving Mermaid or canvas labels on the
-  old agent ids, inventing skills/csp-…/, writing Skill `/csp-…`, or
+  old agent ids, inventing skills/lgt-…/, writing Skill `/lgt-…`, or
   pointing harness health at prefixed skill directories.
 hits: 1
 last_seen: 2026-09-09

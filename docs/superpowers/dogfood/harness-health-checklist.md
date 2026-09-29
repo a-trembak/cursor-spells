@@ -60,5 +60,5 @@ Manual checks for kit harness inventory and the full regression bench.
 
 ## Related reading
 
-- Ukrainian plain-language guide with architecture pictures: [`../pipeline-metrics-guide.md`](../pipeline-metrics-guide.md)
+- Plain-language guide with architecture pictures: [`../pipeline-metrics-guide.md`](../pipeline-metrics-guide.md)
 - English harness README: [`../../../evals/harness/README.md`](../../../evals/harness/README.md)

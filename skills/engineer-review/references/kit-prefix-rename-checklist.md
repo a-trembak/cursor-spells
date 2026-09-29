@@ -41,10 +41,10 @@ Skip pure consumer-app diffs with no kit command/agent/flow/harness paths.
 
 **Flag:**
 
-- Phrases like ``Skill `/finish-plan` `` or ``Skill `/csp-finish-plan` ``
+- Phrases like ``Skill `/finish-plan` `` or ``Skill `/lgt-finish-plan` ``
 - Calling a skill by its slash-command spelling in prose that means the skill body under `skills/<name>/`
 
-**Fix shape:** `skill \`finish-plan\` (slash command \`/csp-finish-plan\`)` — or the current command spelling for this kit.
+**Fix shape:** `skill \`finish-plan\` (slash command \`/lgt-finish-plan\`)` — or the current command spelling for this kit.
 
 ## P4 — Harness opens unprefixed skill paths
 
@@ -52,7 +52,7 @@ Skip pure consumer-app diffs with no kit command/agent/flow/harness paths.
 
 **Flag:**
 
-- New or edited probes that look for `skills/csp-tech-spec/SKILL.md` (or any prefixed skill dir) when the real folder is `skills/tech-spec/`
+- New or edited probes that look for `skills/lgt-tech-spec/SKILL.md` (or any prefixed skill dir) when the real folder is `skills/tech-spec/`
 - Dogfood or contract tests that assert prefixed skill directory paths after a command/agent-only rename
 
 ## Evidence

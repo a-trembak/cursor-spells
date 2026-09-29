@@ -50,7 +50,7 @@ if [[ ! -f "$pg_lib" ]]; then
 fi
 
 if [[ ! -f "$pg_lib" ]]; then
-  emit_followup "pipeline-gates helper missing at $root/scripts/pipeline-gates.sh. Run csp update to refresh kit scripts."
+  emit_followup "pipeline-gates helper missing at $root/scripts/pipeline-gates.sh. Run lgt update to refresh kit scripts."
   exit 0
 fi
 

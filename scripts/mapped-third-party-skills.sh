@@ -130,8 +130,8 @@ mtp_install_curated() {
   local id
   local failed=()
 
-  if [[ "${CSP_SKIP_THIRD_PARTY_SKILLS:-}" == "1" || "${SKIP_THIRD_PARTY_SKILLS:-0}" == "1" ]]; then
-    echo "skip third-party skills (--skip-third-party-skills or CSP_SKIP_THIRD_PARTY_SKILLS=1)"
+  if [[ "${LGT_SKIP_THIRD_PARTY_SKILLS:-${CSP_SKIP_THIRD_PARTY_SKILLS:-}}" == "1" || "${SKIP_THIRD_PARTY_SKILLS:-0}" == "1" ]]; then
+    echo "skip third-party skills (--skip-third-party-skills or LGT_SKIP_THIRD_PARTY_SKILLS=1 / CSP_SKIP_THIRD_PARTY_SKILLS=1)"
     return 0
   fi
 

@@ -50,7 +50,7 @@ if [[ ! -f "$pg_lib" ]]; then
 fi
 
 if [[ ! -f "$pg_lib" ]]; then
-  emit_followup "pipeline-gates helper missing at $root/scripts/pipeline-gates.sh. Run csp update to refresh kit scripts."
+  emit_followup "pipeline-gates helper missing at $root/scripts/pipeline-gates.sh. Run lgt update to refresh kit scripts."
   exit 0
 fi
 
@@ -77,7 +77,7 @@ if [[ -n "$plan_path" ]]; then
       if [[ "$kind" == "plan-gate" ]]; then
         message="Plan-gate marker still present (${rel_gate}, plan: ${plan_path}). Wait for approve-plan or revise before running the critic or dispatching Task 1."
       else
-        message="Critique-gate marker still present (${rel_gate}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /csp-approve-plan, or reply accept F<id>) before dispatching Task 1."
+        message="Critique-gate marker still present (${rel_gate}, plan: ${plan_path}). implementation-critic has blocking findings or accept-risk items pending. Resolve them (revise the plan via /lgt-approve-plan, or reply accept F<id>) before dispatching Task 1."
       fi
       emit_followup "$message"
       exit 0

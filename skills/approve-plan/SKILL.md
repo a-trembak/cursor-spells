@@ -3,8 +3,8 @@ name: approve-plan
 description: >-
   Use right after writing-plans produces an implementation plan, before any
   critique or code. HITL approve-plan/revise, then auto-runs implementation-
-  critic. On Verdict clear, hands off to start-build. Use from /csp-start-task or
-  /csp-approve-plan.
+  critic. On Verdict clear, hands off to start-build. Use from /lgt-start-task or
+  /lgt-approve-plan.
 ---
 
 # Approve Plan
@@ -13,9 +13,9 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 
 ## When to Use
 
-- `/csp-start-task` after `writing-plans` finishes
-- Manual `/csp-approve-plan` when a plan exists and has not been approved for this revision
-- Not for ad-hoc critique alone (`/csp-critique-plan`) and not for starting code (`/csp-start-build`)
+- `/lgt-start-task` after `writing-plans` finishes
+- Manual `/lgt-approve-plan` when a plan exists and has not been approved for this revision
+- Not for ad-hoc critique alone (`/lgt-critique-plan`) and not for starting code (`/lgt-start-build`)
 
 ## Steps (mandatory order)
 
@@ -45,7 +45,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 5. **On `approve-plan`:**
    - `pg_clear_gate "$(pwd)" plan-gate "<plan-path>"`
    - `pg_write_gate "$(pwd)" critique-gate "<plan-path>"`
-   - Auto-run `implementation-critic` / `/csp-critique-plan` against the plan (read-only — no permission needed to start it)
+   - Auto-run `implementation-critic` / `/lgt-critique-plan` against the plan (read-only — no permission needed to start it)
 6. **On `Verdict: clear`:**
    - `pg_clear_gate "$(pwd)" critique-gate "<plan-path>"`
    - `pg_write_gate "$(pwd)" plan-critique-clear "<plan-path>"`
@@ -59,7 +59,7 @@ Human reads and accepts the implementation plan **before** the critic runs. Crit
 ## Notes
 
 - Critic is **not** a HITL start — only plan approval and blocked/accept-risk findings are HITL.
-- Manual `/csp-critique-plan` still works ad-hoc; it does not replace this gate for `/csp-start-task`.
+- Manual `/lgt-critique-plan` still works ad-hoc; it does not replace this gate for `/lgt-start-task`.
 - Re-approving after a plan edit always re-runs the critic (clear marker was deleted in step 2 / revise).
 - Critic *reports* may narrate findings; the plan file itself must stay final-form (`clean-decision-docs`).
 - Append session ledger per skill `trajectory-score` (stages `approve-plan`, `implementation-critic`; gates `approve-plan` / `critic-blocked`; artifact `plan-critique-clear` on Verdict clear).
