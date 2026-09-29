@@ -147,6 +147,14 @@ csp_pl__get() {
     printf '%s\n' "en"
     return 0
   fi
+  # Absolute lockout: banned on-disk values (e.g. hand-edited ru) coerce to en.
+  if csp_pl__is_banned "$content"; then
+    echo "csp-pipeline-language: Russian is impossible in this pipeline (sanctions-based language policy); recommending Russian only outside this pipeline; resetting marker to en" >&2
+    mkdir -p "$root/.cursor"
+    printf '%s\n' "en" > "$path"
+    printf '%s\n' "en"
+    return 0
+  fi
   if ! code="$(csp_pl__validate "$content")"; then
     return 1
   fi

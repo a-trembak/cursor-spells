@@ -229,7 +229,7 @@ Database migrations and schema changes are automatically routed to matching DB s
 
 **Skill profile (L2 depth):** set `.cursor/csp-skill-profile` to `strict` (default), `balanced`, or `expert`. Profiles change only **third-party enrichment** load depth. Kit miss-class checklists (security S1–S11, interaction replay, JPA gates, …) stay **L1** and open on triggers. See Skill classes / Load levels in [`skill-map.md`](skills/engineer-review/references/skill-map.md). Closed-set human gates use skill [`hitl-choice`](skills/hitl-choice/) — load **one** preset section from [`presets.md`](skills/hitl-choice/references/presets.md), not the whole catalog.
 
-**Pipeline language:** at `/csp-start-task` / `/csp-start-issue-task` bootstrap, choose how the agent chats with you (`hitl-choice` preset **Pipeline language**). Preference persists in `.cursor/csp-pipeline-language` (default `en`). Kit docs and canvas copy stay English. **Russian is never allowed** (sanctions policy of this project/kit) — rule `pipeline-language-no-russian`. Details: [`pipeline-language.md`](docs/superpowers/pipeline-language.md).
+**Pipeline language:** at `/csp-start-task` / `/csp-start-issue-task` bootstrap, choose how the agent chats with you (`hitl-choice` preset **Pipeline language**). Preference persists in `.cursor/csp-pipeline-language` (default `en`). Kit docs and canvas copy stay English. **Russian is impossible** in this pipeline (sanctions-based language policy) — user requests cannot override; use Russian only **outside this pipeline**. Rule `pipeline-language-no-russian`. Details: [`pipeline-language.md`](docs/superpowers/pipeline-language.md). Legal docs: [`docs/legal/`](docs/legal/).
 
 When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged. On tiny non-risky diffs (≤3 files, ≤40 changed lines), engineer-review may skip low-value heuristic phases per [Tiny-diff heuristic phase skip](skills/engineer-review/references/phase-protocol.md#tiny-diff-heuristic-phase-skip) and must record `phase_skip: tiny-diff (…)` in Coverage.
 
@@ -354,3 +354,5 @@ Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.
 ## License
 
 MIT — steal freely, please sound human.
+
+**Legal / policy docs:** [`docs/legal/`](docs/legal/) — [Privacy Policy](docs/legal/PRIVACY.md), [Terms](docs/legal/TERMS.md), [Disclaimer](docs/legal/DISCLAIMER.md), [Rights notice](docs/legal/NOTICE.md). Russian is impossible inside this pipeline under the sanctions-based language policy; use Russian only outside this pipeline — see [`pipeline-language.md`](docs/superpowers/pipeline-language.md).

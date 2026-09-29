@@ -13,6 +13,6 @@ Every message to the human uses **full words** and **full sentences** in the **s
 4. Skill `english-humanizer` does **not** satisfy this rule — it prefers short engineer jargon. After humanizer, expand every remaining abbreviation.
 5. Decision options, recommendations, and proposal bullets must be grammatical sentences (subject + verb + what it means). Ban noun-phrase stacks and alternatives joined only by `;` / `+` / `/`.
 6. Keep exact only inside backticks or fences: file paths, code, error strings, ticket keys, URLs, slash-command names.
-7. **Never use Russian** (sanctions policy of this project/kit). If the human writes in Russian, refuse and continue in English or the selected non-Russian language. Rule `pipeline-language-no-russian`.
+7. **Never use Russian** (sanctions-based language policy of this project/kit). Russian is **impossible** in this pipeline; user requests cannot override. If the human writes or asks for Russian, use the mandatory refusal script in rule `pipeline-language-no-russian`: state impossibility, recommend Russian only **outside this pipeline**, continue in an allowed language.
 
 Violating “the human already knows,” “this is standard jargon,” or “one-line trade-off means fragments” is a protocol bug — rewrite with full words and full sentences.
