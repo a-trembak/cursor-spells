@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -479,7 +479,7 @@
 <body>
   <header data-orientation-params="route,layer,stage">
     <h1>cursor-spells · Pipeline canvas</h1>
-    <p class="sub">Шари зверху вниз · клік по етапу — гілки і цикли ↺</p>
+    <p class="sub">Layers top to bottom · click a stage for branches and cycles ↺</p>
     <p class="sub" id="orientation-route" hidden></p>
     <div class="legend">
       <span><i class="swatch auto"></i> automatic</span>
@@ -493,12 +493,12 @@
   <main>
     <!-- OVERVIEW -->
     <section id="view-overview" class="view active" aria-label="Overview">
-      <h2 class="view-title">Огляд пайплайна</h2>
+      <h2 class="view-title">Pipeline overview</h2>
       <p class="view-desc">
-        Час іде <strong>зверху вниз</strong>. Рамки — шари (Plan → Build → Review → Docs).
-        Пунктир ↺ — цикл у тому ж шарі або на <em>один</em> шар назад.
-        <code>review-gate</code> стоїть <em>після</em> коду: команда <code>/csp-finish-plan</code> лише відкриває цей HITL, не шар плану.
-        <code>/csp-start-task</code> починає з fetch → In Progress → route і ніколи не обирає <code>--fast</code> сам.
+        Time flows <strong>top to bottom</strong>. Boxes are layers (Plan → Build → Review → Docs).
+        Dotted ↺ is a cycle in the same layer or <em>one</em> layer back.
+        <code>review-gate</code> sits <em>after</em> code: <code>/csp-finish-plan</code> only opens this HITL, not the Plan layer.
+        <code>/csp-start-task</code> starts with fetch → In Progress → route and never picks <code>--fast</code> on its own.
       </p>
 
       <ol class="seq-strip" aria-label="Happy path sequence">
@@ -517,82 +517,82 @@
             <div class="kind">0 · fetch + route</div>
             <div class="label">Jira fetch + router</div>
             <div class="hint">MCP · In Progress · Bug → issue · never auto --fast</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
         </div>
 
-        <div class="flow-down">↓ AC є</div>
+        <div class="flow-down">↓ AC present</div>
 
         <div class="layer plan" data-layer="plan">
-          <div class="layer-head">Plan · spec і план, ще без коду</div>
+          <div class="layer-head">Plan · spec and plan, no code yet</div>
           <div class="node auto" tabindex="0" data-go="bootstrap" data-stage="bootstrap" data-layer="plan" role="button">
             <div class="kind">1 · automatic</div>
             <div class="label">Bootstrap</div>
             <div class="hint">project-patterns + stack detect</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
-          <div class="connector"><span class="edge-label">AC є</span></div>
+          <div class="connector"><span class="edge-label">AC present</span></div>
           <div class="node hitl" tabindex="0" data-go="tech-spec" data-stage="csp-tech-spec" data-layer="plan" role="button">
             <div class="kind">2 · HITL</div>
             <div class="label">Tech Spec</div>
             <div class="hint">entry → depth → approve-spec</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
-          <div class="cycle-chip">↺ <code>revise</code> лишається в Tech Spec</div>
+          <div class="cycle-chip">↺ <code>revise</code> stays in Tech Spec</div>
           <div class="connector"><span class="edge-label">approved | skip</span></div>
           <div class="node auto" tabindex="0" data-go="plan" data-stage="writing-plans" data-layer="plan" role="button">
             <div class="kind">3 · automatic</div>
             <div class="label">writing-plans</div>
-            <div class="hint">implementation plan з tech spec</div>
-            <span class="open-detail">деталі →</span>
+            <div class="hint">implementation plan from tech spec</div>
+            <span class="open-detail">details →</span>
           </div>
           <div class="connector"></div>
           <div class="node hitl" tabindex="0" data-go="approve-plan" data-stage="approve-plan" data-layer="plan" role="button">
             <div class="kind">4 · HITL + auto critic</div>
             <div class="label">approve-plan → critic</div>
             <div class="hint">Verdict: clear → Build</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
-          <div class="cycle-chip">↺ <code>revise</code> / <code>accept F-id</code> → writing-plans або цей самий critic, не код</div>
+          <div class="cycle-chip">↺ <code>revise</code> / <code>accept F-id</code> → writing-plans or the same critic, not code</div>
         </div>
 
-        <div class="flow-down ok">↓ Verdict: clear — шар плану закрито</div>
+        <div class="flow-down ok">↓ Verdict: clear — Plan layer closed</div>
 
         <div class="layer build" data-layer="build">
-          <div class="layer-head">Build · написання коду</div>
+          <div class="layer-head">Build · write the code</div>
           <div class="node auto" tabindex="0" data-go="build" data-stage="csp-software-developer" data-layer="build" role="button">
             <div class="kind">5 · automatic</div>
             <div class="label">start-build → csp-software-developer</div>
-            <div class="hint">чекати developer → далі review-gate, не новий план</div>
-            <span class="open-detail">деталі →</span>
+            <div class="hint">wait for developer → then review-gate, not a new plan</div>
+            <span class="open-detail">details →</span>
           </div>
         </div>
 
         <div class="flow-down">↓ tasks verified</div>
 
         <div class="layer review" data-layer="review">
-          <div class="layer-head">Review · план уже виконано</div>
+          <div class="layer-head">Review · the plan is already executed</div>
           <div class="node hitl" tabindex="0" data-go="review-gate" data-stage="review-gate" data-layer="review" role="button">
             <div class="kind">6 · HITL review-gate</div>
             <div class="label">review-gate</div>
-            <div class="hint"><code>/csp-finish-plan</code> пише маркер · skip / approve / done</div>
-            <span class="open-detail">деталі →</span>
+            <div class="hint"><code>/csp-finish-plan</code> writes marker · skip / approve / done</div>
+            <span class="open-detail">details →</span>
           </div>
-          <div class="cycle-chip">↺ <code>fixes</code> повертає в <strong>csp-software-developer</strong> (Build), не в writing-plans</div>
+          <div class="cycle-chip">↺ <code>fixes</code> returns to <strong>csp-software-developer</strong> (Build), not writing-plans</div>
           <div class="connector"><span class="edge-label">skip / approve / done</span></div>
           <div class="node hitl" tabindex="0" data-go="review" data-stage="engineer-review" data-layer="review" role="button">
             <div class="kind">7 · conditional HITL</div>
             <div class="label">engineer-review</div>
             <div class="hint">1 repo vs ≥2 · Figma · clarify</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
-          <div class="cycle-chip">↺ Needs clarification → цей самий review</div>
+          <div class="cycle-chip">↺ Needs clarification → same review</div>
           <div class="connector"><span class="edge-label">settled</span></div>
           <div class="node hitl" tabindex="0" data-go="propose-commit" role="button">
             <div class="kind">7b · HITL commit gate</div>
             <div class="label">propose-commit</div>
             <div class="hint"><code>approve-commit</code> / <code>revise</code> · git commit only, never push</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
         </div>
 
@@ -604,22 +604,22 @@
             <div class="kind">8 · HITL</div>
             <div class="label">update-docs</div>
             <div class="hint">skip / docs_md / docs_repo / confluence</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
-          <div class="cycle-chip">↺ чекати path / URL / Confluence space · residual <code>propose-commit</code> якщо dirty</div>
+          <div class="cycle-chip">↺ wait for path / URL / Confluence space · residual <code>propose-commit</code> if dirty</div>
           <div class="connector"><span class="edge-label">then</span></div>
           <div class="node hitl" tabindex="0" data-go="create-pr" data-stage="create-pr" data-layer="ship" role="button">
             <div class="kind">9 · HITL</div>
             <div class="label">create-pr</div>
             <div class="hint">draft first · keep_draft / ready / Jira Review</div>
-            <span class="open-detail">деталі →</span>
+            <span class="open-detail">details →</span>
           </div>
           <div class="connector"><span class="edge-label">done</span></div>
           <div class="node ok" tabindex="0" data-go="markers" data-stage="markers" data-layer="ship" role="button">
             <div class="kind">markers · state</div>
             <div class="label">PR + docs</div>
-            <div class="hint">draft або ready · таблиця маркерів .cursor/gates</div>
-            <span class="open-detail">деталі →</span>
+            <div class="hint">draft or ready · markers table under .cursor/gates</div>
+            <span class="open-detail">details →</span>
           </div>
         </div>
       </div>
@@ -627,37 +627,37 @@
       <div class="branch-row">
         <div class="node stop" tabindex="-1">
           <div class="kind">guard</div>
-          <div class="label">Немає AC → stop</div>
-          <div class="hint">написання AC поза scope kit</div>
+          <div class="label">No AC → stop</div>
+          <div class="hint">writing AC is out of kit scope</div>
         </div>
         <div class="node auto" tabindex="0" data-go="standalone" role="button">
           <div class="kind">shortcuts</div>
           <div class="label">Standalone + lean paths</div>
-          <div class="hint">--fast пропускає Plan і review-gate · /csp-start-issue-task · /csp-pr-review…</div>
-          <span class="open-detail">деталі →</span>
+          <div class="hint">--fast skips Plan and review-gate · /csp-start-issue-task · /csp-pr-review…</div>
+          <span class="open-detail">details →</span>
         </div>
       </div>
     </section>
 
     <!-- ROUTE -->
     <section id="view-route" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">0. Jira fetch + router</h2>
-      <p class="view-desc">Перед AC guard. Fetch лише коли source виглядає як ticket (<code>PROJ-123</code> або <code>*.atlassian.net</code>). Агент ніколи не обирає <code>--fast</code>.</p>
+      <p class="view-desc">Before the AC guard. Fetch only when the source looks like a ticket (<code>PROJ-123</code> or <code>*.atlassian.net</code>). The agent never picks <code>--fast</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>jira-fetch</h3>
-            <p>Skill <code>jira-fetch</code> · MCP <code>getJiraIssue</code> (markdown). <code>cloudId</code> = hostname URL, інакше <code>getAccessibleAtlassianResources</code>.</p>
+            <p>Skill <code>jira-fetch</code> · MCP <code>getJiraIssue</code> (markdown). <code>cloudId</code> = URL hostname, otherwise <code>getAccessibleAtlassianResources</code>.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token stop">MCP fail</span>
-                <div class="then">Stop + paste ticket text<small>не продовжувати на URL-stub</small></div>
+                <div class="then">Stop + paste ticket text<small>do not continue on a URL stub</small></div>
               </div>
               <div class="branch">
                 <span class="token ok">ok</span>
-                <div class="then"><code>ac_text</code> + <code>jira_class</code> bug | feature | unknown. Потім <code>jira-transition</code> → <code>in_progress</code> (skip якщо вже; fail не стопає пайплайн)</div>
+                <div class="then"><code>ac_text</code> + <code>jira_class</code> bug | feature | unknown. Then <code>jira-transition</code> → <code>in_progress</code> (skip if already there; fail does not stop the pipeline)</div>
               </div>
             </div>
           </div>
@@ -666,7 +666,7 @@
           <div class="step-num">2</div>
           <div class="step-body hitl">
             <h3>Route</h3>
-            <p>Механічна таблиця. HITL лише коли потрібно.</p>
+            <p>Mechanical table. HITL only when needed.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token">--fast + bug</span>
@@ -678,7 +678,7 @@
               </div>
               <div class="branch">
                 <span class="token ok">no --fast + bug</span>
-                <div class="then">Issue pipeline (без повторного fetch)</div>
+                <div class="then">Issue pipeline (no second fetch)</div>
               </div>
               <div class="branch">
                 <span class="token">no --fast + unknown</span>
@@ -686,36 +686,36 @@
               </div>
               <div class="branch">
                 <span class="token ok">feature / pasted AC</span>
-                <div class="then">Full pipeline (або fast якщо людина передала <code>--fast</code>)</div>
+                <div class="then">Full pipeline (or fast if the human passed <code>--fast</code>)</div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" class="primary" data-go="bootstrap">Далі: Bootstrap →</button>
+        <button type="button" class="primary" data-go="bootstrap">Next: Bootstrap →</button>
       </div>
     </section>
 
     <!-- BOOTSTRAP -->
     <section id="view-bootstrap" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">1. Bootstrap</h2>
-      <p class="view-desc">Автоматичний старт. Без HITL. Механічний lookup стеку.</p>
+      <p class="view-desc">Automatic start. No HITL. Mechanical stack lookup.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
-            <h3>Перевірка AC</h3>
-            <p>Після fetch/route. Якщо Acceptance Criteria немає — stop. Написання AC поза scope kit. Jira URL без успішного fetch — не stub, а stop + paste.</p>
+            <h3>AC check</h3>
+            <p>After fetch/route. If Acceptance Criteria are missing — stop. Writing AC is out of kit scope. A Jira URL without a successful fetch is not a stub: stop + paste.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token stop">no AC</span>
-                <div class="then">Stop і повідомити людину<small>потрібен ticket / файл / текст AC</small></div>
+                <div class="then">Stop and tell the human<small>need ticket / file / AC text</small></div>
               </div>
               <div class="branch">
                 <span class="token ok">AC ok</span>
-                <div class="then">Далі bootstrap</div>
+                <div class="then">Continue bootstrap</div>
               </div>
             </div>
           </div>
@@ -724,27 +724,27 @@
           <div class="step-num">2</div>
           <div class="step-body auto">
             <h3>project-patterns.md</h3>
-            <p>Читає <code>.cursor/project-patterns.md</code>, якщо є. Якщо немає — створить пізніше на першому engineer-review patterns flow.</p>
+            <p>Reads <code>.cursor/project-patterns.md</code> when present. If missing — creates it later on the first engineer-review patterns flow.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Stack detect</h3>
-            <p>Табличний lookup сигналів (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) з <code>skill-map.md</code>. Без LLM-міркувань. Та сама карта задає <strong>Skill classes</strong>, рівні <strong>L0→L1→L2</strong> і <strong>Skill profile</strong> (<code>strict</code> / <code>balanced</code> / <code>expert</code> з <code>.cursor/csp-skill-profile</code>, типово <code>strict</code>) — профіль ріже лише стороннє збагачення L2, не правила й не kit-чеклісти.</p>
+            <p>Tabular lookup of signals (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) from <code>skill-map.md</code>. No LLM reasoning. The same map defines <strong>Skill classes</strong>, levels <strong>L0→L1→L2</strong>, and <strong>Skill profile</strong> (<code>strict</code> / <code>balanced</code> / <code>expert</code> from <code>.cursor/csp-skill-profile</code>, default <code>strict</code>) — the profile only cuts third-party L2 enrichment, not rules and not kit checklists.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" class="primary" data-go="tech-spec">Далі: Tech Spec →</button>
+        <button type="button" class="primary" data-go="tech-spec">Next: Tech Spec →</button>
       </div>
     </section>
 
     <!-- TECH SPEC -->
     <section id="view-tech-spec" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">2. Tech Spec</h2>
-      <p class="view-desc">Developer technical action plan (не PRD). Entry + depth (agent) + gate HITL. Бізнес-вимоги не вигадуються.</p>
+      <p class="view-desc">Developer technical action plan (not a PRD). Entry + depth (agent) + gate HITL. Business requirements are not invented.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">A</div>
@@ -754,11 +754,11 @@
             <div class="branches">
               <div class="branch">
                 <span class="token">human</span>
-                <div class="then">План (path або paste) → завжди full path (<code>system-design</code> pair) → merge в tech-spec</div>
+                <div class="then">Plan (path or paste) → always full path (<code>system-design</code> pair) → merge into tech-spec</div>
               </div>
               <div class="branch">
                 <span class="token">agent</span>
-                <div class="then">Далі depth HITL (крок B)</div>
+                <div class="then">Continue to depth HITL (step B)</div>
               </div>
             </div>
           </div>
@@ -766,32 +766,32 @@
         <div class="step">
           <div class="step-num">B</div>
           <div class="step-body hitl">
-            <h3>Depth (agent) або full path</h3>
-            <p>Skill <code>hitl-choice</code> · preset Tech-spec depth (лише після <code>agent</code>)</p>
+            <h3>Depth (agent) or full path</h3>
+            <p>Skill <code>hitl-choice</code> · preset Tech-spec depth (only after <code>agent</code>)</p>
             <div class="branches">
               <div class="branch">
                 <span class="token">light</span>
-                <div class="then">Стандартний 7-section draft → три тири невизначеності нижче</div>
+                <div class="then">Standard 7-section draft → three uncertainty tiers below</div>
               </div>
               <div class="branch">
                 <span class="token">full</span>
-                <div class="then"><code>csp-system-design-designer</code> + <code>csp-system-design-critic</code> (auto-consensus ≤3) → merge в tech-spec</div>
+                <div class="then"><code>csp-system-design-designer</code> + <code>csp-system-design-critic</code> (auto-consensus ≤3) → merge into tech-spec</div>
               </div>
             </div>
-            <p style="margin-top:0.75rem;font-size:0.9em;color:var(--muted)">Human entry пропускає depth — завжди full path.</p>
-            <h4 style="margin:1rem 0 0.5rem;font-size:0.95em">Три тири невизначеності (agent + light)</h4>
+            <p style="margin-top:0.75rem;font-size:0.9em;color:var(--muted)">Human entry skips depth — always full path.</p>
+            <h4 style="margin:1rem 0 0.5rem;font-size:0.95em">Three uncertainty tiers (agent + light)</h4>
             <div class="branches">
               <div class="branch">
                 <span class="token stop">Blocker</span>
-                <div class="then">Stop і запитати<small>немає happy path / ownership / security / breaking</small></div>
+                <div class="then">Stop and ask<small>missing happy path / ownership / security / breaking</small></div>
               </div>
               <div class="branch">
                 <span class="token">Decision</span>
-                <div class="then">2–3 опції + рекомендація; чекати вибір</div>
+                <div class="then">2–3 options + recommendation; wait for choice</div>
               </div>
               <div class="branch">
                 <span class="token auto">Assumption</span>
-                <div class="then">Записати в секцію Assumptions (claim / why / revoke)</div>
+                <div class="then">Record in the Assumptions section (claim / why / revoke)</div>
               </div>
             </div>
           </div>
@@ -800,7 +800,7 @@
           <div class="step-num">C</div>
           <div class="step-body hitl">
             <h3>Gate</h3>
-            <p>Plan-writing не стартує, доки не буде відповіді.</p>
+            <p>Plan-writing does not start until there is an answer.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token ok">approve-spec</span>
@@ -808,11 +808,11 @@
               </div>
               <div class="branch">
                 <span class="token">revise</span>
-                <div class="then">Rewrite як current truth (<code>clean-decision-docs</code>); chat може резюмувати; знову gate</div>
+                <div class="then">Rewrite as current truth (<code>clean-decision-docs</code>); chat may summarize; gate again</div>
               </div>
               <div class="branch">
                 <span class="token">skip &lt;reason&gt;</span>
-                <div class="then">Reason у файлі; далі writing-plans без approved spec</div>
+                <div class="then">Reason in the file; continue writing-plans without an approved spec</div>
               </div>
             </div>
           </div>
@@ -820,48 +820,48 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="bootstrap">← Bootstrap</button>
-        <button type="button" class="primary" data-go="plan">Далі: Plan →</button>
+        <button type="button" class="primary" data-go="plan">Next: Plan →</button>
       </div>
     </section>
 
     <!-- PLAN -->
     <section id="view-plan" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">3. writing-plans</h2>
-      <p class="view-desc">Автоматично після approved/skip spec. Без HITL на цьому кроці. Стратегію execution ще не питаємо.</p>
+      <p class="view-desc">Automatic after approved/skip spec. No HITL on this step. Execution strategy is not asked yet.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>Input</h3>
-            <p>Tech spec (approved або skip з reason) + patterns/stack з bootstrap.</p>
+            <p>Tech spec (approved or skip with reason) + patterns/stack from bootstrap.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body auto">
             <h3>Output</h3>
-            <p>Implementation plan у <code>docs/**/plans/</code>. Далі одразу <code>approve-plan</code>.</p>
+            <p>Implementation plan under <code>docs/**/plans/</code>. Then immediately <code>approve-plan</code>.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
         <button type="button" data-go="tech-spec">← Tech Spec</button>
-        <button type="button" class="primary" data-go="approve-plan">Далі: Approve + Critic →</button>
+        <button type="button" class="primary" data-go="approve-plan">Next: Approve + Critic →</button>
       </div>
     </section>
 
     <!-- APPROVE PLAN -->
     <section id="view-approve-plan" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">4. approve-plan → critic</h2>
-      <p class="view-desc">Людина читає план до критика. Critic стартує автоматично після approve. Build — лише на Verdict clear.</p>
+      <p class="view-desc">The human reads the plan before the critic. Critic starts automatically after approve. Build only on Verdict clear.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>Markers</h3>
-            <p>Пише <code>.cursor/gates/plan-gate/&lt;slug&gt;</code>; чистить stale <code>plan-critique-clear/&lt;slug&gt;</code> цього плану.</p>
+            <p>Writes <code>.cursor/gates/plan-gate/&lt;slug&gt;</code>; clears stale <code>plan-critique-clear/&lt;slug&gt;</code> for this plan.</p>
           </div>
         </div>
         <div class="step">
@@ -871,11 +871,11 @@
             <div class="branches">
               <div class="branch">
                 <span class="token ok">approve-plan</span>
-                <div class="then">Видалити plan-gate цього slug → писати critique-gate → auto critic</div>
+                <div class="then">Delete this slug’s plan-gate → write critique-gate → auto critic</div>
               </div>
               <div class="branch">
                 <span class="token">revise</span>
-                <div class="then">Переписати план (clean-decision-docs); знову HITL<small>plan-critique-clear цього slug лишається видаленим</small></div>
+                <div class="then">Rewrite the plan (clean-decision-docs); HITL again<small>this slug’s plan-critique-clear stays deleted</small></div>
               </div>
             </div>
           </div>
@@ -884,7 +884,7 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>implementation-critic</h3>
-            <p>Pass A (design/YAGNI) + Pass B (risk/migration). Read-only. Без HITL на старт.</p>
+            <p>Pass A (design/YAGNI) + Pass B (risk/migration). Read-only. No HITL on start.</p>
           </div>
         </div>
         <div class="step">
@@ -894,39 +894,39 @@
             <div class="branches">
               <div class="branch">
                 <span class="token ok">clear</span>
-                <div class="then">Видалити critique-gate цього slug → писати plan-critique-clear → start-build</div>
+                <div class="then">Delete this slug’s critique-gate → write plan-critique-clear → start-build</div>
               </div>
               <div class="branch">
                 <span class="token stop">blocked</span>
-                <div class="then">Зупинитись; HITL revise / accept F&lt;id&gt;<small>відкритий Must-fix</small></div>
+                <div class="then">Stop; HITL revise / accept F&lt;id&gt;<small>open Must-fix</small></div>
               </div>
               <div class="branch">
                 <span class="token stop">clear pending accept</span>
-                <div class="then">Зупинитись; потрібен accept Accept-risk<small>Must-fix уже закриті</small></div>
+                <div class="then">Stop; need accept Accept-risk<small>Must-fix already closed</small></div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <table class="meta">
-        <thead><tr><th>Finding</th><th>Блокує?</th></tr></thead>
+        <thead><tr><th>Finding</th><th>Blocks?</th></tr></thead>
         <tbody>
-          <tr><td>Must-fix</td><td>Так, доки resolve або <code>accept F&lt;id&gt;</code></td></tr>
-          <tr><td>Should-fix</td><td>Ні (видимий на HITL)</td></tr>
-          <tr><td>Accept-risk</td><td>Так, доки явний <code>accept F&lt;id&gt;</code></td></tr>
+          <tr><td>Must-fix</td><td>Yes, until resolve or <code>accept F&lt;id&gt;</code></td></tr>
+          <tr><td>Should-fix</td><td>No (visible on HITL)</td></tr>
+          <tr><td>Accept-risk</td><td>Yes, until explicit <code>accept F&lt;id&gt;</code></td></tr>
         </tbody>
       </table>
       <div class="nav-next">
         <button type="button" data-go="plan">← Plan</button>
-        <button type="button" class="primary" data-go="build">Далі: Build →</button>
+        <button type="button" class="primary" data-go="build">Next: Build →</button>
       </div>
     </section>
 
     <!-- BUILD -->
     <section id="view-build" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">5. start-build → csp-software-developer</h2>
-      <p class="view-desc">Тонкий handoff. Critic тут не запускається. Код лише після clear critique.</p>
+      <p class="view-desc">Thin handoff. Critic is not started here. Code only after clear critique.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -935,11 +935,11 @@
             <div class="branches">
               <div class="branch">
                 <span class="token stop">no clear marker</span>
-                <div class="then">Stop → скажи запустити <code>/csp-approve-plan</code></div>
+                <div class="then">Stop → tell them to run <code>/csp-approve-plan</code></div>
               </div>
               <div class="branch">
                 <span class="token stop">pending gate</span>
-                <div class="then">Stop якщо <em>цей</em> slug має plan-gate або critique-gate. Інші тікети не блокують.</div>
+                <div class="then">Stop if <em>this</em> slug has plan-gate or critique-gate. Other tickets do not block.</div>
               </div>
             </div>
           </div>
@@ -947,15 +947,15 @@
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body auto">
-            <h3>Branch setup (обов’язково до Task 1)</h3>
-            <p>Одна shared feature branch у кожному target repo з plan/spec. Ніколи на main/master/default.</p>
+            <h3>Branch setup (required before Task 1)</h3>
+            <p>One shared feature branch in each target repo with plan/spec. Never on main/master/default.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Skill routing</h3>
-            <p>Stack skills + <code>code-comments</code> + TDD (якщо є behavior) + DB rows при міграціях + conditional perf/security/architecture. <strong>L1</strong> = kit miss-class checklists (завжди на тригері). <strong>L2</strong> = сторонні mapped skills — лише якщо Skill profile дозволяє (<code>strict</code> за замовчуванням; <code>balanced</code>/<code>expert</code> можуть пропустити L2 з <code>skill_skipped_by_profile</code>). Tier-2 unmapped skills — лише після HITL install decision.</p>
+            <p>Stack skills + <code>code-comments</code> + TDD (when there is behavior) + DB rows on migrations + conditional perf/security/architecture. <strong>L1</strong> = kit miss-class checklists (always on trigger). <strong>L2</strong> = third-party mapped skills — only if Skill profile allows (<code>strict</code> by default; <code>balanced</code>/<code>expert</code> may skip L2 with <code>skill_skipped_by_profile</code>). Tier-2 unmapped skills — only after HITL install decision.</p>
           </div>
         </div>
         <div class="step">
@@ -969,7 +969,7 @@
               </div>
               <div class="branch">
                 <span class="token auto">pre-chosen</span>
-                <div class="then"><code>executing-plans</code>, якщо людина вже просила окрему сесію</div>
+                <div class="then"><code>executing-plans</code> if the human already asked for a separate session</div>
               </div>
             </div>
           </div>
@@ -978,27 +978,27 @@
           <div class="step-num">5</div>
           <div class="step-body auto">
             <h3>Wait → review-gate → csp-engineer-reviewer</h3>
-            <p><code>start-build</code> <strong>чекає</strong> return від nested Task <code>csp-software-developer</code> (fire-and-forget заборонено). Потім у цьому ж чаті викликає <code>/csp-finish-plan</code> — це HITL <code>review-gate</code>, не повернення до writing-plans. Після <code>skip</code> / <code>approve</code> / <code>done</code> стартує <code>csp-engineer-reviewer</code>.</p>
+            <p><code>start-build</code> <strong>waits</strong> for the nested Task <code>csp-software-developer</code> to return (fire-and-forget forbidden). Then in the same chat it calls <code>/csp-finish-plan</code> — that is HITL <code>review-gate</code>, not a return to writing-plans. After <code>skip</code> / <code>approve</code> / <code>done</code>, <code>csp-engineer-reviewer</code> starts.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
         <button type="button" data-go="approve-plan">← Approve + Critic</button>
-        <button type="button" class="primary" data-go="review-gate">Далі: review-gate →</button>
+        <button type="button" class="primary" data-go="review-gate">Next: review-gate →</button>
       </div>
     </section>
 
     <!-- REVIEW-GATE -->
     <section id="view-review-gate" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">6. review-gate</h2>
-      <p class="view-desc">HITL <em>після</em> коду, перед engineer-review. Шар плану вже закритий. Пайплайн <em>не</em> закінчується тут. Команда <code>/csp-finish-plan</code> пише <code>.cursor/gates/review-gate/&lt;slug&gt;</code>, потім <code>review-surface</code>.</p>
+      <p class="view-desc">HITL <em>after</em> code, before engineer-review. The Plan layer is already closed. The pipeline does <em>not</em> end here. <code>/csp-finish-plan</code> writes <code>.cursor/gates/review-gate/&lt;slug&gt;</code>, then <code>review-surface</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
-            <h3>review-surface (зручність, не фінал)</h3>
-            <p>Checkout feature branch у кожній відкритій папці. <code>SetActiveBranch</code> — вкладка diff / pull request у клієнті. <strong>Не</strong> <code>create-pr</code>, <strong>не</strong> GitHub pull request. Коли гілка має <strong>0 commits ahead of base</strong>, вкладка може бути порожньою — спочатку Local Diff Review canvas (плагін <code>local-diff-review</code> / skill <code>review-local-diff</code>; Send на <strong>Current thread</strong> пише outbound <code>local-diff-review/comments</code>). Якщо плагіна немає — покажи <strong>uncommitted</strong> робоче дерево в чаті (<code>git status</code> / <code>git diff</code>). Після відповіді людини стартує engineer-review, далі <code>propose-commit</code>, docs, далі create-pr.</p>
+            <h3>review-surface (convenience, not the finale)</h3>
+            <p>Checkout the feature branch in each open folder. <code>SetActiveBranch</code> — the client’s diff / pull request tab. <strong>Not</strong> <code>create-pr</code>, <strong>not</strong> a GitHub pull request. When the branch has <strong>0 commits ahead of base</strong>, the tab may be empty — start with the Local Diff Review canvas (plugin <code>local-diff-review</code> / skill <code>review-local-diff</code>; Send on <strong>Current thread</strong> writes outbound <code>local-diff-review/comments</code>). If the plugin is missing — show the <strong>uncommitted</strong> working tree in chat (<code>git status</code> / <code>git diff</code>). After the human answers, engineer-review starts, then <code>propose-commit</code>, docs, then create-pr.</p>
           </div>
         </div>
         <div class="step">
@@ -1008,15 +1008,15 @@
             <div class="branches">
               <div class="branch">
                 <span class="token ok">skip</span>
-                <div class="then">Стартувати engineer-review зараз</div>
+                <div class="then">Start engineer-review now</div>
               </div>
               <div class="branch">
                 <span class="token ok">approve / done</span>
-                <div class="then">Людина вже глянула — стартувати engineer-review</div>
+                <div class="then">Human already looked — start engineer-review</div>
               </div>
               <div class="branch">
                 <span class="token">fixes</span>
-                <div class="then">Описати фікси / canvas Send <code>apply-fixes</code> → <code>csp-software-developer</code> (Build) → знову review-surface → цей самий gate<small>не writing-plans · marker лишається</small></div>
+                <div class="then">Describe fixes / canvas Send <code>apply-fixes</code> → <code>csp-software-developer</code> (Build) → review-surface again → same gate<small>not writing-plans · marker stays</small></div>
               </div>
             </div>
           </div>
@@ -1025,15 +1025,15 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Routing (non-mutating probe)</h3>
-            <p>Читає graphify / існуючий multi-repo.json / sibling scan. <strong>Не</strong> пише multi-repo.json на цьому кроці.</p>
+            <p>Reads graphify / existing multi-repo.json / sibling scan. <strong>Does not</strong> write multi-repo.json on this step.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token stop">0 repos</span>
-                <div class="then">Stop: змін не знайдено</div>
+                <div class="then">Stop: no changes found</div>
               </div>
               <div class="branch">
                 <span class="token ok">1 repo</span>
-                <div class="then">csp-engineer-reviewer (+ Figma HITL якщо frontend)</div>
+                <div class="then">csp-engineer-reviewer (+ Figma HITL if frontend)</div>
               </div>
               <div class="branch">
                 <span class="token auto">≥ 2 repos</span>
@@ -1045,20 +1045,20 @@
       </div>
       <div class="nav-next">
         <button type="button" data-go="build">← Build</button>
-        <button type="button" class="primary" data-go="review">Далі: Review →</button>
+        <button type="button" class="primary" data-go="review">Next: Review →</button>
       </div>
     </section>
 
     <!-- REVIEW -->
     <section id="view-review" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">7. engineer-review</h2>
-      <p class="view-desc">Фази + auto-fix eligibility. HITL лише на Needs clarification.</p>
+      <p class="view-desc">Phases + auto-fix eligibility. HITL only on Needs clarification.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body hitl">
-            <h3>Figma ask (якщо frontend, 1 repo)</h3>
+            <h3>Figma ask (if frontend, 1 repo)</h3>
             <div class="branches">
               <div class="branch">
                 <span class="token">no_figma</span>
@@ -1066,7 +1066,7 @@
               </div>
               <div class="branch">
                 <span class="token">have_urls</span>
-                <div class="then">Чекати pasted URLs → review-figma-markup</div>
+                <div class="then">Wait for pasted URLs → review-figma-markup</div>
               </div>
             </div>
           </div>
@@ -1075,7 +1075,7 @@
           <div class="step-num">2</div>
           <div class="step-body auto">
             <h3>Phase order</h3>
-            <p><code>csp-review-lint</code> першим (deterministic). Далі parallel <strong>find</strong> для heuristic phases (вкл. <code>csp-review-simplify</code>; сторонній <code>ce-simplify-code</code> — L2 за профілем). <strong>Tiny-diff skip:</strong> якщо ≤3 файли, ≤40 LOC і шляхи non-risky — можна пропустити <code>deadcode</code> / <code>simplify</code> / <code>architecture</code> / <code>performance</code> (Coverage: <code>phase_skip: tiny-diff (…)</code>); завжди лишаються <code>lint</code> + <code>logic</code> + <code>patterns</code>. Apply serialize: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma. Потім verify lint + simplify quality pass. Evidence gate + <code>validate-review-report.sh</code> перед показом.</p>
+            <p><code>csp-review-lint</code> first (deterministic). Then parallel <strong>find</strong> for heuristic phases (incl. <code>csp-review-simplify</code>; third-party <code>ce-simplify-code</code> — L2 per profile). <strong>Tiny-diff skip:</strong> if ≤3 files, ≤40 LOC, and paths are non-risky — may skip <code>deadcode</code> / <code>simplify</code> / <code>architecture</code> / <code>performance</code> (Coverage: <code>phase_skip: tiny-diff (…)</code>); <code>lint</code> + <code>logic</code> + <code>patterns</code> always remain. Apply serialize: lint → patterns → deadcode → simplify → logic → architecture → performance → security → figma. Then verify lint + simplify quality pass. Evidence gate + <code>validate-review-report.sh</code> before display.</p>
           </div>
         </div>
         <div class="step">
@@ -1085,11 +1085,11 @@
             <div class="branches">
               <div class="branch">
                 <span class="token ok">apply</span>
-                <div class="then">P0/P1 + unambiguous + усі 4 eligibility умови</div>
+                <div class="then">P0/P1 + unambiguous + all 4 eligibility conditions</div>
               </div>
               <div class="branch">
                 <span class="token">clarify</span>
-                <div class="then">Будь-яка умова fails · migrations · traceability · security/logic ambiguity · P2 → residual</div>
+                <div class="then">Any condition fails · migrations · traceability · security/logic ambiguity · P2 → residual</div>
               </div>
             </div>
           </div>
@@ -1098,27 +1098,27 @@
           <div class="step-num">4</div>
           <div class="step-body hitl">
             <h3>Needs clarification</h3>
-            <p>Якщо список не порожній — stop і чекати відповіді (напр. <code>C1: A</code>). Потім re-dispatch лише affected phases і знову merge/validate. Цикл лишається в Review, не в Plan.</p>
+            <p>If the list is non-empty — stop and wait for answers (e.g. <code>C1: A</code>). Then re-dispatch only affected phases and merge/validate again. The cycle stays in Review, not Plan.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
         <button type="button" data-go="review-gate">← review-gate</button>
-        <button type="button" class="primary" data-go="propose-commit">Далі: propose-commit →</button>
+        <button type="button" class="primary" data-go="propose-commit">Next: propose-commit →</button>
       </div>
     </section>
 
     <!-- PROPOSE-COMMIT -->
     <section id="view-propose-commit" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">7b. propose-commit</h2>
-      <p class="view-desc">HITL <em>після</em> settled engineer-review і Teach-review miss. Спочатку skill <code>local-diff-review-gate</code> (<code>approve-diff</code> / <code>comment</code>), потім пропонує commit message + file list; людина відповідає <code>approve-commit</code> або <code>revise</code>. <code>no_miss</code> <strong>не</strong> пропускає Local Diff Review. Лише <code>git commit</code> — ніколи push чи GitHub pull request. Пише <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. На full path далі <code>update-docs</code>; якщо після docs лишились uncommitted файли — ще раз <code>local-diff-review-gate</code>, потім другий <code>propose-commit</code>, потім <code>create-pr</code>.</p>
+      <p class="view-desc">HITL <em>after</em> settled engineer-review and Teach-review miss. First skill <code>local-diff-review-gate</code> (<code>approve-diff</code> / <code>comment</code>), then proposes commit message + file list; the human answers <code>approve-commit</code> or <code>revise</code>. <code>no_miss</code> does <strong>not</strong> skip Local Diff Review. Only <code>git commit</code> — never push or a GitHub pull request. Writes <code>.cursor/gates/commit-approved/&lt;slug&gt;</code>. On the full path continue to <code>update-docs</code>; if uncommitted files remain after docs — run <code>local-diff-review-gate</code> again, then a second <code>propose-commit</code>, then <code>create-pr</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body auto">
             <h3>Preconditions</h3>
-            <p>Feature branch (не default). Settled engineer-review report. Settled <code>local-diff-review-gate</code> для dirty tree. Intentional file list — ніколи <code>git add -A</code>. Ніколи стрибок з <code>no_miss</code> одразу на <code>approve-commit</code>.</p>
+            <p>Feature branch (not default). Settled engineer-review report. Settled <code>local-diff-review-gate</code> for dirty tree. Intentional file list — never <code>git add -A</code>. Never jump from <code>no_miss</code> straight to <code>approve-commit</code>.</p>
           </div>
         </div>
         <div class="step">
@@ -1132,7 +1132,7 @@
               </div>
               <div class="branch">
                 <span class="token">revise</span>
-                <div class="then">Чекати нове повідомлення / file list; re-propose; не commit</div>
+                <div class="then">Wait for a new message / file list; re-propose; do not commit</div>
               </div>
             </div>
           </div>
@@ -1141,21 +1141,21 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Handoff</h3>
-            <p>Full path → <code>update-docs</code>. Fast / issue → <code>create-pr</code>. Residual dirty tree після docs → <code>local-diff-review-gate</code> + ще один <code>propose-commit</code>.</p>
+            <p>Full path → <code>update-docs</code>. Fast / issue → <code>create-pr</code>. Residual dirty tree after docs → <code>local-diff-review-gate</code> + another <code>propose-commit</code>.</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
         <button type="button" data-go="review">← Review</button>
-        <button type="button" class="primary" data-go="update-docs">Далі: Update Docs →</button>
+        <button type="button" class="primary" data-go="update-docs">Next: Update Docs →</button>
       </div>
     </section>
 
     <!-- UPDATE DOCS -->
     <section id="view-update-docs" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">8. update-docs</h2>
-      <p class="view-desc">HITL після review: куди писати продуктову / внутрішню документацію. Marker <code>.cursor/gates/docs-gate/&lt;slug&gt;</code>.</p>
+      <p class="view-desc">HITL after review: where to write product / internal documentation. Marker <code>.cursor/gates/docs-gate/&lt;slug&gt;</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -1164,19 +1164,19 @@
             <div class="branches">
               <div class="branch">
                 <span class="token">skip</span>
-                <div class="then">Без docs цього рану · видалити marker</div>
+                <div class="then">No docs this run · delete marker</div>
               </div>
               <div class="branch">
                 <span class="token ok">docs_md</span>
-                <div class="then">Markdown у <code>docs/</code> поточного репо<small>не docs/superpowers/</small></div>
+                <div class="then">Markdown under <code>docs/</code> in the current repo<small>not docs/superpowers/</small></div>
               </div>
               <div class="branch">
                 <span class="token ok">docs_repo</span>
-                <div class="then">Окремий docs-репозиторій<small>path / URL у чаті далі</small></div>
+                <div class="then">Separate docs repository<small>path / URL in chat next</small></div>
               </div>
               <div class="branch">
                 <span class="token ok">confluence</span>
-                <div class="then">Confluence сторінка<small>space/parent або URL у чаті</small></div>
+                <div class="then">Confluence page<small>space/parent or URL in chat</small></div>
               </div>
             </div>
           </div>
@@ -1185,50 +1185,50 @@
           <div class="step-num">2</div>
           <div class="step-body auto">
             <h3>Style → draft + publish</h3>
-            <p>Для <code>docs_repo</code> / <code>confluence</code>: спочатку style resolution — кастомний стиль user/engineer → існуючі sibling docs / space → kit default. Далі draft за <code>writing-guide.md</code>, prose pass через <code>english-humanizer</code> без ламання house voice. Опційно: <code>ce-compound</code> (окремо).</p>
+            <p>For <code>docs_repo</code> / <code>confluence</code>: style resolution first — custom user/engineer style → existing sibling docs / space → kit default. Then draft per <code>writing-guide.md</code>, prose pass through <code>english-humanizer</code> without breaking house voice. Optional: <code>ce-compound</code> (separate).</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
         <button type="button" data-go="propose-commit">← propose-commit</button>
-        <button type="button" class="primary" data-go="create-pr">Далі: create-pr →</button>
+        <button type="button" class="primary" data-go="create-pr">Next: create-pr →</button>
       </div>
     </section>
 
     <!-- CREATE-PR -->
     <section id="view-create-pr" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">9. create-pr · Pipeline finale</h2>
-      <p class="view-desc">Завжди draft спочатку. Потім один HITL. Ніколи merge. <code>ready</code> / <code>ready_jira</code> з ключем → Jira <code>review</code> лише після merge всіх PR і успішного CI.</p>
+      <p class="view-desc">Always draft first. Then one HITL. Never merge. <code>ready</code> / <code>ready_jira</code> with a key → Jira <code>review</code> only after all PRs merge and CI succeeds.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1–7</div>
           <div class="step-body auto">
             <h3>Draft PR</h3>
-            <p>Commit/push + <code>gh pr create --draft</code> (або reuse existing). Multi-repo — по одному PR на змінений репозиторій.</p>
+            <p>Commit/push + <code>gh pr create --draft</code> (or reuse existing). Multi-repo — one PR per changed repository.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">8</div>
           <div class="step-body hitl">
             <h3>HITL Pipeline finale</h3>
-            <p>Skill <code>hitl-choice</code>. Jira-опції лише коли відомий <code>jira_key</code>.</p>
+            <p>Skill <code>hitl-choice</code>. Jira options only when <code>jira_key</code> is known.</p>
             <div class="branches">
               <div class="branch">
                 <span class="token">keep_draft</span>
-                <div class="then">Stop. Draft лишається draft.</div>
+                <div class="then">Stop. Draft stays draft.</div>
               </div>
               <div class="branch">
                 <span class="token">ready</span>
-                <div class="then"><code>gh pr ready</code>; <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI (якщо є ключ)</div>
+                <div class="then"><code>gh pr ready</code>; <code>jira-transition</code> target <code>review</code> only after all PRs merge and CI succeeds (when a key exists)</div>
               </div>
               <div class="branch">
                 <span class="token">keep_draft_jira</span>
-                <div class="then">Draft + <code>addCommentToJiraIssue</code> з URL PR. Статус лишається In Progress.</div>
+                <div class="then">Draft + <code>addCommentToJiraIssue</code> with PR URL. Status stays In Progress.</div>
               </div>
               <div class="branch">
                 <span class="token">ready_jira</span>
-                <div class="then">Ready + Jira comment; <code>jira-transition</code> target <code>review</code> лише після merge всіх PR і успішного CI.</div>
+                <div class="then">Ready + Jira comment; <code>jira-transition</code> target <code>review</code> only after all PRs merge and CI succeeds.</div>
               </div>
             </div>
           </div>
@@ -1242,28 +1242,28 @@
 
     <!-- MARKERS -->
     <section id="view-markers" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">Markers · state</h2>
-      <p class="view-desc">Усі маркери в consumer project <code>.cursor/gates/&lt;kind&gt;/&lt;slug&gt;</code>, не в kit. Паралельні тікети — різні slug; чужий slug не блокує цей план. Stop-хуки нагадують лише коли відомий шлях поточного плану. Якщо шлях невідомий — мовчать, щоб не зациклити чужий чат. Legacy flat-файли мігрують при читанні.</p>
+      <p class="view-desc">All markers live in the consumer project under <code>.cursor/gates/&lt;kind&gt;/&lt;slug&gt;</code>, not in the kit. Parallel tickets use different slugs; another slug does not block this plan. Stop-hooks remind only when the current plan path is known. If the path is unknown — they stay silent so they do not loop another chat. Legacy flat files migrate on read.</p>
       <table class="meta">
         <thead>
-          <tr><th>Marker</th><th>Пише</th><th>Чистить / інвалідує</th></tr>
+          <tr><th>Marker</th><th>Writes</th><th>Clears / invalidates</th></tr>
         </thead>
         <tbody>
           <tr>
             <td><code>gates/plan-gate/&lt;slug&gt;</code></td>
-            <td>approve-plan (до HITL)</td>
-            <td>відповідь <code>approve-plan</code></td>
+            <td>approve-plan (before HITL)</td>
+            <td><code>approve-plan</code> answer</td>
           </tr>
           <tr>
             <td><code>gates/critique-gate/&lt;slug&gt;</code></td>
-            <td>після approve, перед critic</td>
+            <td>after approve, before critic</td>
             <td><code>Verdict: clear</code></td>
           </tr>
           <tr>
             <td><code>gates/plan-critique-clear/&lt;slug&gt;</code></td>
-            <td>на clear verdict</td>
-            <td><code>revise</code> / повторний approve-plan</td>
+            <td>on clear verdict</td>
+            <td><code>revise</code> / re-run approve-plan</td>
           </tr>
           <tr>
             <td><code>gates/review-gate/&lt;slug&gt;</code></td>
@@ -1272,8 +1272,8 @@
           </tr>
           <tr>
             <td><code>gates/commit-approved/&lt;slug&gt;</code></td>
-            <td><code>propose-commit</code> на <code>approve-commit</code></td>
-            <td>споживає <code>create-pr</code> / наступний крок</td>
+            <td><code>propose-commit</code> on <code>approve-commit</code></td>
+            <td>consumed by <code>create-pr</code> / next step</td>
           </tr>
           <tr>
             <td><code>gates/docs-gate/&lt;slug&gt;</code></td>
@@ -1290,68 +1290,68 @@
 
     <!-- STANDALONE -->
     <section id="view-standalone" class="view" hidden>
-      <button type="button" class="back" data-go="overview">← Огляд</button>
+      <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">Standalone entry points</h2>
-      <p class="view-desc">Lean paths, bug-fix pipeline, create-pr finale, та команди поза повним оркестратором.</p>
+      <p class="view-desc">Lean paths, bug-fix pipeline, create-pr finale, and commands outside the full orchestrator.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>create-pr (фінал кожного пайплайна)</h3>
-            <p>Skill <code>create-pr</code>: push + <strong>завжди draft</strong>, потім HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). Не merge. Потребує <code>commit-approved</code> marker від <code>propose-commit</code>. Викликається після update-docs (+ residual propose-commit) у full <code>/csp-start-task</code>, після <code>propose-commit</code> у <code>--fast</code> та <code>/csp-start-issue-task</code>.</p>
+            <h3>create-pr (finale of every pipeline)</h3>
+            <p>Skill <code>create-pr</code>: push + <strong>always draft</strong>, then HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). No merge. Requires <code>commit-approved</code> marker from <code>propose-commit</code>. Called after update-docs (+ residual propose-commit) on full <code>/csp-start-task</code>, after <code>propose-commit</code> on <code>--fast</code> and <code>/csp-start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-task --fast</h3>
-            <p>Без tech-spec / plan / critic / review-gate / docs: fetch (якщо ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. Якщо class=bug — HITL Fast vs issue. Агент ніколи не обирає <code>--fast</code>.</p>
+            <p>No tech-spec / plan / critic / review-gate / docs: fetch (if ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. If class=bug — HITL Fast vs issue. The agent never picks <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-start-issue-task</h3>
-            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL лише якщо blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. Explicit command завжди лишається на issue path, навіть якщо type=Story.</p>
+            <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL only if blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. Explicit command always stays on the issue path, even when type=Story.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-write-tech-spec</h3>
-            <p>Лише tech-spec, без решти пайплайна. Якщо AC source схожий на Jira — той самий <code>jira-fetch</code>.</p>
+            <p>Tech-spec only, without the rest of the pipeline. If the AC source looks like Jira — the same <code>jira-fetch</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-critique-plan</h3>
-            <p>Ad-hoc critic. Не замінює approve-plan gate і сам не готує build clear-marker як pipeline path.</p>
+            <p>Ad-hoc critic. Does not replace the approve-plan gate and does not prepare the build clear-marker the way the pipeline path does.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body hitl">
             <h3>/csp-approve-plan → /csp-start-build</h3>
-            <p>Повний pre-build gate вручну: HITL approve, auto critic, clear → build.</p>
+            <p>Full pre-build gate by hand: HITL approve, auto critic, clear → build.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>/csp-finish-plan · /csp-engineer-review · /csp-update-docs · /csp-pr-review · /csp-multi-review · /csp-capture-escape</h3>
-            <p><code>/csp-finish-plan</code> входить у <code>review-gate</code> HITL (код уже написаний). Manual <code>/csp-engineer-review</code> пропускає цей HITL; <code>/csp-update-docs</code> лишається окремим HITL destination gate. <code>/csp-pr-review</code> за замовчуванням будує PR Review Canvas (орієнтація по diff), потім validated Findings; <code>no-canvas</code> пропускає canvas. <code>/csp-capture-escape</code> питає <code>miss</code> (kit через <code>teach-review</code>) або <code>project_secret</code> (локальний ledger). <code>/csp-teach-review</code> після validated miss пише generalized kit instructions на remote <code>learn/…</code> і відкриває ready-for-review pull request (не consumer ledger, окрім коли обрано <code>project_secret</code>).</p>
+            <p><code>/csp-finish-plan</code> enters the <code>review-gate</code> HITL (code already written). Manual <code>/csp-engineer-review</code> skips this HITL; <code>/csp-update-docs</code> remains a separate HITL destination gate. <code>/csp-pr-review</code> builds a PR Review Canvas by default (diff orientation), then validated Findings; <code>no-canvas</code> skips the canvas. <code>/csp-capture-escape</code> asks <code>miss</code> (kit via <code>teach-review</code>) or <code>project_secret</code> (local ledger). <code>/csp-teach-review</code> after a validated miss writes generalized kit instructions on remote <code>learn/…</code> and opens a ready-for-review pull request (not the consumer ledger, except when <code>project_secret</code> is chosen).</p>
           </div>
         </div>
       </div>
       <div class="nav-next">
-        <button type="button" class="primary" data-go="overview">← Повернутись до огляду</button>
+        <button type="button" class="primary" data-go="overview">← Back to overview</button>
       </div>
     </section>
   </main>
 
   <footer>
-    Джерело: commands/csp-start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / jira-transition / create-pr / bug-fix / hitl-choice
+    Source: commands/csp-start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / jira-transition / create-pr / bug-fix / hitl-choice
     · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
   </footer>
 
