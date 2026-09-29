@@ -77,7 +77,7 @@ SKILLMAP="skills/engineer-review/references/skill-map.md"
 HELPER="scripts/mapped-third-party-skills.sh"
 
 assert_file "$SKILLMAP"
-assert_file "scripts/install-to-project.sh"
+assert_file "scripts/install-to-project.sh" --agree-policy
 assert_file "README.md"
 assert_file "agents/csp-software-developer.md"
 assert_file "agents/csp-review-logic.md"
@@ -160,13 +160,13 @@ assert_grep sd_no_auto "agents/csp-software-developer.md" "Never auto-install"
 assert_grep er_tier2 "agents/csp-engineer-reviewer.md" "Never install a third-party skill"
 
 # Installer: skip flag, helper as source of truth (no hardcoded skill ids).
-assert_grep install_skip_flag "scripts/install-to-project.sh" "skip-third-party-skills"
-assert_grep install_skip_help "scripts/install-to-project.sh" "skip-third-party-skills"
-assert_grep install_skip_env "scripts/install-to-project.sh" "CSP_SKIP_THIRD_PARTY_SKILLS"
+assert_grep install_skip_flag "scripts/install-to-project.sh" "skip-third-party-skills" --agree-policy
+assert_grep install_skip_help "scripts/install-to-project.sh" "skip-third-party-skills" --agree-policy
+assert_grep install_skip_env "scripts/install-to-project.sh" "CSP_SKIP_THIRD_PARTY_SKILLS" --agree-policy
 assert_grep csp_skip_help "bin/cursor-spells" "skip-third-party-skills"
-assert_grep install_sources_helper "scripts/install-to-project.sh" "mapped-third-party-skills.sh"
-assert_grep install_calls_mtp "scripts/install-to-project.sh" "mtp_install_curated"
-assert_absent install_no_hardcode_planetscale "scripts/install-to-project.sh" "planetscale/database-skills"
+assert_grep install_sources_helper "scripts/install-to-project.sh" "mapped-third-party-skills.sh" --agree-policy
+assert_grep install_calls_mtp "scripts/install-to-project.sh" "mtp_install_curated" --agree-policy
+assert_absent install_no_hardcode_planetscale "scripts/install-to-project.sh" "planetscale/database-skills" --agree-policy
 assert_grep readme_skip_flag "README.md" "skip-third-party-skills"
 assert_grep skillmap_skip_manual "skills/engineer-review/references/skill-map.md" "Conditional"
 

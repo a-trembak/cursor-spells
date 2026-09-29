@@ -89,8 +89,8 @@ assert_grep capture_source "commands/csp-capture-escape.md" "source: production-
 assert_grep capture_dest "commands/csp-capture-escape.md" "Capture-escape destination"
 assert_grep capture_secret "commands/csp-capture-escape.md" "project_secret"
 assert_grep capture_teach "commands/csp-capture-escape.md" "teach-review"
-assert_grep install_jira_helper "scripts/install-to-project.sh" "jira-issue.sh"
-assert_grep install_pr_merge_ci "scripts/install-to-project.sh" "pr-merge-ci.sh"
+assert_grep install_jira_helper "scripts/install-to-project.sh" "jira-issue.sh" --agree-policy
+assert_grep install_pr_merge_ci "scripts/install-to-project.sh" "pr-merge-ci.sh" --agree-policy
 assert_grep readme_create_pr "README.md" "skills/create-pr"
 assert_grep readme_jira_fetch "README.md" "skills/jira-fetch"
 assert_grep readme_jira_transition "README.md" "skills/jira-transition"

@@ -1,6 +1,8 @@
 # cursor-spells
 
-Personal Cursor workflow kit — skills, slash commands, rules, hooks, and agents.
+> **Working title.** Public product name will change (GitHub repository id may still be `cursor-spells` until a human renames it). Proposed names — no third-party product marks such as “Cursor” in the title: [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md). Author: Andrey Trembak (`a-trembak`).
+
+Personal workflow kit — skills, slash commands, rules, hooks, and agents.
 
 Spells you cast so the model sounds like a human engineer, not a LinkedIn influencer who just discovered the word *delve*.
 

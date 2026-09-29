@@ -28,8 +28,8 @@ HELPER="scripts/pipeline-run-log.sh"
 assert_file helper_exists "$HELPER"
 
 # Installer copies helper + gitignore recommendation
-assert_grep installer_copies "scripts/install-to-project.sh" "pipeline-run-log\\.sh"
-assert_grep installer_gitignore "scripts/install-to-project.sh" "run-log/"
+assert_grep installer_copies "scripts/install-to-project.sh" "pipeline-run-log\\.sh" --agree-policy
+assert_grep installer_gitignore "scripts/install-to-project.sh" "run-log/" --agree-policy
 
 ALLOWLIST=(
   "commands/csp-start-task.md"

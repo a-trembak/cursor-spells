@@ -52,7 +52,7 @@ assert_grep coding_agents_exception "rules/code-via-coding-agents.mdc" "kit-no-p
 assert_grep patterns_note ".cursor/project-patterns.md" "kit-no-pipeline-dogfood"
 
 # Installer must never ship this kit-only rule to user-global or consumer projects.
-assert_no_grep installer_no_user "scripts/install-to-project.sh" "kit-no-pipeline-dogfood"
+assert_no_grep installer_no_user "scripts/install-to-project.sh" "kit-no-pipeline-dogfood" --agree-policy
 assert_grep readme_kit_note "README.md" "kit-no-pipeline-dogfood"
 
 TMP="$(mktemp -d)"

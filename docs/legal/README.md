@@ -1,6 +1,8 @@
-# Legal documents — cursor-spells
+# Legal documents — the kit (working title)
 
-Formal English policy documents for the **cursor-spells** pipeline kit authored by **Andrey Trembak** (`a-trembak`).
+Formal English policy documents for this pipeline kit authored by **Andrey Trembak** (`a-trembak`).
+
+The git remote may still be named `cursor-spells` until a human renames it. **Product title options (do not use third-party marks such as “Cursor” in the name):** [NAME-OPTIONS.md](NAME-OPTIONS.md).
 
 | Document | Purpose |
 |----------|---------|
@@ -13,7 +15,7 @@ Formal English policy documents for the **cursor-spells** pipeline kit authored 
 
 ## Install agreement
 
-`csp install` / `csp update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `CSP_AGREE_POLICY=1`). A successful agreement writes `~/.cursor/csp-policy-accepted` and, for project installs, `<project>/.cursor/csp-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`.
+`csp install` / `csp update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `CSP_AGREE_POLICY=1`). A successful agreement writes `.cursor/csp-policy-accepted` (or `~/.cursor/csp-policy-accepted` for `--user-only`) with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, and `kit_commit`.
 
 ## Quick points
 
