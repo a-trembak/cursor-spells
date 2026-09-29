@@ -4,7 +4,7 @@ If the report looks like any example below, **do not send it**. Rebuild with [fe
 
 ## Banned: executive “Verdict / Blockers” digest
 
-This shape (any language) is a hard failure — even when the technical claims are correct:
+This shape (**any language**) is a hard failure — even when the technical claims are correct. Detect English `Blockers` / `Also (P1)` and the same compact headings in other languages (for example Ukrainian `Блокери` / `Також`, Russian `Блокеры` / `Также`). The ban is on the **digest shape**, not on using Ukrainian as a pipeline language.
 
 ```markdown
 Verdict: request changes — PR #94 …
@@ -23,6 +23,10 @@ F1–F5 blockers… I can post this to GitHub if you want.
 ```
 
 Why it fails: **no file path, no line range, no Jump/GitHub link, no code fence.** Mentions of class/method/migration names are not locations. A peer cannot open the problem in the editor from this text.
+
+## Banned: Russian in agent review prose (sanctions policy)
+
+**Sanctions policy of this project/kit:** Russian must never appear in agent communication. `scripts/validate-review-report.sh` rejects review prose (outside code fences) that contains Russian-only letters `ы` / `э` / `ъ`. This does **not** ban Ukrainian (`і` / `ї` / `є` / `ґ`). If the human wrote Russian, refuse and rewrite the report in English or the selected non-Russian pipeline language.
 
 ## Banned: path-only / symbol-only bullets
 

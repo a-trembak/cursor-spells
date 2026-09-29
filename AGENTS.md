@@ -2,9 +2,13 @@
 
 ## Chat with the human
 
-Load skill `plain-language-chat` before any user-facing message. Write full words and full sentences. Never use abbreviations, acronyms, clipped jargon, or noun-phrase / slash-joined telegram bullets in chat. Skill `english-humanizer` does not satisfy this — it removes AI filler and still leaves shortened terms.
+Load skill `plain-language-chat` before any user-facing message. Write full words and full sentences in the **selected pipeline language** (`.cursor/csp-pipeline-language`, default `en`). Never use abbreviations, acronyms, clipped jargon, or noun-phrase / slash-joined telegram bullets in chat. Skill `english-humanizer` does not satisfy this — it removes AI filler and still leaves shortened terms.
+
+**Russian is never allowed** (sanctions policy of this project/kit): never select it as pipeline language and never reply in Russian. If the human writes in Russian, refuse and continue in English or another allowed selected language. Rule `pipeline-language-no-russian`.
 
 Keep exact only inside backticks or code fences: paths, symbols, error strings, ticket keys, URLs, slash-command names.
+
+Kit documentation and foreign-facing copy stay English.
 
 ## This repository is the kit — no pipeline dogfood
 
