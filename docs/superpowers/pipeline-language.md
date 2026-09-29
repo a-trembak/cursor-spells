@@ -26,10 +26,10 @@ uk
 Non-interactive (does not block install when omitted):
 
 ```bash
-csp install /path/to/app --language uk
-csp install /path/to/app --lang de
-CSP_PIPELINE_LANGUAGE=uk csp install /path/to/app
-csp install --user-only --language uk   # writes ~/.cursor/csp-pipeline-language
+csp install /path/to/app --agree-policy --language uk
+csp install /path/to/app --agree-policy --lang de
+CSP_PIPELINE_LANGUAGE=uk csp install /path/to/app --agree-policy
+csp install --user-only --agree-policy --language uk   # writes ~/.cursor/csp-pipeline-language
 ```
 
 Russian codes are rejected by the helper (install exits non-zero). When the flag/env is omitted, no marker is written — default remains `en` and `/csp-start-task` asks at bootstrap.

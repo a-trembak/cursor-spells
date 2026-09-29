@@ -32,7 +32,7 @@ mkdir -p "$FAKE_HOME" "$EMPTY_DIR"
 set +e
 OUT="$(
   cd "$EMPTY_DIR"
-  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --update --skip-third-party-skills 2>&1
+  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy --update --skip-third-party-skills 2>&1
 )"
 RC=$?
 set -e
@@ -79,7 +79,7 @@ fi
 set +e
 INSTALL_OUT="$(
   cd "$EMPTY_DIR"
-  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --skip-third-party-skills 2>&1
+  HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy --skip-third-party-skills 2>&1
 )"
 INSTALL_RC=$?
 set -e
@@ -97,7 +97,7 @@ mkdir -p "$FAKE_HOME2"
 set +e
 KIT_OUT="$(
   cd "$ROOT"
-  HOME="$FAKE_HOME2" "$ROOT/scripts/install-to-project.sh" --update --skip-third-party-skills 2>&1
+  HOME="$FAKE_HOME2" "$ROOT/scripts/install-to-project.sh" --agree-policy --update --skip-third-party-skills 2>&1
 )"
 KIT_RC=$?
 set -e

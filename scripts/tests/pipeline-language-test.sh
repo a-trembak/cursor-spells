@@ -160,14 +160,14 @@ assert_grep start_skips_when_set "commands/csp-start-task.md" "already set"
 INST_PROJ="$TMP/inst-app"
 mkdir -p "$INST_PROJ"
 git -C "$INST_PROJ" init -q
-if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$INST_PROJ" --skip-third-party-skills --language uk >/dev/null; then
+if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy "$INST_PROJ" --skip-third-party-skills --language uk >/dev/null; then
   assert_eq install_writes_uk "uk" "$(cat "$INST_PROJ/.cursor/csp-pipeline-language")"
   echo "OK   install_language_uk"
 else
   echo "FAIL install --language uk" >&2
   fail=1
 fi
-if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$INST_PROJ" --skip-third-party-skills --lang ru >/dev/null 2>&1; then
+if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy "$INST_PROJ" --skip-third-party-skills --lang ru >/dev/null 2>&1; then
   echo "FAIL install --lang ru should reject" >&2
   fail=1
 else
@@ -176,7 +176,7 @@ fi
 # After failed ru install, marker must still be uk
 assert_eq install_ru_left_uk "uk" "$(cat "$INST_PROJ/.cursor/csp-pipeline-language")"
 
-if HOME="$FAKE_HOME" CSP_PIPELINE_LANGUAGE=de "$ROOT/scripts/install-to-project.sh" "$INST_PROJ" --skip-third-party-skills >/dev/null; then
+if HOME="$FAKE_HOME" CSP_PIPELINE_LANGUAGE=de "$ROOT/scripts/install-to-project.sh" --agree-policy "$INST_PROJ" --skip-third-party-skills >/dev/null; then
   assert_eq install_env_de "de" "$(cat "$INST_PROJ/.cursor/csp-pipeline-language")"
   echo "OK   install_env_language"
 else
@@ -186,7 +186,7 @@ fi
 
 USER_ONLY_HOME="$TMP/user-only-home"
 mkdir -p "$USER_ONLY_HOME"
-if HOME="$USER_ONLY_HOME" "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills --language pl >/dev/null; then
+if HOME="$USER_ONLY_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy --user-only --skip-third-party-skills --language pl >/dev/null; then
   assert_eq user_only_lang "pl" "$(cat "$USER_ONLY_HOME/.cursor/csp-pipeline-language")"
   echo "OK   install_user_only_language"
 else

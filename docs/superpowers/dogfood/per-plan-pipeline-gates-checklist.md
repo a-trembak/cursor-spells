@@ -10,7 +10,7 @@ From kit root, install into a throwaway consumer (or use any git repo that alrea
 
 ```bash
 chmod +x scripts/*.sh scripts/tests/*.sh
-./scripts/install-to-project.sh /tmp/pg-dogfood
+./scripts/install-to-project.sh --agree-policy /tmp/pg-dogfood
 cp scripts/pipeline-gates.sh /tmp/pg-dogfood/scripts/pipeline-gates.sh
 ```
 

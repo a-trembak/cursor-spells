@@ -23,13 +23,16 @@ echo 'export PATH="$HOME/cursor-spells/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
 source ~/.bashrc
 
 # 3) Install into a project (path optional when already inside the repo / multi-repo)
-csp install /path/to/your-app
-cd /path/to/your-app && csp install          # same — path defaults to this repo
-csp install /path/to/your-app --language uk  # pipeline chat language (or --lang / CSP_PIPELINE_LANGUAGE)
-cd /path/to/multi-repo-workspace && csp update
+#    Non-interactive: pass --agree-policy (or --i-agree) after reading docs/legal/
+csp install /path/to/your-app --agree-policy
+cd /path/to/your-app && csp install --agree-policy   # same — path defaults to this repo
+csp install /path/to/your-app --agree-policy --language uk  # chat language (--lang / CSP_PIPELINE_LANGUAGE)
+cd /path/to/multi-repo-workspace && csp update --agree-policy
 ```
 
-Useful flags: `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `CSP_SKIP_THIRD_PARTY_SKILLS=1` on air-gapped machines).
+**Public policy at install:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `CSP_AGREE_POLICY=1`). Acceptance is recorded in `.cursor/csp-policy-accepted` (project install) or `~/.cursor/csp-policy-accepted` (`--user-only`), including timestamp and a hash of the four documents. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. Product rename candidates (no third-party marks): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
+
+Useful flags: `--agree-policy` / `--i-agree` (accept public policy), `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `CSP_SKIP_THIRD_PARTY_SKILLS=1` on air-gapped machines).
 
 **Why `--user-only` agents may not show in Cursor**
 
@@ -73,6 +76,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `csp-software-developer` / `csp-bug-fixer` for product code |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
+| `~/.cursor/csp-policy-accepted` | Written on `--user-only` install/update after public policy agreement (timestamp + `policy_hash`) |
 | mapped third-party skills (`npx skills add`) | Curated ids from [`skill-map.md`](skills/engineer-review/references/skill-map.md); skip with `--skip-third-party-skills` / `CSP_SKIP_THIRD_PARTY_SKILLS=1`; `npx` failure is `skill_missing`, not a failed kit install |
 
 Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
@@ -94,6 +98,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch coding agents for product code |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
+| `<project>/.cursor/csp-policy-accepted` | Written after public policy agreement (`accepted_at`, `policy_hash`, `policy_docs`, `kit_commit`) |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
 | `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |

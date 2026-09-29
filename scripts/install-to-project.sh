@@ -20,10 +20,19 @@ FORCE_REFRESH=0
 MODE="install" # install | update
 SKIP_THIRD_PARTY_SKILLS=0
 PIPELINE_LANGUAGE="${CSP_PIPELINE_LANGUAGE:-}"
+AGREE_POLICY=0
+# Non-interactive CI: CSP_AGREE_POLICY=1 is equivalent to --agree-policy
+if [[ "${CSP_AGREE_POLICY:-}" == "1" || "${CSP_AGREE_POLICY:-}" == "true" || "${CSP_AGREE_POLICY:-}" == "yes" ]]; then
+  AGREE_POLICY=1
+fi
+# Core public policy docs that must be accepted at install (hash covers these four).
+POLICY_DOC_NAMES=(PRIVACY.md TERMS.md DISCLAIMER.md NOTICE.md)
+# Core public policy docs (order matches scripts/csp-policy-hash.sh).
+POLICY_DOC_NAMES=(PRIVACY.md TERMS.md DISCLAIMER.md NOTICE.md)
 
 usage() {
   cat <<'EOF'
-Install or update cursor-spells.
+Install or update the kit (working title; see docs/legal/NAME-OPTIONS.md).
 
 Usage:
   install-to-project.sh [project-path] [flags]
@@ -38,6 +47,10 @@ Flags:
   --user-only      Only ~/.cursor (no project files); still copies plain-language-chat, pipeline-language-no-russian, and code-via-coding-agents rules
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
+  --agree-policy, --i-agree
+                   Accept Privacy, Terms, Disclaimer, and NOTICE (docs/legal/).
+                   Required for install. Same as CSP_AGREE_POLICY=1.
+                   Interactive [y/N] prompt when flag omitted and stdin is a terminal.
   --language <code>, --lang <code>
                    Set pipeline chat language (writes .cursor/csp-pipeline-language).
                    Same as CSP_PIPELINE_LANGUAGE. Default when omitted: leave unset
@@ -48,7 +61,7 @@ Flags:
                    (air-gapped). Same as CSP_SKIP_THIRD_PARTY_SKILLS=1
   -h, --help       Show help
 
-Keep one clone of cursor-spells; install/update per project. Do not vendor the
+Keep one clone of this kit; install/update per project. Do not vendor the
 kit inside every repository. Curated third-party skills come from skill-map.md
 on install/update; agents never auto-install them mid-review.
 EOF
@@ -62,6 +75,10 @@ while [[ $# -gt 0 ]]; do
     --user-only|--global) USER_ONLY=1; shift ;;
     --humanizer) WITH_HUMANIZER=1; shift ;;
     --copy) COPY_MODE=1; shift ;;
+    --agree-policy|--i-agree)
+      AGREE_POLICY=1
+      shift
+      ;;
     --language|--lang)
       if [[ -z "${2:-}" || "${2:-}" == --* ]]; then
         echo "error: $1 requires a language code (for example uk or en)" >&2
@@ -389,6 +406,9 @@ install_project_bits() {
   cp "$KIT_ROOT/scripts/csp-pipeline-language.sh" "$PROJECT/scripts/csp-pipeline-language.sh"
   chmod +x "$PROJECT/scripts/csp-pipeline-language.sh"
   echo "copied: $PROJECT/scripts/csp-pipeline-language.sh"
+  cp "$KIT_ROOT/scripts/csp-policy-hash.sh" "$PROJECT/scripts/csp-policy-hash.sh"
+  chmod +x "$PROJECT/scripts/csp-policy-hash.sh"
+  echo "copied: $PROJECT/scripts/csp-policy-hash.sh"
   cp "$KIT_ROOT/scripts/jira-issue.sh" "$PROJECT/scripts/jira-issue.sh"
   chmod +x "$PROJECT/scripts/jira-issue.sh"
   echo "copied: $PROJECT/scripts/jira-issue.sh"
@@ -423,8 +443,122 @@ apply_pipeline_language() {
   echo "pipeline-language (project): $PROJECT/.cursor/csp-pipeline-language → $($helper get --root "$PROJECT")"
 }
 
+# --- Public policy acceptance (docs/legal/) -----------------------------------
+
+policy_acceptance_path() {
+  if [[ "$USER_ONLY" -eq 1 || -z "${PROJECT:-}" ]]; then
+    printf '%s\n' "$HOME/.cursor/csp-policy-accepted"
+  else
+    printf '%s\n' "$PROJECT/.cursor/csp-policy-accepted"
+  fi
+}
+
+policy_docs_hash() {
+  local hasher="$KIT_ROOT/scripts/csp-policy-hash.sh"
+  if [[ ! -f "$hasher" ]]; then
+    echo "error: missing $hasher" >&2
+    return 1
+  fi
+  bash "$hasher" --kit-root "$KIT_ROOT"
+}
+
+policy_acceptance_matches() {
+  local marker="$1"
+  local want_hash="$2"
+  local got=""
+  [[ -f "$marker" ]] || return 1
+  got="$(awk -F= '/^policy_hash=/{print $2; exit}' "$marker" 2>/dev/null || true)"
+  [[ -n "$got" && "$got" == "$want_hash" ]]
+}
+
+write_policy_acceptance() {
+  local marker="$1"
+  local hash="$2"
+  local when kit_commit docs_csv
+  when="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  kit_commit="$(git -C "$KIT_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+  docs_csv="$(IFS=,; echo "${POLICY_DOC_NAMES[*]}")"
+  mkdir -p "$(dirname "$marker")"
+  cat >"$marker" <<EOF
+# cursor-spells public policy acceptance record
+# Written by csp install / csp update after the operator agreed to docs/legal/.
+# Re-acceptance is required when policy_hash no longer matches the kit docs.
+accepted_at=$when
+policy_hash=$hash
+policy_docs=$docs_csv
+kit_commit=$kit_commit
+EOF
+  echo "policy accepted → $marker (hash $hash)"
+}
+
+require_policy_agreement() {
+  local marker hash legal_dir name origin web answer=""
+  legal_dir="$KIT_ROOT/docs/legal"
+  if [[ ! -d "$legal_dir" ]]; then
+    echo "error: public policy directory missing: $legal_dir" >&2
+    echo "Clone/update the kit so docs/legal/ is present, then re-run install." >&2
+    exit 1
+  fi
+  hash="$(policy_docs_hash)" || exit 1
+  marker="$(policy_acceptance_path)"
+
+  if policy_acceptance_matches "$marker" "$hash"; then
+    echo "policy: already accepted ($marker)"
+    return 0
+  fi
+
+  echo
+  echo "Public policy agreement required before install/update continues."
+  echo "Please read these documents in the kit checkout:"
+  for name in "${POLICY_DOC_NAMES[@]}"; do
+    echo "  - $legal_dir/$name"
+  done
+  echo "Index: $legal_dir/README.md"
+  origin="$(git -C "$KIT_ROOT" remote get-url origin 2>/dev/null || true)"
+  if [[ -n "$origin" ]]; then
+    # Best-effort GitHub web links when origin looks like github.com/.../repo(.git)
+    case "$origin" in
+      *github.com*)
+        web="${origin%.git}"
+        web="${web/#git@github.com:/https://github.com/}"
+        web="${web/#https:\/\/github.com\//https://github.com/}"
+        echo "Or on GitHub (if published): $web/tree/main/docs/legal"
+        ;;
+    esac
+  fi
+  echo
+
+  if [[ "$AGREE_POLICY" -eq 1 ]]; then
+    write_policy_acceptance "$marker" "$hash"
+    return 0
+  fi
+
+  if [[ -t 0 ]]; then
+    echo "Do you agree to the Privacy Policy, Terms, Disclaimer, and NOTICE?"
+    echo "Type 'yes' to continue, or anything else to abort."
+    printf "Agree? [yes/no]: "
+    IFS= read -r answer || true
+    case "$answer" in
+      yes|YES|Yes|y|Y)
+        write_policy_acceptance "$marker" "$hash"
+        return 0
+        ;;
+      *)
+        echo "Aborted: public policy not accepted. Re-run with agreement, or pass --agree-policy / --i-agree." >&2
+        exit 1
+        ;;
+    esac
+  fi
+
+  echo "error: non-interactive install requires --agree-policy (or --i-agree / CSP_AGREE_POLICY=1)" >&2
+  echo "       after you have read docs/legal/ (Privacy, Terms, Disclaimer, NOTICE)." >&2
+  exit 1
+}
+
 echo "kit: $KIT_ROOT"
 echo "mode: $MODE"
+
+require_policy_agreement
 
 install_user_bits
 

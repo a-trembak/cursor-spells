@@ -273,7 +273,7 @@ FAKE
   # Full installer: skip flag still links kit bits; npx failure does not brick kit install.
   : > "$MTP_NPX_LOG"
   if ! HOME="$TMP/home" PATH="$TMP/bin:$PATH" \
-    "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills >/dev/null; then
+    "$ROOT/scripts/install-to-project.sh" --agree-policy --user-only --skip-third-party-skills >/dev/null; then
     echo "FAIL installer_skip_still_works: kit install failed with skip flag" >&2
     fail=1
   elif [[ ! -f "$TMP/home/.cursor/rules/plain-language-chat.mdc" ]]; then
@@ -290,7 +290,7 @@ FAKE
   : > "$MTP_NPX_LOG"
   set +e
   HOME="$TMP/home2" PATH="$TMP/bin:$PATH" \
-    "$ROOT/scripts/install-to-project.sh" --user-only >/tmp/mtp-install-fail.log 2>&1
+    "$ROOT/scripts/install-to-project.sh" --agree-policy --user-only >/tmp/mtp-install-fail.log 2>&1
   inst_rc=$?
   set -e
   mkdir -p "$TMP/home2"

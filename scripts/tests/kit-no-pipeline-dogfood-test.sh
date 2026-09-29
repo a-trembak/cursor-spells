@@ -62,7 +62,7 @@ PROJECT="$TMP/app"
 mkdir -p "$FAKE_HOME" "$PROJECT"
 git -C "$PROJECT" init -q
 
-if ! HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills >/dev/null; then
+if ! HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy --user-only --skip-third-party-skills >/dev/null; then
   echo "FAIL user-only install exited non-zero" >&2
   fail=1
 elif [[ -f "$FAKE_HOME/.cursor/rules/kit-no-pipeline-dogfood.mdc" ]]; then
@@ -72,7 +72,7 @@ else
   echo "OK   user-global install omits kit-no-pipeline-dogfood"
 fi
 
-if ! HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills >/dev/null; then
+if ! HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" --agree-policy "$PROJECT" --skip-third-party-skills >/dev/null; then
   echo "FAIL project install exited non-zero" >&2
   fail=1
 elif [[ -f "$PROJECT/.cursor/rules/kit-no-pipeline-dogfood.mdc" ]]; then

@@ -38,6 +38,10 @@ Flags (install / update):
   --user-only     Only ~/.cursor (no project files); still copies plain-language-chat and code-via-coding-agents rules
   --humanizer     Also install english-humanizer
   --copy          Copy instead of symlink into ~/.cursor
+  --agree-policy, --i-agree
+                  Accept Privacy, Terms, Disclaimer, NOTICE (docs/legal/).
+                  Required for non-interactive install/update. Same as CSP_AGREE_POLICY=1.
+                  Interactive prompt when omitted and stdin is a terminal.
   --language <code>, --lang <code>
                   Set pipeline chat language (.cursor/csp-pipeline-language).
                   Same as CSP_PIPELINE_LANGUAGE. Omit to leave unset (default en;
@@ -48,12 +52,12 @@ Flags (install / update):
   -h, --help      Show help
 
 Examples:
-  cd ~/code/my-app && csp install
-  cd ~/code/workspace && csp update          # multi-repo parent or any leaf repo
-  csp install ~/code/my-app --humanizer
-  csp install ~/code/my-app --language uk
-  csp install --user-only --lang de
-  csp install --user-only
+  cd ~/code/my-app && csp install --agree-policy
+  cd ~/code/workspace && csp update --agree-policy   # multi-repo parent or any leaf repo
+  csp install ~/code/my-app --agree-policy --humanizer
+  csp install ~/code/my-app --agree-policy --language uk
+  csp install --user-only --agree-policy --lang de
+  csp install --user-only --agree-policy
   csp status
 
 Slash commands after install: /csp-start-task  /csp-approve-plan  /csp-start-build  /csp-finish-plan  /csp-pr-review  /csp-engineer-review

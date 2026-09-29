@@ -34,7 +34,7 @@ bash scripts/tests/trajectory-wiring-test.sh
 Install refresh (optional throwaway consumer):
 
 ```bash
-./scripts/install-to-project.sh /tmp/jira-ac-dogfood
+./scripts/install-to-project.sh --agree-policy /tmp/jira-ac-dogfood
 test -x /tmp/jira-ac-dogfood/scripts/jira-issue.sh
 test -x /tmp/jira-ac-dogfood/scripts/pipeline-gates.sh
 test -x /tmp/jira-ac-dogfood/scripts/pr-merge-ci.sh
