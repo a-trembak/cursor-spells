@@ -30,7 +30,7 @@ csp install /path/to/your-app --agree-policy --language uk  # chat language (--l
 cd /path/to/multi-repo-workspace && csp update --agree-policy
 ```
 
-**Public policy at install:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `CSP_AGREE_POLICY=1`). Acceptance is recorded in `.cursor/csp-policy-accepted` (project install) or `~/.cursor/csp-policy-accepted` (`--user-only`), including timestamp and a hash of the four documents. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. Product rename candidates (no third-party marks): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
+**Public policy at install:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `CSP_AGREE_POLICY=1`). Acceptance is recorded in `~/.cursor/csp-policy-accepted` and, for project installs, also `<project>/.cursor/csp-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. A valid user-level acceptance can seed a project marker. Product rename candidates (no third-party marks): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
 
 Useful flags: `--agree-policy` / `--i-agree` (accept public policy), `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `CSP_SKIP_THIRD_PARTY_SKILLS=1` on air-gapped machines).
 
@@ -46,7 +46,7 @@ Check: `ls -la ~/.cursor/agents` and (after full install) `ls -la .cursor/agents
 csp update /path/to/your-app   # git pull the kit, then re-sync ~/.cursor + project files
 cd /path/to/your-app && csp update   # path optional — current repo / workspace
 csp update                     # git pull + refresh ~/.cursor only (when cwd is not a project)
-csp install --user-only        # ~/.cursor only (also: csp update --user-only)
+csp install --user-only --agree-policy   # ~/.cursor only (also: csp update --user-only --agree-policy)
 csp status                     # kit path, commit, what is linked
 ```
 
@@ -76,7 +76,7 @@ Two places: **Cursor user dir** (`~/.cursor`) and **the project**.
 | `~/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch `csp-software-developer` / `csp-bug-fixer` for product code |
 | `~/.cursor/cursor-spells-kit-path` | Text file with absolute path to this kit checkout |
 | `~/.cursor/cursor-spells-learn.json` | Created if missing — `land` (`draft_merge` default / `auto_push`); never overwritten on update |
-| `~/.cursor/csp-policy-accepted` | Written on `--user-only` install/update after public policy agreement (timestamp + `policy_hash`) |
+| `~/.cursor/csp-policy-accepted` | Written on every install/update after public policy agreement (`accepted_at`, `agree_via`, `policy_hash`, …) |
 | mapped third-party skills (`npx skills add`) | Curated ids from [`skill-map.md`](skills/engineer-review/references/skill-map.md); skip with `--skip-third-party-skills` / `CSP_SKIP_THIRD_PARTY_SKILLS=1`; `npx` failure is `skill_missing`, not a failed kit install |
 
 Directories `skills/`, `commands/`, `agents/` are created if missing. Existing **foreign** files/symlinks are never overwritten.
@@ -98,7 +98,7 @@ Directories `skills/`, `commands/`, `agents/` are created if missing. Existing *
 | `<project>/.cursor/rules/code-via-coding-agents.mdc` | Copied / refreshed — parent chat must dispatch coding agents for product code |
 | `<project>/.cursor/cursor-spells-kit-path` | Absolute path to the kit |
 | `<project>/.cursor/cursor-spells-learn.json` | Created if missing — same template; never overwritten on update. Project `land` wins over the user file |
-| `<project>/.cursor/csp-policy-accepted` | Written after public policy agreement (`accepted_at`, `policy_hash`, `policy_docs`, `kit_commit`) |
+| `<project>/.cursor/csp-policy-accepted` | Also written on project install/update (`agree_via` may be `flag`, `prompt`, or `prior-user`) |
 | `<project>/scripts/check-project-patterns.sh` | Optional CI helper — created once, refreshed on `update` |
 | `<project>/scripts/extract-review-snippet.sh` | Helper for review evidence backfill (always refreshed) |
 | `<project>/scripts/validate-review-report.sh` | Rejects Verdict/Blockers digests missing File/Jump/snippet (always refreshed) |
@@ -361,4 +361,4 @@ Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.
 
 MIT — steal freely, please sound human.
 
-**Legal / policy docs:** [`docs/legal/`](docs/legal/) — [Privacy Policy](docs/legal/PRIVACY.md), [Terms](docs/legal/TERMS.md), [Disclaimer](docs/legal/DISCLAIMER.md), [Rights notice](docs/legal/NOTICE.md). Russian is impossible inside this pipeline under the sanctions-based language policy; use Russian only outside this pipeline — see [`pipeline-language.md`](docs/superpowers/pipeline-language.md).
+**Legal / policy docs:** [`docs/legal/`](docs/legal/) — [Privacy Policy](docs/legal/PRIVACY.md), [Terms](docs/legal/TERMS.md), [Disclaimer](docs/legal/DISCLAIMER.md), [Rights notice](docs/legal/NOTICE.md). Russian is impossible inside this pipeline under the sanctions-based language policy; use Russian only outside this pipeline — see [`pipeline-language.md`](docs/superpowers/pipeline-language.md). Product rename options: [`NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md). Install requires `--agree-policy` (or an interactive yes) and writes `.cursor/csp-policy-accepted`.

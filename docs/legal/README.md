@@ -13,7 +13,7 @@ Formal English policy documents for the **cursor-spells** pipeline kit authored 
 
 ## Install agreement
 
-`csp install` / `csp update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `CSP_AGREE_POLICY=1`). A successful agreement writes `.cursor/csp-policy-accepted` (or `~/.cursor/csp-policy-accepted` for `--user-only`) with `accepted_at`, `policy_hash`, `policy_docs`, and `kit_commit`.
+`csp install` / `csp update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `CSP_AGREE_POLICY=1`). A successful agreement writes `~/.cursor/csp-policy-accepted` and, for project installs, `<project>/.cursor/csp-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`.
 
 ## Quick points
 

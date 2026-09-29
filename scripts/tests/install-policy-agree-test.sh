@@ -64,14 +64,14 @@ else
   echo "FAIL refuse_without_agree rc=$RC out=$OUT" >&2
   FAIL=1
 fi
-if [[ -f "$PROJECT/.cursor/csp-policy-accepted" ]]; then
+if [[ -f "$PROJECT/.cursor/csp-policy-accepted" || -f "$FAKE_HOME/.cursor/csp-policy-accepted" ]]; then
   echo "FAIL marker_should_not_exist_yet" >&2
   FAIL=1
 else
   echo "OK   no_marker_before_agree"
 fi
 
-# --agree-policy writes marker and installs
+# --agree-policy writes project + user markers
 if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --agree-policy --skip-third-party-skills >/dev/null; then
   echo "OK   install_with_agree"
 else
@@ -79,14 +79,23 @@ else
   FAIL=1
 fi
 assert_file project_marker "$PROJECT/.cursor/csp-policy-accepted"
+assert_file user_marker_from_project "$FAKE_HOME/.cursor/csp-policy-accepted"
 GOT_HASH="$(awk -F= '/^policy_hash=/{print $2; exit}' "$PROJECT/.cursor/csp-policy-accepted")"
 assert_eq marker_hash "$HASH" "$GOT_HASH"
 grep -q '^accepted_at=' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_accepted_at" || {
   echo "FAIL marker_accepted_at" >&2
   FAIL=1
 }
+grep -q '^agree_via=flag$' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_agree_via" || {
+  echo "FAIL marker_agree_via" >&2
+  FAIL=1
+}
 grep -q '^policy_docs=PRIVACY.md,TERMS.md,DISCLAIMER.md,NOTICE.md' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_docs" || {
   echo "FAIL marker_docs" >&2
+  FAIL=1
+}
+grep -q '^kit_commit=' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_kit_commit" || {
+  echo "FAIL marker_kit_commit" >&2
   FAIL=1
 }
 
@@ -97,6 +106,21 @@ else
   echo "FAIL reinstall_skips_prompt" >&2
   FAIL=1
 fi
+
+# Stale project + valid user → refresh project from prior-user
+echo "policy_hash=deadbeef" >"$PROJECT/.cursor/csp-policy-accepted"
+if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills >/dev/null; then
+  echo "OK   prior_user_seeds_project"
+else
+  echo "FAIL prior_user_seeds_project" >&2
+  FAIL=1
+fi
+GOT2="$(awk -F= '/^policy_hash=/{print $2; exit}' "$PROJECT/.cursor/csp-policy-accepted")"
+assert_eq prior_user_hash "$HASH" "$GOT2"
+grep -q '^agree_via=prior-user$' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   prior_user_via" || {
+  echo "FAIL prior_user_via" >&2
+  FAIL=1
+}
 
 # --i-agree alias + user-only marker
 USER_HOME="$TMP/home2"
@@ -119,10 +143,15 @@ else
   FAIL=1
 fi
 
-# Stale hash requires re-agree
-echo "policy_hash=deadbeef" >"$PROJECT/.cursor/csp-policy-accepted"
+# Both markers stale → refuse
+STALE_HOME="$TMP/home_stale"
+STALE_PROJ="$TMP/proj_stale"
+mkdir -p "$STALE_HOME/.cursor" "$STALE_PROJ/.git" "$STALE_PROJ/.cursor"
+git -C "$STALE_PROJ" init -q
+echo "policy_hash=deadbeef" >"$STALE_HOME/.cursor/csp-policy-accepted"
+echo "policy_hash=deadbeef" >"$STALE_PROJ/.cursor/csp-policy-accepted"
 set +e
-OUT2="$(HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills 2>&1)"
+OUT2="$(HOME="$STALE_HOME" "$ROOT/scripts/install-to-project.sh" "$STALE_PROJ" --skip-third-party-skills 2>&1)"
 RC2=$?
 set -e
 if [[ "$RC2" -ne 0 ]] && echo "$OUT2" | grep -q "agree-policy"; then

@@ -25,9 +25,7 @@ AGREE_POLICY=0
 if [[ "${CSP_AGREE_POLICY:-}" == "1" || "${CSP_AGREE_POLICY:-}" == "true" || "${CSP_AGREE_POLICY:-}" == "yes" ]]; then
   AGREE_POLICY=1
 fi
-# Core public policy docs that must be accepted at install (hash covers these four).
-POLICY_DOC_NAMES=(PRIVACY.md TERMS.md DISCLAIMER.md NOTICE.md)
-# Core public policy docs (order matches scripts/csp-policy-hash.sh).
+# Core public policy docs that must be accepted at install (order matches scripts/csp-policy-hash.sh).
 POLICY_DOC_NAMES=(PRIVACY.md TERMS.md DISCLAIMER.md NOTICE.md)
 
 usage() {
@@ -445,21 +443,10 @@ apply_pipeline_language() {
 
 # --- Public policy acceptance (docs/legal/) -----------------------------------
 
-policy_acceptance_path() {
-  if [[ "$USER_ONLY" -eq 1 || -z "${PROJECT:-}" ]]; then
-    printf '%s\n' "$HOME/.cursor/csp-policy-accepted"
-  else
-    printf '%s\n' "$PROJECT/.cursor/csp-policy-accepted"
-  fi
-}
-
 policy_docs_hash() {
   local hasher="$KIT_ROOT/scripts/csp-policy-hash.sh"
-  if [[ ! -f "$hasher" ]]; then
-    echo "error: missing $hasher" >&2
-    return 1
-  fi
-  bash "$hasher" --kit-root "$KIT_ROOT"
+  chmod +x "$hasher" 2>/dev/null || true
+  "$hasher" --kit-root "$KIT_ROOT"
 }
 
 policy_acceptance_matches() {
@@ -474,41 +461,72 @@ policy_acceptance_matches() {
 write_policy_acceptance() {
   local marker="$1"
   local hash="$2"
+  local via="${3:-flag}"
   local when kit_commit docs_csv
   when="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   kit_commit="$(git -C "$KIT_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
   docs_csv="$(IFS=,; echo "${POLICY_DOC_NAMES[*]}")"
   mkdir -p "$(dirname "$marker")"
   cat >"$marker" <<EOF
-# cursor-spells public policy acceptance record
+# Policy acceptance record — the kit (working title); see docs/legal/NAME-OPTIONS.md
 # Written by csp install / csp update after the operator agreed to docs/legal/.
 # Re-acceptance is required when policy_hash no longer matches the kit docs.
 accepted_at=$when
+agree_via=$via
 policy_hash=$hash
 policy_docs=$docs_csv
 kit_commit=$kit_commit
+kit_root=$KIT_ROOT
 EOF
   echo "policy accepted → $marker (hash $hash)"
 }
 
 require_policy_agreement() {
-  local marker hash legal_dir name origin web answer=""
+  local hash legal_dir name marker_user marker_project via="" origin="" web="" answer=""
   legal_dir="$KIT_ROOT/docs/legal"
   if [[ ! -d "$legal_dir" ]]; then
     echo "error: public policy directory missing: $legal_dir" >&2
     echo "Clone/update the kit so docs/legal/ is present, then re-run install." >&2
     exit 1
   fi
+  for name in "${POLICY_DOC_NAMES[@]}"; do
+    if [[ ! -f "$legal_dir/$name" ]]; then
+      echo "error: missing public policy document: $legal_dir/$name" >&2
+      exit 1
+    fi
+  done
   hash="$(policy_docs_hash)" || exit 1
-  marker="$(policy_acceptance_path)"
+  if [[ ${#hash} -ne 64 ]]; then
+    echo "error: invalid policy hash (refusing empty/broken digest)" >&2
+    exit 1
+  fi
+  # Empty SHA-256 of zero bytes — must never accept (guards against empty doc set bugs).
+  if [[ "$hash" == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" ]]; then
+    echo "error: policy hash is empty-document digest — refusing install" >&2
+    exit 1
+  fi
 
-  if policy_acceptance_matches "$marker" "$hash"; then
-    echo "policy: already accepted ($marker)"
+  marker_user="$HOME/.cursor/csp-policy-accepted"
+  marker_project=""
+  if [[ -n "${PROJECT:-}" && "$USER_ONLY" -eq 0 ]]; then
+    marker_project="$PROJECT/.cursor/csp-policy-accepted"
+  fi
+
+  if [[ -n "$marker_project" ]] && policy_acceptance_matches "$marker_project" "$hash"; then
+    echo "policy: already accepted ($marker_project)"
+    return 0
+  fi
+  if policy_acceptance_matches "$marker_user" "$hash"; then
+    echo "policy: already accepted ($marker_user)"
+    if [[ -n "$marker_project" ]]; then
+      write_policy_acceptance "$marker_project" "$hash" "prior-user"
+    fi
     return 0
   fi
 
   echo
   echo "Public policy agreement required before install/update continues."
+  echo "Product: the kit (working title) — name options: $legal_dir/NAME-OPTIONS.md"
   echo "Please read these documents in the kit checkout:"
   for name in "${POLICY_DOC_NAMES[@]}"; do
     echo "  - $legal_dir/$name"
@@ -516,43 +534,41 @@ require_policy_agreement() {
   echo "Index: $legal_dir/README.md"
   origin="$(git -C "$KIT_ROOT" remote get-url origin 2>/dev/null || true)"
   if [[ -n "$origin" ]]; then
-    # Best-effort GitHub web links when origin looks like github.com/.../repo(.git)
     case "$origin" in
       *github.com*)
         web="${origin%.git}"
         web="${web/#git@github.com:/https://github.com/}"
-        web="${web/#https:\/\/github.com\//https://github.com/}"
-        echo "Or on GitHub (if published): $web/tree/main/docs/legal"
+        echo "Or on GitHub (if published): $web/tree/HEAD/docs/legal"
         ;;
     esac
   fi
   echo
 
   if [[ "$AGREE_POLICY" -eq 1 ]]; then
-    write_policy_acceptance "$marker" "$hash"
-    return 0
-  fi
-
-  if [[ -t 0 ]]; then
+    via="flag"
+  elif [[ -t 0 ]]; then
     echo "Do you agree to the Privacy Policy, Terms, Disclaimer, and NOTICE?"
-    echo "Type 'yes' to continue, or anything else to abort."
-    printf "Agree? [yes/no]: "
+    printf "Agree? [y/N]: "
     IFS= read -r answer || true
     case "$answer" in
       yes|YES|Yes|y|Y)
-        write_policy_acceptance "$marker" "$hash"
-        return 0
+        via="prompt"
         ;;
       *)
-        echo "Aborted: public policy not accepted. Re-run with agreement, or pass --agree-policy / --i-agree." >&2
+        echo "Aborted: public policy not accepted. Re-run with --agree-policy / --i-agree (or CSP_AGREE_POLICY=1)." >&2
         exit 1
         ;;
     esac
+  else
+    echo "error: non-interactive install requires --agree-policy (or --i-agree / CSP_AGREE_POLICY=1)" >&2
+    echo "       after you have read docs/legal/ (Privacy, Terms, Disclaimer, NOTICE)." >&2
+    exit 1
   fi
 
-  echo "error: non-interactive install requires --agree-policy (or --i-agree / CSP_AGREE_POLICY=1)" >&2
-  echo "       after you have read docs/legal/ (Privacy, Terms, Disclaimer, NOTICE)." >&2
-  exit 1
+  write_policy_acceptance "$marker_user" "$hash" "$via"
+  if [[ -n "$marker_project" ]]; then
+    write_policy_acceptance "$marker_project" "$hash" "$via"
+  fi
 }
 
 echo "kit: $KIT_ROOT"
@@ -588,6 +604,7 @@ elif [[ "$USER_ONLY" -eq 1 ]]; then
 fi
 echo "next: open the project in Cursor → /csp-start-task  /csp-approve-plan  /csp-pr-review  /csp-engineer-review"
 echo "tip: mapped third-party skills are installed from skill-map.md unless --skip-third-party-skills"
+echo "tip: policy agreement → .cursor/csp-policy-accepted (docs/legal/); product rename options → docs/legal/NAME-OPTIONS.md"
 if [[ -z "$PIPELINE_LANGUAGE" ]]; then
   echo "tip: set chat language with --language <code> / --lang <code> or CSP_PIPELINE_LANGUAGE (default en when unset; Russian forbidden)"
 fi
