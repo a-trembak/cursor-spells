@@ -2,6 +2,8 @@
 
 **Effective date:** 29 September 2026
 
+**Working title:** **Loregate** is reserved as the public product name; this NOTICE still shows **cursor-spells** until a human renames the GitHub repository and updates the display block. See [NAME-OPTIONS.md](NAME-OPTIONS.md).
+
 This file is an attribution and rights-reservation notice. It does **not** modify the MIT copyright license stated for the Software in `README.md` / [TERMS.md](TERMS.md). Apache License–style practice treats `NOTICE` contents as informational and separate from the copyright license grant; the same separation is intended here.
 
 ---

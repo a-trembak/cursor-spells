@@ -1,6 +1,6 @@
 # cursor-spells
 
-> **Working title.** Public product name will change (GitHub repository id may still be `cursor-spells` until a human renames it). Proposed names — no third-party product marks such as “Cursor” in the title: [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md). Author: Andrey Trembak (`a-trembak`).
+> **Working title: Loregate** (reserved; GitHub repository id is still `cursor-spells` until a human renames it). Brand meaning and abbreviation play space — no third-party product marks such as “Cursor” in the title: [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md). Author: Andrey Trembak (`a-trembak`).
 
 Personal workflow kit — skills, slash commands, rules, hooks, and agents.
 
@@ -32,7 +32,7 @@ csp install /path/to/your-app --agree-policy --language uk  # chat language (--l
 cd /path/to/multi-repo-workspace && csp update --agree-policy
 ```
 
-**Public policy at install:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `CSP_AGREE_POLICY=1`). Acceptance is recorded in `~/.cursor/csp-policy-accepted` and, for project installs, also `<project>/.cursor/csp-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. A valid user-level acceptance can seed a project marker. Product rename candidates (no third-party marks): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
+**Public policy at install:** you must agree to [`docs/legal/`](docs/legal/) (Privacy, Terms, Disclaimer, NOTICE) before install or update continues. Interactive terminals get a yes/no prompt with paths to those files. Scripts and continuous integration must pass `--agree-policy` / `--i-agree` (or `CSP_AGREE_POLICY=1`). Acceptance is recorded in `~/.cursor/csp-policy-accepted` and, for project installs, also `<project>/.cursor/csp-policy-accepted`, with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, `kit_commit`, and `kit_root`. Matching hash skips the prompt on later runs; a changed policy requires a fresh agreement. A valid user-level acceptance can seed a project marker. Reserved working title **Loregate** (GitHub still `cursor-spells`): [`docs/legal/NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md).
 
 Useful flags: `--agree-policy` / `--i-agree` (accept public policy), `--humanizer` (also link `english-humanizer`), `--user-only` (only `~/.cursor`, no project files), `--copy` (copy instead of symlink), `--skip-third-party-skills` (do not run `npx skills add` for mapped third-party skills; same as `CSP_SKIP_THIRD_PARTY_SKILLS=1` on air-gapped machines).
 
@@ -363,4 +363,4 @@ Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.
 
 MIT — steal freely, please sound human.
 
-**Legal / policy docs:** [`docs/legal/`](docs/legal/) — [Privacy Policy](docs/legal/PRIVACY.md), [Terms](docs/legal/TERMS.md), [Disclaimer](docs/legal/DISCLAIMER.md), [Rights notice](docs/legal/NOTICE.md). Russian is impossible inside this pipeline under the sanctions-based language policy; use Russian only outside this pipeline — see [`pipeline-language.md`](docs/superpowers/pipeline-language.md). Product rename options: [`NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md). Install requires `--agree-policy` (or an interactive yes) and writes `.cursor/csp-policy-accepted`.
+**Legal / policy docs:** [`docs/legal/`](docs/legal/) — [Privacy Policy](docs/legal/PRIVACY.md), [Terms](docs/legal/TERMS.md), [Disclaimer](docs/legal/DISCLAIMER.md), [Rights notice](docs/legal/NOTICE.md). Russian is impossible inside this pipeline under the sanctions-based language policy; use Russian only outside this pipeline — see [`pipeline-language.md`](docs/superpowers/pipeline-language.md). Working title **Loregate** (reserved): [`NAME-OPTIONS.md`](docs/legal/NAME-OPTIONS.md). Install requires `--agree-policy` (or an interactive yes) and writes `.cursor/csp-policy-accepted`.

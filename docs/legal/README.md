@@ -1,8 +1,8 @@
-# Legal documents — the kit (working title)
+# Legal documents — Loregate (working title)
 
 Formal English policy documents for this pipeline kit authored by **Andrey Trembak** (`a-trembak`).
 
-The git remote may still be named `cursor-spells` until a human renames it. **Product title options (do not use third-party marks such as “Cursor” in the name):** [NAME-OPTIONS.md](NAME-OPTIONS.md).
+**Reserved working title:** **Loregate** (not yet GitHub-renamed). The git remote is still `cursor-spells` until a human renames it. Name status, brand meaning, and abbreviation play space: [NAME-OPTIONS.md](NAME-OPTIONS.md). Do not use third-party marks such as “Cursor” in the product title.
 
 | Document | Purpose |
 |----------|---------|
@@ -10,7 +10,7 @@ The git remote may still be named `cursor-spells` until a human renames it. **Pr
 | [TERMS.md](TERMS.md) | Terms of use / rights notice — MIT consistency, reserved names, acceptable use |
 | [DISCLAIMER.md](DISCLAIMER.md) | Disclaimer of warranty and limitation of liability (AS IS / use at own risk) |
 | [NOTICE.md](NOTICE.md) | Trademark / rights protection mark — displayable “Rights reserved” block |
-| [NAME-OPTIONS.md](NAME-OPTIONS.md) | Creative product rename candidates (no third-party marks); manual GitHub rename |
+| [NAME-OPTIONS.md](NAME-OPTIONS.md) | Reserved working title **Loregate**, deferred options, abbreviations; manual GitHub rename only |
 | [SOURCES.md](SOURCES.md) | Research sources (including Context7 libraries/topics consulted) |
 
 ## Install agreement
