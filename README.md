@@ -224,7 +224,9 @@ npx skills add hoodini/ai-agents-skills@mongodb
 
 Database migrations and schema changes are automatically routed to matching DB skills (MySQL, MongoDB, and conditional Postgres/Flyway/Prisma rows) via [`skill-map.md`](skills/engineer-review/references/skill-map.md#database-skill-routing)'s Database skill routing section. `csp install` installs the always-on + current-stack ids from that map (skip with `--skip-third-party-skills`). Conditional Postgres/Flyway/Prisma rows stay manual unless the consumer project uses them. If a stack isn't covered by the map at all, the kit follows a two-tier skill resolution protocol: curated skills are used directly, anything else is presented to you for an explicit decision — never auto-installed mid-review.
 
-When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged.
+**Skill profile (L2 depth):** set `.cursor/csp-skill-profile` to `strict` (default), `balanced`, or `expert`. Profiles change only **third-party enrichment** load depth. Kit miss-class checklists (security S1–S11, interaction replay, JPA gates, …) stay **L1** and open on triggers. See Skill classes / Load levels in [`skill-map.md`](skills/engineer-review/references/skill-map.md). Closed-set human gates use skill [`hitl-choice`](skills/hitl-choice/) — load **one** preset section from [`presets.md`](skills/hitl-choice/references/presets.md), not the whole catalog.
+
+When `graphify-out/` exists (or `graphify query` answers), engineer-review **prefers** graphify for impact scoping and call-graph questions to save tokens — see [`graphify-protocol.md`](skills/engineer-review/references/graphify-protocol.md). If graphify is not installed or has no build, review keeps the existing `git diff` + chunking path unchanged. On tiny non-risky diffs (≤3 files, ≤40 changed lines), engineer-review may skip low-value heuristic phases per [Tiny-diff heuristic phase skip](skills/engineer-review/references/phase-protocol.md#tiny-diff-heuristic-phase-skip) and must record `phase_skip: tiny-diff (…)` in Coverage.
 
 ## Usage
 
@@ -257,9 +259,9 @@ Comment cleanup and apply-vs-clarify decisions across all review phases now foll
 4. `/csp-approve-plan` — **HITL** `approve-plan`/`revise`, then **automatic** `implementation-critic`; **HITL** only if findings block; on `Verdict: clear` → `start-build`
 
 On every `revise` of a spec or plan, agents follow [`clean-decision-docs`](skills/clean-decision-docs/): rewrite the file as current truth; put "what changed" in chat, not as changelog archaeology inside the document.
-5. Executes via `csp-software-developer` (branch setup in target repo(s) → skill-map routing → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
+5. Executes via `csp-software-developer` (branch setup in target repo(s) → skill-map routing + Skill profile → `subagent-driven-development`) — automatic, no "which approach?" prompt in this flow
 6. `review-gate` via `/csp-finish-plan` — surface the diff (`SetActiveBranch` + Local Diff Review when installed) then **HITL** `skip`/`approve`/`done` (or `fixes` / canvas `apply-fixes` back to `csp-software-developer`). Pipeline continues.
-7. `engineer-review` — **HITL** only for clarifications it raises
+7. `engineer-review` — phases honor Skill profile for L2; optional tiny-diff phase skip; **HITL** only for clarifications it raises
 7b. [`local-diff-review-gate`](skills/local-diff-review-gate/) — **HITL** `approve-diff` / `comment` (plugin Local Diff Review; skip if clean / missing plugin)
 8. [`propose-commit`](skills/propose-commit/) — **HITL** `approve-commit` / `revise`; stages listed paths and `git commit` only (never push); writes `.cursor/gates/commit-approved/<slug>`
 9. `/csp-update-docs` — **HITL** `skip` / `docs_md` / `docs_repo` / `confluence` (product docs destination; dual-audience write); residual **`propose-commit`** if docs left uncommitted files

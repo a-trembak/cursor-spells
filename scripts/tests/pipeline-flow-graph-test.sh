@@ -90,6 +90,16 @@ assert_contains html_css_waiting "$HTML" ".waiting"
 assert_contains html_param_docs_route "$HTML" "route"
 assert_contains html_param_docs_layer "$HTML" 'data-orientation-params="route,layer,stage"'
 
+# Skill load optimization (profile + tiny-diff) must stay visible on the canvas docs
+assert_contains md_skill_profile "$MD" "Skill profile"
+assert_contains md_l1_l2 "$MD" "L1"
+assert_contains md_tiny_diff "$MD" "Tiny-diff"
+assert_contains md_csp_skill_profile "$MD" "csp-skill-profile"
+assert_contains html_skill_profile "$HTML" "Skill profile"
+assert_contains html_tiny_diff "$HTML" "Tiny-diff"
+assert_contains html_l2_enrichment "$HTML" "L2"
+assert_contains readme_skill_profile "$ROOT/README.md" "csp-skill-profile"
+
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2
   exit 1
