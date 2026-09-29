@@ -347,3 +347,5 @@ Design: [`docs/superpowers/specs/2026-07-22-engineer-review-orchestrator-design.
 ## License
 
 MIT — steal freely, please sound human.
+
+**Legal / policy docs:** [`docs/legal/`](docs/legal/) — [Privacy Policy](docs/legal/PRIVACY.md), [Terms](docs/legal/TERMS.md), [Disclaimer](docs/legal/DISCLAIMER.md), [Rights notice](docs/legal/NOTICE.md).
