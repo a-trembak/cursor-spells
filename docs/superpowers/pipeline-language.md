@@ -6,11 +6,12 @@ Controls **how the agent talks to the human** during a pipeline run (status upda
 
 | Item | Value |
 |------|--------|
-| Project marker | `<project>/.cursor/csp-pipeline-language` (one line) |
-| User fallback | `~/.cursor/csp-pipeline-language` (from `csp install --user-only --language`) |
+| Project marker | `<project>/.cursor/lgt-pipeline-language` (one line; legacy twin `.cursor/csp-pipeline-language` still read/written) |
+| User fallback | `~/.cursor/lgt-pipeline-language` (from `lgt install --user-only --language`; legacy `csp-pipeline-language` twin too) |
 | Sibling pattern | Same style as `.cursor/csp-skill-profile` |
 | Default when unset or empty | `en` |
-| Helper | `scripts/csp-pipeline-language.sh` (`get` / `set` / `status` / `validate`) |
+| Helper | `scripts/lgt-pipeline-language.sh` (symlink to `csp-pipeline-language.sh`; `get` / `set` / `status` / `validate`) |
+| Env | `LGT_PIPELINE_LANGUAGE` preferred; `CSP_PIPELINE_LANGUAGE` still accepted |
 
 Example:
 
@@ -26,18 +27,18 @@ uk
 Non-interactive (does not block install when omitted):
 
 ```bash
-csp install /path/to/app --agree-policy --language uk
-csp install /path/to/app --agree-policy --lang de
-CSP_PIPELINE_LANGUAGE=uk csp install /path/to/app --agree-policy
-csp install --user-only --agree-policy --language uk   # writes ~/.cursor/csp-pipeline-language
+lgt install /path/to/app --agree-policy --language uk
+lgt install /path/to/app --agree-policy --lang de
+LGT_PIPELINE_LANGUAGE=uk lgt install /path/to/app --agree-policy
+lgt install --user-only --agree-policy --language uk   # writes ~/.cursor/lgt-pipeline-language
 ```
 
-Russian codes are rejected by the helper (install exits non-zero). When the flag/env is omitted, no marker is written — default remains `en` and `/csp-start-task` asks at bootstrap.
+Russian codes are rejected by the helper (install exits non-zero). When the flag/env is omitted, no marker is written — default remains `en` and `/lgt-start-task` asks at bootstrap.
 
 ## When it is chosen
 
-1. **Install** — optional `--language` / `--lang` / `CSP_PIPELINE_LANGUAGE` writes the marker.
-2. **Pipeline bootstrap** (`/csp-start-task`, `/csp-start-issue-task`):
+1. **Install** — optional `--language` / `--lang` / `LGT_PIPELINE_LANGUAGE` writes the marker.
+2. **Pipeline bootstrap** (`/lgt-start-task`, `/lgt-start-issue-task`):
    - `status` is `unset` → ask via skill `hitl-choice` preset **Pipeline language**; then `set`.
    - `status` is already a code → **skip** the ask; one sentence that chat uses that language.
 3. **Mid-session** — human asks to switch to an allowed language → agent `set`s the project marker and continues in that language (skill `plain-language-chat`). No pipeline restart.
@@ -59,7 +60,7 @@ When the human asks to switch (clear language name or code):
 
 1. `normalize` / `validate` the request.
 2. Russian → mandatory refusal script (impossible here; use Russian only **outside this pipeline**).
-3. Else: `scripts/csp-pipeline-language.sh set --root <project> --lang <code>`.
+3. Else: `scripts/lgt-pipeline-language.sh set --root <project> --lang <code>`.
 4. Confirm in one sentence **in the new language**; continue the pipeline without restart.
 
 ## Russian absolute lockout (sanctions-based language policy)

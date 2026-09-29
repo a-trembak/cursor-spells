@@ -7,15 +7,15 @@ alwaysApply: true
 
 ## Exception — cursor-spells kit checkout
 
-When the workspace **is** this kit (cursor-spells: `agents/csp-engineer-reviewer.md` + `skills/engineer-review/`), **do not** follow the product pipeline below. Follow rule **`kit-no-pipeline-dogfood`**: edit kit files in the parent chat; never `/csp-start-*` or Pipeline route on the kit itself.
+When the workspace **is** this kit (cursor-spells: `agents/csp-engineer-reviewer.md` + `skills/engineer-review/`), **do not** follow the product pipeline below. Follow rule **`kit-no-pipeline-dogfood`**: edit kit files in the parent chat; never `/lgt-start-*` or Pipeline route on the kit itself.
 
 ## Consumer product projects
 
 In a **consumer** harness, the **parent / orchestrator chat** must not write or patch **product** code itself.
 
-1. Features, accepted plan tasks, review-gate `fixes`, and `/csp-start-task --fast` → load and dispatch nested Task **`csp-software-developer`**, then **wait** for it to return.
-2. Ticket bugs and `/csp-start-issue-task` → load and dispatch nested Task **`csp-bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
-3. **Ad-hoc** “write/fix code in chat” with no cleared plan or spec → ask once via skill **`hitl-choice`** preset **Pipeline route**: `full` / `fast` / `issue` (same tokens the kit already uses). Then dispatch accordingly: **`csp-software-developer`** on the full path (after plan work), **`csp-software-developer`** with explicit **`mode:fast`**, or **`csp-bug-fixer`** / **`/csp-start-issue-task`**. Do **not** auto-select `fast`.
+1. Features, accepted plan tasks, review-gate `fixes`, and `/lgt-start-task --fast` → load and dispatch nested Task **`csp-software-developer`**, then **wait** for it to return.
+2. Ticket bugs and `/lgt-start-issue-task` → load and dispatch nested Task **`csp-bug-fixer`** (skill `bug-fix`), then **wait** for it to return.
+3. **Ad-hoc** “write/fix code in chat” with no cleared plan or spec → ask once via skill **`hitl-choice`** preset **Pipeline route**: `full` / `fast` / `issue` (same tokens the kit already uses). Then dispatch accordingly: **`csp-software-developer`** on the full path (after plan work), **`csp-software-developer`** with explicit **`mode:fast`**, or **`csp-bug-fixer`** / **`/lgt-start-issue-task`**. Do **not** auto-select `fast`.
 4. If write vs fix is ambiguous → ask once; do not invent product diffs in the parent.
 5. Violating “I will just patch it here for speed” in the parent is a **protocol bug**.
 

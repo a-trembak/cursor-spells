@@ -1,6 +1,6 @@
 # English expansions (pipeline language `en`)
 
-Default table when `.cursor/csp-pipeline-language` is unset or `en`.
+Default table when `.cursor/lgt-pipeline-language` is unset or `en`.
 
 | Forbidden in chat | Write instead |
 |-------------------|---------------|

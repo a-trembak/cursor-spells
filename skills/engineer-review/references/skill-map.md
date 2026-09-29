@@ -2,7 +2,7 @@
 
 Canonical stack → skill routing for **`software-developer`** (while writing code) and **`engineer-review`** phases (while reviewing). Same table, two consumers.
 
-Orchestrator stack-detect excerpt only: [`skill-map-orch.md`](skill-map-orch.md). Keep this full file for phases, Database skill routing, and `csp install`.
+Orchestrator stack-detect excerpt only: [`skill-map-orch.md`](skill-map-orch.md). Keep this full file for phases, Database skill routing, and `lgt install`.
 
 ## Skill classes
 
@@ -40,9 +40,9 @@ Hard floor: kit miss-class checklists and always-on rules are never on a skip li
 
 Recommended installs (consumer machine / project). Do not vendor skill bodies into cursor-spells.
 
-`csp install` / `csp update` runs this list via `npx skills add` (human-launched installer, not an agent mid-review). Skip with `--skip-third-party-skills` or `CSP_SKIP_THIRD_PARTY_SKILLS=1`. Network / `npx` failure is non-fatal (`skill_missing`); kit links still install.
+`lgt install` / `lgt update` runs this list via `npx skills add` (human-launched installer, not an agent mid-review). Skip with `--skip-third-party-skills` or `LGT_SKIP_THIRD_PARTY_SKILLS=1`. Network / `npx` failure is non-fatal (`skill_missing`); kit links still install.
 
-Conditional Database rows (Postgres / Flyway / Prisma) stay **manual** unless the consumer project actually uses them — `csp install` detects those signals and only then adds those ids.
+Conditional Database rows (Postgres / Flyway / Prisma) stay **manual** unless the consumer project actually uses them — `lgt install` detects those signals and only then adds those ids.
 
 ```bash
 npx skills add vercel-labs/agent-skills@vercel-react-best-practices
@@ -96,7 +96,7 @@ Migrations and schema work are a named weak spot for AI-generated code (blast ra
 
 ### Conditional — kept in the map for future projects, not installed by default
 
-`csp install` skips these unless the consumer project actually uses that stack (signals in `package.json` / `pom.xml` / `docker-compose` / `prisma/schema.prisma`). Otherwise install by hand.
+`lgt install` skips these unless the consumer project actually uses that stack (signals in `package.json` / `pom.xml` / `docker-compose` / `prisma/schema.prisma`). Otherwise install by hand.
 
 | Stack | Skills |
 |-------|--------|

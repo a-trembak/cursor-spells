@@ -1,6 +1,6 @@
 # Multi-repo protocol
 
-Contract for `csp-multi-repo-supervisor`, `finish-plan` routing, and `/csp-multi-review`. Per-repo review reuses `csp-engineer-reviewer` (including its graphify scoping via [`graphify-protocol.md`](graphify-protocol.md)); this document covers discovery, routing, merge, and unified output only.
+Contract for `csp-multi-repo-supervisor`, `finish-plan` routing, and `/lgt-multi-review`. Per-repo review reuses `csp-engineer-reviewer` (including its graphify scoping via [`graphify-protocol.md`](graphify-protocol.md)); this document covers discovery, routing, merge, and unified output only.
 
 ## Routing algorithm
 
@@ -11,13 +11,13 @@ Contract for `csp-multi-repo-supervisor`, `finish-plan` routing, and `/csp-multi
    - If changed repo count is **1** → invoke `csp-engineer-reviewer` for that repo only and **stop**. Single-repo behavior is unchanged; the supervisor never engages.
    - If changed repo count **≥ 2** → continue as **`csp-multi-repo-supervisor`**: one HITL gate for the whole task, parallel per-repo `csp-engineer-reviewer` dispatch, cross-repo phase, unified merge.
 
-`finish-plan` and manual `/csp-multi-review` both use this algorithm before any review phases run. `finish-plan` uses the non-mutating probe only; it never writes or refreshes parent `.cursor/multi-repo.json` during routing.
+`finish-plan` and manual `/lgt-multi-review` both use this algorithm before any review phases run. `finish-plan` uses the non-mutating probe only; it never writes or refreshes parent `.cursor/multi-repo.json` during routing.
 
 ## Discovery precedence
 
 Resolve the repo set in this order; stop at the first source that succeeds:
 
-1. **Explicit paths (override, v1).** If the caller provided `explicit_paths` or `/csp-multi-review <path...>` paths, those paths are the repo set for that run. Graphify and parent `.cursor/multi-repo.json` do not replace or expand this set. Stack heuristics still apply per path. Graphify may still be queried later for cross-repo impact among the chosen repos.
+1. **Explicit paths (override, v1).** If the caller provided `explicit_paths` or `/lgt-multi-review <path...>` paths, those paths are the repo set for that run. Graphify and parent `.cursor/multi-repo.json` do not replace or expand this set. Stack heuristics still apply per path. Graphify may still be queried later for cross-repo impact among the chosen repos.
 2. **Graphify (preferred when no explicit paths).** Workspace-level build under the parent folder that contains sibling repos (`graphify-out/`). Query for repo map and cross-repo impact. **Do not create `multi-repo.json`** when graphify answers successfully.
 3. **Parent `.cursor/multi-repo.json` (fallback when no explicit paths).** Read `<workspace-parent>/.cursor/multi-repo.json` if graphify is absent or unqueryable.
 4. **Sibling scan (last fallback when no explicit paths).** Scan sibling directories in memory and classify them with stack heuristics. Persist only under the rules in Probe vs persist.
@@ -31,7 +31,7 @@ Discovery has two modes:
 1. **Probe (non-mutating).** Used by `finish-plan` routing. It may read graphify, read an existing parent `.cursor/multi-repo.json`, or scan siblings in memory, but it **MUST NOT** write or refresh `multi-repo.json`.
 2. **Persist (mutating).** Write or refresh `<workspace-parent>/.cursor/multi-repo.json` only when:
    - a multi-repo run is confirmed (**≥ 2 changed repos**) and graphify is absent or unqueryable; or
-   - `--refresh` was explicitly requested on `/csp-multi-review` and graphify is absent or unqueryable.
+   - `--refresh` was explicitly requested on `/lgt-multi-review` and graphify is absent or unqueryable.
 
 Persist never applies when explicit paths were supplied; explicit paths are a run-local override. `multi-repo.json` always lives at the workspace parent `.cursor/` directory, never inside a single leaf repo.
 

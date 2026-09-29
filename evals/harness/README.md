@@ -1,6 +1,6 @@
 # Kit harness bench
 
-Machine-checkable health for the cursor-spells kit. **Not** installed into consumer apps (`csp install` never copies `evals/`).
+Machine-checkable health for the cursor-spells kit. **Not** installed into consumer apps (`lgt install` never copies `evals/`).
 
 ## Inventory (no bench required)
 
@@ -26,7 +26,7 @@ Runs every `scripts/tests/*.sh` with durations, then trajectory `validate` + `sc
 
 `python3 scripts/harness-health.py` prints those metrics when a bench report is attached or auto-discovered.
 
-Slash command `/csp-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
+Slash command `/lgt-harness-status` and skill `harness-status` are orientation only — they do not advance pipeline gates.
 
 
 ## Pictures (what the two systems look like)

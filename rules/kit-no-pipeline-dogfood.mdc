@@ -1,13 +1,13 @@
 ---
 description: >-
   Kit checkout only — never dogfood the product shipping pipeline on
-  cursor-spells itself. Edit kit files directly; do not run /csp-start-*.
+  this Loregate kit itself. Edit kit files directly; do not run /lgt-start-*.
 alwaysApply: true
 ---
 
 # No pipeline dogfood on this kit
 
-This rule applies when the **workspace git root is a cursor-spells kit checkout**
+This rule applies when the **workspace git root is a Loregate / cursor-spells kit checkout**
 (has `agents/csp-engineer-reviewer.md` and `skills/engineer-review/`, and is the
 repo being edited as the kit — not a consumer app that merely installed the kit).
 
@@ -15,7 +15,8 @@ repo being edited as the kit — not a consumer app that merely installed the ki
 
 Do **not** use the product shipping pipeline to develop the kit:
 
-- Do not run `/csp-start-task`, `/csp-start-task --fast`, or `/csp-start-issue-task`
+- Do not run `/lgt-start-task`, `/lgt-start-task --fast`, or `/lgt-start-issue-task`
+- Do not run legacy `/csp-start-task`, `/csp-start-task --fast`, or `/csp-start-issue-task` either (deprecated aliases)
 - Do not ask **Pipeline route** (`full` / `fast` / `issue`) for kit changes
 - Do not dispatch nested Task `csp-software-developer` or `csp-bug-fixer` as the
   delivery path for kit work
@@ -35,12 +36,12 @@ ship stops fight the work that changes those same mechanisms).
 ## Still allowed
 
 - Manual **dogfood checklists** under `docs/superpowers/dogfood/` (scripts that
-  verify kit behavior — not `/csp-start-*`)
-- `/csp-harness-status`, `scripts/harness-bench.sh`, contract tests
+  verify kit behavior — not `/lgt-start-*` / `/csp-start-*`)
+- `/lgt-harness-status` (legacy `/csp-harness-status`), `scripts/harness-bench.sh`, contract tests
 - Running the pipeline against a **separate consumer project** that installed
   this kit
 
 ## Consumer projects
 
 This rule must **not** be copied into consumer apps by `install-to-project.sh`.
-Consumers keep `code-via-coding-agents` and run `/csp-start-*` as designed.
+Consumers keep `code-via-coding-agents` and run `/lgt-start-*` as designed.

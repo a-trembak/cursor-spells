@@ -8,7 +8,7 @@ The human looks at the merge-base diff (the pull request tab in Cursor) when com
 
 Skill `finish-plan`, after the review-gate marker is written, **before** skill `hitl-choice` (Finish-plan HITL). **Re-run review-surface** after `fixes` land, before asking the same gate again.
 
-Not for manual `/csp-engineer-review` (no review-gate). Not for `/csp-start-task --fast` or `/csp-start-issue-task` (those skip this HITL).
+Not for manual `/lgt-engineer-review` (no review-gate). Not for `/lgt-start-task --fast` or `/lgt-start-issue-task` (those skip this HITL).
 
 ## Inputs
 

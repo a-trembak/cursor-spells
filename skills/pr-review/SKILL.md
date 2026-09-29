@@ -7,7 +7,7 @@ description: >-
   engineer-reviewer. Feedback must include Context, code snippets, clickable
   file:line links, english-humanizer prose, and structured clarify Options
   with a marked Recommendation. Default report-only; optional apply for the
-  author's own checkout. Use for /csp-pr-review or "review this PR".
+  author's own checkout. Use for /lgt-pr-review or "review this PR".
 ---
 
 # PR Review
@@ -16,11 +16,11 @@ Thin wrapper around `engineer-review` / `csp-engineer-reviewer` for **pull-reque
 
 ## When to Use
 
-- `/csp-pr-review [url|number|branch]` or the user asks to review a PR
+- `/lgt-pr-review [url|number|branch]` or the user asks to review a PR
 - Reviewing someone else's open PR (report-only)
 - Reviewing your own PR before merge (`apply` optional)
-- Not a substitute for post-plan `/csp-finish-plan` → engineer-review (that path stays unchanged)
-- Not for plan critique (`/csp-approve-plan` / `/csp-critique-plan`)
+- Not a substitute for post-plan `/lgt-finish-plan` → engineer-review (that path stays unchanged)
+- Not for plan critique (`/lgt-approve-plan` / `/lgt-critique-plan`)
 
 ## Arguments
 
@@ -79,7 +79,7 @@ Follow [references/pr-resolve.md](references/pr-resolve.md). Summary:
 
 ## Multi-repo
 
-Single-repo PRs use this path. If the workspace is multi-repo and the PR touches contracts across siblings, after the PR review note that `/csp-multi-review` / `csp-multi-repo-supervisor` may still be needed for cross-repo drift — do not invent a second PR's diff.
+Single-repo PRs use this path. If the workspace is multi-repo and the PR touches contracts across siblings, after the PR review note that `/lgt-multi-review` / `csp-multi-repo-supervisor` may still be needed for cross-repo drift — do not invent a second PR's diff.
 
 ## Context budget
 

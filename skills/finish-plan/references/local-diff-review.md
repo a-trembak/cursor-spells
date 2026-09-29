@@ -16,7 +16,7 @@ Full outbound schema lives in the plugin: `skills/review-local-diff/references/p
 4. Pass absolute git roots from `repo_branch_map` (each open-folder root) and, when known, the current agent `conversationId`.
 5. Prefer this canvas over pasting the full `git diff` into chat. Chat paste remains the **fallback** when the plugin is missing or canvas fails.
 
-Not for manual `/csp-engineer-review`. Not for `/csp-start-task --fast` or `/csp-start-issue-task` (those skip review-gate).
+Not for manual `/lgt-engineer-review`. Not for `/lgt-start-task --fast` or `/lgt-start-issue-task` (those skip review-gate).
 
 ## How to run
 
@@ -89,7 +89,7 @@ If the human sends `no-local-diff-review`: skip the canvas step for this gate tu
 
 ## Out of scope
 
-- `/csp-start-task --fast` / `/csp-start-issue-task` review-gate (those paths skip this HITL).
+- `/lgt-start-task --fast` / `/lgt-start-issue-task` review-gate (those paths skip this HITL).
 - Replacing engineer-review Findings with the canvas.
 - Vendoring the plugin skill into this repository.
 - Relying on Send → `newComposerChat` as the pipeline path.

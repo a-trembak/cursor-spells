@@ -497,8 +497,8 @@
       <p class="view-desc">
         Time flows <strong>top to bottom</strong>. Boxes are layers (Plan → Build → Review → Docs).
         Dotted ↺ is a cycle in the same layer or <em>one</em> layer back.
-        <code>review-gate</code> sits <em>after</em> code: <code>/csp-finish-plan</code> only opens this HITL, not the Plan layer.
-        <code>/csp-start-task</code> starts with fetch → In Progress → route and never picks <code>--fast</code> on its own.
+        <code>review-gate</code> sits <em>after</em> code: <code>/lgt-finish-plan</code> only opens this HITL, not the Plan layer.
+        <code>/lgt-start-task</code> starts with fetch → In Progress → route and never picks <code>--fast</code> on its own.
       </p>
 
       <ol class="seq-strip" aria-label="Happy path sequence">
@@ -575,7 +575,7 @@
           <div class="node hitl" tabindex="0" data-go="review-gate" data-stage="review-gate" data-layer="review" role="button">
             <div class="kind">6 · HITL review-gate</div>
             <div class="label">review-gate</div>
-            <div class="hint"><code>/csp-finish-plan</code> writes marker · skip / approve / done</div>
+            <div class="hint"><code>/lgt-finish-plan</code> writes marker · skip / approve / done</div>
             <span class="open-detail">details →</span>
           </div>
           <div class="cycle-chip">↺ <code>fixes</code> returns to <strong>csp-software-developer</strong> (Build), not writing-plans</div>
@@ -633,7 +633,7 @@
         <div class="node auto" tabindex="0" data-go="standalone" role="button">
           <div class="kind">shortcuts</div>
           <div class="label">Standalone + lean paths</div>
-          <div class="hint">--fast skips Plan and review-gate · /csp-start-issue-task · /csp-pr-review…</div>
+          <div class="hint">--fast skips Plan and review-gate · /lgt-start-issue-task · /lgt-pr-review…</div>
           <span class="open-detail">details →</span>
         </div>
       </div>
@@ -731,7 +731,7 @@
           <div class="step-num">3</div>
           <div class="step-body auto">
             <h3>Stack detect</h3>
-            <p>Tabular lookup of signals (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) from <code>skill-map.md</code>. No LLM reasoning. The same map defines <strong>Skill classes</strong>, levels <strong>L0→L1→L2</strong>, and <strong>Skill profile</strong> (<code>strict</code> / <code>balanced</code> / <code>expert</code> from <code>.cursor/csp-skill-profile</code>, default <code>strict</code>) — the profile only cuts third-party L2 enrichment, not rules and not kit checklists.</p>
+            <p>Tabular lookup of signals (<code>package.json</code>, <code>pom.xml</code>, <code>docker-compose</code>, dependency names) from <code>skill-map.md</code>. No LLM reasoning. The same map defines <strong>Skill classes</strong>, levels <strong>L0→L1→L2</strong>, and <strong>Skill profile</strong> (<code>strict</code> / <code>balanced</code> / <code>expert</code> from <code>.cursor/lgt-skill-profile</code>, default <code>strict</code>) — the profile only cuts third-party L2 enrichment, not rules and not kit checklists.</p>
           </div>
         </div>
       </div>
@@ -935,7 +935,7 @@
             <div class="branches">
               <div class="branch">
                 <span class="token stop">no clear marker</span>
-                <div class="then">Stop → tell them to run <code>/csp-approve-plan</code></div>
+                <div class="then">Stop → tell them to run <code>/lgt-approve-plan</code></div>
               </div>
               <div class="branch">
                 <span class="token stop">pending gate</span>
@@ -978,7 +978,7 @@
           <div class="step-num">5</div>
           <div class="step-body auto">
             <h3>Wait → review-gate → csp-engineer-reviewer</h3>
-            <p><code>start-build</code> <strong>waits</strong> for the nested Task <code>csp-software-developer</code> to return (fire-and-forget forbidden). Then in the same chat it calls <code>/csp-finish-plan</code> — that is HITL <code>review-gate</code>, not a return to writing-plans. After <code>skip</code> / <code>approve</code> / <code>done</code>, <code>csp-engineer-reviewer</code> starts.</p>
+            <p><code>start-build</code> <strong>waits</strong> for the nested Task <code>csp-software-developer</code> to return (fire-and-forget forbidden). Then in the same chat it calls <code>/lgt-finish-plan</code> — that is HITL <code>review-gate</code>, not a return to writing-plans. After <code>skip</code> / <code>approve</code> / <code>done</code>, <code>csp-engineer-reviewer</code> starts.</p>
           </div>
         </div>
       </div>
@@ -992,7 +992,7 @@
     <section id="view-review-gate" class="view" hidden>
       <button type="button" class="back" data-go="overview">← Overview</button>
       <h2 class="view-title">6. review-gate</h2>
-      <p class="view-desc">HITL <em>after</em> code, before engineer-review. The Plan layer is already closed. The pipeline does <em>not</em> end here. <code>/csp-finish-plan</code> writes <code>.cursor/gates/review-gate/&lt;slug&gt;</code>, then <code>review-surface</code>.</p>
+      <p class="view-desc">HITL <em>after</em> code, before engineer-review. The Plan layer is already closed. The pipeline does <em>not</em> end here. <code>/lgt-finish-plan</code> writes <code>.cursor/gates/review-gate/&lt;slug&gt;</code>, then <code>review-surface</code>.</p>
       <div class="detail-flow">
         <div class="step">
           <div class="step-num">1</div>
@@ -1267,7 +1267,7 @@
           </tr>
           <tr>
             <td><code>gates/review-gate/&lt;slug&gt;</code></td>
-            <td><code>/csp-finish-plan</code> (<code>review-gate</code> HITL)</td>
+            <td><code>/lgt-finish-plan</code> (<code>review-gate</code> HITL)</td>
             <td><code>skip</code> / <code>approve</code> / <code>done</code></td>
           </tr>
           <tr>
@@ -1298,49 +1298,49 @@
           <div class="step-num">·</div>
           <div class="step-body auto">
             <h3>create-pr (finale of every pipeline)</h3>
-            <p>Skill <code>create-pr</code>: push + <strong>always draft</strong>, then HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). No merge. Requires <code>commit-approved</code> marker from <code>propose-commit</code>. Called after update-docs (+ residual propose-commit) on full <code>/csp-start-task</code>, after <code>propose-commit</code> on <code>--fast</code> and <code>/csp-start-issue-task</code>.</p>
+            <p>Skill <code>create-pr</code>: push + <strong>always draft</strong>, then HITL <strong>Pipeline finale</strong> (<code>keep_draft</code> / <code>ready</code> / <code>keep_draft_jira</code> / <code>ready_jira</code>). No merge. Requires <code>commit-approved</code> marker from <code>propose-commit</code>. Called after update-docs (+ residual propose-commit) on full <code>/lgt-start-task</code>, after <code>propose-commit</code> on <code>--fast</code> and <code>/lgt-start-issue-task</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/csp-start-task --fast</h3>
+            <h3>/lgt-start-task --fast</h3>
             <p>No tech-spec / plan / critic / review-gate / docs: fetch (if ticket) → <code>jira-transition in_progress</code> → brief → <code>csp-software-developer mode:fast</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. If class=bug — HITL Fast vs issue. The agent never picks <code>--fast</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/csp-start-issue-task</h3>
+            <h3>/lgt-start-issue-task</h3>
             <p><code>jira-fetch</code> → <code>jira-transition in_progress</code> → fix plan → critic Pass A/B/C → HITL only if blocked → <code>csp-bug-fixer</code> → <code>csp-engineer-reviewer</code> → <code>local-diff-review-gate</code> → <code>propose-commit</code> → create-pr finale. Explicit command always stays on the issue path, even when type=Story.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/csp-write-tech-spec</h3>
+            <h3>/lgt-write-tech-spec</h3>
             <p>Tech-spec only, without the rest of the pipeline. If the AC source looks like Jira — the same <code>jira-fetch</code>.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/csp-critique-plan</h3>
+            <h3>/lgt-critique-plan</h3>
             <p>Ad-hoc critic. Does not replace the approve-plan gate and does not prepare the build clear-marker the way the pipeline path does.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body hitl">
-            <h3>/csp-approve-plan → /csp-start-build</h3>
+            <h3>/lgt-approve-plan → /lgt-start-build</h3>
             <p>Full pre-build gate by hand: HITL approve, auto critic, clear → build.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">·</div>
           <div class="step-body auto">
-            <h3>/csp-finish-plan · /csp-engineer-review · /csp-update-docs · /csp-pr-review · /csp-multi-review · /csp-capture-escape</h3>
-            <p><code>/csp-finish-plan</code> enters the <code>review-gate</code> HITL (code already written). Manual <code>/csp-engineer-review</code> skips this HITL; <code>/csp-update-docs</code> remains a separate HITL destination gate. <code>/csp-pr-review</code> builds a PR Review Canvas by default (diff orientation), then validated Findings; <code>no-canvas</code> skips the canvas. <code>/csp-capture-escape</code> asks <code>miss</code> (kit via <code>teach-review</code>) or <code>project_secret</code> (local ledger). <code>/csp-teach-review</code> after a validated miss writes generalized kit instructions on remote <code>learn/…</code> and opens a ready-for-review pull request (not the consumer ledger, except when <code>project_secret</code> is chosen).</p>
+            <h3>/lgt-finish-plan · /lgt-engineer-review · /lgt-update-docs · /lgt-pr-review · /lgt-multi-review · /lgt-capture-escape</h3>
+            <p><code>/lgt-finish-plan</code> enters the <code>review-gate</code> HITL (code already written). Manual <code>/lgt-engineer-review</code> skips this HITL; <code>/lgt-update-docs</code> remains a separate HITL destination gate. <code>/lgt-pr-review</code> builds a PR Review Canvas by default (diff orientation), then validated Findings; <code>no-canvas</code> skips the canvas. <code>/lgt-capture-escape</code> asks <code>miss</code> (kit via <code>teach-review</code>) or <code>project_secret</code> (local ledger). <code>/lgt-teach-review</code> after a validated miss writes generalized kit instructions on remote <code>learn/…</code> and opens a ready-for-review pull request (not the consumer ledger, except when <code>project_secret</code> is chosen).</p>
           </div>
         </div>
       </div>
@@ -1351,7 +1351,7 @@
   </main>
 
   <footer>
-    Source: commands/csp-start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / jira-transition / create-pr / bug-fix / hitl-choice
+    Source: commands/lgt-start-task.md · start-issue-task.md · capture-escape.md + jira-fetch / jira-transition / create-pr / bug-fix / hitl-choice
     · Mermaid twin: <a href="./pipeline-flow.md">pipeline-flow.md</a>
   </footer>
 

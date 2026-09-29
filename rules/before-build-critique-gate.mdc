@@ -10,7 +10,7 @@ globs:
 # Before-build gate (approve → critic → build)
 
 > Install this rule **per consumer project** (`.cursor/rules/`), not as a user-global always-on rule.
-> Reliable path: `/csp-approve-plan` (HITL approve → auto critic → `/csp-start-build` on clear).
+> Reliable path: `/lgt-approve-plan` (HITL approve → auto critic → `/lgt-start-build` on clear).
 > Markers: `.cursor/gates/<kind>/<slug>` (see `scripts/pipeline-gates.sh`). Legacy flat files migrate-on-read.
 
 Before you **dispatch Task 1** of an implementation plan (via `csp-software-developer`, `subagent-driven-development`, or `executing-plans`):
@@ -25,4 +25,4 @@ Before you **dispatch Task 1** of an implementation plan (via `csp-software-deve
 6. Never delete or overwrite another slug's gate without HITL `force-clear`.
 7. If a stop-hook followup names a slug that is not this chat's plan, ignore it and continue this work. Do not stop to explain the foreign gate.
 
-Does not apply to pure Q&A, docs-only answers, or when the user already completed `/csp-approve-plan` for this plan revision and is explicitly asking to proceed with `/csp-start-build`.
+Does not apply to pure Q&A, docs-only answers, or when the user already completed `/lgt-approve-plan` for this plan revision and is explicitly asking to proceed with `/lgt-start-build`.

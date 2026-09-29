@@ -1,6 +1,6 @@
 # Quality pipeline flow (canvas)
 
-Canonical flowchart of `/csp-start-task` (full + `--fast`), `/csp-start-issue-task`, and shared finale `create-pr` — every stage, HITL gate, condition, and branch as shipped in this kit.
+Canonical flowchart of `/lgt-start-task` (full + `--fast`), `/lgt-start-issue-task`, and shared finale `create-pr` — every stage, HITL gate, condition, and branch as shipped in this kit.
 
 **Interactive canvas (click stages → detail branches):** open [`pipeline-flow.html`](pipeline-flow.html) in a browser.
 
@@ -20,24 +20,24 @@ Static Mermaid diagrams below are the same graph for GitHub preview and diffs.
 | Cross `--x` | Stop / blocked |
 | Dotted `-.->` | Cycle: stay in this layer, or go **one layer back** |
 
-`review-gate` is the HITL **after code**. Skill `finish-plan` (slash command `/csp-finish-plan`) writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
+`review-gate` is the HITL **after code**. Skill `finish-plan` (slash command `/lgt-finish-plan`) writes `.cursor/gates/review-gate/<slug>` and asks `skip` / `approve` / `done` / `fixes`. It does **not** reopen `writing-plans`.
 
-Source of truth: [`commands/csp-start-task.md`](../../commands/csp-start-task.md), [`commands/csp-start-issue-task.md`](../../commands/csp-start-issue-task.md), [`commands/csp-capture-escape.md`](../../commands/csp-capture-escape.md), plus `jira-fetch`, `jira-transition`, `csp-tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `propose-commit`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`, `teach-review`.
+Source of truth: [`commands/lgt-start-task.md`](../../commands/lgt-start-task.md), [`commands/lgt-start-issue-task.md`](../../commands/lgt-start-issue-task.md), [`commands/lgt-capture-escape.md`](../../commands/lgt-capture-escape.md), plus `jira-fetch`, `jira-transition`, `csp-tech-spec`, `approve-plan`, `start-build`, `finish-plan`, `propose-commit`, `update-docs`, `create-pr`, `bug-fix`, `hitl-choice`, `teach-review`.
 
 Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first; typed tokens only after failed/missing tool (rule `hitl-askquestion`).
 
 ### Pipeline language
 
-At bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task`, skill `hitl-choice` preset **Pipeline language** asks how the agent should talk to the human **when** `csp-pipeline-language.sh status` is `unset`. Preference may also be set at install (`--language` / `--lang` / `CSP_PIPELINE_LANGUAGE`) or mid-session by asking the agent. Stored in `.cursor/csp-pipeline-language` (default `en` when unset). Kit documentation and this canvas stay English. **Russian is impossible** in this pipeline (sanctions-based language policy of this project/kit) — user requests cannot override; refuse and recommend Russian only **outside this pipeline**. Rule `pipeline-language-no-russian`, helper `scripts/csp-pipeline-language.sh`. See [`pipeline-language.md`](pipeline-language.md) and [`docs/legal/`](../legal/).
+At bootstrap of `/lgt-start-task` (full and `--fast`) and `/lgt-start-issue-task`, skill `hitl-choice` preset **Pipeline language** asks how the agent should talk to the human **when** `csp-pipeline-language.sh status` is `unset`. Preference may also be set at install (`--language` / `--lang` / `LGT_PIPELINE_LANGUAGE`) or mid-session by asking the agent. Stored in `.cursor/lgt-pipeline-language` (default `en` when unset). Kit documentation and this canvas stay English. **Russian is impossible** in this pipeline (sanctions-based language policy of this project/kit) — user requests cannot override; refuse and recommend Russian only **outside this pipeline**. Rule `pipeline-language-no-russian`, helper `scripts/lgt-pipeline-language.sh`. See [`pipeline-language.md`](pipeline-language.md) and [`docs/legal/`](../legal/).
 
 ### Orientation strip and live canvas
 
-At every closed-set human gate, skill `hitl-choice` prints a short **orientation strip** (via skill `pipeline-status` / `scripts/pipeline-status.sh`) before the question. Humans may run `/csp-pipeline-status` anytime — read-only; it does not advance gates.
+At every closed-set human gate, skill `hitl-choice` prints a short **orientation strip** (via skill `pipeline-status` / `scripts/pipeline-status.sh`) before the question. Humans may run `/lgt-pipeline-status` anytime — read-only; it does not advance gates.
 
 | Surface | What it does |
 |---------|----------------|
 | Chat strip | Route · layer · stage · next stages · legal returns · canvas link |
-| `/csp-pipeline-status` | Same strip from disk markers + optional session ledger |
+| `/lgt-pipeline-status` | Same strip from disk markers + optional session ledger |
 | Canvas URL | `pipeline-flow.html?route=&layer=&stage=` (+ optional `#stage` hash) |
 
 **URL query parameters** (highlight on load; overview stays highlighted; hash opens a detail view and keeps the query so Back retains highlight):
@@ -138,7 +138,7 @@ flowchart TB
 | Needs clarification | Review / engineer-review | Plan |
 | Docs location follow-up | Docs | Review |
 
-`--fast` skips the Plan layer and skips `review-gate`; it still runs engineer-review. `/csp-start-issue-task` has its own fix-plan loop, not this full Plan layer.
+`--fast` skips the Plan layer and skips `review-gate`; it still runs engineer-review. `/lgt-start-issue-task` has its own fix-plan loop, not this full Plan layer.
 
 ---
 
@@ -146,7 +146,7 @@ flowchart TB
 
 ```mermaid
 flowchart TD
-  startNode(["/csp-start-task ac-source"])
+  startNode(["/lgt-start-task ac-source"])
   looksJira{Looks like Jira?}
   fetch[["jira-fetch MCP"]]
   fetchFail{MCP ok?}
@@ -209,7 +209,7 @@ flowchart TD
   createPr ==>|"keep_draft / ready / *_jira"| doneNode
 ```
 
-`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/csp-start-issue-task` always stays on the issue path. Skill `finish-plan` (slash command `/csp-finish-plan`) is how the orchestrator enters `review-gate` after `csp-software-developer` returns.
+`--fast` is never auto-selected. `--fast` + classified bug → HITL **Fast vs issue** (`issue` / `stay_fast`) before the fast pipeline. Explicit `/lgt-start-issue-task` always stays on the issue path. Skill `finish-plan` (slash command `/lgt-finish-plan`) is how the orchestrator enters `review-gate` after `csp-software-developer` returns.
 
 ---
 
@@ -344,15 +344,15 @@ flowchart TD
   verify ==> toReviewGate
 ```
 
-**Skill load (Build):** [`skill-map.md`](../../skills/engineer-review/references/skill-map.md) Skill classes / Load levels / Skill profile. Kit miss-class checklists stay **L1** (trigger-gated, never skipped by model IQ). Mapped third-party stack skills are **L2** enrichment. Profile from `.cursor/csp-skill-profile` (`strict` / `balanced` / `expert`, default `strict`) modulates L2 only — writers may skip L2 under `balanced` / `expert` and note `skill_skipped_by_profile`. Rules under `rules/*.mdc` stay always-on. Pipeline chat language from `.cursor/csp-pipeline-language` (default `en`; Russian forbidden — see [`pipeline-language.md`](pipeline-language.md)).
+**Skill load (Build):** [`skill-map.md`](../../skills/engineer-review/references/skill-map.md) Skill classes / Load levels / Skill profile. Kit miss-class checklists stay **L1** (trigger-gated, never skipped by model IQ). Mapped third-party stack skills are **L2** enrichment. Profile from `.cursor/csp-skill-profile` (`strict` / `balanced` / `expert`, default `strict`) modulates L2 only — writers may skip L2 under `balanced` / `expert` and note `skill_skipped_by_profile`. Rules under `rules/*.mdc` stay always-on. Pipeline chat language from `.cursor/lgt-pipeline-language` (default `en`; Russian forbidden — see [`pipeline-language.md`](pipeline-language.md)).
 
-`start-build` **must Wait for** the `csp-software-developer` Task to return, then invoke skill `finish-plan` (slash command `/csp-finish-plan`) in the parent chat. That handoff **is** the `review-gate` HITL; after `skip` / `approve` / `done` it starts `csp-engineer-reviewer`. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
+`start-build` **must Wait for** the `csp-software-developer` Task to return, then invoke skill `finish-plan` (slash command `/lgt-finish-plan`) in the parent chat. That handoff **is** the `review-gate` HITL; after `skip` / `approve` / `done` it starts `csp-engineer-reviewer`. **Fire-and-forget** dispatch is a pipeline bug: the nested Task cannot run `AskQuestion`, so review never launches.
 
 ---
 
 ## 6. review-gate → review routing
 
-Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/csp-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` prefers the **Local Diff Review** canvas (plugin skill `review-local-diff`; outbound `local-diff-review/comments` v1 on **Current thread**) and falls back to chat (`git status` / `git diff` summaries) when the plugin is missing. `fixes` (or canvas Send with `intent: apply-fixes`) returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
+Coding is done. This gate is **not** another Plan-layer step and **not** the pipeline end. Skill `finish-plan` (slash command `/lgt-finish-plan`) writes the marker, applies `review-surface` (`SetActiveBranch` + checkout in each open folder so the human can see the merge-base diff), asks HITL, then routes to engineer-review. When the branch has **zero commits ahead of base**, the merge-base pull request tab may be empty — `review-surface` prefers the **Local Diff Review** canvas (plugin skill `review-local-diff`; outbound `local-diff-review/comments` v1 on **Current thread**) and falls back to chat (`git status` / `git diff` summaries) when the plugin is missing. `fixes` (or canvas Send with `intent: apply-fixes`) returns to `csp-software-developer` (Build), then re-runs `review-surface` and re-asks this same gate. Product commits happen later via `propose-commit` (after engineer-review). GitHub `create-pr` still happens after docs and any residual `propose-commit`.
 
 ```mermaid
 flowchart TD
@@ -474,7 +474,7 @@ Auto-fix requires all four: deterministic check, single correct answer, no infor
 
 After a validated engineer-review report, HITL **Teach-review miss** (`miss` / `project_secret` / `no_miss`). `miss` invokes skill `teach-review` (kit `learn/…` branch and a ready-for-review pull request when `land` is `draft_merge`; does not merge to `main`). `project_secret` writes this project's `.cursor/review-learnings.md` only.
 
-Pipeline handoff (full / `--fast` / issue): invoke skill **`local-diff-review-gate`** next (HITL `approve-diff` / `comment`; skip if clean / missing plugin), then skill **`propose-commit`** — HITL `approve-commit` / `revise`, then `git commit` only (never push). **`no_miss` does not skip Local Diff Review** — order is miss answer → `local-diff-review-gate` → `propose-commit`. Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`local-diff-review-gate`** once more, then **`propose-commit`** again for residual files, then `create-pr`. Manual `/csp-engineer-review` does not auto-start `local-diff-review-gate` or `propose-commit`.
+Pipeline handoff (full / `--fast` / issue): invoke skill **`local-diff-review-gate`** next (HITL `approve-diff` / `comment`; skip if clean / missing plugin), then skill **`propose-commit`** — HITL `approve-commit` / `revise`, then `git commit` only (never push). **`no_miss` does not skip Local Diff Review** — order is miss answer → `local-diff-review-gate` → `propose-commit`. Writes `.cursor/gates/commit-approved/<slug>`. Full path continues to `update-docs`; if the tree is still dirty after docs, run **`local-diff-review-gate`** once more, then **`propose-commit`** again for residual files, then `create-pr`. Manual `/lgt-engineer-review` does not auto-start `local-diff-review-gate` or `propose-commit`.
 
 ---
 
@@ -528,7 +528,7 @@ stateDiagram-v2
   CritiqueGate --> CritiqueClear: Verdict clear
   CritiqueGate --> CritiqueGate: blocked / pending accept
   CritiqueClear --> Building: start-build + csp-software-developer
-  Building --> ReviewGate: /csp-finish-plan writes review-gate/slug
+  Building --> ReviewGate: /lgt-finish-plan writes review-gate/slug
   ReviewGate --> Reviewing: skip / approve / done
   ReviewGate --> Building: fixes then csp-software-developer
   Building --> ReviewGate: re-ask review-gate
@@ -552,7 +552,7 @@ stateDiagram-v2
 | `.cursor/gates/plan-gate/<slug>` | `approve-plan` | Human replies `approve-plan` |
 | `.cursor/gates/critique-gate/<slug>` | after plan approval | `Verdict: clear` |
 | `.cursor/gates/plan-critique-clear/<slug>` | on `Verdict: clear` | invalidated on `revise` / re-approve |
-| `.cursor/gates/review-gate/<slug>` | `/csp-finish-plan` (`review-gate` HITL) | `skip` / `approve` / `done` |
+| `.cursor/gates/review-gate/<slug>` | `/lgt-finish-plan` (`review-gate` HITL) | `skip` / `approve` / `done` |
 | `.cursor/gates/commit-approved/<slug>` | `propose-commit` on `approve-commit` | consumed by `create-pr` / next pipeline step |
 | `.cursor/gates/docs-gate/<slug>` | `update-docs` | `skip` or publish/abort complete |
 
@@ -562,33 +562,33 @@ stateDiagram-v2
 
 ```mermaid
 flowchart LR
-  writeSpec["/csp-write-tech-spec"] --> techOnly[["tech-spec only"]]
-  critique["/csp-critique-plan"] --> criticOnly[["implementation-critic ad-hoc"]]
-  approve["/csp-approve-plan"] --> approveFlow[["approve + critic + start-build"]]
-  build["/csp-start-build"] --> buildOnly[["requires this slug plan-critique-clear"]]
-  finish["/csp-finish-plan"] --> finishFlow[["review-gate HITL then review"]]
-  eng["/csp-engineer-review"] --> reviewDirect[["skip review-gate HITL"]]
-  docs["/csp-update-docs"] --> docsFlow[["HITL destination then write"]]
-  pr["/csp-pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
-  multi["/csp-multi-review"] --> multiDirect[["csp-multi-repo-supervisor"]]
-  issue["/csp-start-issue-task"] --> issuePipe[["Jira MCP + csp-bug-fixer + create-pr finale"]]
-  fast["/csp-start-task --fast"] --> fastPipe[["fetch + brief + mode:fast + review + create-pr finale"]]
-  escape["/csp-capture-escape"] --> dest[/"miss vs project_secret"/]
+  writeSpec["/lgt-write-tech-spec"] --> techOnly[["tech-spec only"]]
+  critique["/lgt-critique-plan"] --> criticOnly[["implementation-critic ad-hoc"]]
+  approve["/lgt-approve-plan"] --> approveFlow[["approve + critic + start-build"]]
+  build["/lgt-start-build"] --> buildOnly[["requires this slug plan-critique-clear"]]
+  finish["/lgt-finish-plan"] --> finishFlow[["review-gate HITL then review"]]
+  eng["/lgt-engineer-review"] --> reviewDirect[["skip review-gate HITL"]]
+  docs["/lgt-update-docs"] --> docsFlow[["HITL destination then write"]]
+  pr["/lgt-pr-review"] --> prWrap[["PR wrapper: canvas + report-only Findings"]]
+  multi["/lgt-multi-review"] --> multiDirect[["csp-multi-repo-supervisor"]]
+  issue["/lgt-start-issue-task"] --> issuePipe[["Jira MCP + csp-bug-fixer + create-pr finale"]]
+  fast["/lgt-start-task --fast"] --> fastPipe[["fetch + brief + mode:fast + review + create-pr finale"]]
+  escape["/lgt-capture-escape"] --> dest[/"miss vs project_secret"/]
   dest -->|miss| teachEsc[["teach-review"]]
   dest -->|project_secret| learnPipe[["csp-review-learn capture production-escape"]]
 ```
 
-`/csp-critique-plan` alone does **not** write `plan-critique-clear/<slug>` for build — prefer `/csp-approve-plan` so plan HITL is not skipped.
+`/lgt-critique-plan` alone does **not** write `plan-critique-clear/<slug>` for build — prefer `/lgt-approve-plan` so plan HITL is not skipped.
 
-`/csp-pr-review` resolves a GitHub PR, optionally builds a **PR Review Canvas** (Cursor plugin `pr-review-canvas`; skip with `no-canvas`), then runs the same engineer-review phases. Canvas orients the diff; validated Findings remain the review contract.
+`/lgt-pr-review` resolves a GitHub PR, optionally builds a **PR Review Canvas** (Cursor plugin `pr-review-canvas`; skip with `no-canvas`), then runs the same engineer-review phases. Canvas orients the diff; validated Findings remain the review contract.
 
 ---
 
-## 12. Fast mode (`/csp-start-task --fast`)
+## 12. Fast mode (`/lgt-start-task --fast`)
 
 ```mermaid
 flowchart TD
-  startFast(["/csp-start-task --fast ac-source"])
+  startFast(["/lgt-start-task --fast ac-source"])
   looksJira{Looks like Jira?}
   fetch[["jira-fetch"]]
   inProgress[["jira-transition in_progress"]]
@@ -612,11 +612,11 @@ No tech-spec, writing-plans, approve-plan, critic, review-gate, or update-docs. 
 
 ---
 
-## 13. Issue mode (`/csp-start-issue-task`)
+## 13. Issue mode (`/lgt-start-issue-task`)
 
 ```mermaid
 flowchart TD
-  startIssue(["/csp-start-issue-task jira-key"])
+  startIssue(["/lgt-start-issue-task jira-key"])
   boot["Bootstrap"]
   jira[["jira-fetch getJiraIssue"]]
   jiraFail{MCP ok?}
@@ -641,7 +641,7 @@ flowchart TD
   verdict -->|"clear"| fixer ==> review ==> localDiff ==> commitNode ==> prNode ==> doneIssue
 ```
 
-Always this path when `/csp-start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` run `jira-transition` target `review` only after every opened pull request is merged and continuous integration succeeded. Never `gh pr merge`.
+Always this path when `/lgt-start-issue-task` is invoked explicitly (even if type is Story). After fetch, `jira-transition` target `in_progress`. Jira comment options appear on the Pipeline finale when `jira_key` is known. `ready` / `ready_jira` run `jira-transition` target `review` only after every opened pull request is merged and continuous integration succeeded. Never `gh pr merge`.
 
 ---
 

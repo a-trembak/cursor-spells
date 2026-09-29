@@ -8,7 +8,7 @@ alwaysApply: true
 Every message to the human uses **full words** and **full sentences** in the **selected pipeline language**. This is a communication contract, not optional style.
 
 1. Load and follow skill **`plain-language-chat`** before writing user-facing chat, status, Decision/Blocker options, or review prose.
-2. Read `.cursor/csp-pipeline-language` (default `en`). Write in that language. Kit docs stay English.
+2. Read `.cursor/lgt-pipeline-language` (legacy twin `.cursor/csp-pipeline-language` still accepted; default `en`). Write in that language. Kit docs stay English.
 3. Write the complete phrase. Never shorten: pull request (not PR), continuous integration (not CI), human-in-the-loop (not HITL), acceptance criteria (not AC), commit hash (not SHA), highest severity (not P0). Adapt expansions to the selected language (see skill references).
 4. Skill `english-humanizer` does **not** satisfy this rule — it prefers short engineer jargon. After humanizer, expand every remaining abbreviation.
 5. Decision options, recommendations, and proposal bullets must be grammatical sentences (subject + verb + what it means). Ban noun-phrase stacks and alternatives joined only by `;` / `+` / `/`.

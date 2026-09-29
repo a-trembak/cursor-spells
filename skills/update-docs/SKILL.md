@@ -14,7 +14,7 @@ Post-review HITL gate for **product / internal documentation** that a human can 
 
 ## When to Use
 
-- End of `/csp-start-task` after engineer-review (or multi-repo-supervisor) finishes
+- End of `/lgt-start-task` after engineer-review (or multi-repo-supervisor) finishes
 - Human asks to document what just shipped
 - Not a substitute for `tech-spec`, `clean-decision-docs`, or `ce-compound` (solutions/learnings) — those stay separate
 
@@ -56,7 +56,7 @@ Load **`references/writing-guide.md`** before drafting.
 5. **On `skip`:**
    - `pg_clear_gate "$(pwd)" docs-gate "<plan-path>"`. If clear exits non-zero: report the path in one sentence (orientation may stay on docs), then **still** continue the handoff below — do not treat clear failure as end of the pipeline.
    - Report that docs were skipped.
-   - **Never treat this skill as terminal** on a full `/csp-start-task` run.
+   - **Never treat this skill as terminal** on a full `/lgt-start-task` run.
 
 6. **On `docs_md` | `docs_repo` | `confluence`:**
    - Keep this plan's docs-gate until the write (or explicit human abort) completes. Never delete another slug's docs-gate; HITL **Force-clear foreign gate** first if the human explicitly asks.
@@ -86,14 +86,14 @@ Load **`references/writing-guide.md`** before drafting.
 
    - If intentional files remain uncommitted in **any** touched repo → `next_skill: propose-commit` (residual), then the caller runs `create-pr`.
    - If the tree is clean → `next_skill: create-pr`.
-   - Manual `/csp-update-docs` alone may stop after the report when the human did not ask for ship; on `/csp-start-task` the **caller must** invoke residual `propose-commit` (when needed) then **`create-pr` in the same chat** — do not end the turn on this skill.
+   - Manual `/lgt-update-docs` alone may stop after the report when the human did not ask for ship; on `/lgt-start-task` the **caller must** invoke residual `propose-commit` (when needed) then **`create-pr` in the same chat** — do not end the turn on this skill.
 
 8. **Optional compound learning:** If the run produced a durable debugging/architecture learning worth `docs/solutions/`, briefly offer `ce-compound` as a *separate* follow-up — do not block the product-docs handoff on it.
 
 ## Notes
 
-- After publish on the **full** `/csp-start-task` path: if intentional files remain uncommitted in **any** repo touched (product repo and/or separate docs repo), the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` in any repo to bypass the gate (leave files on disk; report paths and extend `repo_branch_map`).
-- Manual `/csp-update-docs` may run without a preceding review; still use the same HITL destination gate.
+- After publish on the **full** `/lgt-start-task` path: if intentional files remain uncommitted in **any** repo touched (product repo and/or separate docs repo), the caller must run skill **`propose-commit`** again before `create-pr`. This skill must not `git commit` in any repo to bypass the gate (leave files on disk; report paths and extend `repo_branch_map`).
+- Manual `/lgt-update-docs` may run without a preceding review; still use the same HITL destination gate.
 - This skill never auto-selects Confluence vs repo from heuristics — wrong destination is worse than `skip`.
 - Markers live under the consumer gates base (usually `.cursor/gates/<kind>/<slug>`; `pipeline-gates.sh` may use a writable fallback under `~/.cursor/spells-gates/` when the project path is not writable).
 - Append session ledger per skill `trajectory-score` (stage `update-docs`, gate `docs-update`). Prefer `LEDGER="$(pg_gates_base "$(pwd)")/trajectory-run/session-full.json"` when the helper is sourced.

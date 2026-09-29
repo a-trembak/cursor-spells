@@ -30,7 +30,7 @@ Optional: `ce-compound` as a separate follow-up — never block review-learn on 
 |---------|------|
 | `project_secret` | Human chose token `project_secret` on **Teach-review miss** or **Capture-escape destination**, and the description is non-empty |
 
-Do not capture from a settled report without `project_secret`. Do not auto-append on highest-severity findings, replay misses, or production escapes. Production escapes use `/csp-capture-escape`, which asks destination first.
+Do not capture from a settled report without `project_secret`. Do not auto-append on highest-severity findings, replay misses, or production escapes. Production escapes use `/lgt-capture-escape`, which asks destination first.
 
 Skip otherwise → `review_learn: n/a`.
 
@@ -72,7 +72,7 @@ Body ≤6 lines. Client / internal names allowed. No passwords, tokens, or perso
 
 ### bug-fix escape path
 
-`/csp-capture-escape` asks **Capture-escape destination**. `project_secret` → `mode:capture` with `source: production-escape`. `miss` → skill `teach-review` (not this protocol’s write path).
+`/lgt-capture-escape` asks **Capture-escape destination**. `project_secret` → `mode:capture` with `source: production-escape`. `miss` → skill `teach-review` (not this protocol’s write path).
 
 ## Anti-patterns
 

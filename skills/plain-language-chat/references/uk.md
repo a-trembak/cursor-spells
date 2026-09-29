@@ -1,6 +1,6 @@
 # Ukrainian expansions (pipeline language `uk`)
 
-Load only when `.cursor/csp-pipeline-language` is `uk`. Clarity rules in the parent skill still apply. Never use Russian.
+Load only when `.cursor/lgt-pipeline-language` is `uk`. Clarity rules in the parent skill still apply. Never use Russian.
 
 | Forbidden in chat | Write instead |
 |-------------------|---------------|
