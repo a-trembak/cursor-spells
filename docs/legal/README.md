@@ -1,21 +1,25 @@
-# Legal documents — Loregate (working title)
+# Legal documents — Loregate
+
+![Loregate LGT logo](lgt-logo.png)
 
 Formal English policy documents for this pipeline kit authored by **Andrey Trembak** (`a-trembak`).
 
-**Reserved working title:** **Loregate** (not yet GitHub-renamed). The git remote is still `cursor-spells` until a human renames it. Name status, brand meaning, and abbreviation play space: [NAME-OPTIONS.md](NAME-OPTIONS.md). Do not use third-party marks such as “Cursor” in the product title.
+**Product name:** **Loregate** (short mark **LGT**). Tagline: *From lore to merge through gates.* The git remote may still be `cursor-spells` until a human renames it. Details: [NAME-OPTIONS.md](NAME-OPTIONS.md). Do not use third-party marks such as “Cursor” in the product title.
 
 | Document | Purpose |
 |----------|---------|
 | [PRIVACY.md](PRIVACY.md) | Privacy Policy — data use for a local agent kit; honest limits of author control |
 | [TERMS.md](TERMS.md) | Terms of use / rights notice — MIT consistency, reserved names, acceptable use |
 | [DISCLAIMER.md](DISCLAIMER.md) | Disclaimer of warranty and limitation of liability (AS IS / use at own risk) |
-| [NOTICE.md](NOTICE.md) | Trademark / rights protection mark — displayable “Rights reserved” block |
-| [NAME-OPTIONS.md](NAME-OPTIONS.md) | Reserved working title **Loregate**, deferred options, abbreviations; manual GitHub rename only |
+| [NOTICE.md](NOTICE.md) | Trademark / rights protection mark — displayable “Rights reserved” block + logo |
+| [NAME-OPTIONS.md](NAME-OPTIONS.md) | Chosen name **Loregate** / **LGT**, deferred options; manual GitHub rename only |
 | [SOURCES.md](SOURCES.md) | Research sources (including Context7 libraries/topics consulted) |
 
 ## Install agreement
 
-`csp install` / `csp update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `CSP_AGREE_POLICY=1`). A successful agreement writes `.cursor/csp-policy-accepted` (or `~/.cursor/csp-policy-accepted` for `--user-only`) with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, and `kit_commit`.
+`lgt install` / `lgt update` require agreement to Privacy, Terms, Disclaimer, and NOTICE before continuing. Non-interactive runs need `--agree-policy` or `--i-agree` (or `LGT_AGREE_POLICY=1`; alias `CSP_AGREE_POLICY=1`). A successful agreement writes `.cursor/lgt-policy-accepted` and legacy `.cursor/csp-policy-accepted` (or under `~/.cursor/` for `--user-only`) with `accepted_at`, `agree_via`, `policy_hash`, `policy_docs`, and `kit_commit`.
+
+Deprecated CLI `csp` still forwards to `lgt` with a warning.
 
 ## Quick points
 

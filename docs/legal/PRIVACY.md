@@ -1,10 +1,10 @@
-# Privacy Policy — cursor-spells
+# Privacy Policy — Loregate
 
 **Effective date:** 29 September 2026  
 **Author / operator of this kit:** Andrey Trembak (`a-trembak`)  
-**Project:** [cursor-spells](https://github.com/a-trembak/cursor-spells)
+**Product:** **Loregate** (short mark **LGT**). GitHub repository id may still be [cursor-spells](https://github.com/a-trembak/cursor-spells) until renamed.
 
-This Privacy Policy describes how personal and project data may be handled when you install or use the **cursor-spells** pipeline kit (skills, slash commands, rules, hooks, agents, and related scripts). It is written for honesty about a **local developer toolkit**, not a hosted consumer product.
+This Privacy Policy describes how personal and project data may be handled when you install or use the **Loregate** pipeline kit (repository may still be named cursor-spells) (skills, slash commands, rules, hooks, agents, and related scripts). It is written for honesty about a **local developer toolkit**, not a hosted consumer product.
 
 This document is **not** a substitute for the privacy policies of Cursor, GitHub, Jira, Slack, Model Context Protocol tool providers, model hosts, or any other third party you connect.
 
@@ -21,7 +21,7 @@ This document is **not** a substitute for the privacy policies of Cursor, GitHub
 | Ticketing, chat, calendar, or similar integrations | **Those third-party operators** |
 | The public `cursor-spells` GitHub repository | Public content you push or issues you open are under GitHub’s and this repository’s terms |
 
-**The kit author does not operate a central cursor-spells cloud that receives your agent chats or project files by default.** Installing the kit copies or links files onto machines you control. The author cannot see your local chats, local project contents, or your Model Context Protocol credentials unless you separately send them (for example by opening a GitHub issue that pastes logs).
+**The kit author does not operate a central Loregate cloud that receives your agent chats or project files by default.** Installing the kit copies or links files onto machines you control. The author cannot see your local chats, local project contents, or your Model Context Protocol credentials unless you separately send them (for example by opening a GitHub issue that pastes logs).
 
 ---
 
@@ -38,7 +38,7 @@ Depending on how you configure Cursor and which integrations you enable, use of 
 7. **GitHub / forge traffic** — clones, pulls, pushes, pull requests, and continuous-integration logs when you or agents use `git` / `gh`.
 8. **Optional third-party skills** — packages fetched via tools such as `npx skills add` when not skipped.
 
-The kit **does not** require you to create a cursor-spells account. It **does not** embed a proprietary analytics backend owned by the author.
+The kit **does not** require you to create a Loregate account. It **does not** embed a proprietary analytics backend owned by the author.
 
 ---
 

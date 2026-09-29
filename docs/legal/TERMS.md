@@ -1,8 +1,9 @@
-# Terms of use / rights notice — cursor-spells
+# Terms of use / rights notice — Loregate
 
 **Effective date:** 29 September 2026  
 **Author:** Andrey Trembak (GitHub: `a-trembak`)  
-**Project name:** cursor-spells  
+**Product name:** Loregate (short mark LGT)
+**GitHub repository id (until rename):** cursor-spells  
 **Repository:** https://github.com/a-trembak/cursor-spells
 
 These Terms explain how you may use this kit and what rights the author reserves. They work **together with** the stated open-source copyright license and do **not** replace it.
@@ -29,14 +30,14 @@ Under MIT (standard form):
 Open-source copyright licenses typically **do not grant trademark rights** (see Choose a License limitations: `trademark-use`; Apache License §6 pattern for explicit non-grant of trade names). Accordingly:
 
 1. **Copyright in the Software** — licensed under MIT as stated above.  
-2. **Name, branding, and goodwill** in “cursor-spells”, related pipeline command names as product identifiers, and the author’s name/identity — **not** licensed as trademarks or endorsement rights merely because you received a copy of the code.  
+2. **Name, branding, and goodwill** in “Loregate”, “LGT”, “cursor-spells”, related pipeline command names (`lgt` / legacy `csp`) as product identifiers, and the author’s name/identity — **not** licensed as trademarks or endorsement rights merely because you received a copy of the code.  
 3. **Third-party content** bundled or fetched (for example optional third-party skills) remains under **its own** licenses and notices.
 
 You must **not**:
 
 - Remove or obscure copyright, permission, or attribution notices required by MIT or by [NOTICE.md](NOTICE.md).  
-- Claim that you are the original author of cursor-spells, or that Andrey Trembak / `a-trembak` endorses your product, employer, or fork, without prior written permission.  
-- Rebrand the kit in a way that is likely to confuse others into thinking your fork is the official `a-trembak/cursor-spells` project (for example presenting “cursor-spells” as your exclusive proprietary product while stripping attribution).  
+- Claim that you are the original author of Loregate / cursor-spells, or that Andrey Trembak / `a-trembak` endorses your product, employer, or fork, without prior written permission.  
+- Rebrand the kit in a way that is likely to confuse others into thinking your fork is the official Loregate / `a-trembak/cursor-spells` project (for example presenting “Loregate” or “cursor-spells” as your exclusive proprietary product while stripping attribution).  
 - Represent that these Terms, or any “rights reserved” mark, somehow **re-license away** the MIT copyright grant — they do not.
 
 **Unauthorized “relicensing of the author’s rights”** means: you may not pretend the author’s trademark/identity rights, publicity rights, or residual intellectual property beyond the MIT Software grant were transferred to you, sold by you, or extinguished. Redistribution of the Software **under MIT** (with notices preserved) remains allowed.

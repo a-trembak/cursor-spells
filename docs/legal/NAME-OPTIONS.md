@@ -1,17 +1,16 @@
-# Product name — Loregate (RESERVED working title)
+# Product name — Loregate (CHOSEN)
 
-**Status:** **Loregate** is the **RESERVED working title**. It is not yet the GitHub repository name, package path, or legal display mark everywhere — those stay `cursor-spells` until a human renames the remote and updates policy strings.
+**Status:** **Loregate** is the **chosen product name**. Short mark / monogram: **LGT**. Tagline: **From lore to merge through gates.**
 
-The GitHub repository is still named `cursor-spells`. **Do not run `gh repo rename`.** Agents must not rename the repository (API returns 403 anyway). After a human renames to something like `loregate`, update README title, `docs/legal/*` product strings, NOTICE display block, and marketing copy to match.
+The GitHub repository may still be named `cursor-spells` until a human renames the remote. Agents must **not** run `gh repo rename` (API often returns 403). In-repo product strings, CLI (`lgt`), and slash commands (`/lgt-*`) use Loregate / LGT now.
 
 **Do not use “Cursor”, “Claude”, “Codex”, “OpenAI”, or “Anthropic” in the product title** (third-party marks).
 
-Author attribution stays: **Andrey Trembak** (`a-trembak`).  
-CLI `csp` may remain as a **legacy short command** with a new expansion (see Abbreviations below).
+Author attribution stays: **Andrey Trembak** (`a-trembak`).
 
-### Typo variant (not reserved)
+### Typo variant (not the brand)
 
-**Lordgate** appeared once in chat and is almost certainly a typo for **Loregate**. It is **not** the reserved name unless the human confirms it later. Prefer **Loregate** everywhere until then.
+**Lordgate** appeared once in chat and is a typo for **Loregate**. Do not use it.
 
 ## Brand meaning
 
@@ -19,14 +18,30 @@ CLI `csp` may remain as a **legacy short command** with a new expansion (see Abb
 |-------|----------------------|
 | **Lore** | Kit knowledge: plans, skills, checklists, policy, and project standards the pipeline teaches and enforces |
 | **Gate** | Quality, policy, and review gates that must pass before merge |
+| **LGT** | Short code / logo mark for Loregate (preferred over `LG`) |
 
-**Tagline (suggestion):** From lore to merge through gates.
+**Tagline:** From lore to merge through gates.
 
 Pipeline shape the name fits: task → plan → build → review → pull request.
 
+## Logo
+
+Primary mark: [`lgt-logo.png`](lgt-logo.png) (also [`assets/lgt-logo.png`](../../assets/lgt-logo.png)).
+
+## Command surface
+
+| Surface | Primary | Legacy (deprecated, still works) |
+|---------|---------|----------------------------------|
+| CLI | `lgt` (`bin/lgt`) | `csp` → warns and forwards to `lgt` |
+| Slash commands | `/lgt-start-task`, `/lgt-approve-plan`, … | `/csp-*` stubs load `/lgt-*` |
+| Env vars | `LGT_PIPELINE_LANGUAGE`, `LGT_AGREE_POLICY`, `LGT_SKIP_THIRD_PARTY_SKILLS` | `CSP_*` aliases still accepted |
+| Markers | `.cursor/lgt-pipeline-language`, `.cursor/lgt-policy-accepted` | `.cursor/csp-*` twins still read/written |
+
+**Internal agent filenames** (`agents/csp-software-developer.md`, `csp-bug-fixer`, …) stay `csp-*` for now — renaming those ids is a later pass. User-facing commands and CLI are `lgt`.
+
 ## Other options (rejected / deferred)
 
-Kept for history only. Not the working title.
+Kept for history only.
 
 | # | Name | Why it was considered | Status |
 |---|------|----------------------|--------|
@@ -34,74 +49,27 @@ Kept for history only. Not the working title.
 | 2 | Runeflow | Runes as skills flowing through a pipeline | Deferred |
 | 3 | Hexrail | A rail of hexes/stages; strong, short brand | Deferred |
 | 4 | Sigilworks | Workshop of sigils (skills) and gates | Deferred |
-| 5 | **Loregate** | Gates that enforce project lore/standards | **RESERVED working title** |
+| 5 | **Loregate** | Gates that enforce project lore/standards | **CHOSEN** |
 | 6 | Charmline | Charms lined into an ordered delivery line | Deferred |
 | 7 | Arcanaforge | Forging arcane tooling into reliable runs | Deferred |
 | 8 | Weavewell | A well of woven spells/skills | Deferred |
 
-## Abbreviations / backronyms (play space)
+## Abbreviations
 
-Playful short codes and expansions to try in chat, docs, and CLI help. None of these rename GitHub. None include third-party host product marks.
-
-### Short codes
-
-| Code | Notes |
+| Code | Status |
 |------|--------|
-| `LG` | Short for Loregate |
-| `LGT` | Loregate; also nods at “looks good to…” review culture without claiming that phrase as the brand |
-| `LRG` | Compact letters from Loregate |
-| `Lore` | Informal short for the knowledge side |
-| `Gate` | Informal short for the quality-gate side |
+| `LGT` | **Chosen** short mark / logo monogram |
+| `LG` | Rejected for logo (too generic / ambiguous) |
+| `LRG` | Deferred |
 
-### CLI `csp` re-expansions (legacy command stays)
-
-Replace the old “cursor-spells” sense of `csp` with Loregate-flavored shipping meanings:
-
-| Expansion | Fits pipeline as… |
-|-----------|-------------------|
-| Craft Shipping Path | task → plan → build → review → pull request |
-| Clear Spec Path | clarify, then ship through gates |
-| Checked Stage Pipeline | each stage is a gate |
-| Canonical Ship Path | one kit path from lore to merge |
-| Complete Spec Pipeline | plan and acceptance before merge |
-| Controlled Ship Practice | policy and review before land |
-
-### Backronyms — LORE
-
-| Expansion | Fit |
-|-----------|-----|
-| Library Of Review-ready Essentials | plans, skills, checklists |
-| Lessons Organized for Reliable Execution | teach-review / learn loop |
-| Linked Outcomes, Rules, and Examples | policy + dogfood lore |
-| Living Orchestration of Release Essentials | end-to-end shipping kit |
-
-### Backronyms — GATE
-
-| Expansion | Fit |
-|-----------|-----|
-| Guardrails And Thorough Evaluation | engineer review / policy gates |
-| Guided Acceptance Through Evidence | proof before merge |
-| Greenlight After Task Evaluation | stage checks before land |
-| Guaranteed Alignment Toward Excellence | quality bar before pull request |
-
-### Backronyms — LOREGATE
-
-| Expansion | Fit |
-|-----------|-----|
-| Lore Organized; Review Evaluates; Greenlight And Thorough Evidence | full path lore → gates → merge |
-| Library Of Release Essentials; Guided Acceptance Through Evidence | knowledge plus merge gates |
-| Linked Outcomes Reviewed; Evaluated Gates Assure Trusted Exit | task → plan → build → review → pull request |
-
-## Placeholder in docs until GitHub rename
-
-Installers and legal index may still say **“the kit”** or **Loregate (working title)** while the git remote remains `cursor-spells`. Do not claim the remote rename succeeded until a human runs it.
+Legacy CLI name `csp` remains only as a deprecated wrapper; do not invent new `csp` expansions for marketing.
 
 ## Human rename step (GitHub)
 
-Agents cannot rename this repository. After the human confirms the final spelling (default reserved: **loregate**):
+Agents cannot rename this repository. When ready:
 
 ```bash
 gh repo rename loregate --repo a-trembak/cursor-spells
 ```
 
-Then update README title, `docs/legal/*` product strings, NOTICE display block, and any package/path marketing copy to match.
+Then confirm README / NOTICE display URLs match the new remote. In-repo product naming (Loregate / LGT) does not wait on that step.
