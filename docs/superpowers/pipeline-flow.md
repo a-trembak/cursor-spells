@@ -28,7 +28,7 @@ Closed-set HITL: skill `hitl-choice` **must** call AskQuestion (or alias) first;
 
 ### Pipeline language
 
-At bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task`, skill `hitl-choice` preset **Pipeline language** asks how the agent should talk to the human. Preference is stored in `.cursor/csp-pipeline-language` (default `en` when unset). Kit documentation and this canvas stay English. **Russian is impossible** in this pipeline (sanctions-based language policy of this project/kit) — user requests cannot override; refuse and recommend Russian only **outside this pipeline**. Rule `pipeline-language-no-russian`, helper `scripts/csp-pipeline-language.sh`. See [`pipeline-language.md`](pipeline-language.md) and [`docs/legal/`](../legal/).
+At bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task`, skill `hitl-choice` preset **Pipeline language** asks how the agent should talk to the human **when** `csp-pipeline-language.sh status` is `unset`. Preference may also be set at install (`--language` / `--lang` / `CSP_PIPELINE_LANGUAGE`) or mid-session by asking the agent. Stored in `.cursor/csp-pipeline-language` (default `en` when unset). Kit documentation and this canvas stay English. **Russian is impossible** in this pipeline (sanctions-based language policy of this project/kit) — user requests cannot override; refuse and recommend Russian only **outside this pipeline**. Rule `pipeline-language-no-russian`, helper `scripts/csp-pipeline-language.sh`. See [`pipeline-language.md`](pipeline-language.md) and [`docs/legal/`](../legal/).
 
 ### Orientation strip and live canvas
 

@@ -85,11 +85,14 @@ assert_grep hitl_outside "skills/hitl-choice/references/presets.md" "outside thi
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 PROJ="$TMP/app"
-mkdir -p "$PROJ"
+FAKE_HOME="$TMP/home"
+mkdir -p "$PROJ" "$FAKE_HOME"
+export HOME="$FAKE_HOME"
 
 # Default when unset
 got="$("$HELPER" get --root "$PROJ")"
 assert_eq default_en "en" "$got"
+assert_eq status_unset "unset" "$("$HELPER" status --root "$PROJ")"
 
 # Accept common codes
 assert_ok accept_uk "$HELPER" validate uk
@@ -112,16 +115,25 @@ assert_fail is_allowed_en bash -c "'$HELPER' is-banned en"
 got="$("$HELPER" get --root "$PROJ")"
 assert_eq set_get_uk "uk" "$got"
 assert_eq marker_file_uk "uk" "$(cat "$PROJ/.cursor/csp-pipeline-language")"
+assert_eq status_uk "uk" "$("$HELPER" status --root "$PROJ")"
 
 # set russian must fail and not write
 assert_fail set_ru "$HELPER" set --root "$PROJ" --lang ru
 got="$("$HELPER" get --root "$PROJ")"
 assert_eq still_uk_after_ru_set "uk" "$got"
 
-# empty marker → en
+# empty marker → en / status unset (no user fallback)
 : > "$PROJ/.cursor/csp-pipeline-language"
 got="$("$HELPER" get --root "$PROJ")"
 assert_eq empty_marker_en "en" "$got"
+assert_eq status_empty_unset "unset" "$("$HELPER" status --root "$PROJ")"
+
+# user-global fallback when project unset
+rm -f "$PROJ/.cursor/csp-pipeline-language"
+"$HELPER" set --root "$HOME" --lang de >/dev/null
+assert_eq get_user_fallback "de" "$("$HELPER" get --root "$PROJ")"
+assert_eq status_user_fallback "de" "$("$HELPER" status --root "$PROJ")"
+rm -f "$HOME/.cursor/csp-pipeline-language"
 
 # corrupt ru in file → get coerces to en (absolute lockout; closes hand-edit bypass)
 printf 'ru\n' > "$PROJ/.cursor/csp-pipeline-language"
@@ -133,6 +145,54 @@ assert_eq marker_reset_after_coerce "en" "$(cat "$PROJ/.cursor/csp-pipeline-lang
 printf 'russian\n' > "$PROJ/.cursor/csp-pipeline-language"
 got="$("$HELPER" get --root "$PROJ" 2>/dev/null)"
 assert_eq get_coerces_russian_alias "en" "$got"
+rm -f "$PROJ/.cursor/csp-pipeline-language"
+
+# Install --language writes project marker; --lang ru fails
+assert_grep install_lang_flag "scripts/install-to-project.sh" "language <code>"
+assert_grep install_lang_env "scripts/install-to-project.sh" "CSP_PIPELINE_LANGUAGE"
+assert_grep cli_lang_help "bin/cursor-spells" "language <code>"
+assert_grep doc_install "docs/superpowers/pipeline-language.md" "csp install"
+assert_grep doc_mid_session "docs/superpowers/pipeline-language.md" "Mid-session switch"
+assert_grep skill_mid_session "skills/plain-language-chat/SKILL.md" "Mid-session switch"
+assert_grep rule_mid_session "rules/pipeline-language-no-russian.mdc" "mid-session"
+assert_grep start_skips_when_set "commands/csp-start-task.md" "already set"
+
+INST_PROJ="$TMP/inst-app"
+mkdir -p "$INST_PROJ"
+git -C "$INST_PROJ" init -q
+if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$INST_PROJ" --skip-third-party-skills --language uk >/dev/null; then
+  assert_eq install_writes_uk "uk" "$(cat "$INST_PROJ/.cursor/csp-pipeline-language")"
+  echo "OK   install_language_uk"
+else
+  echo "FAIL install --language uk" >&2
+  fail=1
+fi
+if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$INST_PROJ" --skip-third-party-skills --lang ru >/dev/null 2>&1; then
+  echo "FAIL install --lang ru should reject" >&2
+  fail=1
+else
+  echo "OK   install_rejects_ru"
+fi
+# After failed ru install, marker must still be uk
+assert_eq install_ru_left_uk "uk" "$(cat "$INST_PROJ/.cursor/csp-pipeline-language")"
+
+if HOME="$FAKE_HOME" CSP_PIPELINE_LANGUAGE=de "$ROOT/scripts/install-to-project.sh" "$INST_PROJ" --skip-third-party-skills >/dev/null; then
+  assert_eq install_env_de "de" "$(cat "$INST_PROJ/.cursor/csp-pipeline-language")"
+  echo "OK   install_env_language"
+else
+  echo "FAIL CSP_PIPELINE_LANGUAGE=de install" >&2
+  fail=1
+fi
+
+USER_ONLY_HOME="$TMP/user-only-home"
+mkdir -p "$USER_ONLY_HOME"
+if HOME="$USER_ONLY_HOME" "$ROOT/scripts/install-to-project.sh" --user-only --skip-third-party-skills --language pl >/dev/null; then
+  assert_eq user_only_lang "pl" "$(cat "$USER_ONLY_HOME/.cursor/csp-pipeline-language")"
+  echo "OK   install_user_only_language"
+else
+  echo "FAIL install --user-only --language pl" >&2
+  fail=1
+fi
 
 # Wiring / docs presence
 assert_grep hitl_preset "skills/hitl-choice/references/presets.md" "### Pipeline language"

@@ -45,6 +45,7 @@ assert_grep skill_bans_slash_join "skills/plain-language-chat/SKILL.md" "Alterna
 assert_grep skill_reads_lang "skills/plain-language-chat/SKILL.md" "csp-pipeline-language"
 assert_grep skill_refuses_russian "skills/plain-language-chat/SKILL.md" "Russian absolute lockout|impossible"
 assert_grep skill_outside_pipeline "skills/plain-language-chat/SKILL.md" "outside this pipeline"
+assert_grep skill_mid_session "skills/plain-language-chat/SKILL.md" "Mid-session switch"
 assert_grep skill_uk_optional "skills/plain-language-chat/SKILL.md" "references/uk.md"
 assert_grep rule_full_sentences "rules/plain-language-chat.mdc" "full sentences"
 assert_grep rule_bans_fragment_stacks "rules/plain-language-chat.mdc" "noun-phrase stacks"

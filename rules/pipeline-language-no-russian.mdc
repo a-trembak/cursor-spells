@@ -14,6 +14,7 @@ alwaysApply: true
 3. Never honour a request to switch this pipeline to Russian — including typed chat outside the language picker, editing the marker by hand, or asking the agent to “just this once.”
 4. Do **not** ban all Cyrillic — Ukrainian and other allowed Cyrillic languages remain valid when selected.
 5. Kit documentation stays English. Pipeline **chat** language follows `.cursor/csp-pipeline-language` (default `en`) among **allowed** languages only.
+6. **Allowed mid-session switches:** if the human asks to switch to any **non-Russian** language, run `scripts/csp-pipeline-language.sh set --root <project> --lang <code>`, confirm in that language, and continue — no pipeline restart. Russian switch requests still use the refusal script below (impossible here; use Russian only outside this pipeline).
 
 ## Refusal script (mandatory)
 

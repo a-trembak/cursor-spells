@@ -7,8 +7,8 @@
 #   csp-pipeline-language.sh normalize <code>
 #   csp-pipeline-language.sh is-banned <code>
 #
-# Marker file: <project>/.cursor/csp-pipeline-language (one line).
-# Default when unset/empty: en
+# Marker file: <root>/.cursor/csp-pipeline-language (one line).
+# get prefers project marker, then ~/.cursor/csp-pipeline-language, else en.
 # Russian (ru / russian / русский / …) is always rejected — sanctions policy.
 set -euo pipefail
 
@@ -17,6 +17,7 @@ csp_pl__usage() {
 Usage:
   csp-pipeline-language.sh get --root <project>
   csp-pipeline-language.sh set --root <project> --lang <code>
+  csp-pipeline-language.sh status --root <project>
   csp-pipeline-language.sh validate <code>
   csp-pipeline-language.sh normalize <code>
   csp-pipeline-language.sh is-banned <code>
@@ -133,32 +134,82 @@ csp_pl__marker_path() {
   printf '%s\n' "$root/.cursor/csp-pipeline-language"
 }
 
-csp_pl__get() {
-  local root="$1"
-  local path content code
-  path="$(csp_pl__marker_path "$root")"
+# Read first non-empty line from marker; empty string if missing/blank.
+csp_pl__read_raw() {
+  local path="$1"
+  local content
   if [[ ! -f "$path" ]]; then
-    printf '%s\n' "en"
+    printf '%s\n' ""
     return 0
   fi
   content="$(head -n 1 "$path" 2>/dev/null || true)"
   content="$(printf '%s' "$content" | sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-  if [[ -z "$content" ]]; then
-    printf '%s\n' "en"
+  printf '%s\n' "$content"
+}
+
+# Resolve raw content against bans; may rewrite path to en. Prints validated code or empty if raw empty.
+csp_pl__resolve_raw() {
+  local root="$1"
+  local raw="$2"
+  local path code
+  path="$(csp_pl__marker_path "$root")"
+  if [[ -z "$raw" ]]; then
+    printf '%s\n' ""
     return 0
   fi
-  # Absolute lockout: banned on-disk values (e.g. hand-edited ru) coerce to en.
-  if csp_pl__is_banned "$content"; then
+  if csp_pl__is_banned "$raw"; then
     echo "csp-pipeline-language: Russian is impossible in this pipeline (sanctions-based language policy); recommending Russian only outside this pipeline; resetting marker to en" >&2
     mkdir -p "$root/.cursor"
     printf '%s\n' "en" > "$path"
     printf '%s\n' "en"
     return 0
   fi
-  if ! code="$(csp_pl__validate "$content")"; then
+  if ! code="$(csp_pl__validate "$raw")"; then
     return 1
   fi
   printf '%s\n' "$code"
+}
+
+csp_pl__get() {
+  local root="$1"
+  local raw code home_raw
+  raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$root")")"
+  if [[ -n "$raw" ]]; then
+    code="$(csp_pl__resolve_raw "$root" "$raw")" || return 1
+    printf '%s\n' "$code"
+    return 0
+  fi
+  # Fallback: user-global marker from `csp install --user-only --language …`
+  if [[ -n "${HOME:-}" && "$root" != "$HOME" ]]; then
+    home_raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$HOME")")"
+    if [[ -n "$home_raw" ]]; then
+      code="$(csp_pl__resolve_raw "$HOME" "$home_raw")" || return 1
+      printf '%s\n' "$code"
+      return 0
+    fi
+  fi
+  printf '%s\n' "en"
+}
+
+# status: unset | <code> — "set" when project or user-global marker supplies a language
+csp_pl__status() {
+  local root="$1"
+  local raw code home_raw
+  raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$root")")"
+  if [[ -n "$raw" ]]; then
+    code="$(csp_pl__resolve_raw "$root" "$raw")" || return 1
+    printf '%s\n' "$code"
+    return 0
+  fi
+  if [[ -n "${HOME:-}" && "$root" != "$HOME" ]]; then
+    home_raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$HOME")")"
+    if [[ -n "$home_raw" ]]; then
+      code="$(csp_pl__resolve_raw "$HOME" "$home_raw")" || return 1
+      printf '%s\n' "$code"
+      return 0
+    fi
+  fi
+  printf '%s\n' "unset"
 }
 
 csp_pl__set() {
@@ -216,6 +267,13 @@ case "$cmd" in
       exit 2
     fi
     csp_pl__get "$ROOT"
+    ;;
+  status)
+    if [[ -z "$ROOT" ]]; then
+      echo "csp-pipeline-language: status requires --root" >&2
+      exit 2
+    fi
+    csp_pl__status "$ROOT"
     ;;
   set)
     if [[ -z "$ROOT" || -z "$LANG_ARG" ]]; then

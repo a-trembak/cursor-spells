@@ -8,9 +8,9 @@ Use these option ids (labels are suggestions). Calling skills may add context in
 
 ### Pipeline language
 
-Ask at bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task`, before tech-spec / fix-plan work. Persists to `.cursor/csp-pipeline-language` via `scripts/csp-pipeline-language.sh set`. Controls agent↔human chat language for the run. Kit docs stay English. **Russian is impossible** in this pipeline (sanctions-based language policy) — never offer or accept `ru`; user requests cannot override. See `docs/superpowers/pipeline-language.md` and `docs/legal/`.
+Ask at bootstrap of `/csp-start-task` (full and `--fast`) and `/csp-start-issue-task` **only when** `scripts/csp-pipeline-language.sh status --root <project>` prints `unset`. If already set (install `--language`, prior choice, or mid-session switch), skip this ask. Persists to `.cursor/csp-pipeline-language` via `set`. Controls agent↔human chat language for the run. Kit docs stay English. **Russian is impossible** in this pipeline (sanctions-based language policy) — never offer or accept `ru`; user requests cannot override. See `docs/superpowers/pipeline-language.md` and `docs/legal/`.
 
-When a valid marker already exists, include `keep` as the first option (recommended). When unset, omit `keep` and recommend `en`.
+When a valid marker already exists and this ask still runs (legacy / explicit re-prompt), include `keep` as the first option (recommended). When unset, omit `keep` and recommend `en`.
 
 | id | label |
 |----|-------|

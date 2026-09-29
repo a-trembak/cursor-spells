@@ -19,6 +19,7 @@ COPY_MODE=0
 FORCE_REFRESH=0
 MODE="install" # install | update
 SKIP_THIRD_PARTY_SKILLS=0
+PIPELINE_LANGUAGE="${CSP_PIPELINE_LANGUAGE:-}"
 
 usage() {
   cat <<'EOF'
@@ -37,6 +38,11 @@ Flags:
   --user-only      Only ~/.cursor (no project files); still copies plain-language-chat, pipeline-language-no-russian, and code-via-coding-agents rules
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
+  --language <code>, --lang <code>
+                   Set pipeline chat language (writes .cursor/csp-pipeline-language).
+                   Same as CSP_PIPELINE_LANGUAGE. Default when omitted: leave unset
+                   (helper defaults to en; /csp-start-task asks if unset).
+                   Russian (ru) is rejected — sanctions-based language policy.
   --skip-third-party-skills
                    Do not run npx skills add for mapped third-party skills
                    (air-gapped). Same as CSP_SKIP_THIRD_PARTY_SKILLS=1
@@ -56,6 +62,14 @@ while [[ $# -gt 0 ]]; do
     --user-only|--global) USER_ONLY=1; shift ;;
     --humanizer) WITH_HUMANIZER=1; shift ;;
     --copy) COPY_MODE=1; shift ;;
+    --language|--lang)
+      if [[ -z "${2:-}" || "${2:-}" == --* ]]; then
+        echo "error: $1 requires a language code (for example uk or en)" >&2
+        usage 1
+      fi
+      PIPELINE_LANGUAGE="$2"
+      shift 2
+      ;;
     --skip-third-party-skills)
       SKIP_THIRD_PARTY_SKILLS=1
       shift
@@ -383,6 +397,32 @@ install_project_bits() {
   echo "copied: $PROJECT/scripts/pr-merge-ci.sh"
 }
 
+# Write pipeline chat language when --language / --lang / CSP_PIPELINE_LANGUAGE is set.
+# Project install → <project>/.cursor/csp-pipeline-language
+# --user-only → ~/.cursor/csp-pipeline-language (fallback when a project has no marker)
+apply_pipeline_language() {
+  if [[ -z "$PIPELINE_LANGUAGE" ]]; then
+    return 0
+  fi
+  local helper="$KIT_ROOT/scripts/csp-pipeline-language.sh"
+  if [[ ! -x "$helper" ]]; then
+    chmod +x "$helper" 2>/dev/null || true
+  fi
+  if [[ "$USER_ONLY" -eq 1 || -z "$PROJECT" ]]; then
+    if ! "$helper" set --root "$HOME" --lang "$PIPELINE_LANGUAGE"; then
+      echo "error: refused pipeline language '$PIPELINE_LANGUAGE' (Russian is impossible in this pipeline)" >&2
+      exit 1
+    fi
+    echo "pipeline-language (user): $HOME/.cursor/csp-pipeline-language → $($helper get --root "$HOME")"
+    return 0
+  fi
+  if ! "$helper" set --root "$PROJECT" --lang "$PIPELINE_LANGUAGE"; then
+    echo "error: refused pipeline language '$PIPELINE_LANGUAGE' (Russian is impossible in this pipeline)" >&2
+    exit 1
+  fi
+  echo "pipeline-language (project): $PROJECT/.cursor/csp-pipeline-language → $($helper get --root "$PROJECT")"
+}
+
 echo "kit: $KIT_ROOT"
 echo "mode: $MODE"
 
@@ -391,6 +431,8 @@ install_user_bits
 if [[ "$USER_ONLY" -eq 0 && -n "$PROJECT" ]]; then
   install_project_bits
 fi
+
+apply_pipeline_language
 
 # Curated third-party skills from skill-map (human-launched installer only).
 # npx/network failure must not brick kit links.
@@ -412,3 +454,6 @@ elif [[ "$USER_ONLY" -eq 1 ]]; then
 fi
 echo "next: open the project in Cursor → /csp-start-task  /csp-approve-plan  /csp-pr-review  /csp-engineer-review"
 echo "tip: mapped third-party skills are installed from skill-map.md unless --skip-third-party-skills"
+if [[ -z "$PIPELINE_LANGUAGE" ]]; then
+  echo "tip: set chat language with --language <code> / --lang <code> or CSP_PIPELINE_LANGUAGE (default en when unset; Russian forbidden)"
+fi
