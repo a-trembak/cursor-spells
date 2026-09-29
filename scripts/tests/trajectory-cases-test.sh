@@ -68,7 +68,7 @@ minimal_valid() {
   "end_to_end": false,
   "status": "active",
   "input": {
-    "invocation": "/csp-write-tech-spec",
+    "invocation": "/lgt-write-tech-spec",
     "fetch": "skip"
   },
   "required_stages": ["csp-tech-spec"],
@@ -159,7 +159,7 @@ minimal_valid "$CASES/minimal-slice.json"
 cat >"$TMP/wrong-stage-run.json" <<'JSON'
 {
   "case_id": "minimal-slice",
-  "input": {"invocation": "/csp-write-tech-spec", "fetch": "skip"},
+  "input": {"invocation": "/lgt-write-tech-spec", "fetch": "skip"},
   "stages_entered": [[]],
   "artifacts_present": [],
   "actions_taken": [],

@@ -42,8 +42,8 @@ assert_file "skills/bug-fix/SKILL.md"
 assert_file "skills/create-pr/SKILL.md"
 assert_file "skills/engineer-review/SKILL.md"
 assert_file "skills/update-docs/SKILL.md"
-assert_file "commands/csp-start-task.md"
-assert_file "commands/csp-start-issue-task.md"
+assert_file "commands/lgt-start-task.md"
+assert_file "commands/lgt-start-issue-task.md"
 assert_file "skills/finish-plan/references/review-surface.md"
 assert_file "scripts/pipeline-gates.sh"
 
@@ -73,9 +73,9 @@ assert_grep docs_repo_no_commit "skills/update-docs/SKILL.md" "docs_repo.*uncomm
 
 assert_grep er_handoff "skills/engineer-review/SKILL.md" "propose-commit"
 assert_grep docs_residual "skills/update-docs/SKILL.md" "propose-commit"
-assert_grep start_full "commands/csp-start-task.md" "propose-commit"
-assert_grep start_fast "commands/csp-start-task.md" "propose-commit"
-assert_grep start_issue "commands/csp-start-issue-task.md" "propose-commit"
+assert_grep start_full "commands/lgt-start-task.md" "propose-commit"
+assert_grep start_fast "commands/lgt-start-task.md" "propose-commit"
+assert_grep start_issue "commands/lgt-start-issue-task.md" "propose-commit"
 
 assert_grep surface_uncommitted "skills/finish-plan/references/review-surface.md" "git status|git diff|uncommitted"
 assert_grep gates_kind "scripts/pipeline-gates.sh" "commit-approved"

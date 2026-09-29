@@ -64,8 +64,8 @@ assert_grep humanizer_points_to_skill "skills/english-humanizer/SKILL.md" "plain
 assert_grep reviewer_loads_skill "agents/csp-engineer-reviewer.md" "plain-language-chat"
 assert_grep pr_reviewer_loads_skill "agents/csp-pr-reviewer.md" "plain-language-chat"
 assert_grep readme_lists_skill "README.md" "plain-language-chat"
-assert_grep start_task_asks_lang "commands/csp-start-task.md" "Pipeline language"
-assert_grep start_issue_asks_lang "commands/csp-start-issue-task.md" "Pipeline language"
+assert_grep start_task_asks_lang "commands/lgt-start-task.md" "Pipeline language"
+assert_grep start_issue_asks_lang "commands/lgt-start-issue-task.md" "Pipeline language"
 
 # Installer must drop the always-on rule into user-global and project rules.
 TMP="$(mktemp -d)"
@@ -108,7 +108,7 @@ else
   echo "FAIL project Russian-ban rule missing" >&2
   fail=1
 fi
-if [[ -f "$PROJECT/scripts/csp-pipeline-language.sh" ]]; then
+if [[ -f "$PROJECT/scripts/lgt-pipeline-language.sh" ]]; then
   echo "OK   project language helper installed"
 else
   echo "FAIL project language helper missing" >&2

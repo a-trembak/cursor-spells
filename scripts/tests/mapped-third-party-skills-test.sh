@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Contract: curated (Tier-1 / already-mapped) third-party skills listed in
 # skill-map Database skill routing (always-on + current-stack) must appear in
-# recommended-install lists and be installable from `csp install` without
+# recommended-install lists and be installable from `lgt install` without
 # agents running `npx skills add` mid-review.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -163,7 +163,7 @@ assert_grep er_tier2 "agents/csp-engineer-reviewer.md" "Never install a third-pa
 assert_grep install_skip_flag "scripts/install-to-project.sh" "skip-third-party-skills"
 assert_grep install_skip_help "scripts/install-to-project.sh" "skip-third-party-skills"
 assert_grep install_skip_env "scripts/install-to-project.sh" "CSP_SKIP_THIRD_PARTY_SKILLS"
-assert_grep csp_skip_help "bin/cursor-spells" "skip-third-party-skills"
+assert_grep csp_skip_help "bin/lgt" "skip-third-party-skills"
 assert_grep install_sources_helper "scripts/install-to-project.sh" "mapped-third-party-skills.sh"
 assert_grep install_calls_mtp "scripts/install-to-project.sh" "mtp_install_curated"
 assert_absent install_no_hardcode_planetscale "scripts/install-to-project.sh" "planetscale/database-skills"

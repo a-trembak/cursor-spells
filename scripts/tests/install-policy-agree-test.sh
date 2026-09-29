@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Policy agreement gate for csp install / update.
+# Policy agreement gate for lgt install / update.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -37,8 +37,8 @@ assert_file() {
 
 assert_grep help_agree "scripts/install-to-project.sh" "agree-policy"
 assert_grep help_i_agree "scripts/install-to-project.sh" "i-agree"
-assert_grep help_env "scripts/install-to-project.sh" "CSP_AGREE_POLICY"
-assert_grep cli_help "bin/cursor-spells" "agree-policy"
+assert_grep help_env "scripts/install-to-project.sh" "LGT_AGREE_POLICY|CSP_AGREE_POLICY"
+assert_grep cli_help "bin/lgt" "agree-policy"
 assert_grep hasher "scripts/csp-policy-hash.sh" "PRIVACY.md"
 assert_grep name_opts "docs/legal/NAME-OPTIONS.md" "gh repo rename"
 assert_grep readme_agree "README.md" "agree-policy"
@@ -64,7 +64,7 @@ else
   echo "FAIL refuse_without_agree rc=$RC out=$OUT" >&2
   FAIL=1
 fi
-if [[ -f "$PROJECT/.cursor/csp-policy-accepted" || -f "$FAKE_HOME/.cursor/csp-policy-accepted" ]]; then
+if [[ -f "$PROJECT/.cursor/lgt-policy-accepted" || -f "$FAKE_HOME/.cursor/lgt-policy-accepted" ]]; then
   echo "FAIL marker_should_not_exist_yet" >&2
   FAIL=1
 else
@@ -78,23 +78,23 @@ else
   echo "FAIL install_with_agree" >&2
   FAIL=1
 fi
-assert_file project_marker "$PROJECT/.cursor/csp-policy-accepted"
-assert_file user_marker_from_project "$FAKE_HOME/.cursor/csp-policy-accepted"
-GOT_HASH="$(awk -F= '/^policy_hash=/{print $2; exit}' "$PROJECT/.cursor/csp-policy-accepted")"
+assert_file project_marker "$PROJECT/.cursor/lgt-policy-accepted"
+assert_file user_marker_from_project "$FAKE_HOME/.cursor/lgt-policy-accepted"
+GOT_HASH="$(awk -F= '/^policy_hash=/{print $2; exit}' "$PROJECT/.cursor/lgt-policy-accepted")"
 assert_eq marker_hash "$HASH" "$GOT_HASH"
-grep -q '^accepted_at=' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_accepted_at" || {
+grep -q '^accepted_at=' "$PROJECT/.cursor/lgt-policy-accepted" && echo "OK   marker_accepted_at" || {
   echo "FAIL marker_accepted_at" >&2
   FAIL=1
 }
-grep -q '^agree_via=flag$' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_agree_via" || {
+grep -q '^agree_via=flag$' "$PROJECT/.cursor/lgt-policy-accepted" && echo "OK   marker_agree_via" || {
   echo "FAIL marker_agree_via" >&2
   FAIL=1
 }
-grep -q '^policy_docs=PRIVACY.md,TERMS.md,DISCLAIMER.md,NOTICE.md' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_docs" || {
+grep -q '^policy_docs=PRIVACY.md,TERMS.md,DISCLAIMER.md,NOTICE.md' "$PROJECT/.cursor/lgt-policy-accepted" && echo "OK   marker_docs" || {
   echo "FAIL marker_docs" >&2
   FAIL=1
 }
-grep -q '^kit_commit=' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   marker_kit_commit" || {
+grep -q '^kit_commit=' "$PROJECT/.cursor/lgt-policy-accepted" && echo "OK   marker_kit_commit" || {
   echo "FAIL marker_kit_commit" >&2
   FAIL=1
 }
@@ -108,6 +108,7 @@ else
 fi
 
 # Stale project + valid user → refresh project from prior-user
+echo "policy_hash=deadbeef" >"$PROJECT/.cursor/lgt-policy-accepted"
 echo "policy_hash=deadbeef" >"$PROJECT/.cursor/csp-policy-accepted"
 if HOME="$FAKE_HOME" "$ROOT/scripts/install-to-project.sh" "$PROJECT" --skip-third-party-skills >/dev/null; then
   echo "OK   prior_user_seeds_project"
@@ -115,9 +116,9 @@ else
   echo "FAIL prior_user_seeds_project" >&2
   FAIL=1
 fi
-GOT2="$(awk -F= '/^policy_hash=/{print $2; exit}' "$PROJECT/.cursor/csp-policy-accepted")"
+GOT2="$(awk -F= '/^policy_hash=/{print $2; exit}' "$PROJECT/.cursor/lgt-policy-accepted")"
 assert_eq prior_user_hash "$HASH" "$GOT2"
-grep -q '^agree_via=prior-user$' "$PROJECT/.cursor/csp-policy-accepted" && echo "OK   prior_user_via" || {
+grep -q '^agree_via=prior-user$' "$PROJECT/.cursor/lgt-policy-accepted" && echo "OK   prior_user_via" || {
   echo "FAIL prior_user_via" >&2
   FAIL=1
 }
@@ -131,7 +132,7 @@ else
   echo "FAIL user_only_i_agree" >&2
   FAIL=1
 fi
-assert_file user_marker "$USER_HOME/.cursor/csp-policy-accepted"
+assert_file user_marker "$USER_HOME/.cursor/lgt-policy-accepted"
 
 # Env var path
 USER_HOME3="$TMP/home3"
@@ -148,7 +149,9 @@ STALE_HOME="$TMP/home_stale"
 STALE_PROJ="$TMP/proj_stale"
 mkdir -p "$STALE_HOME/.cursor" "$STALE_PROJ/.git" "$STALE_PROJ/.cursor"
 git -C "$STALE_PROJ" init -q
+echo "policy_hash=deadbeef" >"$STALE_HOME/.cursor/lgt-policy-accepted"
 echo "policy_hash=deadbeef" >"$STALE_HOME/.cursor/csp-policy-accepted"
+echo "policy_hash=deadbeef" >"$STALE_PROJ/.cursor/lgt-policy-accepted"
 echo "policy_hash=deadbeef" >"$STALE_PROJ/.cursor/csp-policy-accepted"
 set +e
 OUT2="$(HOME="$STALE_HOME" "$ROOT/scripts/install-to-project.sh" "$STALE_PROJ" --skip-third-party-skills 2>&1)"
