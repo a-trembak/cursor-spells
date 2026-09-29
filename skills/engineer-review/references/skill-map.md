@@ -4,6 +4,40 @@ Canonical stack → skill routing for **`software-developer`** (while writing co
 
 Orchestrator stack-detect excerpt only: [`skill-map-orch.md`](skill-map-orch.md). Keep this full file for phases, Database skill routing, and `csp install`.
 
+## Skill classes
+
+| Class | Examples | Skip / profile |
+|-------|----------|----------------|
+| Kit process spines | `engineer-review`, `software-developer`, `hitl-choice`, `finish-plan` | Never skip for the active stage |
+| Kit miss-class checklists (L1) | R1–R7, S1–S11, F1–F7, V1–V4, J/N/RT/T/FC gates | Trigger-gated only; **never** model-IQ or profile skip |
+| Mapped stack knowledge (L2) | `vercel-react-best-practices`, `java-springboot`, `performance-optimization`, `architecture-review`, `dead-code-eliminator` | Enrichment — see Load levels / Skill profile |
+| Mapped weak-spot enrichment (L2) | Database third-party rows, optional `security-review` | Enrichment beside kit floor (migrations / S1–S11) |
+| Optional tooling | `graphify`, `ce-test-browser`, `ce-simplify-code` | Prefer-if-present + kit fallback |
+
+Rules under `rules/*.mdc` are **not** skills — they stay always-on constants.
+
+## Load levels
+
+| Level | What | When |
+|-------|------|------|
+| **L0** | Trigger / pointer + Coverage token | Always in the phase or writer stub |
+| **L1** | Full kit checklist body | Trigger or `learned_hints` match — mandatory |
+| **L2** | Third-party mapped skill body (+ personas) | Installed **and** Skill profile allows enrichment |
+
+Missing L2 → proceed with kit L1 / built-in fallback; Coverage `skill_missing: <id>` or `skill_skipped_by_profile: <id>`. Never skip L1 because L2 is absent.
+
+## Skill profile
+
+Consumer or human sets depth for **L2 only** (file `.cursor/csp-skill-profile` with one word, or chat directive). Default when unset: `strict`.
+
+| Profile | L2 stack / enrichment | L1 kit checklists | Rules |
+|---------|----------------------|-------------------|-------|
+| `strict` | Load when installed and mapped | Always on trigger | Always |
+| `balanced` | Load L2 on review phases; writers may skip L2 stack skills | Always on trigger | Always |
+| `expert` | Skip L2 unless Coverage / human forces enrich | Always on trigger | Always |
+
+Hard floor: kit miss-class checklists and always-on rules are never on a skip list. Do **not** auto-detect model capability to change this table.
+
 Recommended installs (consumer machine / project). Do not vendor skill bodies into cursor-spells.
 
 `csp install` / `csp update` runs this list via `npx skills add` (human-launched installer, not an agent mid-review). Skip with `--skip-third-party-skills` or `CSP_SKIP_THIRD_PARTY_SKILLS=1`. Network / `npx` failure is non-fatal (`skill_missing`); kit links still install.
@@ -87,14 +121,14 @@ Always scope the run to changed files / the current chunk, never the whole repo.
 | Phase | Skill(s) |
 |-------|----------|
 | lint | project's own lint/typecheck/build tooling (see table above) — no third-party skill needed |
-| logic | stack skill from table above; add the matching row from Database skill routing above whenever the diff includes a migration |
-| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); R3 extras [graphify-r3-force-include.md](graphify-r3-force-include.md); frontend always-on [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped; kit command/agent prefix renames [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) (**P1–P4**) |
-| deadcode | `dead-code-eliminator` + patterns "Do-not-reinvent"; prefer graphify callers when available |
-| simplify | **Primary:** compound-engineering `ce-simplify-code` (read SKILL + `references/personas/{code-reuse,code-quality,efficiency}-reviewer.md` verbatim), then **always** [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **Fallback** if skill missing: [simplify-lenses-fallback.md](simplify-lenses-fallback.md) Lens A–C + Kit extensions + note `skill_missing: ce-simplify-code`. Prefer graphify callers when available |
-| architecture | `architecture-review` (Sentry Warden) + patterns; prefer graphify call/impact queries when available; add the matching row from Database skill routing above whenever the diff includes a migration |
-| performance | `performance-optimization`; also Vercel skill on `react-web` / `react-native`; prefer graphify impact neighborhood when available |
-| security | Kit [security-hardening-checklist.md](security-hardening-checklist.md) (**S1–S11**) — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks, deserialization, or client auth-token secure-storage migration; optional enrichment `security-review` if installed (never skip the kit checklist when missing) |
-| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; always [figma-markup-checklist.md](figma-markup-checklist.md) (**F1–F7**); on `react-web` also `ce-test-browser` (rendered UI vs Figma) at **tablet and phone** when the diff touches tables, expandable cards, dialogs, or overlays — not only the desktop frame; always-on kit [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), also loaded by `csp-review-patterns` when figma is skipped |
+| logic | **L1** kit trigger checklists when matched; **L2** stack skill from table above when profile allows; **L2** Database skill routing rows when the diff includes a migration (still load at least kit/migration discipline judgment if L2 skipped — never skip migration awareness) |
+| patterns | `.cursor/project-patterns.md`; prefer `graphify` when `graphify-out/` or CLI available ([graphify-protocol.md](graphify-protocol.md)); R3 extras [graphify-r3-force-include.md](graphify-r3-force-include.md); frontend **L1** [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), including when figma is skipped; kit command/agent prefix renames [kit-prefix-rename-checklist.md](kit-prefix-rename-checklist.md) (**P1–P4**) |
+| deadcode | **L2** `dead-code-eliminator` when profile allows + patterns "Do-not-reinvent"; prefer graphify callers when available; without L2 use patterns + built-in unused sweep |
+| simplify | **L1** always [simplify-checklist.md](simplify-checklist.md) **Kit extensions**. **L2** compound-engineering `ce-simplify-code` (SKILL + personas) when installed and profile allows. **Fallback** if L2 missing/skipped: [simplify-lenses-fallback.md](simplify-lenses-fallback.md) Lens A–C + Kit extensions + `skill_missing` / `skill_skipped_by_profile`. Prefer graphify callers when available |
+| architecture | **L2** `architecture-review` when profile allows + patterns; prefer graphify; **L2** Database rows on migrations per profile (migration awareness still required) |
+| performance | **L2** `performance-optimization` (+ Vercel on `react-web` / `react-native`) when profile allows; prefer graphify impact neighborhood |
+| security | **L1** Kit [security-hardening-checklist.md](security-hardening-checklist.md) (**S1–S11**) — only if diff touches auth, sessions, crypto, PII, SQL/NoSQL, network, file upload, secrets, SSRF/XSS sinks, deserialization, or client auth-token secure-storage migration; **L2** optional enrichment `security-review` if installed and profile allows (never skip the kit checklist when missing) |
+| figma | Cursor Figma skills / MCP (`figma-design-to-code`, `figma-use`) — only after user provides node URLs; always **L1** [figma-markup-checklist.md](figma-markup-checklist.md) (**F1–F7**); on `react-web` also `ce-test-browser` (rendered UI vs Figma) at **tablet and phone** when the diff touches tables, expandable cards, dialogs, or overlays — not only the desktop frame; always-on kit [responsive-layout-checklist.md](responsive-layout-checklist.md) (**V1–V4**), also loaded by `csp-review-patterns` when figma is skipped |
 | learn | [review-learn-protocol.md](review-learn-protocol.md) + [review-learn-capture.md](review-learn-capture.md) + kit [learned-misses.md](learned-misses.md) + consumer `.cursor/review-learnings.md` — no third-party skill |
 | cross-repo | workspace `graphify-out/`; prefer `graphify-labs/graphify@graphify` when available (optional install) |
 

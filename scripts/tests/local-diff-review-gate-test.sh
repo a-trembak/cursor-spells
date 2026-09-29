@@ -37,6 +37,7 @@ assert_no_grep() {
 assert_file "skills/local-diff-review-gate/SKILL.md"
 assert_file "skills/engineer-review/SKILL.md"
 assert_file "skills/hitl-choice/SKILL.md"
+assert_file "skills/hitl-choice/references/presets.md"
 assert_file "rules/hitl-askquestion.mdc"
 assert_file "agents/csp-engineer-reviewer.md"
 
@@ -62,9 +63,9 @@ assert_grep er_manual "skills/engineer-review/SKILL.md" "does \\*\\*not\\*\\* au
 assert_grep agent_gate "agents/csp-engineer-reviewer.md" "local-diff-review-gate"
 assert_grep multi_gate "agents/csp-multi-repo-supervisor.md" "local-diff-review-gate"
 
-assert_grep hitl_preset "skills/hitl-choice/SKILL.md" "Local Diff Review gate"
-assert_grep hitl_approve_diff "skills/hitl-choice/SKILL.md" "approve-diff"
-assert_grep hitl_comment_token "skills/hitl-choice/SKILL.md" "Open Local Diff Review canvas"
+assert_grep hitl_preset "skills/hitl-choice/references/presets.md" "Local Diff Review gate"
+assert_grep hitl_approve_diff "skills/hitl-choice/references/presets.md" "approve-diff"
+assert_grep hitl_comment_token "skills/hitl-choice/references/presets.md" "Open Local Diff Review canvas"
 assert_grep rule_tokens "rules/hitl-askquestion.mdc" "approve-diff"
 
 assert_grep start_full "commands/csp-start-task.md" "local-diff-review-gate"
@@ -76,7 +77,7 @@ assert_grep propose_no_jump "skills/propose-commit/SKILL.md" "no_miss.*propose|J
 assert_grep propose_gate_check "skills/propose-commit/SKILL.md" "Gate check|precondition 5"
 
 assert_grep er_order "skills/engineer-review/SKILL.md" "Order is mandatory|Never ask \`approve-commit\` right after \`no_miss\`"
-assert_grep hitl_no_miss_not_commit "skills/hitl-choice/SKILL.md" "no_miss\` is not permission|not permission to propose"
+assert_grep hitl_no_miss_not_commit "skills/hitl-choice/references/presets.md" "no_miss\` is not permission|not permission to propose"
 assert_grep agent_no_jump "agents/csp-engineer-reviewer.md" "Never.*jump from \`no_miss\`|Never.*\`no_miss\`.*approve-commit"
 assert_grep gate_no_skip "skills/local-diff-review-gate/SKILL.md" "Never skip this gate|jumping to skill \`propose-commit\`"
 assert_grep gate_after_miss "skills/local-diff-review-gate/SKILL.md" "Required next step after Teach-review miss"

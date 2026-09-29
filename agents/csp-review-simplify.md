@@ -20,9 +20,9 @@ overbuilt, redundant, or locally inefficient. Your job is to re-read the changed
 implementation with the **ce-simplify-code** lenses and surface those leftovers
 with concrete alternatives.
 
-## Primary skill — `ce-simplify-code` (mandatory when installed)
+## Primary skill — `ce-simplify-code` (**L2** when installed and profile allows)
 
-Resolve and **read** the compound-engineering skill (do not paraphrase rubrics from memory):
+Resolve and **read** the compound-engineering skill when Skill profile allows L2 (do not paraphrase rubrics from memory):
 
 1. `ce-simplify-code/SKILL.md` — usually under
    `~/.cursor/plugins/cache/cursor-public/compound-engineering/*/skills/ce-simplify-code/SKILL.md`
@@ -58,13 +58,13 @@ ce-simplify-code's own Steps 3–4 **apply fixes and verify**. In engineer-revie
 
 **Default for simplify findings:** `clarify` with options (simpler shape vs keep). Almost all fail the eligibility “single correct answer” / “zero blast radius” tests. Auto-apply only trivial, deterministic cleanups that clearly pass the test.
 
-## Fallback (only if ce-simplify is missing)
+## Fallback (if ce-simplify is missing or skipped by profile)
 
-If `ce-simplify-code/SKILL.md` cannot be resolved:
+If `ce-simplify-code/SKILL.md` cannot be resolved **or** Skill profile skips L2:
 
-1. Set `notes` to include `skill_missing: ce-simplify-code`
-2. Load `skills/engineer-review/references/simplify-lenses-fallback.md` (**Lens A–C**) plus `simplify-checklist.md` **Kit extensions**
-3. Continue the phase — never skip the whole simplify pass for a missing skill
+1. Set `notes` to include `skill_missing: ce-simplify-code` or `skill_skipped_by_profile: ce-simplify-code`
+2. Load `skills/engineer-review/references/simplify-lenses-fallback.md` (**Lens A–C**) plus `simplify-checklist.md` **Kit extensions** (**L1** — always)
+3. Continue the phase — never skip the whole simplify pass for a missing or profile-skipped L2 skill
 ## Also load
 
 - `.cursor/project-patterns.md` (“Do not reinvent”)

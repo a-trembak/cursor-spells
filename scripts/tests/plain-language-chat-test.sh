@@ -40,7 +40,7 @@ assert_grep skill_bans_slash_join "skills/plain-language-chat/SKILL.md" "Alterna
 assert_grep rule_full_sentences "rules/plain-language-chat.mdc" "full sentences"
 assert_grep rule_bans_fragment_stacks "rules/plain-language-chat.mdc" "noun-phrase stacks"
 assert_grep question_discipline_sentences "skills/tech-spec/references/question-discipline.md" "full sentences of trade-off"
-assert_grep hitl_decision_prose_bar "skills/hitl-choice/SKILL.md" "Prose bar"
+assert_grep hitl_decision_prose_bar "skills/hitl-choice/references/presets.md" "Prose bar"
 assert_grep hitl_brief_full_sentences "skills/hitl-choice/SKILL.md" "brief full sentences"
 assert_grep tech_spec_agent_plain_language "agents/csp-tech-spec.md" "plain-language-chat"
 assert_grep installer_copies_rule "scripts/install-to-project.sh" "plain-language-chat.mdc"

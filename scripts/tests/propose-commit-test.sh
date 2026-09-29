@@ -36,6 +36,7 @@ assert_no_grep() {
 
 assert_file "skills/propose-commit/SKILL.md"
 assert_file "skills/hitl-choice/SKILL.md"
+assert_file "skills/hitl-choice/references/presets.md"
 assert_file "skills/software-developer/SKILL.md"
 assert_file "skills/bug-fix/SKILL.md"
 assert_file "skills/create-pr/SKILL.md"
@@ -57,8 +58,8 @@ assert_grep skill_local_diff_pre "skills/propose-commit/SKILL.md" "local-diff-re
 assert_grep skill_no_no_miss_jump "skills/propose-commit/SKILL.md" "no_miss"
 assert_grep skill_no_add_all "skills/propose-commit/SKILL.md" "git add -A|git add \\."
 
-assert_grep hitl_preset "skills/hitl-choice/SKILL.md" "Propose commit"
-assert_grep hitl_token "skills/hitl-choice/SKILL.md" "approve-commit"
+assert_grep hitl_preset "skills/hitl-choice/references/presets.md" "Propose commit"
+assert_grep hitl_token "skills/hitl-choice/references/presets.md" "approve-commit"
 
 assert_grep sd_no_commit "skills/software-developer/SKILL.md" "Never.*git commit|do not.*git commit|no product commit|forbid.*git commit"
 assert_grep bf_no_commit "skills/bug-fix/SKILL.md" "Never.*git commit|do not.*git commit|no product commit|forbid.*git commit"

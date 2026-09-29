@@ -1,0 +1,11 @@
+{
+  "id": "partial-null-callers",
+  "miss_id": "miss_partial-null-safety-shared-callers",
+  "title": "One caller null-hardened; sibling still unsafe",
+  "fixture": "evals/harness/skill-profile-ab/fixtures/partial-null-callers",
+  "phase": "logic",
+  "expected_gates": ["N1"],
+  "expected_checklist": "null-safety-checklist.md",
+  "must_mention": ["sibling", "caller", "null", "N1", "list_fleet_devices_unsafe"],
+  "diff_hint": "src/service/devices.py hardens list_org_devices_safe but leaves list_fleet_devices_unsafe grouping nullable devices"
+}

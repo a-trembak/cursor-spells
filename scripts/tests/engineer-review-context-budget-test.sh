@@ -58,6 +58,14 @@ assert_grep budget_always "$SKILL" "Always-on"
 assert_grep budget_phase "$SKILL" "Phase-only"
 assert_grep budget_merge "$SKILL" "Merge-only"
 
+# Tiny-diff skip + skill profile / load levels stay documented
+assert_grep tiny_diff_skip "skills/engineer-review/references/phase-protocol.md" "Tiny-diff heuristic phase skip"
+assert_grep skill_classes "skills/engineer-review/references/skill-map.md" "## Skill classes"
+assert_grep load_levels "skills/engineer-review/references/skill-map.md" "## Load levels"
+assert_grep skill_profile "skills/engineer-review/references/skill-map.md" "## Skill profile"
+assert_grep hitl_lazy "skills/hitl-choice/SKILL.md" "lazy load"
+assert_file "skills/hitl-choice/references/presets.md"
+
 # Always-on files named in budget
 assert_grep always_phase_proto "$SKILL" "phase-protocol\\.md"
 assert_grep always_skill_map_orch "$SKILL" "skill-map-orch\\.md"

@@ -18,8 +18,8 @@ You review **performance** risks in the diff — measurable hot-path and systemi
 
 ## Skills
 
-- Always consider `performance-optimization` if installed
-- On `react-web` / `react-native`, also load the matching Vercel skill rules
+- Consider `performance-optimization` as **L2** if installed and Skill profile allows; else `skill_missing` / `skill_skipped_by_profile`
+- On `react-web` / `react-native`, also load the matching Vercel skill rules when L2 is allowed
 - When graphify is available (`graphify_available` or detect per `skills/engineer-review/references/graphify-protocol.md`), prefer impact / callers queries to find hot-path callers before broad neighbor walks; absent → diff-scoped reads only
 
 ## Output

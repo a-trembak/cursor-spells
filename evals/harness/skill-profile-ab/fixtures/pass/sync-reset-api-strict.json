@@ -1,0 +1,31 @@
+{
+  "case_id": "sync-reset-api",
+  "profile": "strict",
+  "l2_loaded": false,
+  "checklists_opened": [
+    "interaction-replay-checklist.md",
+    "auth-rtk-checklist.md",
+    "graphify-r3-force-include.md"
+  ],
+  "gates_fired": [
+    "R1",
+    "R2",
+    "R3",
+    "R5",
+    "R6",
+    "R7"
+  ],
+  "findings": [
+    {
+      "gate": "R1",
+      "severity": "high",
+      "where": "src/shell/logout.js:onLogout + ShellMenu",
+      "summary": "Synchronous resetApiState on logout while ShellMenu keeps useGetMembershipQuery subscribed — timing change with a live competing actor.",
+      "detail": "R1 interaction replay: trigger onLogout dispatches shellApi.util.resetApiState() synchronously then auth/clear; route/shell ShellMenu stays mounted; active subscription useGetMembershipQuery({ userId }) remains a live probe subscriber; after cache reset that probe can refetch and fulfill into shared auth writers; user-visible outcome is cleared session then possible rewrite of auth/org from the still-mounted shell. Diff changes when reset runs (sync timing) without unmounting or deferring competing subscribers.",
+      "replay_brief": "onLogout sync resetApiState → ShellMenu still mounted → useGetMembershipQuery probe subscriber live → probe fulfill may write auth → session cleared then clobbered / rehydrated",
+      "sibling": "R2: membership probe must not share fulfill→write path with session writers after reset. R3: force-include ShellMenu as unchanged-looking shell across logout. R5: auth/clear vs probe refetch are dual sources of truth. R6: no competing-actor regression with an active subscription across resetApiState. R7 coverage: interaction_replay: auth; auth_flow_walk: logout.",
+      "coverage": "interaction_replay: auth"
+    }
+  ],
+  "notes": "Opened kit L1 interaction-replay-checklist.md (R1–R7) plus auth-rtk-checklist.md and graphify-r3-force-include.md. Profile strict allowed L2 but vercel-react-best-practices was not installed (l2_loaded=false; skill_missing). Fixture logout.js calls resetApiState synchronously while ShellMenu keeps the membership probe subscriber live — classic side-effect × live actor miss. R4 n/a (no filter-in-menu / host focus). Prefer defer reset until shell probes unsubscribe, or keep probes read-only after reset, plus a competing-actor test with ShellMenu mounted across logout timing."
+}
