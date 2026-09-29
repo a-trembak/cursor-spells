@@ -57,9 +57,9 @@ assert_grep hitl_no_ru_option "skills/hitl-choice/references/presets.md" "Never 
 assert_grep hitl_outside "skills/hitl-choice/references/presets.md" "outside this pipeline"
 assert_grep hitl_brief_full_sentences "skills/hitl-choice/SKILL.md" "brief full sentences"
 assert_grep tech_spec_agent_plain_language "agents/csp-tech-spec.md" "plain-language-chat"
-assert_grep installer_copies_rule "scripts/install-to-project.sh" "plain-language-chat.mdc" --agree-policy
-assert_grep installer_copies_ru_ban "scripts/install-to-project.sh" "pipeline-language-no-russian.mdc" --agree-policy
-assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/plain-language-chat" --agree-policy
+assert_grep installer_copies_rule "scripts/install-to-project.sh" "plain-language-chat.mdc"
+assert_grep installer_copies_ru_ban "scripts/install-to-project.sh" "pipeline-language-no-russian.mdc"
+assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/plain-language-chat"
 assert_grep humanizer_points_to_skill "skills/english-humanizer/SKILL.md" "plain-language-chat"
 assert_grep reviewer_loads_skill "agents/csp-engineer-reviewer.md" "plain-language-chat"
 assert_grep pr_reviewer_loads_skill "agents/csp-pr-reviewer.md" "plain-language-chat"

@@ -33,8 +33,8 @@ assert_grep rule_bug_fixer "rules/code-via-coding-agents.mdc" "csp-bug-fixer"
 assert_grep rule_no_parent_product "rules/code-via-coding-agents.mdc" "protocol bug|never write|must not"
 assert_grep agents_section "AGENTS.md" "csp-software-developer"
 assert_grep agents_bug_fixer "AGENTS.md" "csp-bug-fixer"
-assert_grep installer_project_rules "scripts/install-to-project.sh" "code-via-coding-agents[.]mdc" --agree-policy
-assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/code-via-coding-agents" --agree-policy
+assert_grep installer_project_rules "scripts/install-to-project.sh" "code-via-coding-agents[.]mdc"
+assert_grep installer_user_rules "scripts/install-to-project.sh" "[.]cursor/rules/code-via-coding-agents"
 assert_grep readme_user_rule "README.md" "~/[.]cursor/rules/code-via-coding-agents"
 assert_grep readme_project_rule "README.md" "<project>/[.]cursor/rules/code-via-coding-agents"
 

@@ -90,8 +90,8 @@ assert_grep write_spec_case "commands/csp-write-tech-spec.md" "tech-spec-no-inve
 assert_grep clean_case "skills/clean-decision-docs/SKILL.md" "clean-revise-no-archaeology"
 assert_grep clean_judge "skills/clean-decision-docs/SKILL.md" "trajectory-judge"
 assert_grep create_pr_session "skills/create-pr/SKILL.md" "session-"
-assert_grep install_no_evals "scripts/install-to-project.sh" "evals" --agree-policy
-assert_not_grep install_copy_evals "scripts/install-to-project.sh" 'link_or_copy.*evals|cp .*evals/' --agree-policy
+assert_grep install_no_evals "scripts/install-to-project.sh" "evals"
+assert_not_grep install_copy_evals "scripts/install-to-project.sh" 'link_or_copy.*evals|cp .*evals/'
 
 if [[ "$fail" -ne 0 ]]; then
   echo "SOME TESTS FAILED" >&2

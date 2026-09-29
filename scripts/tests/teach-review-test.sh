@@ -121,7 +121,7 @@ grep -qiE 'ready-for-review|mergeable' "$tmpl" || {
 echo "OK   template_comments"
 
 # install-to-project.sh sources helper and calls tr_install_learn_config
-grep -q 'tr_install_learn_config' "$ROOT/scripts/install-to-project.sh" || { --agree-policy
+grep -q 'tr_install_learn_config' "$ROOT/scripts/install-to-project.sh" || {
   echo "FAIL install missing tr_install_learn_config" >&2
   fail=1
 }
