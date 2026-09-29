@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Install / update cursor-spells into ~/.cursor and optionally a consumer project.
-# Prefer: bin/csp install <project>   |   bin/csp update <project>
+# Install / update Loregate (lgt) into ~/.cursor and optionally a consumer project.
+# Prefer: bin/lgt install <project>   |   bin/lgt update <project>
+# Legacy: bin/csp → warns and forwards to bin/lgt
 #
 # Default: symlink kit skills/commands/agents into ~/.cursor;
 #          copy always-on plain-language-chat and pipeline-language-no-russian rules into ~/.cursor/rules;
@@ -19,10 +20,12 @@ COPY_MODE=0
 FORCE_REFRESH=0
 MODE="install" # install | update
 SKIP_THIRD_PARTY_SKILLS=0
-PIPELINE_LANGUAGE="${CSP_PIPELINE_LANGUAGE:-}"
+# Prefer LGT_*; accept legacy CSP_* for existing installs / continuous integration.
+PIPELINE_LANGUAGE="${LGT_PIPELINE_LANGUAGE:-${CSP_PIPELINE_LANGUAGE:-}}"
 AGREE_POLICY=0
-# Non-interactive CI: CSP_AGREE_POLICY=1 is equivalent to --agree-policy
-if [[ "${CSP_AGREE_POLICY:-}" == "1" || "${CSP_AGREE_POLICY:-}" == "true" || "${CSP_AGREE_POLICY:-}" == "yes" ]]; then
+# Non-interactive CI: LGT_AGREE_POLICY=1 or CSP_AGREE_POLICY=1 ≡ --agree-policy
+_agree_env="${LGT_AGREE_POLICY:-${CSP_AGREE_POLICY:-}}"
+if [[ "$_agree_env" == "1" || "$_agree_env" == "true" || "$_agree_env" == "yes" ]]; then
   AGREE_POLICY=1
 fi
 # Core public policy docs that must be accepted at install (order matches scripts/csp-policy-hash.sh).
@@ -30,7 +33,7 @@ POLICY_DOC_NAMES=(PRIVACY.md TERMS.md DISCLAIMER.md NOTICE.md)
 
 usage() {
   cat <<'EOF'
-Install or update the kit (working title; see docs/legal/NAME-OPTIONS.md).
+Install or update Loregate (short mark LGT; see docs/legal/NAME-OPTIONS.md).
 
 Usage:
   install-to-project.sh [project-path] [flags]
@@ -41,22 +44,22 @@ With no project-path: uses the current repo / multi-repo workspace (cwd).
 In --update mode with no resolvable project: refreshes ~/.cursor only.
 
 Flags:
-  --update         Refresh mode (same as `csp update`): re-link kit bits, refresh project hooks/rules
+  --update         Refresh mode (same as `lgt update`): re-link kit bits, refresh project hooks/rules
   --user-only      Only ~/.cursor (no project files); still copies plain-language-chat, pipeline-language-no-russian, and code-via-coding-agents rules
   --humanizer      Also install english-humanizer (or keep it if already linked)
   --copy           Copy into ~/.cursor instead of symlink
   --agree-policy, --i-agree
                    Accept Privacy, Terms, Disclaimer, and NOTICE (docs/legal/).
-                   Required for install. Same as CSP_AGREE_POLICY=1.
+                   Required for install. Same as LGT_AGREE_POLICY=1 (alias CSP_AGREE_POLICY=1).
                    Interactive [y/N] prompt when flag omitted and stdin is a terminal.
   --language <code>, --lang <code>
-                   Set pipeline chat language (writes .cursor/csp-pipeline-language).
-                   Same as CSP_PIPELINE_LANGUAGE. Default when omitted: leave unset
-                   (helper defaults to en; /csp-start-task asks if unset).
+                   Set pipeline chat language (writes .cursor/lgt-pipeline-language and legacy .cursor/csp-pipeline-language).
+                   Same as LGT_PIPELINE_LANGUAGE (alias CSP_PIPELINE_LANGUAGE). Default when omitted: leave unset
+                   (helper defaults to en; /lgt-start-task asks if unset).
                    Russian (ru) is rejected — sanctions-based language policy.
   --skip-third-party-skills
                    Do not run npx skills add for mapped third-party skills
-                   (air-gapped). Same as CSP_SKIP_THIRD_PARTY_SKILLS=1
+                   (air-gapped). Same as LGT_SKIP_THIRD_PARTY_SKILLS=1 (alias CSP_SKIP_THIRD_PARTY_SKILLS=1)
   -h, --help       Show help
 
 Keep one clone of this kit; install/update per project. Do not vendor the
@@ -257,6 +260,7 @@ want_skill() {
 
 # Remove prior unprefixed command/agent symlinks (or refresh copies) that this
 # kit used to own under the old name. Never delete foreign files/links.
+# Prefixed twins may be lgt-* (primary) or csp-* (legacy stubs / agents).
 remove_owned_unprefixed_kit_links() {
   local cursor_root="$1"
   local kind="$2" # commands | agents
@@ -268,9 +272,9 @@ remove_owned_unprefixed_kit_links() {
   for dest in "$dir"/*.md; do
     [[ -e "$dest" || -L "$dest" ]] || continue
     base="$(basename "$dest")"
-    [[ "$base" == csp-* ]] && continue
-    # Only migrate when the prefixed twin exists in this kit
-    [[ -e "$kit_dir/csp-$base" ]] || continue
+    [[ "$base" == csp-* || "$base" == lgt-* ]] && continue
+    # Only migrate when a prefixed twin exists in this kit
+    [[ -e "$kit_dir/lgt-$base" || -e "$kit_dir/csp-$base" ]] || continue
 
     if [[ -L "$dest" ]]; then
       target="$(readlink "$dest")"
@@ -404,6 +408,11 @@ install_project_bits() {
   cp "$KIT_ROOT/scripts/csp-pipeline-language.sh" "$PROJECT/scripts/csp-pipeline-language.sh"
   chmod +x "$PROJECT/scripts/csp-pipeline-language.sh"
   echo "copied: $PROJECT/scripts/csp-pipeline-language.sh"
+  # Primary alias name (same body); relative symlink when possible
+  ln -sfn csp-pipeline-language.sh "$PROJECT/scripts/lgt-pipeline-language.sh" 2>/dev/null \
+    || cp "$KIT_ROOT/scripts/csp-pipeline-language.sh" "$PROJECT/scripts/lgt-pipeline-language.sh"
+  chmod +x "$PROJECT/scripts/lgt-pipeline-language.sh" 2>/dev/null || true
+  echo "copied: $PROJECT/scripts/lgt-pipeline-language.sh"
   cp "$KIT_ROOT/scripts/csp-policy-hash.sh" "$PROJECT/scripts/csp-policy-hash.sh"
   chmod +x "$PROJECT/scripts/csp-policy-hash.sh"
   echo "copied: $PROJECT/scripts/csp-policy-hash.sh"
@@ -415,9 +424,9 @@ install_project_bits() {
   echo "copied: $PROJECT/scripts/pr-merge-ci.sh"
 }
 
-# Write pipeline chat language when --language / --lang / CSP_PIPELINE_LANGUAGE is set.
-# Project install → <project>/.cursor/csp-pipeline-language
-# --user-only → ~/.cursor/csp-pipeline-language (fallback when a project has no marker)
+# Write pipeline chat language when --language / --lang / LGT_PIPELINE_LANGUAGE / CSP_PIPELINE_LANGUAGE is set.
+# Project install → <project>/.cursor/lgt-pipeline-language (+ legacy csp twin)
+# --user-only → ~/.cursor/lgt-pipeline-language (+ legacy twin)
 apply_pipeline_language() {
   if [[ -z "$PIPELINE_LANGUAGE" ]]; then
     return 0
@@ -431,14 +440,14 @@ apply_pipeline_language() {
       echo "error: refused pipeline language '$PIPELINE_LANGUAGE' (Russian is impossible in this pipeline)" >&2
       exit 1
     fi
-    echo "pipeline-language (user): $HOME/.cursor/csp-pipeline-language → $($helper get --root "$HOME")"
+    echo "pipeline-language (user): $HOME/.cursor/lgt-pipeline-language → $($helper get --root "$HOME")"
     return 0
   fi
   if ! "$helper" set --root "$PROJECT" --lang "$PIPELINE_LANGUAGE"; then
     echo "error: refused pipeline language '$PIPELINE_LANGUAGE' (Russian is impossible in this pipeline)" >&2
     exit 1
   fi
-  echo "pipeline-language (project): $PROJECT/.cursor/csp-pipeline-language → $($helper get --root "$PROJECT")"
+  echo "pipeline-language (project): $PROJECT/.cursor/lgt-pipeline-language → $($helper get --root "$PROJECT")"
 }
 
 # --- Public policy acceptance (docs/legal/) -----------------------------------
@@ -468,8 +477,8 @@ write_policy_acceptance() {
   docs_csv="$(IFS=,; echo "${POLICY_DOC_NAMES[*]}")"
   mkdir -p "$(dirname "$marker")"
   cat >"$marker" <<EOF
-# Policy acceptance record — the kit (working title); see docs/legal/NAME-OPTIONS.md
-# Written by csp install / csp update after the operator agreed to docs/legal/.
+# Policy acceptance record — Loregate (LGT); see docs/legal/NAME-OPTIONS.md
+# Written by lgt install / lgt update after the operator agreed to docs/legal/.
 # Re-acceptance is required when policy_hash no longer matches the kit docs.
 accepted_at=$when
 agree_via=$via
@@ -481,8 +490,39 @@ EOF
   echo "policy accepted → $marker (hash $hash)"
 }
 
+# Write both primary (lgt-*) and legacy (csp-*) markers so older installs keep working.
+write_policy_acceptance_pair() {
+  local dir="$1"
+  local hash="$2"
+  local via="$3"
+  write_policy_acceptance "$dir/lgt-policy-accepted" "$hash" "$via"
+  write_policy_acceptance "$dir/csp-policy-accepted" "$hash" "$via"
+}
+
+# True if either lgt or legacy csp marker matches.
+policy_acceptance_matches_any() {
+  local dir="$1"
+  local want_hash="$2"
+  policy_acceptance_matches "$dir/lgt-policy-accepted" "$want_hash" \
+    || policy_acceptance_matches "$dir/csp-policy-accepted" "$want_hash"
+}
+
+# Ensure both marker names exist when one already matches (upgrade path). Does not
+# overwrite a matching marker (preserves agree_via / accepted_at).
+ensure_policy_acceptance_twins() {
+  local dir="$1"
+  local hash="$2"
+  local via="${3:-prior-marker}"
+  if ! policy_acceptance_matches "$dir/lgt-policy-accepted" "$hash"; then
+    write_policy_acceptance "$dir/lgt-policy-accepted" "$hash" "$via"
+  fi
+  if ! policy_acceptance_matches "$dir/csp-policy-accepted" "$hash"; then
+    write_policy_acceptance "$dir/csp-policy-accepted" "$hash" "$via"
+  fi
+}
+
 require_policy_agreement() {
-  local hash legal_dir name marker_user marker_project via="" origin="" web="" answer=""
+  local hash legal_dir name marker_user_dir marker_project_dir via="" origin="" web="" answer=""
   legal_dir="$KIT_ROOT/docs/legal"
   if [[ ! -d "$legal_dir" ]]; then
     echo "error: public policy directory missing: $legal_dir" >&2
@@ -506,27 +546,29 @@ require_policy_agreement() {
     exit 1
   fi
 
-  marker_user="$HOME/.cursor/csp-policy-accepted"
-  marker_project=""
+  marker_user_dir="$HOME/.cursor"
+  marker_project_dir=""
   if [[ -n "${PROJECT:-}" && "$USER_ONLY" -eq 0 ]]; then
-    marker_project="$PROJECT/.cursor/csp-policy-accepted"
+    marker_project_dir="$PROJECT/.cursor"
   fi
 
-  if [[ -n "$marker_project" ]] && policy_acceptance_matches "$marker_project" "$hash"; then
-    echo "policy: already accepted ($marker_project)"
+  if [[ -n "$marker_project_dir" ]] && policy_acceptance_matches_any "$marker_project_dir" "$hash"; then
+    echo "policy: already accepted ($marker_project_dir/lgt-policy-accepted or csp-policy-accepted)"
+    ensure_policy_acceptance_twins "$marker_project_dir" "$hash" "prior-marker"
     return 0
   fi
-  if policy_acceptance_matches "$marker_user" "$hash"; then
-    echo "policy: already accepted ($marker_user)"
-    if [[ -n "$marker_project" ]]; then
-      write_policy_acceptance "$marker_project" "$hash" "prior-user"
+  if policy_acceptance_matches_any "$marker_user_dir" "$hash"; then
+    echo "policy: already accepted ($marker_user_dir/lgt-policy-accepted or csp-policy-accepted)"
+    ensure_policy_acceptance_twins "$marker_user_dir" "$hash" "prior-marker"
+    if [[ -n "$marker_project_dir" ]]; then
+      write_policy_acceptance_pair "$marker_project_dir" "$hash" "prior-user"
     fi
     return 0
   fi
 
   echo
   echo "Public policy agreement required before install/update continues."
-  echo "Product: the kit (working title) — name options: $legal_dir/NAME-OPTIONS.md"
+  echo "Product: Loregate (LGT) — $legal_dir/NAME-OPTIONS.md"
   echo "Please read these documents in the kit checkout:"
   for name in "${POLICY_DOC_NAMES[@]}"; do
     echo "  - $legal_dir/$name"
@@ -555,19 +597,19 @@ require_policy_agreement() {
         via="prompt"
         ;;
       *)
-        echo "Aborted: public policy not accepted. Re-run with --agree-policy / --i-agree (or CSP_AGREE_POLICY=1)." >&2
+        echo "Aborted: public policy not accepted. Re-run with --agree-policy / --i-agree (or LGT_AGREE_POLICY=1 / CSP_AGREE_POLICY=1)." >&2
         exit 1
         ;;
     esac
   else
-    echo "error: non-interactive install requires --agree-policy (or --i-agree / CSP_AGREE_POLICY=1)" >&2
+    echo "error: non-interactive install requires --agree-policy (or --i-agree / LGT_AGREE_POLICY=1 / CSP_AGREE_POLICY=1)" >&2
     echo "       after you have read docs/legal/ (Privacy, Terms, Disclaimer, NOTICE)." >&2
     exit 1
   fi
 
-  write_policy_acceptance "$marker_user" "$hash" "$via"
-  if [[ -n "$marker_project" ]]; then
-    write_policy_acceptance "$marker_project" "$hash" "$via"
+  write_policy_acceptance_pair "$marker_user_dir" "$hash" "$via"
+  if [[ -n "$marker_project_dir" ]]; then
+    write_policy_acceptance_pair "$marker_project_dir" "$hash" "$via"
   fi
 }
 
@@ -587,6 +629,7 @@ apply_pipeline_language
 # Curated third-party skills from skill-map (human-launched installer only).
 # npx/network failure must not brick kit links.
 if [[ "$SKIP_THIRD_PARTY_SKILLS" -eq 1 ]]; then
+  export LGT_SKIP_THIRD_PARTY_SKILLS=1
   export CSP_SKIP_THIRD_PARTY_SKILLS=1
 fi
 mtp_install_curated "${PROJECT:-}"
@@ -599,12 +642,13 @@ elif [[ "$USER_ONLY" -eq 1 ]]; then
   echo
   echo "NOTE: --user-only only links into ~/.cursor/agents|commands|skills."
   echo "  • In Cursor IDE: reload the window, then @csp-engineer-reviewer / @csp-pr-reviewer (subagents)."
-  echo "  • Cursor CLI completions often list only <project>/.cursor/agents — run \`csp install\` from your app (no --user-only) for project-visible agents."
+  echo "  • Cursor CLI completions often list only <project>/.cursor/agents — run \`lgt install\` from your app (no --user-only) for project-visible agents."
   echo "  • Check: ls -la ~/.cursor/agents"
 fi
-echo "next: open the project in Cursor → /csp-start-task  /csp-approve-plan  /csp-pr-review  /csp-engineer-review"
+echo "next: open the project in Cursor → /lgt-start-task  /lgt-approve-plan  /lgt-pr-review  /lgt-engineer-review"
+echo "tip: deprecated /csp-* command stubs still install and forward to /lgt-*"
 echo "tip: mapped third-party skills are installed from skill-map.md unless --skip-third-party-skills"
-echo "tip: policy agreement → .cursor/csp-policy-accepted (docs/legal/); product rename options → docs/legal/NAME-OPTIONS.md"
+echo "tip: policy agreement → .cursor/lgt-policy-accepted (and legacy csp-policy-accepted); docs/legal/"
 if [[ -z "$PIPELINE_LANGUAGE" ]]; then
-  echo "tip: set chat language with --language <code> / --lang <code> or CSP_PIPELINE_LANGUAGE (default en when unset; Russian forbidden)"
+  echo "tip: set chat language with --language <code> / --lang <code> or LGT_PIPELINE_LANGUAGE (alias CSP_PIPELINE_LANGUAGE; default en when unset; Russian forbidden)"
 fi

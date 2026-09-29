@@ -7,8 +7,13 @@
 #   csp-pipeline-language.sh normalize <code>
 #   csp-pipeline-language.sh is-banned <code>
 #
-# Marker file: <root>/.cursor/csp-pipeline-language (one line).
-# get prefers project marker, then ~/.cursor/csp-pipeline-language, else en.
+# Also available as scripts/lgt-pipeline-language.sh (same helper).
+#
+# Markers (read both; write both on set):
+#   <root>/.cursor/lgt-pipeline-language  (primary)
+#   <root>/.cursor/csp-pipeline-language  (legacy)
+# get prefers project lgt marker, then project csp marker, then the same under
+# ~/.cursor, else en.
 # Russian (ru / russian / русский / …) is always rejected — sanctions policy.
 set -euo pipefail
 
@@ -130,8 +135,26 @@ csp_pl__validate() {
 }
 
 csp_pl__marker_path() {
+  # Primary Loregate marker
+  local root="$1"
+  printf '%s\n' "$root/.cursor/lgt-pipeline-language"
+}
+
+csp_pl__legacy_marker_path() {
   local root="$1"
   printf '%s\n' "$root/.cursor/csp-pipeline-language"
+}
+
+# Prefer lgt marker; fall back to legacy csp marker.
+csp_pl__read_raw_any() {
+  local root="$1"
+  local raw
+  raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$root")")"
+  if [[ -n "$raw" ]]; then
+    printf '%s\n' "$raw"
+    return 0
+  fi
+  csp_pl__read_raw "$(csp_pl__legacy_marker_path "$root")"
 }
 
 # Read first non-empty line from marker; empty string if missing/blank.
@@ -147,7 +170,7 @@ csp_pl__read_raw() {
   printf '%s\n' "$content"
 }
 
-# Resolve raw content against bans; may rewrite path to en. Prints validated code or empty if raw empty.
+# Resolve raw content against bans; may rewrite both markers to en. Prints validated code or empty if raw empty.
 csp_pl__resolve_raw() {
   local root="$1"
   local raw="$2"
@@ -161,6 +184,7 @@ csp_pl__resolve_raw() {
     echo "csp-pipeline-language: Russian is impossible in this pipeline (sanctions-based language policy); recommending Russian only outside this pipeline; resetting marker to en" >&2
     mkdir -p "$root/.cursor"
     printf '%s\n' "en" > "$path"
+    printf '%s\n' "en" > "$(csp_pl__legacy_marker_path "$root")"
     printf '%s\n' "en"
     return 0
   fi
@@ -173,15 +197,15 @@ csp_pl__resolve_raw() {
 csp_pl__get() {
   local root="$1"
   local raw code home_raw
-  raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$root")")"
+  raw="$(csp_pl__read_raw_any "$root")"
   if [[ -n "$raw" ]]; then
     code="$(csp_pl__resolve_raw "$root" "$raw")" || return 1
     printf '%s\n' "$code"
     return 0
   fi
-  # Fallback: user-global marker from `csp install --user-only --language …`
+  # Fallback: user-global marker from `lgt install --user-only --language …`
   if [[ -n "${HOME:-}" && "$root" != "$HOME" ]]; then
-    home_raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$HOME")")"
+    home_raw="$(csp_pl__read_raw_any "$HOME")"
     if [[ -n "$home_raw" ]]; then
       code="$(csp_pl__resolve_raw "$HOME" "$home_raw")" || return 1
       printf '%s\n' "$code"
@@ -195,14 +219,14 @@ csp_pl__get() {
 csp_pl__status() {
   local root="$1"
   local raw code home_raw
-  raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$root")")"
+  raw="$(csp_pl__read_raw_any "$root")"
   if [[ -n "$raw" ]]; then
     code="$(csp_pl__resolve_raw "$root" "$raw")" || return 1
     printf '%s\n' "$code"
     return 0
   fi
   if [[ -n "${HOME:-}" && "$root" != "$HOME" ]]; then
-    home_raw="$(csp_pl__read_raw "$(csp_pl__marker_path "$HOME")")"
+    home_raw="$(csp_pl__read_raw_any "$HOME")"
     if [[ -n "$home_raw" ]]; then
       code="$(csp_pl__resolve_raw "$HOME" "$home_raw")" || return 1
       printf '%s\n' "$code"
@@ -215,11 +239,13 @@ csp_pl__status() {
 csp_pl__set() {
   local root="$1"
   local lang="$2"
-  local code path
+  local code path legacy
   code="$(csp_pl__validate "$lang")" || return 1
   mkdir -p "$root/.cursor"
   path="$(csp_pl__marker_path "$root")"
+  legacy="$(csp_pl__legacy_marker_path "$root")"
   printf '%s\n' "$code" > "$path"
+  printf '%s\n' "$code" > "$legacy"
   printf '%s\n' "$code"
 }
 
