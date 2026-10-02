@@ -53,6 +53,15 @@ Immediately after entry conditions pass, follow [references/branch-setup.md](ref
 
 Never implement on the default branch. Never invent repos the plan does not touch.
 
+## Graphify (when present)
+
+Load skill **`graphify-pipeline`** and [stages.md](../graphify-pipeline/references/stages.md):
+
+1. **After branch setup**, before Task 1: `detect` + `impact-hint` from plan paths or AC files; keep a compact `impact_hint` for implementers.
+2. **After verification passes**, before handoff: `refresh` **each** target repo; include `graphify_refresh: ok|skipped|failed` in the handoff block.
+
+If graphify is absent or the CLI is missing, continue without blocking.
+
 ## Skill routing
 
 1. **Stack detection** — mechanical table lookup in [`skill-map.md`](../engineer-review/references/skill-map.md) (same signals as engineer-review). Zero inventing of stack labels. Detect **per target repo** when the run spans multiple.
@@ -112,6 +121,8 @@ plan_path: <path or none>
 repo_branch_map:
   - <repo> → <branch>
 verification: <lint/test/typecheck evidence>
+graphify: used|absent|unqueryable
+graphify_refresh: ok|skipped|failed
 ```
 
 - **Full path `next_skill`:** `finish-plan` (do not skip the HITL review gate).

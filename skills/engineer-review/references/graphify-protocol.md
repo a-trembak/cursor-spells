@@ -2,13 +2,15 @@
 
 Shared detect / query / fallback rules for **single-repo** engineer-review scoping. Multi-repo discovery still follows [`multi-repo-protocol.md`](multi-repo-protocol.md).
 
-**Load routing:** orchestrator loads **this** file (detect + impact + orch hook). R3 force-include neighborhood: [`graphify-r3-force-include.md`](graphify-r3-force-include.md) — phase-owned.
+**Kit skill:** [`graphify-pipeline`](../../graphify-pipeline/SKILL.md) — detect/query/refresh script and stage routing. Implement agents run **`refresh` after verify**; this review file stays **read-only** on the graph.
+
+**Load routing:** orchestrator loads **this** file (detect + impact + orch hook). Prefer `scripts/graphify-pipeline.sh` for detect/query. R3 force-include neighborhood: [`graphify-r3-force-include.md`](graphify-r3-force-include.md) — phase-owned.
 
 ## Policy
 
 - **Preferred when present.** If a graphify build exists and can answer, use it to narrow deep-reads and answer call/impact questions instead of broad repo walks or pasting large diffs.
 - **Absent = current path.** If artifacts or the CLI are missing, or a query cannot answer, continue with `git diff` + chunking + targeted reads. Do not fail, block, or ask the user to install graphify mid-review.
-- **Never rebuild during review.** Do not run a full `graphify` build/regenerate under review. Only read existing artifacts and run `graphify query` against them.
+- **Never rebuild during review.** Do not run `graphify update` or a full rebuild under review. Only read existing artifacts and run `graphify query` (or `graphify-pipeline.sh query`) against them. Fresh graphs are the job of **software-developer** / **bug-fix** handoff (`graphify-pipeline.sh refresh`).
 
 ## Detect
 
