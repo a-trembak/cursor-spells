@@ -96,6 +96,12 @@ Fill when the change touches auth, sessions, queries, uploads, secrets, HTML sin
 - Secret / PII logging and client-visible errors:
 - Kit: `skills/engineer-review/references/security-hardening-checklist.md` (**S1–S11**). Missing third-party `security-review` is not a skip. Writers (`csp-software-developer` / `csp-bug-fixer`) load the same checklist on these surfaces.
 
+## Graphify (optional)
+
+- Enabled: yes | no   # yes when `graphify-out/` exists at repo root or workspace parent
+- Report path: `graphify-out/GRAPH_REPORT.md`
+- Pipeline: skill `graphify-pipeline` + `scripts/graphify-pipeline.sh` (scope before code; **refresh after verify** on implement paths; read-only during engineer-review)
+
 ## Review learnings (project-private)
 
 - Ledger path: `.cursor/review-learnings.md` (create only after `project_secret`; template in kit)

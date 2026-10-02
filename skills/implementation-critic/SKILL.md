@@ -34,6 +34,7 @@ If a lens's skill is not installed, fall back to its built-in checklist (see [re
 
 1. Read the plan file (and tech spec / AC / Jira context if a path was given or discoverable next to the plan).
 2. Read `.cursor/project-patterns.md` in the **current project** (not the kit) if present — Pass A's "simpler alternative" and "existing abstraction" checks need it.
+2b. When the plan names concrete paths and graphify is present: load skill **`graphify-pipeline`**, run `impact-hint` for those paths, and use the compact output in Pass B / Pass C blast-radius notes (read-only — no refresh).
 3. Run Pass A, then Pass B, over the same plan (see [references/lenses.md](references/lenses.md) for each pass's checklist).
 4. If this is a bug-fix plan (path/topic `-fix`, `/lgt-start-issue-task`, or plan states it fixes a defect): run **Pass C**. Otherwise set Coverage `pass_c: n/a (not a bug-fix plan)`.
 5. Classify every finding as `must-fix`, `should-fix`, or `accept-risk` (see [references/output-schema.md](references/output-schema.md)).
