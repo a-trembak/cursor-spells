@@ -294,6 +294,8 @@ Prefer `/lgt-write-tech-spec [ac-source]` directly if you only want the tech spe
 
 `/lgt-start-issue-task [jira-key|url]` fetches the issue via **Atlassian MCP** (skill `jira-fetch`; stops if MCP fails — paste text then), moves it to **In Progress**, writes a fix plan, auto-runs `implementation-critic` (Pass A/B/**C**), HITL only if critic is blocked/pending accept, then `csp-bug-fixer` → `csp-engineer-reviewer` → `local-diff-review-gate` → `propose-commit` → `create-pr` (Pipeline finale; Jira comment options when the key is known; `ready` / `ready_jira` move the ticket to **Review** only after every opened pull request is merged and every continuous-integration build succeeded). Always this path when invoked explicitly, even if the type is Story.
 
+**Pay-as-you-go / on-demand budget:** `/lgt-start-issue-task-on-demand [jira-key|url]` — same issue pipeline with a built-in orchestration contract (GLM 5.3 Flash in chat, Composer 2.5 for `csp-bug-fixer`, graphify scope + refresh, narrow context). Deprecated alias: `/csp-start-issue-task-on-demand`.
+
 ### Capture a production escape
 
 `/lgt-capture-escape [what slipped]` records a production miss without a full `engineer-review`. It asks **Capture-escape destination**: `miss` writes kit instructions via `teach-review`; `project_secret` writes this project's `.cursor/review-learnings.md` only (client names that must not enter the kit).
