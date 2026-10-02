@@ -1,5 +1,5 @@
 ---
-description: Bug-fix issue pipeline with on-demand budget defaults — Flash orchestrator, Composer bug-fixer, graphify scope/refresh, narrow context.
+description: Bug-fix issue pipeline with on-demand budget defaults — Flash orchestrator, Composer 2.5 nested Tasks, graphify scope/refresh, narrow context.
 argument-hint: "[jira-key|jira-url]"
 ---
 
@@ -17,12 +17,33 @@ Apply for the **entire** run unless the human overrides in the same message:
 
 | Role | Model | Notes |
 |------|--------|--------|
-| **This chat** (Jira fetch, plan, critic, HITL, orientation) | **GLM 5.3 Flash** | Cheapest orchestration; keep replies concise |
-| **Nested Task `csp-bug-fixer`** | **Composer 2.5** (standard, **not** Fast) | Tool use and edits in Cursor |
+| **This chat** (orchestrator — all steps) | **GLM 5.3 Flash** | Jira, plan, HITL, dispatch nested Tasks, orientation; keep replies concise |
+| **Every pipeline nested Task** (steps 4–6) | **`composer-2.5`** | Standard Composer 2.5 — **not** `composer-2.5-fast` |
 
-**Before step 5 (Fix):** if the active agent model is not Composer 2.5 standard, **stop once** and tell the human to switch the Agent model to **Composer 2.5** (not Fast), then continue with dispatch. Do not dispatch `csp-bug-fixer` on Flash or frontier models unless the human explicitly opts out in chat after the prompt.
+The human sets **only** the parent Agent model to **GLM 5.3 Flash**. They do **not** switch the parent to Composer for critic or review.
 
-After `csp-bug-fixer` returns, the human may switch back to **GLM 5.3 Flash** for short HITL before engineer-review.
+### Nested Task `model` parameter (mandatory)
+
+Cursor inherits the parent model when `model` is omitted. In this mode that would run critics and fixers on Flash — **forbidden**.
+
+For **each** nested **Task** in steps 4–6, pass an explicit model slug:
+
+```text
+model: "composer-2.5"
+```
+
+| Step | `subagent_type` | `model` |
+|------|-----------------|--------|
+| 4 — Critic | `csp-implementation-critic` | `composer-2.5` |
+| 5 — Fix | `csp-bug-fixer` | `composer-2.5` |
+| 6 — Engineer review | `csp-engineer-reviewer` or `csp-multi-repo-supervisor` | `composer-2.5` |
+
+- Dispatch in the **same turn** as the decision to run that step — **wait** for the Task to return before the next pipeline step.
+- **Forbidden:** status-only chat ("launching plan critic") without a Task call.
+- **Forbidden:** running Pass A/B/C or product edits **inline** in the parent on Flash — those steps belong in the nested Task on `composer-2.5`.
+- If Task dispatch fails, retry once with the same `subagent_type` and `model: "composer-2.5"`. If it still fails, stop and report the error — do not ask the human to change the **parent** model to Composer unless they opt in.
+
+Engineer-review **phase** subagents spawned by `csp-engineer-reviewer` follow that agent's protocol; the orchestrator's step-6 Task still uses `model: "composer-2.5"`.
 
 ### Graphify
 
@@ -53,5 +74,5 @@ Do not duplicate or replace the issue-task steps — only add the contract const
 
 ## Notes
 
-- Full-price / default models → use `/lgt-start-issue-task` without this wrapper.
+- Full-price / default models → use `/lgt-start-issue-task` without this wrapper (nested Tasks may inherit the parent model).
 - Feature work → `/lgt-start-task` or `/lgt-start-task --fast`, not this command.
