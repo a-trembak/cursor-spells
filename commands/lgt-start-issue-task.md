@@ -48,6 +48,7 @@ Bug-fix entry point. Chains diagnose → plan → critic → fix → review → 
 
 ## Notes
 
+- **On-demand / pay-as-you-go budget:** use **`/lgt-start-issue-task-on-demand`** — same pipeline with a built-in model + graphify + scope contract (Flash orchestrator, Composer bug-fixer). No need to paste a custom prompt each run.
 - This command never invents answers at critic/clarify HITL gates.
 - Full feature work with AC → use `/lgt-start-task` (it fetches Jira and routes Bugs here). Small non-bug tasks without Jira → `/lgt-start-task --fast`.
 - Explicit `/lgt-start-issue-task` always stays on the issue pipeline even if the Jira type is Story/Task.
